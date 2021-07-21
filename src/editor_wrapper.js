@@ -290,6 +290,10 @@ class EditorWrapper{
         // Don't state opened tabs as unsaved, just loaded from disk!
         if(fileHandler == undefined){
             this.changeTabToUnsaved();
+        }else{
+            // Open files are already saved, make not of that or 
+            // the first char will be cut off when uploading to RP2040
+            this.SESSIONS[this.LAST_SELECTED_TAB_ID]["savestate"] = true;
         }
 
         // Check if this tab can be closed in one click (unless edits were made of course)

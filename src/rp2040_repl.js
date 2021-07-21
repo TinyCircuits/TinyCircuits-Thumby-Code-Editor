@@ -5,6 +5,16 @@
 // from the browser. Based on Thonny source.
 
 
+// Used to turn ASCII unto hex string that is typical for Python
+// https://stackoverflow.com/questions/33920230/how-to-convert-string-from-ascii-to-hexadecimal-in-javascript-or-jquery/33920309#33920309
+// can use delim = '\\x' for Python like hex/byte string (fails for unicode characters)
+String.prototype.convertToHex = function (delim) {
+    return this.split("").map(function(c) {
+        return ("0" + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(delim || "");
+};
+
+
 class RP2040REPL{
     
     // Define common objects used within this class right on object init
@@ -458,18 +468,25 @@ class RP2040REPL{
 
     // Uploads <contents> to RP2040 under file named <name>
     async uploadCustomFile(name, contents){
-        contents = contents.split('\n');
-        await this.executeCustomCommand("onboard_file = open('" + name + "','wb')");
+        // First, split string for \n, \r, and \r\n
+        contents = contents.split(/\r\n|\n|\r/);
 
+        var combined = "";
         for(var row=0; row<contents.length; row++){
-            await this.executeCustomCommand("onboard_file.write(b'" + contents[row] + "\\n')");
+            combined = combined + contents[row] + "\n";
         }
+        combined = "\\x" + combined.convertToHex('\\x');
 
+        // Send the whole file in one go (I feel like this shouldn't work
+        // since Thonny does it in blocks becuase of a USB limit? How does
+        // WebSerial send the data? In blocks?)
+        await this.executeCustomCommand("onboard_file = open('" + name + "','wb')");
+        await this.executeCustomCommand("onboard_file.write(b\"" + combined + "\")");
         await this.executeCustomCommand("onboard_file.close()");
-
+        
         // Get the filesystem tree first and wait for filter
         // to change indicating webpage recevied FS info.
-        // Fixes blank files no being shown in filesystem view
+        // Fixes blank/epmty files not being shown in filesystem view
         // File operations are fast enough that it may not be a problem
         // doing this right away
         await this.getOnBoardFSTree();

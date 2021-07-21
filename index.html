@@ -163,6 +163,16 @@
     .tools-tab:hover{
       background-color: #2997ca;
     }
+    .tools-header {
+      background-color: white;
+      grid-column: 1 / 21;
+      grid-row: 1 / 3;
+      display: flex;
+      color: black;
+      justify-content: space-around;
+      align-items: center;
+      font-size: 16px;
+    }
 
     .onboardfiles-overall {
       border-style: solid;
@@ -467,7 +477,6 @@
   </style>
 
   <link rel="stylesheet" href="node_modules/xterm/css/xterm.css" />
-  <script src="node_modules/xterm/lib/xterm.js"></script>
 </head>
 
 
@@ -484,9 +493,10 @@
     
     <div id="toolsoverall" class="tools-overall">
       <div id="toolstabsarea" class="tools-tabsarea">
-        <button id="capturetab" class="tools-tab">Capture</button>
-        <button id="capturetab" class="tools-tab">Bitmap Builder</button>
-        <button id="capturetab" class="tools-tab">Emulator</button>
+        <!-- <button id="capturetab" class="tools-tab">Capture</button> -->
+        <!-- <button id="capturetab" class="tools-tab">Bitmap Builder</button> -->
+        <!-- <button id="capturetab" class="tools-tab">Emulator</button> -->
+        <div id="bitmapbuilderparent" class="tools-header">Bitmap Builder</div>
       </div>
       <div id="toolsrenderarea" class="tools-renderarea"></div>
     </div>
@@ -538,6 +548,7 @@
 
   <script src="src/ace-builds/src/ace.js" type="text/javascript" charset="utf-8"></script>
   <script src="node_modules/xterm-addon-fit/lib/xterm-addon-fit.js"></script>
+  <script src="node_modules/xterm/lib/xterm.js"></script>
   <script src="src/rp2040_repl.js"></script>
   <script src="src/active_terminal_wrapper.js"></script>
   <script src="src/treejs/tree.js"></script>
