@@ -7,7 +7,7 @@ class BITMAP_BUILDER{
         this.CELL_SIZE_PX = 28;
 
         // HOw many pixels to scale cell size by on zoom event
-        this.ZOOM_STEP_PX = 5;
+        this.ZOOM_STEP_PX = 1.5;
 
         // Used to track number of times bitmaps exported, used to give each variable unqiue, 'enough', name
         this.BITMAP_EXPORT_COUNT = 0;
