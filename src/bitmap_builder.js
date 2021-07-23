@@ -235,22 +235,37 @@ class BITMAP_BUILDER{
         var varName = "bitmap";
         var foundName = false;  // Used to set true so framebuffer line not output if name found
 
-        if(selectedLines != undefined && selectedLines != "" && selectedLines != " " && selectedLines != "\n" && selectedLines.indexOf('=') != -1){
+        // String that holds all export information for editor
+        var str = "";
+
+        // If selected lines dones't equal any of the below, and there is only one equals sign 
+        // (meaning just the array selected) then use existing name from editor (splits into 2 elements)
+        // Also ensure no newlines before the equals because that means user has selected line before name
+        // and now don't know where start of name is otherwise
+        if( selectedLines != undefined && selectedLines != "" && 
+            selectedLines != " " && selectedLines != "\n" && 
+            selectedLines.indexOf('=') != -1 && selectedLines.split("=").length == 2 && 
+            (selectedLines.indexOf('\n') == -1 || selectedLines.indexOf('\n') > selectedLines.indexOf('='))){
+
+            // Do one more check, th
             var startExtractNameIndex = 0;
             var endExtractNameIndex = selectedLines.indexOf('=') - 1;   // Get rid of the space at the end, it will be readded
             varName = selectedLines.substring(startExtractNameIndex, endExtractNameIndex);
             foundName = true;
         }else{
+            // just use the default generated name since no names were found
             varName = varName + this.BITMAP_EXPORT_COUNT.toString();    // Add index to make name unqiue when a name was NOT found
+
+            // Add dimensions of bitmap to a comment above the buffer (if selected on import, will use these instead of asking user), only on not finding name
+            str = str + "# BITMAP: width: " + this.COLUMN_COUNT.toString() + ", height: " + this.ROW_COUNT.toString() + "\n";
         }
 
-        // Make a string for base of new var name, start what it will be equal to
-        var newVarNameBase = varName;
-        var str = ""; 
-        str = str + newVarNameBase + " = (";
+        // Start the actual array
+        str = str + varName + " = (";
 
         // Track number of spaces needed to offset (EX spaces needed = len('bitmap33 = (')))
-        var spaceIndentCount = str.length;
+        var spaceIndentCount = (varName + " = (").length;
+        console.log(varName);
 
         // Loop through grid data in pages COLUMN_COUNT long but 8 thick (each column of 8 is a byte for buffer)
         for(var scanRow=0; scanRow<this.ROW_COUNT; scanRow+=8){
@@ -277,6 +292,7 @@ class BITMAP_BUILDER{
             if(scanRow+8 < this.ROW_COUNT){
                 str = str + "\n";
 
+                // Indent next lines to be even with the top-most line
                 for(var indent=0; indent<spaceIndentCount; indent++){
                     str = str + " ";
                 }
@@ -288,7 +304,7 @@ class BITMAP_BUILDER{
 
         // Only output framebuffer if name was NOT found (don't want to do it twice++)
         if(!foundName){
-            str = str + "\n"  + newVarNameBase + "FBuffer = FrameBuffer(bytearray(" + newVarNameBase + "), " + this.COLUMN_COUNT.toString() + ", " + this.ROW_COUNT.toString() + ", MONO_VLSB)";
+            str = str + "\n"  + varName + "FBuffer = FrameBuffer(bytearray(" + varName + "), " + this.COLUMN_COUNT.toString() + ", " + this.ROW_COUNT.toString() + ", MONO_VLSB)";
             // Keep track of the number of times bitmaps exported, used in name (but only when name was not found)
             this.BITMAP_EXPORT_COUNT++;
         }
@@ -303,7 +319,7 @@ class BITMAP_BUILDER{
     // any point returns 0, else 1
     importBitmap(selectedLines){
         // Check that lines exist, are not completly empty of characters
-        if(selectedLines != undefined && selectedLines != ""){
+        if(selectedLines != undefined && selectedLines != "" && selectedLines.split("=").length == 2){
             // Get what should be start and end of array
             var arrayStartIndex = selectedLines.indexOf('(');
             var arrayEndIndex = selectedLines.indexOf(')');
@@ -325,23 +341,35 @@ class BITMAP_BUILDER{
                 convertedArrayContent[i] = parseInt(splitArrayContent[i], 10);
             }
             
-            // Ask the user for the dimensions of the bitmap to import since that could be
-            // else where in the code by now. If user cancels, stop import but dont anything
-            var bitmapWidth = prompt("Enter WIDTH of importing bitmap: ", 8);
-            if(bitmapWidth == null){
-                return 0;   // User canceled
-            }
 
-            var bitmapHeight = prompt("Enter HEIGHT of importing bitmap: ", 8);
-            if(bitmapHeight == null){
-                return 0;   // User canceled
+            // Before asking user for width,height, try to see if comment included with embedded information
+            var bitmapWidth = 8;
+            var bitmapHeight = 8;
+            if(selectedLines.indexOf("# BITMAP: width: ") != -1 && selectedLines.indexOf(", height: ") != -1 && selectedLines.indexOf("\n") != -1){
+                var widthEndHeightStartIndex = selectedLines.indexOf(", height: ");
+                bitmapWidth = parseInt(selectedLines.substring(17, widthEndHeightStartIndex), 10);
+                bitmapHeight = parseInt(selectedLines.substring(widthEndHeightStartIndex+10, selectedLines.indexOf("\n")), 10);
+            }else{
+                // Ask the user for the dimensions of the bitmap to import since that could be
+                // else where in the code by now. If user cancels, stop import but dont anything
+                bitmapWidth = prompt("Enter WIDTH of importing bitmap: ", 8);
+                if(bitmapWidth == null){
+                    return 0;   // User canceled
+                }
+
+                bitmapHeight = prompt("Enter HEIGHT of importing bitmap: ", 8);
+                if(bitmapHeight == null){
+                    return 0;   // User canceled
+                }
+                bitmapWidth = parseInt(bitmapWidth, 10);
+                bitmapHeight = parseInt(bitmapHeight, 10);
             }
 
             // Don't set the row and column count yet or the grid data,
             // the user could have entered the wrong dimensions and this
             // fails
-            var tempRowCount = parseInt(bitmapHeight, 10);
-            var tempColumnCount = parseInt(bitmapWidth, 10);
+            var tempRowCount = bitmapHeight;
+            var tempColumnCount = bitmapWidth;
 
             // Make sure entered dimensions are not too big, if so let user know and stop
             if(tempRowCount > 40 || tempColumnCount > 72){
@@ -353,14 +381,14 @@ class BITMAP_BUILDER{
             var tempGridData = new Array(tempRowCount).fill(this.BACKGROUND_VALUE).map(() => new Array(tempColumnCount).fill(this.BACKGROUND_VALUE));
 
             // Ask user if they are OK with going forward if some of the data in the array will not be accessed
-            if((Math.floor(tempRowCount/8)-1) * tempColumnCount + (tempColumnCount-1) < convertedArrayContent.length-1){
-                if(!confirm("The entered dimensions will not use all the data in the selected array, are you sure you want to continue?")){
+            if((Math.ceil(tempRowCount/8)-1) * tempColumnCount + (tempColumnCount-1) < convertedArrayContent.length-1){
+                if(!confirm("The entered/collected dimensions will not use all the data in the selected array, are you sure you want to continue? (if using comment to import width and height, review dimensions in comment)")){
                     return;
                 }
             }
 
             // Loop through data from lines and vertically expand each byte to bits and place in webpage grid
-            for(var dataRow=0,gridRow=0; dataRow<Math.floor(tempRowCount/8); dataRow++, gridRow+=8){
+            for(var dataRow=0,gridRow=0; dataRow<Math.ceil(tempRowCount/8); dataRow++, gridRow+=8){
                 for(var column=0; column<tempColumnCount; column++){
                     // Get the 1D element usign 2D loop values
                     var i = dataRow * tempColumnCount + column;
@@ -385,7 +413,7 @@ class BITMAP_BUILDER{
             this.COLUMN_COUNT = tempColumnCount;
             this.GRID_DATA = tempGridData;
         }else{
-            alert("No lines selected, empty, please select an array to import");
+            alert("Either no lines were selected to import or too many lines were detected. Please only select one array (0~255 elements) and an optional width & height comment line");
             return 0;   // no line sselected, lines empty
         }
     }
