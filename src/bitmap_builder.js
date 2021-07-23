@@ -23,6 +23,12 @@ class BITMAP_BUILDER{
 
         // Render grid for the first time
         this.renderGrid();
+
+        // Don't show context menu on right click grid
+        document.getElementById("bitmapbuildergrid").addEventListener("contextmenu", e => e. preventDefault());
+
+        this.CURRENT_BUTTON = 0;
+        this.HAS_HOVER_CHANGED = false;
     }
 
 
@@ -86,7 +92,8 @@ class BITMAP_BUILDER{
 
     // Delete/clear grid and then re-build using GRID_DATA
     renderGrid(){
-        // Delete/clear grid
+        // Delete/clear grid (NOTE, this element has onmouseout function that refers to this
+        // module to make cursor stop drawing when exits grid!)
         document.getElementById('bitmapbuildergrid').innerHTML = "";
 
         var rows = [];
@@ -101,13 +108,15 @@ class BITMAP_BUILDER{
                     cellColor = " style=\"background-color:black;";
                 }
 
-                var cellSize =  "width:" + this.CELL_SIZE_PX.toString() + "px;" +
-                                "height:" + this.CELL_SIZE_PX.toString() + "px;" +
-                                "min-width:" + this.CELL_SIZE_PX.toString() + "px;" +
-                                "min-height:" + this.CELL_SIZE_PX.toString() + "px;\"";
+                var cellPxSizeStr = this.CELL_SIZE_PX.toString();
+                var cellSize =  "width:" + cellPxSizeStr + "px;" +
+                                "height:" + cellPxSizeStr + "px;" +
+                                "min-width:" + cellPxSizeStr + "px;" +
+                                "min-height:" + cellPxSizeStr + "px;\"";
 
                 // Each cell refers to global class object in main.js for button clicks
-                var cell =  '<td onmouseover=\"BITMAPER.handleHover(this)\" onmouseout=\"BITMAPER.handleHover(this)\" onclick=\"BITMAPER.handleCellClick('+ row.toString() + ',' + column.toString() +')\"' + cellColor + cellSize + '>' + '</td>';
+                var cellRowColumn = row.toString() + ',' + column.toString();
+                var cell =  '<td onmouseover=\"BITMAPPER.handleHover(event, this, 0, ' + cellRowColumn + ')\" onmouseout=\"BITMAPPER.handleHover(event, this, 1, ' + cellRowColumn + ')\" onmousedown=\"BITMAPPER.handleCellClick(event, '+ cellRowColumn +')\" onmouseup=BITMAPPER.handleClickDone(event)' + cellColor + cellSize + '>' + '</td>';
 
                 colStr += cell;
             };
@@ -119,18 +128,45 @@ class BITMAP_BUILDER{
 
 
     // Each button calls this from main.js with their row and column numbers (nor strs)
-    handleCellClick(row, column){
-        if(this.GRID_DATA[row][column] == 0){
-            this.GRID_DATA[row][column] = 1;
-        }else{
+    handleCellClick(event, row, column){
+
+        if(event.buttons == 1){
             this.GRID_DATA[row][column] = 0;
+            this.CURRENT_BUTTON = 1;
+        }else if(event.buttons == 2){
+            this.GRID_DATA[row][column] = 1;
+            this.CURRENT_BUTTON = 2;
         }
         this.renderGrid();
     }
 
 
+    // For when mouse buttons are let go
+    handleClickDone(event){
+        this.CURRENT_BUTTON = 0;
+    }
+
+
+    // onmouseout doesn't work for the grid since it fires when moves
+    // is moves to cells, calculate and check manually
+    checkCursorInside(event, element, gridID){
+        element = document.getElementById(gridID);
+        var rect = element.getBoundingClientRect();
+
+        // Check if outside, if true, stop drawing until a new click happens
+        if (event.clientX < rect.left || event.clientX > rect.right &&
+            event.clientY < rect.top || event.clientY > rect.bottom) {
+            this.CURRENT_BUTTON = 0;
+            this.renderGrid();
+        }
+    }
+
+
     // Handle color change of cells since modifying style removes hover from css
-    handleHover(element){
+    handleHover(event, element, on_out, row, column){
+        event.preventDefault();
+
+        // Set the cell's color on hover
         if(element.style.backgroundColor == "white"){
             element.style.backgroundColor = "rgb(200, 200, 200)";
         }else if(element.style.backgroundColor == "rgb(200, 200, 200)"){
@@ -141,6 +177,31 @@ class BITMAP_BUILDER{
             element.style.backgroundColor = "rgb(55, 55, 55)";
         }else if(element.style.backgroundColor == "rgb(55, 55, 55)"){
             element.style.backgroundColor = "black";
+        }
+
+        // If left click down and cursor just started to hover cell, user
+        // is drawing, overwrite bits
+        if(on_out == 0){
+
+            // Only do stuff on hover if a button is pressed
+            if(this.CURRENT_BUTTON != 0){
+                if(this.CURRENT_BUTTON == 1){
+                    this.GRID_DATA[row][column] = 0;
+                }else if(this.CURRENT_BUTTON == 2){
+                    this.GRID_DATA[row][column] = 1;
+                }
+
+                // Only render again when cursor moves from cell to cell
+                if(this.HAS_HOVER_CHANGED){
+                    this.HAS_HOVER_CHANGED = false;
+                    this.renderGrid();
+                }
+            }
+        }else{
+            // This function was called from either onhover or hoverout, if
+            // it was not onhover, then that means the cursor moved from cell
+            // to cell
+            this.HAS_HOVER_CHANGED = true;
         }
     }
 
@@ -163,11 +224,28 @@ class BITMAP_BUILDER{
     }
 
 
-    // Builds bytes from bitmap data to build buffer using editor wrapper
-    exportBitmap(){
+    // Builds bytes from bitmap data to build buffer using editor wrapper.
+    // Allow selected lines to be passed so that highlited code can be used
+    // to find a variable name (this way not always needing to re-type)
+    exportBitmap(selectedLines){
         
+        // This is the default, will try to look at selected lines and 
+        // see if var name that can be used. If one can be used, will
+        // overwrite and not output framebuffer line
+        var varName = "bitmap";
+        var foundName = false;  // Used to set true so framebuffer line not output if name found
+
+        if(selectedLines != undefined && selectedLines != "" && selectedLines != " " && selectedLines != "\n" && selectedLines.indexOf('=') != -1){
+            var startExtractNameIndex = 0;
+            var endExtractNameIndex = selectedLines.indexOf('=') - 1;   // Get rid of the space at the end, it will be readded
+            varName = selectedLines.substring(startExtractNameIndex, endExtractNameIndex);
+            foundName = true;
+        }else{
+            varName = varName + this.BITMAP_EXPORT_COUNT.toString();    // Add index to make name unqiue when a name was NOT found
+        }
+
         // Make a string for base of new var name, start what it will be equal to
-        var newVarNameBase = "bitmap" + this.BITMAP_EXPORT_COUNT.toString();
+        var newVarNameBase = varName;
         var str = ""; 
         str = str + newVarNameBase + " = (";
 
@@ -206,11 +284,14 @@ class BITMAP_BUILDER{
         }
 
         // Finish up the array Python syntax and setup the framebuffer for the user to use
-        str = str + ")\n";
-        str = str + newVarNameBase + "FBuffer = FrameBuffer(bytearray(" + newVarNameBase + "), " + this.COLUMN_COUNT.toString() + ", " + this.ROW_COUNT.toString() + ", MONO_VLSB)";
+        str = str + ")";
 
-        // Kepp track of the number of times bitmaps exported, used in name
-        this.BITMAP_EXPORT_COUNT++;
+        // Only output framebuffer if name was NOT found (don't want to do it twice++)
+        if(!foundName){
+            str = str + "\n"  + newVarNameBase + "FBuffer = FrameBuffer(bytearray(" + newVarNameBase + "), " + this.COLUMN_COUNT.toString() + ", " + this.ROW_COUNT.toString() + ", MONO_VLSB)";
+            // Keep track of the number of times bitmaps exported, used in name (but only when name was not found)
+            this.BITMAP_EXPORT_COUNT++;
+        }
 
         return str;
     }

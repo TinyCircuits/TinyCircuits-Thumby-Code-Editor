@@ -561,9 +561,6 @@
       min-width: 28px;
       min-height: 28px;
     }
-    td:hover {
-      background-color: turquoise;
-    }
 
   </style>
 
@@ -590,7 +587,8 @@
         <div id="bitmapbuilderparent" class="tools-header">Bitmap Builder</div>
       </div>
       <div id="toolsrenderarea" class="tools-renderarea">
-        <div id="bitmapbuildergridarea" class="bitmapbuilder-grid-area">
+        <!-- NOTE: Bitmap build grid refers to global function for resetting mouse if mouse exists grid area (otherwise keeps drawing once mouse comes back in!) -->
+        <div id="bitmapbuildergridarea" class="bitmapbuilder-grid-area" onmousemove="BITMAPPER.checkCursorInside(event, this.firstChild, 'bitmapbuildergrid')">
           <table id="bitmapbuildergrid" class="bitmapbuilder-grid">
             <!-- bitmap_builder.js inserts stuff here-->
           </table>

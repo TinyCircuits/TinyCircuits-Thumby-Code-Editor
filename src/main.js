@@ -19,7 +19,7 @@ var RP2040 = new RP2040REPL();
 var FS = null;
 
 // Setup bitmap creator utility with 8 x 8 pixel sprite sheet/grid
-var BITMAPER = new BITMAP_BUILDER(8, 8);
+var BITMAPPER = new BITMAP_BUILDER(8, 8);
 
 
 // Page is now setup, check for serial and tell user through terminal about state
@@ -225,29 +225,29 @@ async function fileMenuVisibility(on_off){
 function handleBitmapBuilderClicks(buttonID){
     switch(buttonID){
         case 0:     // Apply Size
-            BITMAPER.setGridSize(document.getElementById("bitmapperheight").value, document.getElementById("bitmapperwidth").value);
-            BITMAPER.renderGrid();
+            BITMAPPER.setGridSize(document.getElementById("bitmapperheight").value, document.getElementById("bitmapperwidth").value);
+            BITMAPPER.renderGrid();
         break;
         case 1:     // Z+
-            BITMAPER.zoomIn();
+            BITMAPPER.zoomIn();
         break;
         case 2:     // Z-
-            BITMAPER.zoomOut();
+            BITMAPPER.zoomOut();
         break;
         case 3:     // Invert
-            BITMAPER.invertGrid();
-            BITMAPER.renderGrid();
+            BITMAPPER.invertGrid();
+            BITMAPPER.renderGrid();
         break;
         case 4:     // Clear
-            BITMAPER.clearGrid();
-            BITMAPER.renderGrid();
+            BITMAPPER.clearGrid();
+            BITMAPPER.renderGrid();
         break;
         case 5:     // Import (from editor selected lines)
-            BITMAPER.importBitmap(EDITOR.getSelectedText());
-            BITMAPER.renderGrid();
+            BITMAPPER.importBitmap(EDITOR.getSelectedText());
+            BITMAPPER.renderGrid();
         break;
         case 6:     // Export (to editor)
-            EDITOR.insert(BITMAPER.exportBitmap());
+            EDITOR.insert(BITMAPPER.exportBitmap(EDITOR.getSelectedText()));
         break;
     }
     
