@@ -381,4 +381,16 @@ class EditorWrapper{
             children[i].style.backgroundColor = color;
         }
     }
+
+
+    // Wrapper for the ACE editor insert function, used for exporting custom bitmaps to editor
+    insert(str){
+        this.ACE_EDITOR.insert(str);
+    }
+
+
+    // Wrapper for ACE editor getSelectedText function, used for getting custom bitmaps from editor
+    getSelectedText(){
+        return this.ACE_EDITOR.getSelectedText();
+    }
 }

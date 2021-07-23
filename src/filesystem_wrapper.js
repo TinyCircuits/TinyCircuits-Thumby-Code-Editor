@@ -8,6 +8,11 @@ class FILESYSTEM{
         this.FS_TREE = new TreeView(this.FS_ROOT, this.ELEM);       // Create the tree
         this.FS_TREE.reload();                                      // Always use this, when you change the TreeView or any of its node
 
+        // 'Waitng' text already centered, remove these so filesystem not centered
+        this.ELEM.style.display = "block";
+        this.ELEM.style.alignItems = "none";
+        this.ELEM.style.justifyContent = "none";
+
         // this.COPYING_NODE = undefined;                              // Store node that is currently being copied when copy button pressed
     }
 
@@ -17,7 +22,8 @@ class FILESYSTEM{
         var currentNode = node;
         var path = "";
         while(currentNode != undefined){
-            path = "\\" + currentNode.toString() + path;
+            // Although we represent the filesystem with '\', RP2040 MicroPython wants '/' in paths
+            path = "/" + currentNode.toString() + path;
             currentNode = currentNode.parent;
         }
 
@@ -93,7 +99,8 @@ class FILESYSTEM{
     getNodePath(node){
         var path = "";
         while(node != undefined){
-            path = "\\" + node.toString() + path;
+            // Although we represent the filesystem with '\', RP2040 MicroPython wants '/' in paths
+            path = "/" + node.toString() + path;
             node = node.parent;
         }
 
@@ -156,8 +163,10 @@ class FILESYSTEM{
         }else{                                  // Dir
             path = this.getNodePath(clickedNode);
         }
+
+        // Although we represent the filesystem with '\', RP2040 MicroPython wants '/' in paths
         if(path != ""){
-            path = path + "\\";
+            path = path + "/";
         }
         return path;
     }

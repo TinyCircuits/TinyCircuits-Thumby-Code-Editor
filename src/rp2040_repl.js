@@ -5,16 +5,6 @@
 // from the browser. Based on Thonny source.
 
 
-// Used to turn ASCII unto hex string that is typical for Python
-// https://stackoverflow.com/questions/33920230/how-to-convert-string-from-ascii-to-hexadecimal-in-javascript-or-jquery/33920309#33920309
-// can use delim = '\\x' for Python like hex/byte string (fails for unicode characters)
-String.prototype.convertToHex = function (delim) {
-    return this.split("").map(function(c) {
-        return ("0" + c.charCodeAt(0).toString(16)).slice(-2);
-    }).join(delim || "");
-};
-
-
 class RP2040REPL{
     
     // Define common objects used within this class right on object init
@@ -468,9 +458,10 @@ class RP2040REPL{
 
     // Uploads <contents> to RP2040 under file named <name>
     async uploadCustomFile(name, contents){
-        // First, split string for \n, \r, and \r\n
+        // First, split string for \n, \r, and \r\n (lineseps)
         contents = contents.split(/\r\n|\n|\r/);
 
+        // Recombine everything with correct newlines
         var combined = "";
         for(var row=0; row<contents.length; row++){
             combined = combined + contents[row] + "\n";
@@ -540,10 +531,16 @@ class RP2040REPL{
     // returns the contents
     async openCustomFile(path){
         this.OUTPUT_FILTER = this.OUTPUT_FILTERS.FILTER_OPEN_ONBOARD;
-        await this.executeCustomCommand("onboard_file = open('" + path + "', 'r')");
-        await this.executeCustomCommand("contents = onboard_file.read()");
-        await this.executeCustomCommand("onboard_file.close()");
-        await this.executeCustomCommand("print(contents)");
+
+        // Make the path hex so that string combination is less likely to mess up
+        path = "\\x" + path.convertToHex('\\x');
+
+        var cmd =   "onboard_file = open(\"\"\"" + path + "\"\"\", 'r')\n" +
+                    "contents = onboard_file.read()\n" +
+                    "onboard_file.close()\n" +
+                    "print(contents)\n";
+
+        await this.executeCustomCommand(cmd);
         return await this.waitForFilteredOutput(this.OUTPUT_FILTERS.FILTER_OPEN_ONBOARD);
     }
 

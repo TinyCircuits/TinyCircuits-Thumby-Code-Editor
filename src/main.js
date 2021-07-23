@@ -18,6 +18,9 @@ var RP2040 = new RP2040REPL();
 // Setup filesystem explorer
 var FS = null;
 
+// Setup bitmap creator utility with 8 x 8 pixel sprite sheet/grid
+var BITMAPER = new BITMAP_BUILDER(8, 8);
+
 
 // Page is now setup, check for serial and tell user through terminal about state
 ATERM.writeln("##### Welcome to The TinyCircuits Thumby Web Tool! #####");
@@ -216,3 +219,65 @@ async function fileMenuVisibility(on_off){
         document.getElementById("fsrcmenuparent").style.display = "none";
     }
 }
+
+
+// Handle button presses from bitmap builder
+function handleBitmapBuilderClicks(buttonID){
+    switch(buttonID){
+        case 0:     // Apply Size
+            BITMAPER.setGridSize(document.getElementById("bitmapperheight").value, document.getElementById("bitmapperwidth").value);
+            BITMAPER.renderGrid();
+        break;
+        case 1:     // Z+
+            BITMAPER.zoomIn();
+        break;
+        case 2:     // Z-
+            BITMAPER.zoomOut();
+        break;
+        case 3:     // Invert
+            BITMAPER.invertGrid();
+            BITMAPER.renderGrid();
+        break;
+        case 4:     // Clear
+            BITMAPER.clearGrid();
+            BITMAPER.renderGrid();
+        break;
+        case 5:     // Import (from editor selected lines)
+            BITMAPER.importBitmap(EDITOR.getSelectedText());
+            BITMAPER.renderGrid();
+        break;
+        case 6:     // Export (to editor)
+            EDITOR.insert(BITMAPER.exportBitmap());
+        break;
+    }
+    
+}
+
+
+// Used in importing to remap 1D array to 2D so avoid lame math (bitmap_builder.js)
+// https://stackoverflow.com/questions/22464605/convert-a-1d-array-to-2d-array
+Array.prototype.reshape = function(rows, cols) {
+    var copy = this.slice(0); // Copy all elements.
+    this.length = 0; // Clear out existing array.
+
+    for (var r = 0; r < rows; r++) {
+        var row = [];
+        for (var c = 0; c < cols; c++) {
+            var i = r * cols + c;
+            if (i < copy.length) {
+                row.push(copy[i]);
+            }
+        }
+        this.push(row);
+    }
+};
+
+
+// Used to turn ASCII unto hex string that is typical for Python
+// https://stackoverflow.com/questions/33920230/how-to-convert-string-from-ascii-to-hexadecimal-in-javascript-or-jquery/33920309#33920309
+// can use delim = '\\x' for Python like hex/byte string (fails for unicode characters)
+String.prototype.convertToHex = function (delim) {
+    return this.split("").map(function(c) {
+        return ("0" + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(delim || "");
+};
