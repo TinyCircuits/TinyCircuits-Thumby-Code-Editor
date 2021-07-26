@@ -67,6 +67,7 @@ function commandDone(event){
         ATERM.promptSpecial();  // Without newline before
     }
 
+    document.getElementById("choosethumbybtn").disabled = false;
     document.getElementById("uploadexecutebtn").disabled = false;
     document.getElementById("uploadbtn").disabled = false;
     document.getElementById("executebtn").disabled = false;
@@ -77,6 +78,7 @@ window.addEventListener('cmddone', commandDone, false);
 
 // Fired from RP2040 module when get chunks from RP2040 (not fool proof?)
 function commandStarted(event){
+    document.getElementById("choosethumbybtn").disabled = true;
     document.getElementById("uploadexecutebtn").disabled = true;
     document.getElementById("uploadbtn").disabled = true;
     document.getElementById("executebtn").disabled = true;
@@ -291,25 +293,6 @@ function handleEditorToolbarButtons(buttonID){
         break;
     }
 }
-
-
-// Used in importing to remap 1D array to 2D so avoid lame math (bitmap_builder.js)
-// https://stackoverflow.com/questions/22464605/convert-a-1d-array-to-2d-array
-Array.prototype.reshape = function(rows, cols) {
-    var copy = this.slice(0); // Copy all elements.
-    this.length = 0; // Clear out existing array.
-
-    for (var r = 0; r < rows; r++) {
-        var row = [];
-        for (var c = 0; c < cols; c++) {
-            var i = r * cols + c;
-            if (i < copy.length) {
-                row.push(copy[i]);
-            }
-        }
-        this.push(row);
-    }
-};
 
 
 // Used to turn ASCII unto hex string that is typical for Python

@@ -17,6 +17,9 @@ class FILESYSTEM{
 
         // Typically used for refreashing tree with nodes in disabled or enabled state
         this.LAST_JSON_DATA = undefined;
+
+        // Used to determine if files should be enabled or disabled for now (used for commands in process and fetching file system)
+        this.STATE = true;
     }
 
 
@@ -52,7 +55,7 @@ class FILESYSTEM{
 
     // Recursive function for updating each branch
     // of FS tree based on json data from RP2040
-    addChildrenToNode(treeNode, fsNode, state){
+    addChildrenToNode(treeNode, fsNode){
         // Loop through keys of current item. Can be int or object/dict.
         // check if int keyed nodes are dict, if so, call this function on them
         // and use none int keyed node to fill it
@@ -70,9 +73,7 @@ class FILESYSTEM{
                     // the RP2040
                     newFileTreeNode.on("contextmenu", this.handleFileRightClick, false);
 
-                    if(state != undefined){
-                        newFileTreeNode.setEnabled(state);
-                    }
+                    newFileTreeNode.setEnabled(this.STATE);
 
                     treeNode.addChild(newFileTreeNode);                                         // Add file name as child node
                 }else if(fileOrDir == "D"){                                                     // Found dir, add name to tree and make recursive call
@@ -85,9 +86,7 @@ class FILESYSTEM{
 
                     dirTreeNode.changeOption("forceParent", true);                              // If node marked as dir then force it to be a dir
 
-                    if(state != undefined){
-                        dirTreeNode.setEnabled(state);
-                    }
+                    dirTreeNode.setEnabled(this.STATE);
 
                     treeNode.addChild(dirTreeNode);                                             // Add dir name as child node
                     this.addChildrenToNode(dirTreeNode, fsNode[fsNode[nodeKey][fileOrDir]]);    // Make the recursive call to fill in another parent
@@ -99,10 +98,13 @@ class FILESYSTEM{
     }
 
 
-    // Given true or false, goes through all folders and files and disables the files
+    // Given true or false, goes through all folders and files and disables/enables the files
     setFileEnableState(state, node){
+        this.STATE = state;
         this.FS_ROOT = new TreeNode("\\");
-        this.addChildrenToNode(this.FS_ROOT, this.LAST_JSON_DATA[""], state);
+        this.FS_TREE = new TreeView(this.FS_ROOT, this.ELEM);
+        this.addChildrenToNode(this.FS_ROOT, this.LAST_JSON_DATA[""]);
+        this.FS_TREE.reload();
     }
 
 
