@@ -14,6 +14,11 @@ class EditorWrapper{
         this.LAST_SELECTED_TAB_ID = "";         // Used so that when a new tab is selected the tab's style from before can be reset
         this.SESSIONS = {};                     // This holds the ACE session for each tab indexed by main button id (button that allows users to click on a tab, starts with M#)
 
+        this.FONT_SIZE = 10;
+        this.ACE_EDITOR.setOptions({
+            fontSize: this.FONT_SIZE.toString() + "pt",
+        });
+
         var defaultCode =   "from machine import Pin\n" +
                             "import utime\n\n" +
         
@@ -79,6 +84,22 @@ class EditorWrapper{
             },
             readOnly: true
         });
+    }
+
+
+    increaseFontSize(){
+        this.FONT_SIZE++;
+        this.ACE_EDITOR.setOptions({
+            fontSize: this.FONT_SIZE.toString() + "pt",
+        });
+    }
+    decreaseFontSize(){
+        if(this.FONT_SIZE-1 > 0){
+            this.FONT_SIZE--;
+            this.ACE_EDITOR.setOptions({
+                fontSize: this.FONT_SIZE.toString() + "pt",
+            });
+        }
     }
 
 

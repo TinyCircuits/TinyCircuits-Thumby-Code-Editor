@@ -66,6 +66,8 @@ class ActiveTerminal{
                 return;
             }
 
+            // console.log(e.detail);
+            
             switch (e) {
             case '\r':                          // Enter
                 if(this.CURRENT_LINE != ""){
@@ -75,8 +77,24 @@ class ActiveTerminal{
                 this.prompt();
                 this.CURRENT_LINE = "";
                 break;
+            case '':                      // Ctrl-V (paste)
+                throw "Paste";
+            break;
+            case '\u0005':                      // Ctrl+E
+                this.READY_COMMANDS.push('\u0005');
+                window.dispatchEvent(this.COMMAND_READY_EVENT);
+                break;
+            case '\u0004':                      // Ctrl+D
+                this.READY_COMMANDS.push('\u0004');
+                window.dispatchEvent(this.COMMAND_READY_EVENT);
+                break;
             case '\u0003':                      // Ctrl+C
-                prompt();
+                this.READY_COMMANDS.push('\u0003');
+                window.dispatchEvent(this.COMMAND_READY_EVENT);
+                break;
+            case '\u0002':                      // Ctrl+B
+                this.READY_COMMANDS.push('\u0002');
+                window.dispatchEvent(this.COMMAND_READY_EVENT);
                 break;
             case '\u007F':                      // Backspace (DEL)
                 // Do not delete the Python prompt

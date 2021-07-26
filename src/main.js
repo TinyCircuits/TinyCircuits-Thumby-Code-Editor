@@ -63,11 +63,26 @@ function commandDone(event){
     ATERM.setStatePython();
     if(event.detail == "normal"){
         ATERM.prompt();         // With newline before
-    }else{
+    }else if(event.detail == "special"){
         ATERM.promptSpecial();  // Without newline before
     }
+
+    document.getElementById("uploadexecutebtn").disabled = false;
+    document.getElementById("uploadbtn").disabled = false;
+    document.getElementById("executebtn").disabled = false;
+    FS.setFileEnableState(true);    // Enabled files/folders
 }
 window.addEventListener('cmddone', commandDone, false);
+
+
+// Fired from RP2040 module when get chunks from RP2040 (not fool proof?)
+function commandStarted(event){
+    document.getElementById("uploadexecutebtn").disabled = true;
+    document.getElementById("uploadbtn").disabled = true;
+    document.getElementById("executebtn").disabled = true;
+    FS.setFileEnableState(false);   // Disable files/folders
+}
+window.addEventListener('cmdstarted', commandStarted, false);
 
 
 // After calling getOnBoardFSTree() in RP2040 module, json string will
@@ -102,6 +117,10 @@ async function buttonClickHandler(button){
         var isConnected = await RP2040.connectSerial();
         
         if(isConnected){
+            document.getElementById("uploadexecutebtn").disabled = false;
+            document.getElementById("uploadbtn").disabled = false;
+            document.getElementById("executebtn").disabled = false;
+
             // Tell the user some information
             ATERM.writeln('\x1b[1;32m' + "Done connecting! Starting on-board Python shell...");
             ATERM.writeln("SERIAL DEVICE INFO:");
@@ -129,9 +148,6 @@ async function buttonClickHandler(button){
         link.click();
         document.body.removeChild(link);
         delete link;
-    }else if(button.textContent == "Upload File To Thumby"){
-        // Takes what's current in the editor and uploads contents to main.py on RP2040
-        RP2040.uploadCustomFile(EDITOR.getActiveTabName(), EDITOR.getValue());
     }else if(button.textContent == "Arcade"){
         document.getElementById("overlay").style.display = "grid";
     }else if(button.textContent == "-"){
@@ -251,6 +267,29 @@ function handleBitmapBuilderClicks(buttonID){
         break;
     }
     
+}
+
+
+// When buttons like Upload & execute, Upload, etc are pressed, actions are handled here
+function handleEditorToolbarButtons(buttonID){
+    switch(buttonID){
+        case 0:     // Upload & Execute
+            // Takes what's current in the editor and uploads contents to main.py on RP2040
+            RP2040.uploadExecuteCustomFile(EDITOR.getActiveTabName(), EDITOR.getValue());
+        break;
+        case 1:     // Upload, trigger cmddone event
+            RP2040.uploadCustomFile(EDITOR.getActiveTabName(), EDITOR.getValue(), true);
+        break;
+        case 2:     // Execute
+            RP2040.executeCustomFile(EDITOR.getActiveTabName());
+        break;
+        case 3:     // Z+
+            EDITOR.increaseFontSize();
+        break;
+        case 4:     // Z-
+            EDITOR.decreaseFontSize();
+        break;
+    }
 }
 
 

@@ -54,6 +54,7 @@ class RP2040REPL{
         this.JUST_EXECUTED_COMMAND = false;                             // When command passed to RP2040 module, this is set true and then false when handled
         this.JUST_EXECUTED_TERMINAL_COMMAND = false;                    // Set by executeCustomCommand when command comes from terminal (for catching special repeat problem)
         this.CMD_DONE_EVENT = new Event('cmddone');                     // Synthetic event fired to browser when can interact with on-board shell again (detail holes 'normal' for files/normal commands, or 'special' for things like 'import os')
+        this.CMD_STARTED_EVENT = new Event('cmdstarted');               // Syncthetic event that tells main.js to disabled common features while commands/files are executing, fired when program is executing
 
         this.CURRENT_ONBOARD_FILE_CONTENTS = "";                        // Contents of file being opened from onboard RP2040 (resets after all data collected), related to FILTER_OPEN_ONBOARD
     }
@@ -196,6 +197,7 @@ class RP2040REPL{
     async startReading(){
         this.READING = true;
         while(this.READING == true){
+
             try{
                 this.CHUNKS += await this.readSerialNoTimeout();
                 // console.log(this.CHUNKS);
@@ -314,12 +316,18 @@ class RP2040REPL{
                     // After on-board file read, reset filter. Open onboard file function
                     // calls function to reset file contents variable, prune last 2 newlines 
                     // (where do they BOTH come from... probably upload/download)
+                    this.CMD_DONE_EVENT.detail = "none";
+                    window.dispatchEvent(this.CMD_DONE_EVENT);
                     this.CURRENT_ONBOARD_FILE_CONTENTS = this.CURRENT_ONBOARD_FILE_CONTENTS.slice(0, -2);
                     this.OUTPUT_FILTER = this.OUTPUT_FILTERS.FILTER_OUTPUT;
                 }else if(this.OUTPUT_FILTER == this.OUTPUT_FILTERS.FILTER_RENAME_FILE){
+                    this.CMD_DONE_EVENT.detail = "none";
+                    window.dispatchEvent(this.CMD_DONE_EVENT);
                     this.OUTPUT_FILTER = this.OUTPUT_FILTERS.FILTER_OUTPUT;
                     await this.getOnBoardFSTree();
                 }else if(this.OUTPUT_FILTER == this.OUTPUT_FILTERS.FILTER_DELETE_FILE){
+                    this.CMD_DONE_EVENT.detail = "none";
+                    window.dispatchEvent(this.CMD_DONE_EVENT);
                     this.OUTPUT_FILTER = this.OUTPUT_FILTERS.FILTER_OUTPUT;
                     await this.getOnBoardFSTree();
                 }else{
@@ -457,7 +465,9 @@ class RP2040REPL{
 
 
     // Uploads <contents> to RP2040 under file named <name>
-    async uploadCustomFile(name, contents){
+    async uploadCustomFile(name, contents, trigger){
+        window.dispatchEvent(this.CMD_STARTED_EVENT);
+
         // First, split string for \n, \r, and \r\n (lineseps)
         contents = contents.split(/\r\n|\n|\r/);
 
@@ -483,9 +493,31 @@ class RP2040REPL{
         await this.getOnBoardFSTree();
         await this.waitForFilteredOutput(this.OUTPUT_FILTERS.FILTER_FS);
 
-        // Actually execute the file now that FS info has been received
-        // NOTE: The more files, the longer the delay between button
-        // press and file execution
+        if(trigger){
+            // Let main.js know that cmd done and buttons can be relit
+            this.CMD_DONE_EVENT.detail = "none";
+            window.dispatchEvent(this.CMD_DONE_EVENT);
+        }
+
+        return;
+    }
+
+
+    // Uploads and executes file
+    async uploadExecuteCustomFile(name, contents){
+        window.dispatchEvent(this.CMD_STARTED_EVENT);
+
+        await this.uploadCustomFile(name, contents);
+
+        this.OUTPUT_FILTER = this.OUTPUT_FILTERS.FILTER_EXECUTING_FILE;
+        this.EXECUTED_FILE = true;
+        await this.executeCustomCommand("exec(open('" + name + "').read())");
+    }
+
+    // Executes file under given name
+    async executeCustomFile(name){
+        window.dispatchEvent(this.CMD_STARTED_EVENT);
+
         this.OUTPUT_FILTER = this.OUTPUT_FILTERS.FILTER_EXECUTING_FILE;
         this.EXECUTED_FILE = true;
         await this.executeCustomCommand("exec(open('" + name + "').read())");
@@ -530,6 +562,7 @@ class RP2040REPL{
     // RP2040, opens it and prints contents to REPL terminal, and
     // returns the contents
     async openCustomFile(path){
+        window.dispatchEvent(this.CMD_STARTED_EVENT);
         this.OUTPUT_FILTER = this.OUTPUT_FILTERS.FILTER_OPEN_ONBOARD;
 
         // Make the path hex so that string combination is less likely to mess up
@@ -547,6 +580,7 @@ class RP2040REPL{
 
     // Sends commands to RP2040 to rename file at given path to provided new name
     async renameFile(oldPath, newName){
+        window.dispatchEvent(this.CMD_STARTED_EVENT);
         this.OUTPUT_FILTER = this.OUTPUT_FILTERS.FILTER_RENAME_FILE;
         if(oldPath != undefined && newName != undefined){
             var newPath = oldPath.substring(0, oldPath.lastIndexOf("\\")+1) + newName;
@@ -571,6 +605,7 @@ class RP2040REPL{
     // Given a path, delete it provided the path
     // is designated as a file or dir
     async deleteFileOrDir(path, fileOrDir){
+        window.dispatchEvent(this.CMD_STARTED_EVENT);
         this.OUTPUT_FILTER = this.OUTPUT_FILTERS.FILTER_DELETE_FILE;
 
         var remover = "";

@@ -14,6 +14,9 @@ class FILESYSTEM{
         this.ELEM.style.justifyContent = "none";
 
         // this.COPYING_NODE = undefined;                              // Store node that is currently being copied when copy button pressed
+
+        // Typically used for refreashing tree with nodes in disabled or enabled state
+        this.LAST_JSON_DATA = undefined;
     }
 
 
@@ -49,7 +52,7 @@ class FILESYSTEM{
 
     // Recursive function for updating each branch
     // of FS tree based on json data from RP2040
-    addChildrenToNode(treeNode, fsNode){
+    addChildrenToNode(treeNode, fsNode, state){
         // Loop through keys of current item. Can be int or object/dict.
         // check if int keyed nodes are dict, if so, call this function on them
         // and use none int keyed node to fill it
@@ -66,7 +69,11 @@ class FILESYSTEM{
                     // to rename, copy, cut, paste, open, or delete file on-board
                     // the RP2040
                     newFileTreeNode.on("contextmenu", this.handleFileRightClick, false);
-                    
+
+                    if(state != undefined){
+                        newFileTreeNode.setEnabled(state);
+                    }
+
                     treeNode.addChild(newFileTreeNode);                                         // Add file name as child node
                 }else if(fileOrDir == "D"){                                                     // Found dir, add name to tree and make recursive call
                     var dirTreeNode = new TreeNode(fsNode[nodeKey][fileOrDir]);                 // Make FS tree node for dir
@@ -77,6 +84,11 @@ class FILESYSTEM{
                     dirTreeNode.on("contextmenu", this.handleFileRightClick, false);
 
                     dirTreeNode.changeOption("forceParent", true);                              // If node marked as dir then force it to be a dir
+
+                    if(state != undefined){
+                        dirTreeNode.setEnabled(state);
+                    }
+
                     treeNode.addChild(dirTreeNode);                                             // Add dir name as child node
                     this.addChildrenToNode(dirTreeNode, fsNode[fsNode[nodeKey][fileOrDir]]);    // Make the recursive call to fill in another parent
                 }else{
@@ -87,8 +99,16 @@ class FILESYSTEM{
     }
 
 
+    // Given true or false, goes through all folders and files and disables the files
+    setFileEnableState(state, node){
+        this.FS_ROOT = new TreeNode("\\");
+        this.addChildrenToNode(this.FS_ROOT, this.LAST_JSON_DATA[""], state);
+    }
+
+
     // Call this with parsed json of FS from RP2040 to update webpage of on-board FS view
     updateTree(jsonData){
+        this.LAST_JSON_DATA  = jsonData;
         this.FS_ROOT = new TreeNode("\\");   // Start new tree from start/root
         this.addChildrenToNode(this.FS_ROOT, jsonData[""]);
         this.FS_TREE = new TreeView(this.FS_ROOT, this.ELEM);   // Render to webpage element
