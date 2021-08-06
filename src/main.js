@@ -15,6 +15,13 @@ var ATERM = new ActiveTerminal();
 // when serial data can be read/displayed to terminal
 var RP2040 = new RP2040REPL();
 
+// Setup filesystem explorer
+var FS = null;
+
+// Setup bitmap creator utility with 8 x 8 pixel sprite sheet/grid
+var BITMAPPER = new BITMAP_BUILDER(8, 8);
+
+
 
 async function initPage(port){
     var isConnected = await RP2040.connectSerial(port);
@@ -79,12 +86,6 @@ navigator.serial.getPorts().then((ports) => {
     });
 });
 
-
-// Setup filesystem explorer
-var FS = null;
-
-// Setup bitmap creator utility with 8 x 8 pixel sprite sheet/grid
-var BITMAPPER = new BITMAP_BUILDER(8, 8);
 
 
 // Page is now setup, check for serial and tell user through terminal about state
