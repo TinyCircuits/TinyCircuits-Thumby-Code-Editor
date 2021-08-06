@@ -205,7 +205,7 @@ class RP2040REPL{
 
             try{
                 this.CHUNKS += await this.readSerialNoTimeout();
-                console.log(this.CHUNKS);
+                // console.log(this.CHUNKS);
             } catch(err) {
                 return false;
             }
@@ -302,7 +302,6 @@ class RP2040REPL{
                 this.CHUNKS = lines[0];
             }
 
-            
 
             // Check if last string is active shell, if so, command/program ended
             // and the terminal shell propmt can be dispalyed again (this is always on
@@ -375,6 +374,15 @@ class RP2040REPL{
                 window.dispatchEvent(this.CMD_DONE_EVENT);
                 this.CHUNKS = "";
                 this.ANY_COMMAND_EXECUTED = false;  // Reset to false after CHUNKS equals an EOT
+                this.EXECUTED_FILE = false;
+            }else if((this.CHUNKS == "OK>" && this.EXECUTED_FILE == true)){   // Handle programs/commands that do not print anything
+                this.OUTPUT_FILTER = this.OUTPUT_FILTERS.FILTER_OUTPUT;
+                await this.getOnBoardFSTree();
+                this.waitForFilteredOutput(undefined);
+                this.CMD_DONE_EVENT.detail = "none";
+                window.dispatchEvent(this.CMD_DONE_EVENT);
+                this.CHUNKS = "";
+                this.ANY_COMMAND_EXECUTED = false; 
                 this.EXECUTED_FILE = false;
             }
         }
