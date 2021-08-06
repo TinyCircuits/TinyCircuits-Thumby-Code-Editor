@@ -111,10 +111,12 @@ class RP2040REPL{
 
     async disconnectSerial(){
         if(this.PORT != undefined){
+            this.WRITER.releaseLock();
+            this.READER.releaseLock();
             await this.PORT.close();
-            this.PORT = undefined;
             this.WRITER = undefined;
             this.READER = undefined;
+            this.PORT = undefined;
             return true;
         }
     }
