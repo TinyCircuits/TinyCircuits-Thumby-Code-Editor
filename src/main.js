@@ -52,29 +52,39 @@ async function initPage(port){
 }
 
 
+async function connect(){
+    initPage(port);
+    document.getElementById("uploadexecutebtn").disabled = false;
+    document.getElementById("uploadbtn").disabled = false;
+    document.getElementById("executebtn").disabled = false;
+    FS.setFileEnableState(true);    // Enabled files/folders
+    console.log("CONNECT");
+}
+
+
+async function disconnect(){
+    RP2040.disconnectSerial();
+    document.getElementById("uploadexecutebtn").disabled = true;
+    document.getElementById("uploadbtn").disabled = true;
+    document.getElementById("executebtn").disabled = true;
+    FS.setFileEnableState(false);   // Disable files/folders
+    console.log("DISCONNECT");
+}
+
+
 navigator.serial.addEventListener('connect', (e) => {
     navigator.serial.getPorts().then((ports) => {
         ports.forEach(port => {
             var info = port.getInfo();
             if(info.usbProductId == 5 && info.usbVendorId == 11914){
-                initPage(port);
+                connect();
             }
         });
     });
-    document.getElementById("uploadexecutebtn").disabled = false;
-    document.getElementById("uploadbtn").disabled = false;
-    document.getElementById("executebtn").disabled = false;
-    // FS.setFileEnableState(true);    // Enabled files/folders
-    console.log("CONNECT");
 });
   
 navigator.serial.addEventListener('disconnect', (e) => {
-    RP2040.disconnectSerial();
-    document.getElementById("uploadexecutebtn").disabled = true;
-    document.getElementById("uploadbtn").disabled = true;
-    document.getElementById("executebtn").disabled = true;
-    // FS.setFileEnableState(false);   // Disable files/folders
-    console.log("DISCONNECT");
+    disconnect();
 });
 
 navigator.serial.getPorts().then((ports) => {
