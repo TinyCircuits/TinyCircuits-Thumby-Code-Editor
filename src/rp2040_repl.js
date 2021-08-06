@@ -77,18 +77,23 @@ class RP2040REPL{
 
     // Brings up the port chooser, user chooses one, opens port,
     // displays port info, stores writer, starts outputer
-    async connectSerial(){
+    async connectSerial(port){
         var connected = false;
 
-        // Get port once user picks it through chomre menu
-        await navigator.serial.requestPort( {  } ).then((port) => {
+        // Get port once user picks it through browser menu
+        if(port == undefined){
+            await navigator.serial.requestPort( {  } ).then((port) => {
+                this.PORT = port;
+                connected = true;
+            }).catch((e) => {
+                console.log("ERROR: could not choose that port! " + e);
+                connected = false;
+                return false;
+            });
+        }else{
             this.PORT = port;
             connected = true;
-        }).catch((e) => {
-            console.log("ERROR: could not choose that port! " + e);
-            connected = false;
-            return false;
-        });
+        }
 
         if(connected){
             await this. PORT.open({ baudRate: 115200 });
@@ -205,7 +210,7 @@ class RP2040REPL{
 
             try{
                 this.CHUNKS += await this.readSerialNoTimeout();
-                // console.log(this.CHUNKS);
+                console.log(this.CHUNKS);
             } catch(err) {
                 return false;
             }

@@ -3,19 +3,6 @@
 // elements live.
 
 
-navigator.serial.addEventListener('connect', (e) => {
-    console.log("CONNECT");
-});
-  
-navigator.serial.addEventListener('disconnect', (e) => {
-    console.log("DISCONNECT");
-});
-
-navigator.serial.getPorts().then((ports) => {
-    console.log(ports);
-});
-
-
 // Setup code editor
 var EDITOR = new EditorWrapper();
 
@@ -27,6 +14,49 @@ var ATERM = new ActiveTerminal();
 // member functions. Also fires events indicating
 // when serial data can be read/displayed to terminal
 var RP2040 = new RP2040REPL();
+
+
+navigator.serial.addEventListener('connect', (e) => {
+    console.log("CONNECT");
+});
+  
+navigator.serial.addEventListener('disconnect', (e) => {
+    console.log("DISCONNECT");
+});
+
+navigator.serial.getPorts().then((ports) => {
+    ports.forEach(port => {
+        var info = port.getInfo();
+        if(info.usbProductId == 5 && info.usbVendorId == 11914){
+            var isConnected = await RP2040.connectSerial(port);
+        
+            if(isConnected){
+                document.getElementById("uploadexecutebtn").disabled = false;
+                document.getElementById("uploadbtn").disabled = false;
+                document.getElementById("executebtn").disabled = false;
+
+                // Tell the user some information
+                ATERM.writeln('\x1b[1;32m' + "Done connecting! Starting on-board Python shell...");
+                ATERM.writeln("SERIAL DEVICE INFO:");
+                ATERM.writeln("\tPRODUCT_ID=" + RP2040.getProductID().toString() + " VECNDOR_ID=" + RP2040.getVendorID().toString() + '\x1b[1;37m');
+                
+                // Go through process of setting up on-board python shell.
+                // Start the output watcher that tells terminal when to output
+                // serial data and when user can type commands
+                if(await RP2040.startPythonShell()){
+                    ATERM.setStatePython();
+                    ATERM.prompt();
+
+                    FS = new FILESYSTEM();      // Create the filesystem
+                    RP2040.getOnBoardFSTree();  // Tell RP2040 module to get and store serial related to on-board filesystem structure
+                }
+            }else{
+                ATERM.writeln('\x1b[1;31m' + "Something went wrong while connecting, is the device still plugged in?" + '\x1b[1;37m');
+            }
+        }
+    });
+});
+
 
 // Setup filesystem explorer
 var FS = null;
