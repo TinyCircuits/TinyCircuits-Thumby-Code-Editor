@@ -3,6 +3,19 @@
 // elements live.
 
 
+navigator.serial.addEventListener('connect', (e) => {
+    console.log("CONNECT");
+});
+  
+navigator.serial.addEventListener('disconnect', (e) => {
+    console.log("DISCONNECT");
+});
+
+navigator.serial.getPorts().then((ports) => {
+    console.log(ports);
+});
+
+
 // Setup code editor
 var EDITOR = new EditorWrapper();
 
