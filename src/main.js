@@ -58,7 +58,7 @@ navigator.serial.getPorts().then((ports) => {
     ports.forEach(port => {
         var info = port.getInfo();
         if(info.usbProductId == 5 && info.usbVendorId == 11914){
-            initpage(port);
+            initPage(port);
         }
     });
 });
