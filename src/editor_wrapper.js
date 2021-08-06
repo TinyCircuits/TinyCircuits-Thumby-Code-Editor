@@ -33,7 +33,7 @@ class EditorWrapper{
                             "   utime.sleep(0.5)\n" +
                             "   print(i)\n" +
                             "   i = i + 1\n" +
-                            "   if i > 5:\n" +
+                            "   if i > 10:\n" +
                             "       break";
 
         // File picker options for saving and opening python & text files

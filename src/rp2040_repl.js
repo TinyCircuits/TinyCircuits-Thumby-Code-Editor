@@ -21,6 +21,8 @@ class RP2040REPL{
         this.DID_SERIAL_READ_TIMEOUT = false;                           // Class global flag indicating if serial has been waiting for data for SERIAL_READ_TIMEOUT ms
         this.TIMER = null;                                              // Reference to setTimeout() timer
 
+        this.THUMBY_SEND_BLOCK_SIZE = 516;                              // How many bytes to send to Thumby at a time when uploading a file to it
+
         this.CURRENT_FS_TREE = "";                                      // Key-value array/list consisting of the on-board RP2040 filesystem last time function called
         this.FS_TREE_READY_EVENT = new Event('fstreeready');            // Event fired in output capture indicating on-board file system structure has been received
 
@@ -45,6 +47,7 @@ class RP2040REPL{
             FILTER_OPEN_ONBOARD: 4,     // Filter for capturing and storing output when trying to open on-board file
             FILTER_RENAME_FILE: 5,      // Filter for renaming files, error is printed when a file exists, catch that
             FILTER_DELETE_FILE: 6,      // Filter for surpressing output when deleting files on RP2040
+            FILTER_FLUSH_MODE: 7,       // Filter for surpressing output, typically when there is a KeyboardInterrupt
         }
         this.OUTPUT_FILTER = this.OUTPUT_FILTERS.FILTER_OUTPUT;
 
@@ -57,6 +60,8 @@ class RP2040REPL{
         this.CMD_STARTED_EVENT = new Event('cmdstarted');               // Syncthetic event that tells main.js to disabled common features while commands/files are executing, fired when program is executing
 
         this.CURRENT_ONBOARD_FILE_CONTENTS = "";                        // Contents of file being opened from onboard RP2040 (resets after all data collected), related to FILTER_OPEN_ONBOARD
+
+        this.ANY_COMMAND_EXECUTED = false;                              // Flag set true when executeCustomCommand called and set false when CHUNKS equals any EOT
     }
 
 
@@ -200,7 +205,7 @@ class RP2040REPL{
 
             try{
                 this.CHUNKS += await this.readSerialNoTimeout();
-                // console.log(this.CHUNKS);
+                console.log(this.CHUNKS);
             } catch(err) {
                 return false;
             }
@@ -210,6 +215,8 @@ class RP2040REPL{
 
             // If there are lines that are done, go to shift operation
             if(lines.length > 1){
+
+                var tempPrintedInterruptFirst = false;
 
                 // If a command was just executed that generated first serial chunk,
                 // strip the confirmation portion from the string to be dispalyed 
@@ -225,6 +232,11 @@ class RP2040REPL{
                         if(this.JUST_EXECUTED_TERMINAL_COMMAND == false){
                             this.OUTPUT_LINES.push("");
                             this.OUTPUT_LINES.push(lines[0]);
+                        }else if(lines[0] == "Traceback (most recent call last):"){    // handle when keyboard interrupt and terminal used (ctrl-c)
+                            this.OUTPUT_LINES.push("");
+                            this.OUTPUT_LINES.push(lines[0]);
+                            this.JUST_EXECUTED_TERMINAL_COMMAND = false;
+                            tempPrintedInterruptFirst = true;               // if this line was already pushed here, don't do again later
                         }else{
                             this.JUST_EXECUTED_TERMINAL_COMMAND = false;
                         }
@@ -237,14 +249,22 @@ class RP2040REPL{
                 while(lines.length != 1){
                     switch(this.OUTPUT_FILTER){
                         case this.OUTPUT_FILTERS.FILTER_OUTPUT:
-                            this.OUTPUT_LINES.push(lines.shift());
+                            var line = lines.shift();
+                            if(line == "KeyboardInterrupt: " || line == "MPY: soft reboot"){  // If there is a keyboard interrupt, change output filter to flush since user doesn't need to see that
+                                this.OUTPUT_FILTER = this.OUTPUT_FILTERS.FITLER_FLUSH_MODE;
+                            }
+                            if(tempPrintedInterruptFirst == false){
+                                this.OUTPUT_LINES.push(line);
+                            }else{
+                                tempPrintedInterruptFirst = false;
+                            }
                         break;
                         case this.OUTPUT_FILTERS.FILTER_EXECUTING_FILE: // Throw away the first line
                             lines.shift();
                             this.OUTPUT_FILTER = this.OUTPUT_FILTERS.FILTER_OUTPUT;
                         break;
-                        case this.OUTPUT_FILTERS.FITLER_NORMAL_MODE:
-
+                        case this.OUTPUT_FILTERS.FITLER_FLUSH_MODE:
+                            lines.shift();
                         break;
                         case this.OUTPUT_FILTERS.FILTER_FS:
                             this.CURRENT_FS_TREE += lines.shift();
@@ -304,14 +324,16 @@ class RP2040REPL{
 
                     try{
                         this.CURRENT_FS_TREE = JSON.parse(this.CURRENT_FS_TREE);
+
+                        // Let main.js know the FS tree can be fetched from this module
+                        // and displayed on the webpage
+                        window.dispatchEvent(this.FS_TREE_READY_EVENT);
                     }catch(e){
                         console.log("On-baord filesystem parse error: this should never happen");
                         console.error(e);
+                        this.CHUNKS = "";
+                        this.ANY_COMMAND_EXECUTED = false;  // Reset to false after CHUNKS equals an EOT
                     }
-
-                    // Let main.js know the FS tree can be fetched from this module
-                    // and displayed on the webpage
-                    window.dispatchEvent(this.FS_TREE_READY_EVENT);
                 }else if(this.OUTPUT_FILTER == this.OUTPUT_FILTERS.FILTER_OPEN_ONBOARD){
                     // After on-board file read, reset filter. Open onboard file function
                     // calls function to reset file contents variable, prune last 2 newlines 
@@ -336,15 +358,33 @@ class RP2040REPL{
                     window.dispatchEvent(this.CMD_DONE_EVENT);
                 }
                 this.CHUNKS = "";
+                this.ANY_COMMAND_EXECUTED = false;  // Reset to false after CHUNKS equals an EOT
             }else if(this.CHUNKS == "OK\u0004\u0004>" && this.JUST_EXECUTED_TERMINAL_COMMAND == true){  // When a command like "import os" executed, special handling is needed since only get OK>>> back
                 this.JUST_EXECUTED_TERMINAL_COMMAND = false;
+                this.OUTPUT_FILTER = this.OUTPUT_FILTERS.FILTER_OUTPUT;
                 await this.getOnBoardFSTree();
                 this.CMD_DONE_EVENT.detail = "special";
                 window.dispatchEvent(this.CMD_DONE_EVENT);
                 this.CHUNKS = "";
+                this.ANY_COMMAND_EXECUTED = false;  // Reset to false after CHUNKS equals an EOT
+            }else if((this.CHUNKS == ">" && this.EXECUTED_FILE == true) || (this.CHUNKS == ">" && this.OUTPUT_FILTER == this.OUTPUT_FILTERS.FITLER_FLUSH_MODE)){ // Handle keyboard interrupt EOT & Soft reset
+                this.OUTPUT_FILTER = this.OUTPUT_FILTERS.FILTER_OUTPUT;
+                await this.getOnBoardFSTree();
+                this.waitForFilteredOutput(undefined);
+                this.CMD_DONE_EVENT.detail = "normal";
+                window.dispatchEvent(this.CMD_DONE_EVENT);
+                this.CHUNKS = "";
+                this.ANY_COMMAND_EXECUTED = false;  // Reset to false after CHUNKS equals an EOT
+                this.EXECUTED_FILE = false;
             }
         }
         return true;
+    }
+
+
+    // If returns true then a program/command is running, if false, then nothing running right now
+    isCommandRunning(){
+        return this.ANY_COMMAND_EXECUTED;
     }
 
 
@@ -423,6 +463,7 @@ class RP2040REPL{
         }
 
         if(cmd != ""){
+            this.ANY_COMMAND_EXECUTED = true;
             this.JUST_EXECUTED_COMMAND = true;  // Set this true so 'OK' can be pruned
             await this.WRITER.write(this.ENCODER.encode(cmd + "\x04"));
             if(await this.readUntil("OK", 100, true) == true){
@@ -478,11 +519,16 @@ class RP2040REPL{
         }
         combined = "\\x" + combined.convertToHex('\\x');
 
-        // Send the whole file in one go (I feel like this shouldn't work
-        // since Thonny does it in blocks becuase of a USB limit? How does
-        // WebSerial send the data? In blocks?)
+        // Send the whole file to Thumby, as Thonny does, in chunks
         await this.executeCustomCommand("onboard_file = open('" + name + "','wb')");
-        await this.executeCustomCommand("onboard_file.write(b\"" + combined + "\")");
+
+        // Do the actual sending of file data now that the file is open, use .slice over
+        // .substr or .substring since those modify the original string and take WAY longer
+        for(var b=0; b<Math.ceil(combined.length/this.THUMBY_SEND_BLOCK_SIZE); b++){
+            await this.executeCustomCommand("onboard_file.write(b\"" + combined.slice(b*this.THUMBY_SEND_BLOCK_SIZE, (b+1)*this.THUMBY_SEND_BLOCK_SIZE) + "\")");
+        }
+
+        // Close the file on Thumby, this is when the data is actuall saved to the file
         await this.executeCustomCommand("onboard_file.close()");
         
         // Get the filesystem tree first and wait for filter
@@ -544,6 +590,8 @@ class RP2040REPL{
                         this.CURRENT_ONBOARD_FILE_CONTENTS = "";
                         return copy;
                     break;
+                    default:
+                        return;
                 }
                 return undefined;
             }

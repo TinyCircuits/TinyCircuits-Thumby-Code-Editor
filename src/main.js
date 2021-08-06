@@ -50,7 +50,11 @@ function executeTerminalCommands(event){
     ATERM.setStateOutput();
     var commandList = ATERM.getReadyCommands();
     commandList.forEach(cmd => {
-        RP2040.executeCustomCommand(cmd, true);
+        if(cmd == '\u0003' && RP2040.isCommandRunning() == false){
+            ATERM.setStatePython();
+        }else{
+            RP2040.executeCustomCommand(cmd, true);
+        }
     });
 }
 window.addEventListener('commandready', executeTerminalCommands, false);
