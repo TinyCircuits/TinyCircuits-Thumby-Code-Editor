@@ -52,12 +52,6 @@ async function initPage(port){
 }
 
 navigator.serial.addEventListener('connect', (e) => {
-    document.getElementById("uploadexecutebtn").disabled = false;
-    document.getElementById("uploadbtn").disabled = false;
-    document.getElementById("executebtn").disabled = false;
-    FS.setFileEnableState(true);    // Enabled files/folders
-    console.log("CONNECT");
-
     navigator.serial.getPorts().then((ports) => {
         ports.forEach(port => {
             var info = port.getInfo();
@@ -66,6 +60,11 @@ navigator.serial.addEventListener('connect', (e) => {
             }
         });
     });
+    document.getElementById("uploadexecutebtn").disabled = false;
+    document.getElementById("uploadbtn").disabled = false;
+    document.getElementById("executebtn").disabled = false;
+    FS.setFileEnableState(true);    // Enabled files/folders
+    console.log("CONNECT");
 });
   
 navigator.serial.addEventListener('disconnect', (e) => {
