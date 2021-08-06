@@ -210,7 +210,7 @@ class RP2040REPL{
 
             try{
                 this.CHUNKS += await this.readSerialNoTimeout();
-                console.log(this.CHUNKS);
+                // console.log(this.CHUNKS);
             } catch(err) {
                 return false;
             }

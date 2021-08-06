@@ -17,10 +17,29 @@ var RP2040 = new RP2040REPL();
 
 
 navigator.serial.addEventListener('connect', (e) => {
+    document.getElementById("choosethumbybtn").disabled = false;
+    document.getElementById("uploadexecutebtn").disabled = false;
+    document.getElementById("uploadbtn").disabled = false;
+    document.getElementById("executebtn").disabled = false;
+    FS.setFileEnableState(true);    // Enabled files/folders
     console.log("CONNECT");
+
+    navigator.serial.getPorts().then((ports) => {
+        ports.forEach(port => {
+            var info = port.getInfo();
+            if(info.usbProductId == 5 && info.usbVendorId == 11914){
+                initPage(port);
+            }
+        });
+    });
 });
   
 navigator.serial.addEventListener('disconnect', (e) => {
+    document.getElementById("choosethumbybtn").disabled = true;
+    document.getElementById("uploadexecutebtn").disabled = true;
+    document.getElementById("uploadbtn").disabled = true;
+    document.getElementById("executebtn").disabled = true;
+    FS.setFileEnableState(false);   // Disable files/folders
     console.log("DISCONNECT");
 });
 
@@ -52,7 +71,6 @@ async function initPage(port){
         ATERM.writeln('\x1b[1;31m' + "Something went wrong while connecting, is the device still plugged in?" + '\x1b[1;37m');
     }    
 }
-
 
 navigator.serial.getPorts().then((ports) => {
     ports.forEach(port => {
@@ -169,31 +187,7 @@ async function buttonClickHandler(button){
         // Connects to serial port, checks if connected (TODO: check if user picked correct port),
         // starts process to execute command to put RP2040 into command/REPL mode. Internal checks
         // done to ensure command(s) successful
-        var isConnected = await RP2040.connectSerial();
-        
-        if(isConnected){
-            document.getElementById("uploadexecutebtn").disabled = false;
-            document.getElementById("uploadbtn").disabled = false;
-            document.getElementById("executebtn").disabled = false;
-
-            // Tell the user some information
-            ATERM.writeln('\x1b[1;32m' + "Done connecting! Starting on-board Python shell...");
-            ATERM.writeln("SERIAL DEVICE INFO:");
-            ATERM.writeln("\tPRODUCT_ID=" + RP2040.getProductID().toString() + " VECNDOR_ID=" + RP2040.getVendorID().toString() + '\x1b[1;37m');
-            
-            // Go through process of setting up on-board python shell.
-            // Start the output watcher that tells terminal when to output
-            // serial data and when user can type commands
-            if(await RP2040.startPythonShell()){
-                ATERM.setStatePython();
-                ATERM.prompt();
-
-                FS = new FILESYSTEM();      // Create the filesystem
-                RP2040.getOnBoardFSTree();  // Tell RP2040 module to get and store serial related to on-board filesystem structure
-            }
-        }else{
-            ATERM.writeln('\x1b[1;31m' + "Something went wrong while connecting, is the device still plugged in?" + '\x1b[1;37m');
-        }
+        initPage();
     }else if(button.textContent == "Download Firmware"){
         // Download firmware to user's Download folder or browser will propmt them for location
         // this is same location Thonny gets the firmware: https://github.com/thonny/thonny/blob/78fa1a3faf9045598eb4a1b40f96ff1b255e5ebf/data/rpi-pico-firmware.json#L10
