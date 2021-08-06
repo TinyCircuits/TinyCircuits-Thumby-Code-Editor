@@ -109,6 +109,17 @@ class RP2040REPL{
     }
 
 
+    async disconnectSerial(){
+        if(this.PORT != undefined){
+            await this.PORT.close();
+            this.PORT = undefined;
+            this.WRITER = undefined;
+            this.READER = undefined;
+            return true;
+        }
+    }
+
+
     // Creates empty element, makes it a link, adds link to document, 
     // auto clicks link to start download, removes from document,
     // deletes link object

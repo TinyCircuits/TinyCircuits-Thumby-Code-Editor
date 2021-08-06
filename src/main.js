@@ -16,34 +16,6 @@ var ATERM = new ActiveTerminal();
 var RP2040 = new RP2040REPL();
 
 
-navigator.serial.addEventListener('connect', (e) => {
-    document.getElementById("choosethumbybtn").disabled = false;
-    document.getElementById("uploadexecutebtn").disabled = false;
-    document.getElementById("uploadbtn").disabled = false;
-    document.getElementById("executebtn").disabled = false;
-    FS.setFileEnableState(true);    // Enabled files/folders
-    console.log("CONNECT");
-
-    navigator.serial.getPorts().then((ports) => {
-        ports.forEach(port => {
-            var info = port.getInfo();
-            if(info.usbProductId == 5 && info.usbVendorId == 11914){
-                initPage(port);
-            }
-        });
-    });
-});
-  
-navigator.serial.addEventListener('disconnect', (e) => {
-    document.getElementById("choosethumbybtn").disabled = true;
-    document.getElementById("uploadexecutebtn").disabled = true;
-    document.getElementById("uploadbtn").disabled = true;
-    document.getElementById("executebtn").disabled = true;
-    FS.setFileEnableState(false);   // Disable files/folders
-    console.log("DISCONNECT");
-});
-
-
 async function initPage(port){
     var isConnected = await RP2040.connectSerial(port);
         
@@ -71,6 +43,32 @@ async function initPage(port){
         ATERM.writeln('\x1b[1;31m' + "Something went wrong while connecting, is the device still plugged in?" + '\x1b[1;37m');
     }    
 }
+
+navigator.serial.addEventListener('connect', (e) => {
+    document.getElementById("uploadexecutebtn").disabled = false;
+    document.getElementById("uploadbtn").disabled = false;
+    document.getElementById("executebtn").disabled = false;
+    FS.setFileEnableState(true);    // Enabled files/folders
+    console.log("CONNECT");
+
+    navigator.serial.getPorts().then((ports) => {
+        ports.forEach(port => {
+            var info = port.getInfo();
+            if(info.usbProductId == 5 && info.usbVendorId == 11914){
+                initPage(port);
+            }
+        });
+    });
+});
+  
+navigator.serial.addEventListener('disconnect', (e) => {
+    RP2040.disconnectSerial();
+    document.getElementById("uploadexecutebtn").disabled = true;
+    document.getElementById("uploadbtn").disabled = true;
+    document.getElementById("executebtn").disabled = true;
+    FS.setFileEnableState(false);   // Disable files/folders
+    console.log("DISCONNECT");
+});
 
 navigator.serial.getPorts().then((ports) => {
     ports.forEach(port => {
