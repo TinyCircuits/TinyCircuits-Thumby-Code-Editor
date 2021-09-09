@@ -2,7 +2,13 @@
 
 
 class BITMAP_BUILDER{
-    constructor(rowCount, columnCount){
+    constructor(rowCount, columnCount, panelDivElemID){
+        this.PANEL_DIV_ELEM_ID = panelDivElemID;
+
+        // The starign size of the bitmap
+        this.ROW_COUNT = rowCount;
+        this.COLUMN_COUNT = columnCount;
+
         // The size of each cell/bitmap pixel (square) in pixels
         this.CELL_SIZE_PX = 28;
 
@@ -12,196 +18,288 @@ class BITMAP_BUILDER{
         // Used to track number of times bitmaps exported, used to give each variable unqiue, 'enough', name
         this.BITMAP_EXPORT_COUNT = 0;
 
-        // Make grid data object (2D)
-        this.GRID_DATA = undefined;
+        // Set by setPanel() and used for setting title
+        this.PANEL = undefined;
 
-        // The value that fiils the background is 1 by default, changes when user inverts
-        this.BACKGROUND_VALUE = 1;
+        // Don't show context menu on right click grid
+        document.getElementById(this.PANEL_DIV_ELEM_ID).addEventListener("contextmenu", e => e. preventDefault());
 
-        // Number of rows and columns to start out with
-        this.setGridSize(rowCount, columnCount);
+
+
+        // Build bitmap build html
+        this.PANEL_DIV = document.getElementById(this.PANEL_DIV_ELEM_ID);
+
+        // Contains all bitmap builder elements
+        this.INNER_PARENT_DIV = document.createElement("div");
+        this.INNER_PARENT_DIV.classList.add("bitmap_builder_inner_parent");
+        this.PANEL_DIV.appendChild(this.INNER_PARENT_DIV);
+
+
+        // COntains all elements for the bitmap grid
+        this.GRID_AREA_DIV = document.createElement("div");
+        this.GRID_AREA_DIV.addEventListener('wheel', this.scrollZoom.bind(this));
+        this.GRID_AREA_DIV.onmousemove = function(event){event.preventDefault()}    // Don't stop user from drawing if out of grid area
+        this.GRID_AREA_DIV.classList.add("bitmap_builder_grid_area");
+        this.INNER_PARENT_DIV.appendChild(this.GRID_AREA_DIV);
+
+        this.GRID_DIV = document.createElement("div");
+        this.GRID_DIV.classList.add("bitmap_builder_grid");
+        this.GRID_DIV.title = "Draw with black by left-clicking cells and with white by right-clicking. Zoom in/out using left alt + scrollwheel"
+        this.GRID_AREA_DIV.appendChild(this.GRID_DIV);
+
+
+        // Contains all bitmap builder button elements
+        this.BUTTON_AREA_DIV = document.createElement("div");
+        this.BUTTON_AREA_DIV.classList.add("bitmap_builder_button_area");
+        this.INNER_PARENT_DIV.appendChild(this.BUTTON_AREA_DIV);
+
+        this.SET_WIDTH_BTN = document.createElement("button");
+        this.SET_WIDTH_BTN.textContent = "Set Width";
+        this.SET_WIDTH_BTN.onclick = this.setWidth.bind(this);
+        this.SET_WIDTH_BTN.classList.add("bitmap_builder_button");
+        this.BUTTON_AREA_DIV.appendChild(this.SET_WIDTH_BTN);
+
+        this.ZOOM_IN_BTN = document.createElement("button");
+        this.ZOOM_IN_BTN.textContent = "Z+";
+        this.ZOOM_IN_BTN.onclick = this.zoomIn.bind(this);
+        this.ZOOM_IN_BTN.classList.add("bitmap_builder_button");
+        this.ZOOM_IN_BTN.title = "Zoom in on the bitmap (left alt + scroll wheel forward/up)"
+        this.BUTTON_AREA_DIV.appendChild(this.ZOOM_IN_BTN);
+
+        this.ZOOM_OUT_BTN = document.createElement("button");
+        this.ZOOM_OUT_BTN.textContent = "Z-";
+        this.ZOOM_OUT_BTN.onclick = this.zoomOut.bind(this);
+        this.ZOOM_OUT_BTN.classList.add("bitmap_builder_button");
+        this.ZOOM_OUT_BTN.title = "Zoom out on the bitmap (left alt + scroll wheel backwards/down)"
+        this.BUTTON_AREA_DIV.appendChild(this.ZOOM_OUT_BTN);
+
+        this.IMPORT_LINES_CALLBACK = undefined;
+        this.IMPORT_LINES_BTN = document.createElement("button");
+        this.IMPORT_LINES_BTN.textContent = "Import Lines";
+        this.IMPORT_LINES_BTN.classList.add("bitmap_builder_button");
+        this.BUTTON_AREA_DIV.appendChild(this.IMPORT_LINES_BTN);
+
+        this.SET_HEIGHT_BTN = document.createElement("button");
+        this.SET_HEIGHT_BTN.textContent = "Set Height";
+        this.SET_HEIGHT_BTN.onclick = this.setHeight.bind(this);
+        this.SET_HEIGHT_BTN.classList.add("bitmap_builder_button");
+        this.BUTTON_AREA_DIV.appendChild(this.SET_HEIGHT_BTN);
+
+        this.INVERT_BTN = document.createElement("button");
+        this.INVERT_BTN.textContent = "Invert";
+        this.INVERT_BTN.onclick = this.invertCells.bind(this);
+        this.INVERT_BTN.classList.add("bitmap_builder_button");
+        this.BUTTON_AREA_DIV.appendChild(this.INVERT_BTN);
+
+        this.CLEAR_BTN = document.createElement("button");
+        this.CLEAR_BTN.textContent = "Clear";
+        this.CLEAR_BTN.onclick = this.clearCells.bind(this);
+        this.CLEAR_BTN.classList.add("bitmap_builder_button");
+        this.BUTTON_AREA_DIV.appendChild(this.CLEAR_BTN);
+
+        this.EXPORT_LINES_CALLBACK = undefined;
+        this.EXPORT_LINES_BTN = document.createElement("button");
+        this.EXPORT_LINES_BTN.textContent = "Export Lines";
+        this.EXPORT_LINES_BTN.classList.add("bitmap_builder_button");
+        this.BUTTON_AREA_DIV.appendChild(this.EXPORT_LINES_BTN);
 
         // Render grid for the first time
         this.renderGrid();
 
-        // Don't show context menu on right click grid
-        document.getElementById("bitmapbuildergrid").addEventListener("contextmenu", e => e. preventDefault());
-
-        this.CURRENT_BUTTON = 0;
-        this.HAS_HOVER_CHANGED = false;
+        this.restoreFromLocally();
     }
 
 
-    // Set the number of rows and columns the grid should have when it renders
-    setGridSize(rowCount, columnCount){
-        // Keep track of old sizes so old array can be copied to new
-        var oldRowCount = this.ROW_COUNT;
-        var oldColumnCount = this.COLUMN_COUNT;
+    restoreFromLocally(){
+        var rowCount = localStorage.getItem("ROW_COUNT");
+        var colCount = localStorage.getItem("COL_COUNT");
+        var cellValues = localStorage.getItem("CELL_VALUES");
+        var cellPxSize = localStorage.getItem("CELL_SIZE_PX");
 
-        // Assign the new dimensions to underlying objects
-        this.ROW_COUNT = parseInt(rowCount, 10);
-        this.COLUMN_COUNT = parseInt(columnCount, 10);
-
-        // Before copying, make sure new sizes are not smaller than old,
-        // if true, use new sizes and copy only part of old grid to new
-        if(this.ROW_COUNT < oldRowCount){
-            oldRowCount = this.ROW_COUNT;
-        }
-        if(this.COLUMN_COUNT < oldColumnCount){
-            oldColumnCount = this.COLUMN_COUNT;
-        }
-        
-        // Make new blank grid of new size (blank = 0 or 1)
-        var newGrid = new Array(this.ROW_COUNT).fill(this.BACKGROUND_VALUE).map(() => new Array(this.COLUMN_COUNT).fill(this.BACKGROUND_VALUE));
-
-        // Copy old array to new at 0,0 to old,old (or to new,new if new < old)
-        for(var row=0; row<oldRowCount; row++){
-            for(var column=0; column<oldColumnCount; column++){
-                newGrid[row][column] = this.GRID_DATA[row][column];
-            }
-        }
-        this.GRID_DATA = newGrid;
-    }
-
-
-    clearGrid(){
-        this.GRID_DATA = new Array(this.ROW_COUNT).fill(this.BACKGROUND_VALUE).map(() => new Array(this.COLUMN_COUNT).fill(this.BACKGROUND_VALUE));
-    }
-
-
-    // Toggle each 'bit' of the grid
-    invertGrid(){
-        for(var row=0; row<this.ROW_COUNT; row++){
-            for(var column=0; column<this.COLUMN_COUNT; column++){
-                if(this.GRID_DATA[row][column] == 0){
-                    this.GRID_DATA[row][column] = 1;
-                }else{
-                    this.GRID_DATA[row][column] = 0;
-                }
-            }
-        }
-
-        // Also invert current background color value (used for re-sizing grid)
-        if(this.BACKGROUND_VALUE == 0){
-            this.BACKGROUND_VALUE = 1;
-        }else{
-            this.BACKGROUND_VALUE = 0;
-        }
-    }
-
-
-    // Delete/clear grid and then re-build using GRID_DATA
-    renderGrid(){
-        // Delete/clear grid (NOTE, this element has onmouseout function that refers to this
-        // module to make cursor stop drawing when exits grid!)
-        document.getElementById('bitmapbuildergrid').innerHTML = "";
-
-        var rows = [];
-        var colStr = null;
-        for(var row = 0; row < this.ROW_COUNT; row++) {
-            colStr = "";
-            for (var column = 0; column < this.COLUMN_COUNT; column++){
-
-                // Set color of cell in grid depending on underlying value of data at cell position
-                var cellColor = " style=\"background-color:white;";
-                if(this.GRID_DATA[row][column] == 0){
-                    cellColor = " style=\"background-color:black;";
-                }
-
-                var cellPxSizeStr = this.CELL_SIZE_PX.toString();
-                var cellSize =  "width:" + cellPxSizeStr + "px;" +
-                                "height:" + cellPxSizeStr + "px;" +
-                                "min-width:" + cellPxSizeStr + "px;" +
-                                "min-height:" + cellPxSizeStr + "px;\"";
-
-                // Each cell refers to global class object in main.js for button clicks
-                var cellRowColumn = row.toString() + ',' + column.toString();
-                var cell =  '<td onmouseover=\"BITMAPPER.handleHover(event, this, 0, ' + cellRowColumn + ')\" onmouseout=\"BITMAPPER.handleHover(event, this, 1, ' + cellRowColumn + ')\" onmousedown=\"BITMAPPER.handleCellClick(event, '+ cellRowColumn +')\" onmouseup=BITMAPPER.handleClickDone(event)' + cellColor + cellSize + '>' + '</td>';
-
-                colStr += cell;
-            };
-            rows.push('<tr>' + colStr + '</tr>');
-        }
-
-        document.getElementById('bitmapbuildergrid').innerHTML += rows.join("");
-    }
-
-
-    // Each button calls this from main.js with their row and column numbers (nor strs)
-    handleCellClick(event, row, column){
-
-        if(event.buttons == 1){
-            this.GRID_DATA[row][column] = 0;
-            this.CURRENT_BUTTON = 1;
-        }else if(event.buttons == 2){
-            this.GRID_DATA[row][column] = 1;
-            this.CURRENT_BUTTON = 2;
-        }
-        this.renderGrid();
-    }
-
-
-    // For when mouse buttons are let go
-    handleClickDone(event){
-        this.CURRENT_BUTTON = 0;
-    }
-
-
-    // onmouseout doesn't work for the grid since it fires when moves
-    // is moves to cells, calculate and check manually
-    checkCursorInside(event, element, gridID){
-        element = document.getElementById(gridID);
-        var rect = element.getBoundingClientRect();
-
-        // Check if outside, if true, stop drawing until a new click happens
-        if (event.clientX < rect.left || event.clientX > rect.right &&
-            event.clientY < rect.top || event.clientY > rect.bottom) {
-            this.CURRENT_BUTTON = 0;
+        if(rowCount != null && colCount != null && cellValues != null && cellPxSize != null){
+            this.ROW_COUNT = parseInt(rowCount);
+            this.COLUMN_COUNT = parseInt(colCount);
+            this.CELL_SIZE_PX = parseInt(cellPxSize);
             this.renderGrid();
+
+            cellValues = cellValues.split(',');
+
+            var cells = this.GRID_DIV.children;
+            for (var i = 0; i < cells.length; i++) {
+                var cell = cells[i];
+                if(cellValues[i] == "1"){
+                    cell.style.backgroundColor = "white";
+                }else if(cellValues[i] == "0"){
+                    cell.style.backgroundColor = "black";
+                }
+            }
         }
     }
 
 
-    // Handle color change of cells since modifying style removes hover from css
-    handleHover(event, element, on_out, row, column){
-        event.preventDefault();
+    saveLocally(){
+        localStorage.setItem("ROW_COUNT", this.ROW_COUNT);
+        localStorage.setItem("COL_COUNT", this.COLUMN_COUNT);
+        localStorage.setItem("CELL_SIZE_PX", this.CELL_SIZE_PX);
 
-        // Set the cell's color on hover
-        if(element.style.backgroundColor == "white"){
-            element.style.backgroundColor = "rgb(200, 200, 200)";
-        }else if(element.style.backgroundColor == "rgb(200, 200, 200)"){
-            element.style.backgroundColor = "white";
+        var cellValues = [];
+
+        var cells = this.GRID_DIV.children;
+        for (var i = 0; i < cells.length; i++) {
+            var cell = cells[i];
+            if(cell.style.backgroundColor == "white"){
+                cellValues.push(1);
+            }else{
+                cellValues.push(0);
+            }
         }
+        localStorage.setItem("CELL_VALUES", cellValues);
+    }
 
-        if(element.style.backgroundColor == "black"){
-            element.style.backgroundColor = "rgb(55, 55, 55)";
-        }else if(element.style.backgroundColor == "rgb(55, 55, 55)"){
-            element.style.backgroundColor = "black";
+
+    // This callback calls function in main that grabs selected lines
+    setExportLinesCallback(callback){
+        this.EXPORT_LINES_CALLBACK = callback;
+        this.EXPORT_LINES_BTN.onclick = this.EXPORT_LINES_CALLBACK.bind(this);
+    }
+
+    setImportLinesCallback(callback){
+        this.IMPORT_LINES_CALLBACK = callback;
+        this.IMPORT_LINES_BTN.onclick = this.IMPORT_LINES_CALLBACK.bind(this);
+    }
+
+
+    // Clears grid back to white
+    clearCells(){
+        var cells = this.GRID_DIV.children;
+        for (var i = 0; i < cells.length; i++) {
+            var cell = cells[i];
+            cell.style.backgroundColor = "white";
         }
+    }
 
-        // If left click down and cursor just started to hover cell, user
-        // is drawing, overwrite bits
-        if(on_out == 0){
 
-            // Only do stuff on hover if a button is pressed
-            if(this.CURRENT_BUTTON != 0){
-                if(this.CURRENT_BUTTON == 1){
-                    this.GRID_DATA[row][column] = 0;
-                }else if(this.CURRENT_BUTTON == 2){
-                    this.GRID_DATA[row][column] = 1;
-                }
+    invertCells(){
+        var cells = this.GRID_DIV.children;
+        for (var i = 0; i < cells.length; i++) {
+            var cell = cells[i];
+            if(cell.style.backgroundColor == "black"){
+                cell.style.backgroundColor = "white";
+            }else{
+                cell.style.backgroundColor = "black";
+            }
+        }
+    }
 
-                // Only render again when cursor moves from cell to cell
-                if(this.HAS_HOVER_CHANGED){
-                    this.HAS_HOVER_CHANGED = false;
+
+    // Asks user for number, makes sure valid, updates grid and title
+    setWidth(){
+        var newWidth = prompt("Enter a new bitmap width: ", 8);
+        if(newWidth != null){
+            newWidth = parseInt(newWidth);
+            if(newWidth != NaN){
+                if(newWidth >= 1 && newWidth <= 72){
+                    this.COLUMN_COUNT = newWidth;
+                    this.updatePanelTitle();
                     this.renderGrid();
+                    this.saveLocally();
+                }else{
+                    alert("That width is too large or small (min: 1, max: 72)")
                 }
             }
+        }
+    }
+
+     // Asks user for number, makes sure valid, updates grid and title
+     setHeight(){
+        var newHeight = prompt("Enter a new bitmap height: ", 8);
+        if(newHeight != null){
+            newHeight = parseInt(newHeight);
+            if(newHeight != NaN){
+                if(newHeight >= 1 && newHeight <= 40){
+                    this.ROW_COUNT = newHeight;
+                    this.updatePanelTitle();
+                    this.renderGrid();
+                    this.saveLocally();
+                }else{
+                    alert("That height is too large (min: 1, max: 40)")
+                }
+            }
+        }
+    }
+
+
+    updatePanelTitle(){
+        if(this.PANEL){
+            this.PANEL.setTitle("Bitmap Builder: " + this.COLUMN_COUNT + " x " + this.ROW_COUNT);
         }else{
-            // This function was called from either onhover or hoverout, if
-            // it was not onhover, then that means the cursor moved from cell
-            // to cell
-            this.HAS_HOVER_CHANGED = true;
+            console.log("No panel");
+        }
+    }
+
+
+    // Provided the main dock manager from dock-spawn-ts, find bitmap panel and set it in this module
+    autoSetPanel(dockManager){
+        var allPanels = dockManager.getPanels();
+        for(var i=0; i<allPanels.length; i++){
+            if(allPanels[i].elementContent.id == this.PANEL_DIV_ELEM_ID){
+                this.setPanel(allPanels[i]);
+            }
+        }
+    }
+
+
+    // Provided a panel drom dock-spawn-ts, set the panel and update the title
+    setPanel(panel){
+        this.PANEL = panel;
+        this.updatePanelTitle();
+    }
+
+
+    cellLeftClickCallback(cell){
+        cell.style.backgroundColor = "black";
+        this.saveLocally();
+    }
+
+    cellRightClickCallback(cell){
+        cell.style.backgroundColor = "white";
+        this.saveLocally();
+    }
+
+
+    cellHoverCallback(cell, event){
+        event.preventDefault();
+        if(event.buttons == 1){
+            cell.style.backgroundColor = "black";
+            this.saveLocally();
+        }else if(event.buttons == 2){
+            cell.style.backgroundColor = "white";
+            this.saveLocally();
+        }
+    }
+
+
+    updateCellSizes(){
+        var cells = this.GRID_DIV.children;
+        for (var i = 0; i < cells.length; i++) {
+            var cell = cells[i];
+            cell.style.width = this.CELL_SIZE_PX.toString() + "px";
+            cell.style.height = this.CELL_SIZE_PX.toString() + "px";
+            cell.style.minWidth = this.CELL_SIZE_PX.toString() + "px";
+            cell.style.minHeight = this.CELL_SIZE_PX.toString() + "px";
+        }
+    }
+
+
+
+    // Use shift + scroll wheel to zoom in and out
+    scrollZoom(event){
+        if(event.altKey == true){
+            if(event.wheelDelta < 0){
+                this.zoomOut();
+            }else{
+                this.zoomIn();
+            }
         }
     }
 
@@ -209,7 +307,8 @@ class BITMAP_BUILDER{
     // Make each grid pixel larger and re-render grid
     zoomIn(){
         this.CELL_SIZE_PX = this.CELL_SIZE_PX + this.ZOOM_STEP_PX;
-        this.renderGrid();
+        this.updateCellSizes();
+        this.saveLocally();
     }
 
 
@@ -220,7 +319,42 @@ class BITMAP_BUILDER{
         }else{
             this.CELL_SIZE_PX = this.CELL_SIZE_PX - this.ZOOM_STEP_PX;
         }
-        this.renderGrid();
+        this.updateCellSizes();
+        this.saveLocally();
+    }
+
+
+    // Delete/clear grid and then re-build using GRID_DATA
+    renderGrid(){
+        // Remove all child elements of previous grid
+        while (this.GRID_DIV.firstChild) {
+            var child = this.GRID_DIV.firstChild;
+            this.GRID_DIV.removeChild(child);
+            child.remove();
+        }
+
+        // https://developer.mozilla.org/en-US/docs/Glossary/Grid_Cell
+        this.GRID_DIV.style.gridTemplateColumns = "repeat(" + this.COLUMN_COUNT + ", 1fr)";
+        for(var i=0; i < this.ROW_COUNT * this.COLUMN_COUNT; i++){
+            if(document.getElementById(i.toString()) == undefined){
+                var cell = document.createElement("div");
+                cell.id = i.toString();
+                cell.className = "bitmap_grid_cell";
+
+                cell.style.backgroundColor = "white";
+
+                cell.style.width = this.CELL_SIZE_PX.toString() + "px";
+                cell.style.height = this.CELL_SIZE_PX.toString() + "px";
+                cell.style.minWidth = this.CELL_SIZE_PX.toString() + "px";
+                cell.style.minHeight = this.CELL_SIZE_PX.toString() + "px";
+
+                cell.onclick = this.cellLeftClickCallback.bind(this, cell);
+                cell.oncontextmenu = this.cellRightClickCallback.bind(this, cell);
+                cell.onmousemove = this.cellHoverCallback.bind(this, cell);
+
+                this.GRID_DIV.appendChild(cell);
+            }
+        }
     }
 
 
@@ -265,7 +399,6 @@ class BITMAP_BUILDER{
 
         // Track number of spaces needed to offset (EX spaces needed = len('bitmap33 = (')))
         var spaceIndentCount = (varName + " = (").length;
-        console.log(varName);
 
         // Loop through grid data in pages COLUMN_COUNT long but 8 thick (each column of 8 is a byte for buffer)
         for(var scanRow=0; scanRow<this.ROW_COUNT; scanRow+=8){
@@ -276,7 +409,14 @@ class BITMAP_BUILDER{
                 
                 // Make the byte
                 for(var i=0; i<8 && scanRow+i < this.ROW_COUNT; i++){
-                    byte = byte | this.GRID_DATA[scanRow+i][column]<<i;
+                    var value = document.getElementById( ((scanRow+i) * this.COLUMN_COUNT) + column).style.backgroundColor;
+                    if(value == "white"){
+                        value = 1;
+                    }else{
+                        value = 0;
+                    }
+
+                    byte = byte | value<<i;
                 }
 
                 // Add the byte to Python array string
@@ -304,7 +444,7 @@ class BITMAP_BUILDER{
 
         // Only output framebuffer if name was NOT found (don't want to do it twice++)
         if(!foundName){
-            str = str + "\n"  + varName + "FBuffer = FrameBuffer(bytearray(" + varName + "), " + this.COLUMN_COUNT.toString() + ", " + this.ROW_COUNT.toString() + ", MONO_VLSB)";
+            // str = str + "\n"  + varName + "FBuffer = FrameBuffer(bytearray(" + varName + "), " + this.COLUMN_COUNT.toString() + ", " + this.ROW_COUNT.toString() + ", MONO_VLSB)";
             // Keep track of the number of times bitmaps exported, used in name (but only when name was not found)
             this.BITMAP_EXPORT_COUNT++;
         }
@@ -411,9 +551,23 @@ class BITMAP_BUILDER{
             // Made it through setting that up, set internal values
             this.ROW_COUNT = tempRowCount;
             this.COLUMN_COUNT = tempColumnCount;
-            this.GRID_DATA = tempGridData;
+
+            // Update grid to grid size
+            this.renderGrid();
+            this.updatePanelTitle();
+
+            for(var row=0; row<this.ROW_COUNT; row++){
+                for(var col=0; col<this.COLUMN_COUNT; col++){
+                    if(tempGridData[row][col] == 1){
+                        document.getElementById( (row * this.COLUMN_COUNT) + col).style.backgroundColor = "white";
+                    }else{
+                        document.getElementById( (row * this.COLUMN_COUNT) + col).style.backgroundColor = "black";
+                    }
+                }
+            }
+
         }else{
-            alert("Either no lines were selected to import or too many lines were detected. Please only select one array (0~255 elements) and an optional width & height comment line");
+            alert("Either no lines were selected to import or too many lines were detected. Please only select one array and an optional width & height comment line");
             return 0;   // no line sselected, lines empty
         }
     }

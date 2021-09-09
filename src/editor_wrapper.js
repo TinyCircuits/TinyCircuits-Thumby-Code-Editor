@@ -4,15 +4,15 @@
 // common operations provided by the ace editor
 
 class EditorWrapper{
-    constructor(){
-        this.ACE_EDITOR = ace.edit("editor");
+    constructor(editorElemID, panel){
+        this.ELEM_ID = editorElemID;
+        this.ACE_EDITOR = ace.edit(this.ELEM_ID);
         this.ACE_EDITOR.setTheme("ace/theme/twilight");
         this.ACE_EDITOR.session.setMode("ace/mode/python");
-        this.TABS_ELEMENT = document.getElementById("tabparentspaceactual");
-        this.TAB_COUNT = 0;
-        this.MAX_TAB_COUNT = 0;
-        this.LAST_SELECTED_TAB_ID = "";         // Used so that when a new tab is selected the tab's style from before can be reset
-        this.SESSIONS = {};                     // This holds the ACE session for each tab indexed by main button id (button that allows users to click on a tab, starts with M#)
+
+        this.PANEL = panel;
+
+        this.CURRENT_FILE_NAME = "";
 
         this.FONT_SIZE = 10;
         this.ACE_EDITOR.setOptions({
@@ -36,6 +36,8 @@ class EditorWrapper{
                             "   if i > 10:\n" +
                             "       break";
 
+        this.isResetFlag = false;   // When a reset hapens in main.js, set this true so value not deleted from storage
+
         // File picker options for saving and opening python & text files
         // https://wicg.github.io/file-system-access/#api-filepickeroptions
         this.fileOptions = {
@@ -53,37 +55,90 @@ class EditorWrapper{
 
         // On page load, add a default tab, provide "allowfalsedelete"
         // flag as true so tab can be clsoed right away (unless edits are made)
-        this.addTab(defaultCode, "HelloWorld.py", undefined, true);
+        // this.addTab(defaultCode, "HelloWorld.py", undefined, true);
 
         // When the editor has focus capture ctrl-o and do open file function
-        this.ACE_EDITOR.commands.addCommand({
-            name: 'OpenFile',
-            bindKey: {win: 'Ctrl-O',  mac: 'Command-O'},
-            exec: function(editor) {
-                EDITOR.openFile();          // Use global scope to access this
-            },
-            readOnly: true
+        // this.ACE_EDITOR.commands.addCommand({
+        //     name: 'OpenFile',
+        //     bindKey: {win: 'Ctrl-O',  mac: 'Command-O'},
+        //     exec: function(editor) {
+        //         EDITOR.openFile();          // Use global scope to access this
+        //     },
+        //     readOnly: true
+        // });
+
+        // // When the editor has focus capture ctrl-s and do save file function
+        // this.ACE_EDITOR.commands.addCommand({
+        //     name: 'SaveCurrentTab',
+        //     bindKey: {win: 'Ctrl-S',  mac: 'Command-S'},
+        //     exec: function(editor) {
+        //         EDITOR.saveFile();          // Use global scaope to access this
+        //     },
+        //     readOnly: true
+        // });
+
+        // // When the editor has focus capture ctrl-r and do rename file function
+        // this.ACE_EDITOR.commands.addCommand({
+        //     name: 'SaveAsCurrentTab',
+        //     bindKey: {win: 'Ctrl-Alt-S',  mac: 'Command-Alt-S'},
+        //     exec: function(editor) {
+        //         EDITOR.saveFileAs();        // Use global scaope to access this
+        //     },
+        //     readOnly: true
+        // });
+
+
+        // Save editor state everytime a change is made, EVERYTHING about it
+        this.ACE_EDITOR.session.on('change', () => {
+            localStorage.setItem(this.ELEM_ID, this.ACE_EDITOR.getValue());
         });
 
-        // When the editor has focus capture ctrl-s and do save file function
-        this.ACE_EDITOR.commands.addCommand({
-            name: 'SaveCurrentTab',
-            bindKey: {win: 'Ctrl-S',  mac: 'Command-S'},
-            exec: function(editor) {
-                EDITOR.saveFile();          // Use global scaope to access this
-            },
-            readOnly: true
-        });
+        // Restore editor value, panel title, and font size
+        var lastEditorValue = localStorage.getItem(this.ELEM_ID);
+        var lastEditorFileName = localStorage.getItem(this.ELEM_ID + "Name");
+        var lastEditorFontSize = localStorage.getItem(this.ELEM_ID + "FontSize");
+        if(lastEditorValue != null){
+            this.ACE_EDITOR.setValue(lastEditorValue, 1);
+        }
+        if(lastEditorFileName != null){
+            this.CURRENT_FILE_NAME = lastEditorFileName;
+            if(this.CURRENT_FILE_NAME != ""){
+                this.PANEL.setTitle(this.PANEL.elementContent.id.substring(2)+ " - " + this.CURRENT_FILE_NAME);
+            }
+        }
+        if(lastEditorFontSize != null){
+            this.FONT_SIZE = lastEditorFontSize;
+            this.ACE_EDITOR.setOptions({
+                fontSize: this.FONT_SIZE.toString() + "pt",
+            });
+        }
 
-        // When the editor has focus capture ctrl-r and do rename file function
-        this.ACE_EDITOR.commands.addCommand({
-            name: 'SaveAsCurrentTab',
-            bindKey: {win: 'Ctrl-Alt-S',  mac: 'Command-Alt-S'},
-            exec: function(editor) {
-                EDITOR.saveFileAs();        // Use global scaope to access this
-            },
-            readOnly: true
-        });
+        this.resize();
+    }
+
+
+    setFileName(newFileName){
+        this.CURRENT_FILE_NAME = newFileName;
+        this.PANEL.setTitle(this.PANEL.elementContent.id.substring(2)+ " - " + this.CURRENT_FILE_NAME);
+        localStorage.setItem(this.ELEM_ID + "Name", this.CURRENT_FILE_NAME);
+    }
+
+
+    // Needs to be called when editor closed otherwise edits that are spawned again will take on the stored data
+    clearStorage(){
+        localStorage.removeItem(this.ELEM_ID);
+        localStorage.removeItem(this.ELEM_ID + "Name");
+        localStorage.removeItem(this.ELEM_ID + "FontSize");
+    }
+
+
+    getElemID(){
+        return this.ELEM_ID;
+    }
+
+
+    resize(){
+        this.ACE_EDITOR.resize();
     }
 
 
@@ -92,6 +147,7 @@ class EditorWrapper{
         this.ACE_EDITOR.setOptions({
             fontSize: this.FONT_SIZE.toString() + "pt",
         });
+        localStorage.setItem(this.ELEM_ID + "FontSize", this.FONT_SIZE);
     }
     decreaseFontSize(){
         if(this.FONT_SIZE-1 > 0){
@@ -99,6 +155,7 @@ class EditorWrapper{
             this.ACE_EDITOR.setOptions({
                 fontSize: this.FONT_SIZE.toString() + "pt",
             });
+            localStorage.setItem(this.ELEM_ID + "FontSize", this.FONT_SIZE);
         }
     }
 
@@ -123,21 +180,22 @@ class EditorWrapper{
     // Opens a new tab with contents of local file from PC
     async openFile(){
         let fileHandle;
-        [fileHandle] = await window.showOpenFilePicker(this.fileOptions);
-
-        // Check if first file has true 'allfastdelete' since that
-        // is an autogenerated tab without edits and that there is
-        // only one tab. If those are true, close it and add this tab.
-        // Save ID since addTab will change it, add tab, remove tab since 
-        // expects at least two tabs to exist
-        var maybeRemoveID = this.LAST_SELECTED_TAB_ID;
-
-        await this.addTab(undefined, undefined, fileHandle);
-
-        // Check if first tab is NewFileX or HelloWorld.py without edits, if so, remove it
-        if(this.SESSIONS[maybeRemoveID]["allowfastdelete"] == true && this.TAB_COUNT == 2){
-            this.removeTab(maybeRemoveID);
+        try{
+            [fileHandle] = await window.showOpenFilePicker(this.fileOptions);
+        }catch(err){
+            return;
         }
+
+        const file = await fileHandle.getFile();
+        var code = await file.text();
+
+        this.ACE_EDITOR.setValue(code, 1);
+
+        this.CURRENT_FILE_NAME = file.name;
+        console.log(this.ELEM_ID + "Name");
+        localStorage.setItem(this.ELEM_ID + "Name", this.CURRENT_FILE_NAME);
+
+        return file.name;
     }
 
 
@@ -164,15 +222,29 @@ class EditorWrapper{
     async saveFileAs(){
         var fileHandle = undefined;
         try{
-            this.fileOptions.suggestedName = this.getActiveTabName();                   // Get the tab name
+            if(this.CURRENT_FILE_NAME  == ""){
+                this.fileOptions.suggestedName = "NewFile.py";
+            }else{
+                this.fileOptions.suggestedName = this.CURRENT_FILE_NAME;
+            }
             fileHandle = await window.showSaveFilePicker(this.fileOptions);             // Let the user pick location to save with dialog
-        }catch(e){                                                                      // If the user aborts, stop function execuation, leave unsaved
+        }catch(err){                                                                      // If the user aborts, stop function execuation, leave unsaved
             this.fileOptions.suggestedName = ".py";                                     // Reset this before stopping function
+            console.log(err);
             return;                                                                     // Stop function
         }
 
-        this.SESSIONS[this.LAST_SELECTED_TAB_ID]["filehandler"] = fileHandle;           // Store the file handle with tab/session in dict
-        this.saveActiveTabData();                                                       // Start process of saving data to file
+        try{
+            var writeStream = await fileHandle.createWritable();                        // For writing to the file
+        }catch(err){
+            console.log(err);
+            return;                                                                     // If the user doesn't allow tab to save to opened file, don't edit file
+        }
+
+        var file = fileHandle.getFile();                                                // Get file from promise so that the name can be retrieved
+        var data = await this.ACE_EDITOR.getValue();                                    // Get tab contents
+        await writeStream.write(data);                                                  // Write dataif using an HTTPS connection
+        writeStream.close();                                                            // Save the data to the file now
     }
 
 
@@ -204,6 +276,11 @@ class EditorWrapper{
     // Expose common Ace editor operation
     getValue(){
         return this.ACE_EDITOR.getValue();
+    }
+
+    // Expose common Ace editor operation
+    setValue(value, index){
+        return this.ACE_EDITOR.setValue(value, index);
     }
 
 
@@ -289,9 +366,9 @@ class EditorWrapper{
         this.TABS_ELEMENT.appendChild(tab);
 
         // Change tab colors after child parent relation finished
-        this.changeTabColor(tabID, "#f79122");
+        this.changeTabColor(tabID, "gray");
         if(this.LAST_SELECTED_TAB_ID != ""){
-            this.changeTabColor(this.LAST_SELECTED_TAB_ID, "#2fa9e1");
+            this.changeTabColor(this.LAST_SELECTED_TAB_ID, "gray");
         }
 
         // Tab created for webpage/HTML, now make a new ACE session and load/display it (making sure to save all other tabs first!)
@@ -372,7 +449,7 @@ class EditorWrapper{
                 addTabButton.setAttribute("class", "tab-add-btn");
                 addTabButton.setAttribute("onclick", "tabButtonClickHandler(this)");
                 addTabButton.textContent = "+";
-                addTabButton.style.backgroundColor = "#f79122";
+                addTabButton.style.backgroundColor = "gray";
                 this.TABS_ELEMENT.lastChild.appendChild(addTabButton);
             }
         }
@@ -383,10 +460,10 @@ class EditorWrapper{
     // Given the id of the main tab button, this will switch the editor to that ACE tab/session
     switchToTabSession(tabID){
         if(tabID != this.LAST_SELECTED_TAB_ID){
-            this.changeTabColor(document.getElementById(this.LAST_SELECTED_TAB_ID).id, "#2fa9e1");
+            this.changeTabColor(document.getElementById(this.LAST_SELECTED_TAB_ID).id, "gray");
             this.ACE_EDITOR.setSession(this.SESSIONS[tabID]["session"]);
             this.LAST_SELECTED_TAB_ID = tabID;
-            this.changeTabColor(tabID, "#f79122");
+            this.changeTabColor(tabID, "gray");
             this.ACE_EDITOR.focus();
         }
     }

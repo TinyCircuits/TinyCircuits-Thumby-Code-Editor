@@ -2,9 +2,9 @@
 // Created using Tree.js: https://www.cssscript.com/folder-tree-treejs/
 
 class FILESYSTEM{
-    constructor(){
+    constructor(fsElementID){
         this.FS_ROOT = new TreeNode("\\");                          // Create the root-node
-        this.ELEM = document.getElementById("onboardfilesarea");    // Element in document where file tree is rendered
+        this.ELEM = document.getElementById(fsElementID);           // Element in document where file tree is rendered
         this.FS_TREE = new TreeView(this.FS_ROOT, this.ELEM);       // Create the tree
         this.FS_TREE.reload();                                      // Always use this, when you change the TreeView or any of its node
 
@@ -20,11 +20,51 @@ class FILESYSTEM{
 
         // Used to determine if files should be enabled or disabled for now (used for commands in process and fetching file system)
         this.STATE = true;
+
+
+        // Callbacks that are used when certain buttons/items are clicked
+        this.CALLBACK_DELETE = undefined;
+        this.CALLBACK_RENAME = undefined;
+        this.CALLBACK_OPEN = undefined;
+
+
+        // Add events for FS button parent and the buttons themselves
+        document.getElementById("IDfsMenuParent").addEventListener("mouseover", () => {
+            document.getElementById("IDfsMenuParent").style.display = "flex";
+        });
+        document.getElementById("IDfsMenuParent").addEventListener("mouseout", () => {
+            document.getElementById("IDfsMenuParent").style.display = "none";
+        });
+
+        document.getElementById("IDfsDeleteBtn").addEventListener("click", () =>{
+            this.CALLBACK_DELETE(this.getSelectedNodePath(), this.getSelectedNodeFileOrDir());
+        });
+        document.getElementById("IDfsOpeneBtn").addEventListener("click", () =>{
+
+        });
+        document.getElementById("IDfsRenameBtn").addEventListener("click", () =>{
+            this.CALLBACK_RENAME(this.getSelectedNodePath(), prompt("Choose a new name for the on-board file", ".py"));
+        });
+    }
+
+
+    setCallbackDelete(callback){
+        this.CALLBACK_DELETE = callback;
+    }
+
+    setCallbackRename(callback){
+        this.CALLBACK_RENAME = callback;
+    }
+
+    setCallbackOpen(callback){
+        this.CALLBACK_OPEN = callback;
     }
 
 
     // When nodes are left clicked they are opened in webpage, handle that here
     handleFileleftClick(event, node){
+        console.log("File left clicked");
+
         var currentNode = node;
         var path = "";
         while(currentNode != undefined){
@@ -35,14 +75,17 @@ class FILESYSTEM{
 
         // Full path to root after this (removes three back slashes)
         path = path.substring(3);
-        const pathEvent = new CustomEvent('openonboardfile', { detail: {location: path, fileName: node.toString()} });
-        window.dispatchEvent(pathEvent);
+        var fileName = node.toString();
+
+        this.CALLBACK_OPEN(path, fileName);
     }
 
 
     // Right clicked nodes get a menu that allows modifying filesystem in certain ways
     handleFileRightClick(event, node){
-        var MENU_ELM = document.getElementById("fsrcmenuparent");
+        console.log("File/Dir right clicked");
+
+        var MENU_ELM = document.getElementById("IDfsMenuParent");
 
         // Show menu for renaming, moving, deleting files and move to cursor.
         MENU_ELM.style.display = "flex";
@@ -66,7 +109,23 @@ class FILESYSTEM{
                     var newFileTreeNode = new TreeNode(fsNode[nodeKey][fileOrDir]);             // Make child node
 
                     // Assign event so that left clicked nodes can be opened in webpage
-                    newFileTreeNode.on("click", this.handleFileleftClick);
+                    newFileTreeNode.on("click", (event, node) => {
+                        console.log("File left clicked");
+                
+                        var currentNode = node;
+                        var path = "";
+                        while(currentNode != undefined){
+                            // Although we represent the filesystem with '\', RP2040 MicroPython wants '/' in paths
+                            path = "/" + currentNode.toString() + path;
+                            currentNode = currentNode.parent;
+                        }
+                
+                        // Full path to root after this (removes three back slashes)
+                        path = path.substring(3);
+                        var fileName = node.toString();
+                
+                        this.CALLBACK_OPEN(path, fileName);
+                    });
 
                     // Assign event so that right clicked nodes bring up a menu
                     // to rename, copy, cut, paste, open, or delete file on-board
@@ -99,7 +158,7 @@ class FILESYSTEM{
 
 
     // Given true or false, goes through all folders and files and disables/enables the files
-    setFileEnableState(state, node){
+    setFileEnableState(state){
         this.STATE = state;
         this.FS_ROOT = new TreeNode("\\");
         this.FS_TREE = new TreeView(this.FS_ROOT, this.ELEM);
@@ -160,10 +219,12 @@ class FILESYSTEM{
     // Returns 0 if last right/left clicked node is file, and 1 for dir
     getSelectedNodeFileOrDir(){
         var selectedNode = this.FS_TREE.getSelectedNodes()[0];
-        if(selectedNode.getOptions()["forceParent"]){
-            return 1;
-        }else{
-            return 0;
+        if(selectedNode != undefined){
+            if(selectedNode.getOptions()["forceParent"]){
+                return 1;
+            }else{
+                return 0;
+            }
         }
     }
 
