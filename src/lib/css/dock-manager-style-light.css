@@ -3,12 +3,14 @@
 }
 
 .panel-titlebar {
-	background-color: #333;
+	background-color: rgb(204, 204, 204);
 }
 
 .panel-titlebar-text {
 	font-weight: bold;
-	color:#aaa;
+	color:rgb(77, 77, 77);
+	font-family: Roboto;
+	font-size: 14px;
 }
 
 .panel-titlebar-button-close {
@@ -58,6 +60,7 @@
 /******************* Dock Manager ********************/
 .dock-container {
 	background-color: #888;
+	font-family: Roboto;
 }
 
 .dock-container-fill {
@@ -79,7 +82,7 @@
 }
 
 .splitbar-horizontal {
-	background-color: #000000;
+	background-color: #e6e6e6;
 }
 
 .splitbar-horizontal:hover {
@@ -91,7 +94,7 @@
 }
 
 .splitbar-vertical {
-	background-color: #000000;
+	background-color: #e6e6e6;
 }
 
 .splitbar-vertical:hover {
@@ -116,7 +119,7 @@
 }
 
 .dockspan-tab-content {
-	background-color: rgb(46, 46, 46);
+	background-color: rgb(219, 219, 219);
 }
 
 .dockspan-tab-content > * {
@@ -135,17 +138,19 @@
 
 .dockspan-tab-handle:hover {
     background-color: #006729;
-	color:#fff;
+	color:rgb(77, 77, 77);
 }
 
 .dockspan-tab-handle-selected {
-    background-color: #333;
-	color:#fff;
+    background-color: rgb(204, 204, 204);
+	color: rgb(77, 77, 77);
+	font-size: 14px;
 }
+
 
 .dockspan-tab-handle-selected:hover {
     background-color: #008749;
-	color:#fff;
+	color:rgb(77, 77, 77);
 }
 
 .dockspan-tab-handle-text {
@@ -159,24 +164,25 @@
 }
 
 .dockspan-tab-handle-list-container {
-	background-color: rgb(46, 46, 46);
+	background-color: rgb(255, 255, 255);
 }
 
 .dockspan-tab-handle-content-seperator {
-	background-color:  #333;
+	background-color:  rgb(204, 204, 204);
 }
 
 .dockspan-tab-handle-content-seperator-active {
-	background-color: #008749;
+	background-color: #67bb94;
 }
 
 .dockspan-tab-handle-active {
-	background-color: #008749;
+	background-color: #67bb94;
 }
 
 .dockspan-panel-active {
-	background-color: #008749;
+	background-color: #67bb94;
 }
 .dockspan-panel-titlebar-text-active {
-	color: white;
+	color: rgb(77, 77, 77);
+	font-size: 14px;
 }

@@ -46,6 +46,23 @@ class ActiveTerminal{
     }
 
 
+    setLightTheme(){
+        this.TERM.setOption('theme', {
+            background: '#fdf6e3',
+            cursor: "gray",
+            foreground: "black"
+        });
+    }
+
+    setDarkTheme(){
+        this.TERM.setOption('theme', {
+            background: 'black',
+            cursor: "white",
+            foreground: "white"
+        });
+    }
+
+
     // Resizes the terminal to fit its parent container
     autoFit(){
         this.FITADDON.fit();

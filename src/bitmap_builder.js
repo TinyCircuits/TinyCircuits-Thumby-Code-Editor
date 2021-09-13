@@ -44,7 +44,7 @@ class BITMAP_BUILDER{
 
         this.GRID_DIV = document.createElement("div");
         this.GRID_DIV.classList.add("bitmap_builder_grid");
-        this.GRID_DIV.title = "Draw with black by left-clicking cells and with white by right-clicking. Zoom in/out using left alt + scrollwheel"
+        this.GRID_DIV.title = "Draw with black by left-clicking cells and with white by right-clicking. Zoom in/out using left ctrl + scrollwheel"
         this.GRID_AREA_DIV.appendChild(this.GRID_DIV);
 
 
@@ -63,14 +63,14 @@ class BITMAP_BUILDER{
         this.ZOOM_IN_BTN.textContent = "Z+";
         this.ZOOM_IN_BTN.onclick = this.zoomIn.bind(this);
         this.ZOOM_IN_BTN.classList.add("bitmap_builder_button");
-        this.ZOOM_IN_BTN.title = "Zoom in on the bitmap (left alt + scroll wheel forward/up)"
+        this.ZOOM_IN_BTN.title = "Zoom in on the bitmap (left ctrl + scroll wheel forward/up)"
         this.BUTTON_AREA_DIV.appendChild(this.ZOOM_IN_BTN);
 
         this.ZOOM_OUT_BTN = document.createElement("button");
         this.ZOOM_OUT_BTN.textContent = "Z-";
         this.ZOOM_OUT_BTN.onclick = this.zoomOut.bind(this);
         this.ZOOM_OUT_BTN.classList.add("bitmap_builder_button");
-        this.ZOOM_OUT_BTN.title = "Zoom out on the bitmap (left alt + scroll wheel backwards/down)"
+        this.ZOOM_OUT_BTN.title = "Zoom out on the bitmap (left ctrl + scroll wheel backwards/down)"
         this.BUTTON_AREA_DIV.appendChild(this.ZOOM_OUT_BTN);
 
         this.IMPORT_LINES_CALLBACK = undefined;
@@ -294,7 +294,8 @@ class BITMAP_BUILDER{
 
     // Use shift + scroll wheel to zoom in and out
     scrollZoom(event){
-        if(event.altKey == true){
+        event.preventDefault();
+        if(event.ctrlKey == true){
             if(event.wheelDelta < 0){
                 this.zoomOut();
             }else{

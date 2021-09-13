@@ -11,6 +11,7 @@ html, body {
     display: flex;
     flex-flow: row wrap;
     justify-content: space-evenly;
+    font-family: Roboto;
 }
 .header_logo_parent {
     background-color: rgb(46, 46, 46);
@@ -36,6 +37,7 @@ html, body {
     background-color: black;
     color: white;
     border: gray 1px solid;
+    font-family: Roboto;
 }
 .header_buttons:hover{
     background-color: gray;
@@ -52,7 +54,7 @@ html, body {
     border: gray 1px solid;
     justify-content: center;
     align-items: center;
-    font-size: 15px;
+    font-size: 13px;
 }
 .header_utilites_menu {
     position: absolute;
@@ -63,6 +65,7 @@ html, body {
     border: solid gray 1px;
     height: 125px;
     width: 150px;
+    font-size: 13px;
 }
 .header_utilites_menu_btn{
     display: flex;
@@ -77,6 +80,7 @@ html, body {
     justify-content: center;
     padding: 5px;
     color: white;
+    font-family: Roboto;
 }
 .header_utilites_menu_btn:hover{
     background-color: gray;
@@ -86,6 +90,7 @@ html, body {
     flex: 1;
     display: flex;
     flex-direction: row;
+    font-size: 13px;
 }
 .header_links{
     position: relative;
@@ -97,6 +102,7 @@ html, body {
     justify-content: center;
     align-items: center;
     text-decoration: none;
+    font-family: Roboto;
 }
 .header_links_other{
     background-color: rgb(46, 46, 46);
@@ -110,6 +116,9 @@ html, body {
     text-decoration: none;
 }
 a:visited {color:white;}
+a:link {
+    color: rgb(0, 185, 218);
+}
 
 .editor{
     background-color: rgb(46, 46, 46);
@@ -147,6 +156,7 @@ a:visited {color:white;}
     align-items:center;
     width:100%;
     height:20px;
+    border-bottom: gray 1px solid;
 }
 .editor_header_toolbar_btn {
     color: white;
@@ -160,6 +170,8 @@ a:visited {color:white;}
     padding-Right: 10px;
     height: 100%;
     border: gray 1px solid;
+    border-bottom: none;
+    font-family: Roboto;
 }
 .editor_header_toolbar_btn:hover {
     background-color: gray;
@@ -178,6 +190,7 @@ a:visited {color:white;}
     justify-content: center;
     align-items: center;
     vertical-align: middle;
+    font-family: Roboto;
 }
 .fs_rc_menu_parent {
     position: absolute;
@@ -268,10 +281,11 @@ a:visited {color:white;}
 }
 
 .bitmap_builder_button{
-    background: white;
-    color: black;
+    background: black;
+    color: rgb(255, 255, 255);
     border: 1px gray solid;
-    font-size: 12.5px;
+    font-size: 12px;
+    font-family: Roboto;
 }
 .bitmap_builder_button:hover{
     background: lightgrey;

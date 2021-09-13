@@ -20,6 +20,9 @@ class ReplJS{
             if(this.DEBUG_CONSOLE_ON) console.log("Serial supported in this browser!");
         } else {
             alert("Serial NOT supported in your browser! Use Microsoft Edge or Google Chrome");
+            setTimeout(() => {
+                this.CALLBACK_DONT_INTERRUPT();
+            }, 350);
             return;
         }
 
@@ -556,10 +559,10 @@ class ReplJS{
             
         "    # Loop through and create stucture of on-board FS\n" +
         "    for dirent in os.listdir(top):\n" +
-        "        if(os.stat(top + extend + dirent)[0] == 32768):\n" +
+        "        if(os.stat(top + extend + dirent)[0] == 32768):\n" +   // File
         "            structure[dir][item_index] = {\"F\": dirent}\n" +
         "            item_index = item_index + 1\n" +
-        "        elif(os.stat(top + extend + dirent)[0] == 16384):\n" +
+        "        elif(os.stat(top + extend + dirent)[0] == 16384):\n" + // Dir
         "            structure[dir][item_index] = {\"D\": dirent}\n" +
         "            item_index = item_index + 1\n" +
         "            walk(top + extend + dirent, structure[dir], dirent)\n" +
@@ -796,30 +799,34 @@ class ReplJS{
 
 
     async executeLines(lines){
-        this.CALLBACK_DONT_INTERRUPT();
+        if(lines != undefined && lines != "" && this.CONNECTED == true){
+            this.CALLBACK_DONT_INTERRUPT();
 
-        // Get into raw mode
-        this.setFilter(true);
-        this.setEOTs([this.EOT_RAW_PROMPT]);
-        await this.writeToDevice(this.CTRL_CMD_RAWMODE);
-        await this.waitForSetEOT(false);    // Should not take more than 5s, timeout if it does
-        this._REMOVING_RAW_OK_FLAG = true;
-        this.setFilter(false);
+            // Get into raw mode
+            this.setFilter(true);
+            this.setEOTs([this.EOT_RAW_PROMPT]);
+            await this.writeToDevice(this.CTRL_CMD_RAWMODE);
+            await this.waitForSetEOT(false);    // Should not take more than 5s, timeout if it does
+            this._REMOVING_RAW_OK_FLAG = true;
+            this.setFilter(false);
 
-        // Execute rename get command
-        this.setEOTs([this.EOT_CMD_END_RAW_PROMPT, this.EOT_RUNNING_FROM_KINTERRUPT]);
-        await this.writeToDevice(lines + "\x04");
-        await this.waitForSetEOT(true);     // Should not take more than 5s, timeout if it does
+            // Execute rename get command
+            this.setEOTs([this.EOT_CMD_END_RAW_PROMPT, this.EOT_RUNNING_FROM_KINTERRUPT]);
+            await this.writeToDevice(lines + "\x04");
+            await this.waitForSetEOT(true);     // Should not take more than 5s, timeout if it does
 
-        // Get back into normal mode
-        // this.setFilter(true);
-        this.setEOTs([this.EOT_NORMAL_PROMPT]);
-        await this.writeToDevice(this.CTRL_CMD_NORMALMODE);
-        await this.waitForSetEOT(false);    // Should not take more than 5s, timeout if it does
-        // this.setFilter(false);
+            // Get back into normal mode
+            // this.setFilter(true);
+            this.setEOTs([this.EOT_NORMAL_PROMPT]);
+            await this.writeToDevice(this.CTRL_CMD_NORMALMODE);
+            await this.waitForSetEOT(false);    // Should not take more than 5s, timeout if it does
+            // this.setFilter(false);
 
-        await this.getOnBoardFSTree();
+            await this.getOnBoardFSTree();
 
-        this.CALLBACK_DONT_INTERRUPT();
+            this.CALLBACK_DONT_INTERRUPT();
+        }else{
+            alert("Thumby not connected or editor has no code, not executing");
+        }
     }
 }

@@ -99,6 +99,7 @@ function setEditorsThumbyButtonStates(disabledorNot){
     for(var i=0; i<allPanels.length; i++){
         var currentID = allPanels[i].elementContent.id;
         if(currentID.indexOf("Editor") != -1){
+            document.getElementById(allPanels[i].elementContent.id + "thumbyFastExecuteBtn").disabled = disabledorNot;
             // document.getElementById(allPanels[i].elementContent.id + "thumbyUploadToBtn").disabled = disabledorNot;
             // document.getElementById(allPanels[i].elementContent.id + "executeBtn").disabled = disabledorNot;
         }
@@ -112,6 +113,7 @@ function handleDontInterruptPageElements(){
     if(elementsDisabled){
         // Enable elements since RP2040 not busy anymore
         document.getElementById("IDconnectThumbyBtn").disabled = false;
+        document.getElementById("IDuploadProjectBtn").disabled = false;
         setEditorsThumbyButtonStates(false);
 
         // Only enabled file system if actuall conencted to RP2040
@@ -122,6 +124,7 @@ function handleDontInterruptPageElements(){
     }else{
         // Disable elements while RP2040 busy with operation
         document.getElementById("IDconnectThumbyBtn").disabled = true;
+        document.getElementById("IDuploadProjectBtn").disabled = true;
         setEditorsThumbyButtonStates(true);
         if(FS != null){
             FS.setFileEnableState(false);
@@ -147,7 +150,7 @@ REPL.callbackSetFSupdate(handleThumbyFSUpdate);
 // Called when a Thumby connects to the page
 async function handleThumbyConnect(){
     ATERM.writeln("");
-    ATERM.writeln('\x1b[1;32m' + "Connected" + '\x1b[1;37m');
+    ATERM.writeln('\x1b[1;32m' + "Connected" + '\x1b[1;0m');
     ATERM.setStatePython();
 
     FS = new FILESYSTEM("IDFileSystem");      // Create the filesystem
@@ -178,7 +181,7 @@ REPL.callbackSetConnected(handleThumbyConnect);
 function handleThumbyDisconnect(){
     ATERM.setStateOutput();
     ATERM.prompt();
-    ATERM.writeln('\x1b[1;31m' + "Disconnected" + '\x1b[1;37m');
+    ATERM.writeln('\x1b[1;31m' + "Disconnected" + '\x1b[1;0m');
     ATERM.writeln("Waiting for port to be selected...");
     console.log("Disconnect");
 
@@ -279,6 +282,47 @@ function searchArrayForPanelID(ID, panelArray){
         }
     }
 }
+
+
+function invertTheme(){
+    // https://stackoverflow.com/questions/2024486/is-there-an-easy-way-to-reload-css-without-reloading-the-page/43161591#43161591
+    var links = document.getElementsByTagName("link");
+    for (var cl in links){
+        var link = links[cl];
+        if (link.rel === "stylesheet"){
+            var href = link.href.substring(link.href.lastIndexOf("/") + 1);
+
+
+            if(href == "dock-manager-style-dark.css"){
+                link.href = "src/lib/css/dock-manager-style-light.css";
+            }else if(href == "dock-manager-style-light.css"){
+                link.href = "src/lib/css/dock-manager-style-dark.css";
+            }
+
+
+            if(href == "main-light.css"){
+                link.href = "src/main-dark.css";
+                ATERM.setDarkTheme();
+                document.getElementById("logo").src = "thumby_logo-light.png";
+                
+                for (const [editorKey, editor] of Object.entries(Editors)) {
+                    editor.setThemeDark();
+                }
+                localStorage.setItem("lastTheme", "dark");
+            }else if(href == "main-dark.css"){
+                link.href = "src/main-light.css";
+                ATERM.setLightTheme();
+                document.getElementById("logo").src = "thumby_logo-dark.png";
+
+                for (const [editorKey, editor] of Object.entries(Editors)) {
+                    editor.setThemeLight();
+                }
+                localStorage.setItem("lastTheme", "light");
+            }
+        }
+    }
+}
+window.invertTheme = invertTheme;
 
 
 function resetLayout(){
@@ -748,6 +792,13 @@ window.onload = () => {
     for(var i=0; i<allPanels.length; i++){
         if(allPanels[i].elementContent.id.indexOf("Editor") != -1){
             assignEditor(allPanels[i].elementContent.id, allPanels[i]);
+        }
+    }
+
+    var lastTheme = localStorage.getItem("lastTheme");
+    if(lastTheme != null){
+        if(lastTheme == "light"){
+            invertTheme();
         }
     }
 };

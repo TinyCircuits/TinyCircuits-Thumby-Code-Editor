@@ -162,8 +162,10 @@ class FILESYSTEM{
         this.STATE = state;
         this.FS_ROOT = new TreeNode("\\");
         this.FS_TREE = new TreeView(this.FS_ROOT, this.ELEM);
-        this.addChildrenToNode(this.FS_ROOT, this.LAST_JSON_DATA[""]);
-        this.FS_TREE.reload();
+        if(this.LAST_JSON_DATA != undefined){
+            this.addChildrenToNode(this.FS_ROOT, this.LAST_JSON_DATA[""]);
+            this.FS_TREE.reload();
+        }
     }
 
 

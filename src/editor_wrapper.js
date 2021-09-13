@@ -7,7 +7,6 @@ class EditorWrapper{
     constructor(editorElemID, panel){
         this.ELEM_ID = editorElemID;
         this.ACE_EDITOR = ace.edit(this.ELEM_ID);
-        this.ACE_EDITOR.setTheme("ace/theme/twilight");
         this.ACE_EDITOR.session.setMode("ace/mode/python");
 
         this.PANEL = panel;
@@ -114,6 +113,29 @@ class EditorWrapper{
         }
 
         this.resize();
+        
+        var lastTheme = localStorage.getItem(this.ELEM_ID + "Theme");
+        if(lastTheme != null){
+            if(lastTheme == "dark"){
+                this.setThemeDark();
+            }else{
+                this.setThemeLight();
+            }
+        }else{
+            // Default: dark mode
+            this.setThemeDark();
+        }
+    }
+
+
+    setThemeLight(){
+        this.ACE_EDITOR.setTheme("ace/theme/chrome");
+        localStorage.setItem(this.ELEM_ID + "Theme", "light");
+    }
+
+    setThemeDark(){
+        this.ACE_EDITOR.setTheme("ace/theme/terminal");
+        localStorage.setItem(this.ELEM_ID + "Theme", "dark");
     }
 
 

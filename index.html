@@ -5,27 +5,33 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
         <title>Thumby Online Editor</title>
         <link rel="stylesheet" href="src/lib/css/dock-manager.css">
-        <link rel="stylesheet" href="src/lib/css/dock-manager-style.css">
+        <link rel="stylesheet" href="src/lib/css/dock-manager-style-dark.css">
 
         <script src="src/js/jquery-3.4.1.min.js"></script>
 
         <script src="src/lib/es5/dock-spawn-ts.js"></script>
-        <link rel="stylesheet" href="src/main.css">
+        <link rel="stylesheet" href="src/main-dark.css">
+        <!-- <link rel="stylesheet" href="src/main-light.css"> -->
         <link rel="stylesheet" href="node_modules/xterm/css/xterm.css"/>
+
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap" rel="stylesheet">
     </head>
 
     <body style="width: 100%; height: 100%; margin: 0;">
-        <div id="IDProjectSettingsMenu" class="header_utilites_menu" onmouseover="javascript:handleProjectSettingsDropdown(event, 0)" onmouseout="javascript:handleProjectSettingsDropdown(event, 1)">
+        <div id="IDProjectSettingsMenu" class="header_utilites_menu" style="height:35px" onmouseover="javascript:handleProjectSettingsDropdown(event, 0)" onmouseout="javascript:handleProjectSettingsDropdown(event, 1)">
             <button onclick="javascript:setProjectName()" title="Sets the name of the project and the name of the directory that files are saved to on the Thumby" id="IDSetProjectNameBtn" class="header_utilites_menu_btn">Set Project Name</button>
-            <button title="Saves a project file to the computer so the current layout and files can be opened again at a later time" id="IDSaveProjectBtn" class="header_utilites_menu_btn">Save Project To PC</button>
-            <button title="Opens a project file from the computer to restore previous files and layouts to the page" id="IDOpenProjectBtn" class="header_utilites_menu_btn">Open Project From PC</button>
+            <!-- <button title="Saves a project file to the computer so the current layout and files can be opened again at a later time" id="IDSaveProjectBtn" class="header_utilites_menu_btn">Save Project To PC</button>
+            <button title="Opens a project file from the computer to restore previous files and layouts to the page" id="IDOpenProjectBtn" class="header_utilites_menu_btn">Open Project From PC</button> -->
         </div>
 
 
-        <div id="IDUtilitesMenu" class="header_utilites_menu" onmouseover="javascript:handleUtilitesDropdown(event, 0)" onmouseout="javascript:handleUtilitesDropdown(event, 1)">
+        <div id="IDUtilitesMenu" style="height:165px" class="header_utilites_menu" onmouseover="javascript:handleUtilitesDropdown(event, 0)" onmouseout="javascript:handleUtilitesDropdown(event, 1)">
             <button onclick="window.open('https://micropython.org/resources/firmware/rp2-pico-20210902-v1.17.uf2')" title="Downloads firmware for reformatting Thumby, follow the below steps &#013;  1. Turn off Thumby &#013;  2. Hold down bottom-left button &#013;  3. Turn Thumby back on while holding button &#013;  4. Download firmware .uf2 file by clicking this button &#013;  5. Drag .uf2 file to Thumby RP2040 volume using a file explorer &#013;  6. Press the 'Format Thumby' button in the Thumby filesystem panel on this page" id="IDUtilitesDownloadFirmwareBtn" class="header_utilites_menu_btn">Download Firmware</button>
             <button title="Repositions all panels to default positions while keeping editors open and preserving project" id="IDUtilitesResetLayoutBtn" class="header_utilites_menu_btn" onclick="javascript:resetLayout()">Reset Layout</button>
             <button title="Resets this page to the state it was the first time it was visted (clears layout, editors, project, refreshes page, etc.)" id="IDUtilitesHardResetPageBtn" class="header_utilites_menu_btn" onclick="javascript:hardResetLayout()">Hard Reset Page</button>
+            <button title="Swaps theme between light and dark" id="IDUtilitesInvertThemeBtn" class="header_utilites_menu_btn" onclick="javascript:invertTheme()">Invert Theme</button>
         </div>
 
 
@@ -51,12 +57,12 @@
 
         <div class="header" id="header">
             <div class="header_logo_parent">
-                <img class="header_logo" src="thumby_logo.png" alt="Thumby Logo">
+                <img id="logo" class="header_logo" src="thumby_logo-light.png" alt="Thumby Logo">
             </div>
 
             <div class="header_buttons_parent">
-                <button id="IDProjectSettings" onmouseover="javascript:handleProjectSettingsDropdown(event, 0)" onmouseout="javascript:handleProjectSettingsDropdown(event, 1)" class="header_buttons" title="Opens menu for actions related to Thumby IDE project files">Project Settings&#9662</button>
                 <div id="IDprojectName" title="The current project name (also the name of the directory files are saved to on the Thumby in the 'Games' folder)" class="header_project" title="">Project: New Project</div>
+                <button id="IDProjectSettings" onmouseover="javascript:handleProjectSettingsDropdown(event, 0)" onmouseout="javascript:handleProjectSettingsDropdown(event, 1)" class="header_buttons" title="Opens menu for actions related to Thumby IDE project files">Project Settings&#9662</button>
                 <button onclick="javascript:uploadProject()" id="IDuploadProjectBtn" title="Uplaods all open project files to Thumby 'Games' folder with project name as the folder name. &#013;The project will show up on the Thumby main screen after upload and a power cylce of the Thumby" class="header_buttons" onclick="">Upload Project</button>
                 <button id="IDconnectThumbyBtn" title="If Thumby is plugged in, connects it &#013;  * If Thumby was used on page before, auto connects when button pressed &#013;  * If first time connecting, interface to choose Thumby pops up" class="header_buttons" onclick="javascript:connectREPL()">Connect Thumby</button>
                 <button class="header_buttons" title="Creates a new MicroPython editor somewhere on the page" onclick="javascript:addEditor()">Add New Editor</button>
@@ -70,7 +76,7 @@
         </div>
 
 
-        <div id="dock_div" style="height:calc(100% - 45px); width: 100%; position: absolute; left: 0; top: 45px;">
+        <div id="dock_div" style="height:calc(100% - 46px); width: 100%; position: absolute; left: 0; top: 45px;">
             <div id="my_dock_manager" class="my-dock-manager" style="position: relative;"></div>
             <div id="IDBitMapBuilder" data-panel-caption="Bitmap Builder" style="background: lightcoral;"></div>
             <div id="IDFileSystem" data-panel-caption="Thumby FileSystem" class="fs"><br><br>Waiting On Thumby Connection...<br><br>Left-click "Connect Thumby"</div>
