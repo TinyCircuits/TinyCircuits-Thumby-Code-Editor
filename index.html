@@ -20,6 +20,13 @@
     </head>
 
     <body style="width: 100%; height: 100%; margin: 0;">
+
+        <div id="myProgress">
+            <div id="myBar"></div>
+        </div>
+
+        
+
         <div id="IDProjectSettingsMenu" class="header_utilites_menu" style="height:35px" onmouseover="javascript:handleProjectSettingsDropdown(event, 0)" onmouseout="javascript:handleProjectSettingsDropdown(event, 1)">
             <button onclick="javascript:setProjectName()" title="Sets the name of the project and the name of the directory that files are saved to on the Thumby" id="IDSetProjectNameBtn" class="header_utilites_menu_btn">Set Project Name</button>
             <!-- <button title="Saves a project file to the computer so the current layout and files can be opened again at a later time" id="IDSaveProjectBtn" class="header_utilites_menu_btn">Save Project To PC</button>
@@ -27,16 +34,19 @@
         </div>
 
 
-        <div id="IDUtilitesMenu" style="height:165px" class="header_utilites_menu" onmouseover="javascript:handleUtilitesDropdown(event, 0)" onmouseout="javascript:handleUtilitesDropdown(event, 1)">
-            <button onclick="window.open('https://micropython.org/resources/firmware/rp2-pico-20210902-v1.17.uf2')" title="Downloads firmware for reformatting Thumby, follow the below steps &#013;  1. Turn off Thumby &#013;  2. Hold down bottom-left button &#013;  3. Turn Thumby back on while holding button &#013;  4. Download firmware .uf2 file by clicking this button &#013;  5. Drag .uf2 file to Thumby RP2040 volume using a file explorer &#013;  6. Press the 'Format Thumby' button in the Thumby filesystem panel on this page" id="IDUtilitesDownloadFirmwareBtn" class="header_utilites_menu_btn">Download Firmware</button>
+        <div id="IDUtilitesMenu" style="height:185px" class="header_utilites_menu" onmouseover="javascript:handleUtilitesDropdown(event, 0)" onmouseout="javascript:handleUtilitesDropdown(event, 1)">
+            <button onclick="window.open('https://micropython.org/resources/firmware/rp2-pico-20210902-v1.17.uf2')" title="Downloads firmware for reformatting Thumby, follow the below steps &#013;  1. Turn off Thumby &#013;  2. Hold down bottom-left button &#013;  3. Turn Thumby back on while holding button &#013;  4. Download firmware .uf2 file by clicking this button &#013;  5. Drag .uf2 file to Thumby RP2040 volume using a file explorer &#013;  6. Press 'Format Thumby' under 'Utilities'" id="IDUtilitesDownloadFirmwareBtn" class="header_utilites_menu_btn">Download Firmware</button>
             <button title="Repositions all panels to default positions while keeping editors open and preserving project" id="IDUtilitesResetLayoutBtn" class="header_utilites_menu_btn" onclick="javascript:resetLayout()">Reset Layout</button>
             <button title="Resets this page to the state it was the first time it was visted (clears layout, editors, project, refreshes page, etc.)" id="IDUtilitesHardResetPageBtn" class="header_utilites_menu_btn" onclick="javascript:hardResetLayout()">Hard Reset Page</button>
             <button title="Swaps theme between light and dark" id="IDUtilitesInvertThemeBtn" class="header_utilites_menu_btn" onclick="javascript:invertTheme()">Invert Theme</button>
+            <button title="Erases all files on Thumby and uploads library files plus examples. Typically used after downlaoding and uploading a firmware .uf2" id="IDUtilitesFormatThumby" class="header_utilites_menu_btn" onclick="javascript:formatThumby()">Format Thumby</button>
         </div>
 
 
-        <div id="IDOtherLinksMenu" class="header_utilites_menu" style="height:35px" onmouseover="javascript:handleOtherLinksDropdown(event, 0)" onmouseout="javascript:handleOtherLinksDropdown(event, 1)">
-            <div class="header_links" style="flex: 1"> <a target="_blank" href="https://tinycircuits.com/pages/contact-us" class="link">Contact Us</a> </div>
+        <div id="IDOtherLinksMenu" class="header_utilites_menu" onmouseover="javascript:handleOtherLinksDropdown(event, 0)" onmouseout="javascript:handleOtherLinksDropdown(event, 1)">
+            <div class="header_links"> <a target="_blank" href="https://github.com/TinyCircuits" class="link">TiynCircuits Github</a> </div>
+            <div class="header_links"> <a target="_blank" href="https://tinycircuits.com/" class="link">TiynCircuits Store</a> </div>
+            <div class="header_links"> <a target="_blank" href="https://tinycircuits.com/pages/contact-us" class="link">Contact Us</a> </div>
         </div>
 
 
@@ -67,7 +77,7 @@
                 <button id="IDUtilites" class="header_buttons" title="Brings up menu for utilities related to firmware and page layout" onmouseover="javascript:handleUtilitesDropdown(event, 0)" onmouseout="javascript:handleUtilitesDropdown(event, 1)">Utilities&#9662</button>
             </div>
             <div class="header_links_parent">
-                <div class="header_links"> <a target="_blank" href="https://tinycircuits.com/blogs/thumby/building-a-game-with-the-thumby-ide" class="link" >Making a Game Tutorial</a> </div>
+                <div class="header_links"> <a target="_blank" href="https://tinycircuits.com/blogs/thumby/building-a-game-with-the-thumby-ide" class="link" >Making a Game tutorial</a> </div>
                 <div class="header_links"> <a target="_blank" href="http://forum.tinycircuits.com/" class="link">Forums</a> </div>
                 <div id="IDOtherLinks" class="header_links_other" onmouseover="javascript:handleOtherLinksDropdown(event, 0)" onmouseout="javascript:handleOtherLinksDropdown(event, 1)">Other Links&#9662</div>
             </div>
@@ -77,7 +87,11 @@
         <div id="dock_div" style="height:calc(100% - 46px); width: 100%; position: absolute; left: 0; top: 45px;">
             <div id="my_dock_manager" class="my-dock-manager" style="position: relative;"></div>
             <div id="IDBitMapBuilder" data-panel-caption="Bitmap Builder" style="background: lightcoral;"></div>
+
+
             <div id="IDFileSystem" data-panel-caption="Thumby FileSystem" class="fs"><br><br>Waiting On Thumby Connection...<br><br>Left-click "Connect Thumby"</div>
+
+            
             <div id="IDEditor0" data-panel-caption="Editor0" style="background: rgb(46, 46, 46);"></div>
             <div id="IDEditor1" data-panel-caption="Editor1" style="background: rgb(46, 46, 46);"></div>
             <div id="IDEditor2" data-panel-caption="Editor2" style="background: rgb(46, 46, 46);"></div>

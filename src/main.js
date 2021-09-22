@@ -325,6 +325,16 @@ function invertTheme(){
 window.invertTheme = invertTheme;
 
 
+
+// Erases all files and folders on Thumby and uploads hard-coded library files and an example python file
+async function formatThumby(){
+    await REPL.deleteAllFiles();
+    await REPL.rebuildStructure();
+}
+window.formatThumby = formatThumby;
+
+
+
 function resetLayout(){
     // Close all panels so redocking can occur from start/clean slate
     var allPanels = dockManager.getPanels();

@@ -290,3 +290,20 @@ a:link {
 .bitmap_builder_button:hover{
     background: lightgrey;
 }
+
+#myProgress {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 60%;
+    background-color: grey;
+    z-index: 1000000000;
+    display: none;
+}
+
+#myBar {
+    width: 1%;
+    height: 30px;
+    background-color: green;
+}

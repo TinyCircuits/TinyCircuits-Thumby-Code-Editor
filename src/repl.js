@@ -45,6 +45,7 @@ class ReplJS{
 
             var disconnectedPort = e.target;
             if(this.checkPortMatching(disconnectedPort)){
+                document.getElementById("myProgress").style.display = "none";
                 if(this.DEBUG_CONSOLE_ON) console.log("%cDisconnected MicroPython! Clearing EOTs", "color: yellow");
                 this.clearEOTs();
                 this.CALLBACK_DISCONNECTED();
@@ -754,6 +755,159 @@ class ReplJS{
     }
 
 
+
+    async uploadFileToLibsFolder(fileName, fileContents){
+        if(fileName == ""){
+            return;
+        }
+
+        if(this.CONNECTED == false){
+            return;
+        }
+
+        this.CALLBACK_DONT_INTERRUPT(); // Tell main.JS not to allow user to send more connect/file operations/ etc
+        // Get into raw mode
+        this.setFilter(true);
+        this.setEOTs([this.EOT_RAW_PROMPT]);
+        await this.writeToDevice(this.CTRL_CMD_RAWMODE);
+        await this.waitForSetEOT(false);    // Should not take more than 5s, timeout if it does
+        this._REMOVING_RAW_OK_FLAG = true;
+
+        // Build check games dir, check project dir, and open file command
+        var checkLibsOpenFileCMD = "import uos\n" +
+                  "try:\n" +
+                  "    uos.mkdir('" + "lib" + "')\n" +
+                  "except OSError:\n" +
+                  "    print('Lib directory already exists, did not make a new folder')\n" +
+                  "onboard_file = open('" + "lib/" + fileName + "','wb')\n" +
+                  "print('')";
+
+        // Execute check games dir, check project dir, and open file command
+        // this.setFilter(false);
+        this.setEOTs([this.EOT_CMD_END_RAW_PROMPT]);
+        await this.writeToDevice(checkLibsOpenFileCMD + "\x04");
+        await this.waitForSetEOT(false);     // Should not take more than 5s, timeout if it does
+
+        // First, split string for \n, \r, and \r\n (lineseps)
+        fileContents = fileContents.split(/\r\n|\n|\r/);
+
+        // Recombine everything with correct newlines
+        var combined = "";
+        for(var row=0; row<fileContents.length; row++){
+            // Make sure not to add an extra newline at end
+            if(row != fileContents.length - 1){
+                combined = combined + fileContents[row] + "\r\n";
+            }else{
+                combined = combined + fileContents[row];
+            }
+        }
+        combined = "\\x" + combined.convertToHex('\\x');
+
+ 
+        // Send the whole file to Thumby, as Thonny does, in chunks
+        // Do the actual sending of file data now that the file is open, use .slice over
+        // .substr or .substring since those modify the original string and take WAY longer
+        for(var b=0; b<Math.ceil(combined.length/this.THUMBY_SEND_BLOCK_SIZE); b++){
+            this.setEOTs([this.EOT_CMD_END_RAW_PROMPT]);
+            var writeDataCMD = "onboard_file.write(b\"" + combined.slice(b*this.THUMBY_SEND_BLOCK_SIZE, (b+1)*this.THUMBY_SEND_BLOCK_SIZE) + "\")\n" +
+                               "print('')";
+            await this.writeToDevice(writeDataCMD + "\x04");
+            await this.waitForSetEOT(false);
+        }
+
+
+        // Close the file that was just written to
+        var closeFileCMD = "onboard_file.close()\n" +
+                           "print('')";
+        this.setEOTs([this.EOT_CMD_END_RAW_PROMPT]);
+        await this.writeToDevice(closeFileCMD + "\x04");
+        await this.waitForSetEOT(false);     // Should not take more than 5s, timeout if it does
+
+
+        // Get back into normal mode
+        this.setEOTs([this.EOT_NORMAL_PROMPT]);
+        await this.writeToDevice(this.CTRL_CMD_NORMALMODE);
+        await this.waitForSetEOT(false);    // Should not take more than 5s, timeout if it does
+        this.setFilter(false);
+        this.CALLBACK_DONT_INTERRUPT(); // Tell main.JS to allow user to send more connect/file operations/ etc
+    }
+
+
+
+    async uploadFileToRoot(fileName, fileContents){
+        if(fileName == ""){
+            return;
+        }
+
+        if(this.CONNECTED == false){
+            return;
+        }
+
+        this.CALLBACK_DONT_INTERRUPT(); // Tell main.JS not to allow user to send more connect/file operations/ etc
+        // Get into raw mode
+        this.setFilter(true);
+        this.setEOTs([this.EOT_RAW_PROMPT]);
+        await this.writeToDevice(this.CTRL_CMD_RAWMODE);
+        await this.waitForSetEOT(false);    // Should not take more than 5s, timeout if it does
+        this._REMOVING_RAW_OK_FLAG = true;
+
+        // Build check games dir, check project dir, and open file command
+        var openFile = "import uos\n" +
+                  "onboard_file = open('" + fileName + "','wb')\n" +
+                  "print('')";
+
+        // Execute check games dir, check project dir, and open file command
+        // this.setFilter(false);
+        this.setEOTs([this.EOT_CMD_END_RAW_PROMPT]);
+        await this.writeToDevice(openFile + "\x04");
+        await this.waitForSetEOT(false);     // Should not take more than 5s, timeout if it does
+
+        // First, split string for \n, \r, and \r\n (lineseps)
+        fileContents = fileContents.split(/\r\n|\n|\r/);
+
+        // Recombine everything with correct newlines
+        var combined = "";
+        for(var row=0; row<fileContents.length; row++){
+            // Make sure not to add an extra newline at end
+            if(row != fileContents.length - 1){
+                combined = combined + fileContents[row] + "\r\n";
+            }else{
+                combined = combined + fileContents[row];
+            }
+        }
+        combined = "\\x" + combined.convertToHex('\\x');
+
+ 
+        // Send the whole file to Thumby, as Thonny does, in chunks
+        // Do the actual sending of file data now that the file is open, use .slice over
+        // .substr or .substring since those modify the original string and take WAY longer
+        for(var b=0; b<Math.ceil(combined.length/this.THUMBY_SEND_BLOCK_SIZE); b++){
+            this.setEOTs([this.EOT_CMD_END_RAW_PROMPT]);
+            var writeDataCMD = "onboard_file.write(b\"" + combined.slice(b*this.THUMBY_SEND_BLOCK_SIZE, (b+1)*this.THUMBY_SEND_BLOCK_SIZE) + "\")\n" +
+                               "print('')";
+            await this.writeToDevice(writeDataCMD + "\x04");
+            await this.waitForSetEOT(false);
+        }
+
+
+        // Close the file that was just written to
+        var closeFileCMD = "onboard_file.close()\n" +
+                           "print('')";
+        this.setEOTs([this.EOT_CMD_END_RAW_PROMPT]);
+        await this.writeToDevice(closeFileCMD + "\x04");
+        await this.waitForSetEOT(false);     // Should not take more than 5s, timeout if it does
+
+
+        // Get back into normal mode
+        this.setEOTs([this.EOT_NORMAL_PROMPT]);
+        await this.writeToDevice(this.CTRL_CMD_NORMALMODE);
+        await this.waitForSetEOT(false);    // Should not take more than 5s, timeout if it does
+        this.setFilter(false);
+        this.CALLBACK_DONT_INTERRUPT(); // Tell main.JS to allow user to send more connect/file operations/ etc
+    }
+
+
+
     // Sends commands to RP2040 to rename file at given path to provided new name
     async renameFile(oldPath, newName){
         if(oldPath != undefined && newName != undefined){
@@ -827,6 +981,156 @@ class ReplJS{
             this.CALLBACK_DONT_INTERRUPT();
         }else{
             alert("Thumby not connected or editor has no code, not executing");
+        }
+    }
+
+
+    async deleteAllFiles(){
+        if(this.CONNECTED == true){
+            this.CALLBACK_DONT_INTERRUPT();
+            await this.interruptToRaw();
+
+            var cmd =   "import os\n" +
+                        "def rm(d):  # Remove file or tree\n" +
+                        "   try:\n" +
+                        "       if os.stat(d)[0] & 0x4000:  # Dir\n" +
+                        "           for f in os.ilistdir(d):\n" +
+                        "               if f[0] not in ('.', '..'):\n" +
+                        "                   rm('/'.join((d, f[0])))  # File or Dir\n" +
+                        "           os.rmdir(d)\n" +
+                        "       else:  # File\n" +
+                        "           os.remove(d)\n" +
+                        "       print('rm_worked')\n" +
+                        "   except:\n" +
+                        "       print('rm_failed')\n" +
+                        "filelist = os.listdir('/')\n" +
+                        "for f in filelist:\n" +
+                        "    rm('/' + f)";
+
+            // Get into raw mode
+            this.setFilter(true);
+            this.setEOTs([this.EOT_RAW_PROMPT]);
+            await this.writeToDevice(this.CTRL_CMD_RAWMODE);
+            await this.waitForSetEOT(false);    // Should not take more than 5s, timeout if it does
+            this._REMOVING_RAW_OK_FLAG = true;
+
+            // Execute delete command
+            this.setFilter(true);
+            this.setEOTs([this.EOT_CMD_END_RAW_PROMPT]);
+            await this.writeToDevice(cmd + "\x04");
+            await this.waitForSetEOT(false);     // Should not take more than 5s, timeout if it does
+
+            // Get back into normal mode
+            this.setEOTs([this.EOT_NORMAL_PROMPT]);
+            await this.writeToDevice(this.CTRL_CMD_NORMALMODE);
+            await this.waitForSetEOT(false);    // Should not take more than 5s, timeout if it does
+            this.setFilter(false);
+
+            // Update the FS tree
+            await this.getOnBoardFSTree();
+            this.CALLBACK_DONT_INTERRUPT();
+        }else{
+            alert("Thumby not connected, not executing");
+        }
+    }
+
+
+    async downloadFile(file) {
+        let response = await fetch(file);
+            
+        if(response.status != 200) {
+            throw new Error("Server Error");
+        }
+            
+        // read response stream as text
+        let text_data = await response.text();
+
+        return text_data;
+    }
+
+
+    async rebuildStructure(){
+        if(this.CONNECTED == true){
+            this.CALLBACK_DONT_INTERRUPT();
+
+            // Show progress bar
+            document.getElementById("myProgress").style.display = "block";
+            var loadingElem = document.getElementById("myBar");
+            var loadingPercent = 0; // percent
+            loadingElem.style.width = loadingPercent + "%";
+
+            await this.interruptToRaw();
+
+
+            var cmd = "import os\n" +
+                      "os.mkdir('Games')\n" +
+                      "os.mkdir('lib')\n" +
+                      "print('DONE')";
+
+            // Get into raw mode
+            this.setFilter(true);
+            this.setEOTs([this.EOT_RAW_PROMPT]);
+            await this.writeToDevice(this.CTRL_CMD_RAWMODE);
+            await this.waitForSetEOT(false);    // Should not take more than 5s, timeout if it does
+            this._REMOVING_RAW_OK_FLAG = true;
+
+            // Execute delete command
+            this.setFilter(true);
+            this.setEOTs([this.EOT_CMD_END_RAW_PROMPT]);
+            await this.writeToDevice(cmd + "\x04");
+            await this.waitForSetEOT(false);     // Should not take more than 5s, timeout if it does
+
+            // Get back into normal mode
+            this.setEOTs([this.EOT_NORMAL_PROMPT]);
+            await this.writeToDevice(this.CTRL_CMD_NORMALMODE);
+            await this.waitForSetEOT(false);    // Should not take more than 5s, timeout if it does
+            this.setFilter(false);
+
+            // uploadFileToGamesFolder(fileName, fileContents, projectName)
+            await this.uploadFileToGamesFolder('HelloWorld.py', await this.downloadFile("/ThumbyGames/Games/HelloWorld/HelloWorld.py"), "HelloWorld");
+            loadingPercent = loadingPercent + 11.111;
+            loadingElem.style.width = loadingPercent + "%";
+
+            await this.uploadFileToGamesFolder('RFSD.py', await this.downloadFile("/ThumbyGames/Games/RFSD/RFSD.py"), "RFSD");
+            loadingPercent = loadingPercent + 11.111;
+            loadingElem.style.width = loadingPercent + "%";
+
+            await this.uploadFileToGamesFolder('TinyAnnelid.py', await this.downloadFile("/ThumbyGames/Games/TinyAnnelid/TinyAnnelid.py"), "TinyAnnelid");
+            loadingPercent = loadingPercent + 11.111;
+            loadingElem.style.width = loadingPercent + "%";
+
+            await this.uploadFileToGamesFolder('TinyDelver.py', await this.downloadFile("/ThumbyGames/Games/TinyDelver/TinyDelver.py"), "TinyDelver");
+            loadingPercent = loadingPercent + 11.111;
+            loadingElem.style.width = loadingPercent + "%";
+
+            await this.uploadFileToGamesFolder('TinysaurRun.py', await this.downloadFile("/ThumbyGames/Games/TinysaurRun/TinysaurRun.py"), "TinysaurRun");
+            loadingPercent = loadingPercent + 11.111;
+            loadingElem.style.width = loadingPercent + "%";
+
+            await this.uploadFileToLibsFolder('ssd1306.py', await this.downloadFile("/ThumbyGames/lib/ssd1306.py"));
+            loadingPercent = loadingPercent + 11.111;
+            loadingElem.style.width = loadingPercent + "%";
+
+            await this.uploadFileToLibsFolder('thumby.py', await this.downloadFile("/ThumbyGames/lib/thumby.py"));
+            loadingPercent = loadingPercent + 11.111;
+            loadingElem.style.width = loadingPercent + "%";
+
+            await this.uploadFileToRoot('main.py', await this.downloadFile("/ThumbyGames/main.py"));
+            loadingPercent = loadingPercent + 11.111;
+            loadingElem.style.width = loadingPercent + "%";
+
+            await this.uploadFileToRoot('thumby.cfg', await this.downloadFile("/ThumbyGames/thumby.cfg"));
+            loadingPercent = loadingPercent + 11.111;
+            loadingElem.style.width = loadingPercent + "%";
+
+            // Update the FS tree
+            await this.getOnBoardFSTree();
+            this.CALLBACK_DONT_INTERRUPT();
+
+            // Hide progress bar
+            document.getElementById("myProgress").style.display = "none";
+        }else{
+            alert("Thumby not connected, not executing");
         }
     }
 }

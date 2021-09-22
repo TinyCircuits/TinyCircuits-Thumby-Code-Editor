@@ -142,7 +142,7 @@
 }
 
 .dockspan-tab-handle-selected {
-    background-color: #333;
+    background-color: rgb(63, 63, 63);
 	color:#fff;
 	font-size: 14px;
 }
@@ -167,7 +167,7 @@
 }
 
 .dockspan-tab-handle-content-seperator {
-	background-color:  #333;
+	background-color: rgb(63, 63, 63);
 }
 
 .dockspan-tab-handle-content-seperator-active {
