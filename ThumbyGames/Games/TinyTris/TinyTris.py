@@ -102,34 +102,9 @@ def clearScreen():
   thumby.display.rect(34-1,2-1,36+2,12+2,1)
   thumby.display.rect(39-1-5,18-1,14+2,12+2,1)
   thumby.display.rect(52-1,18-1,18+2,12+2,1)
-  
-  #thumby.display.fillRect(xb*2, yb*2, 2, 2, val)
-  
-  #drawBox(31,2,30,12);
-  #drawBox(39,18,15,12);
 
 def setBlock(xb, yb, val):
   thumby.display.fillRect(xb*2, yb*2, 2, 2, val)
-
-'''
-input1=getcharinput();
-
-inputTimer=time.ticks_ms();
-input2=' ';
-while(time.ticks_ms()<inputTimer+350):
-tempInput=getcharinput()
-if(tempInput!=' '):
-  input2=tempInput
-if(swD.value() == 0 and time.ticks_ms()>inputTimer+30):
-  return getcharinput()
-
-
-if(input1==' ' or input1==input2):
-return input2
-else:
-return ' ' #should only be case that button was released during delays
-
-'''
 
 def updateScreen():
   #print("update")
@@ -194,11 +169,12 @@ def next_shape():
   return next;
 
 def show_high_score():
-  print("high score")
-  for y in range(72):
-    thumby.display.fillRect(8,72-y,20,1,1)
+    
+  for y in range(40):
+    thumby.display.fillRect(8,40-y,20,1,1)
     time.sleep_ms(15)
     thumby.display.update()
+    thumby.audio.play(100+(40-y)*20, 50)
   
   for i in range(41):
     thumby.display.fillRect(8,0,20,i,0)
@@ -231,51 +207,6 @@ def show_high_score():
       i+=1
     time.sleep_ms(10)
     thumby.display.update()
-  
-  '''
-  for y in range(24):
-    thumby.display.fill(0)
-    thumby.display.drawText("YOU", 0, 6+y)
-    thumby.display.drawText('%04d' % (points//10), 36, 6+y)
-    time.sleep_ms(10)
-    thumby.display.update()
-  
-  thumby.display.drawText("BBR", 0, 5+0)
-  thumby.display.drawText("BBR", 0, 5+8)
-  thumby.display.drawText("BBR", 0, 5+16)
-  thumby.display.drawText('%04d' % (points//10), 36, 5+0)
-  thumby.display.drawText('%04d' % (points//10), 36, 5+8)
-  thumby.display.drawText('%04d' % (points//10), 36, 5+16)
-  thumby.display.drawText(":", 23, 6+y)
-  thumby.display.drawText("(", 27, 6+y)
-  thumby.display.update()
-  while(getcharinputNew()==' '):
-    color = 1
-  '''
-#show_high_score()
-'''
-#ifdef ENABLE_HIGH_SCORE
-  FILE *tmpscore;
-
-  if ((tmpscore = fopen (HIGH_SCORE_FILE, "a")))
-  {
-    char *name = getenv("LOGNAME");
-
-    if (!name)
-      name = "anonymous";
-
-    fprintftetris (tmpscore, "%7d\t %5d\t  %3d\t%s\n", points * level, points, level, name);
-    fclose (tmpscore);
-
-    system ("cat " HIGH_SCORE_FILE "| sort -rn | head -10 >" TEMP_SCORE_FILE
-      "&& cp " TEMP_SCORE_FILE " " HIGH_SCORE_FILE);
-    remove (TEMP_SCORE_FILE);
-  }
-  //         puts ("\nHit RETURN to see high scores, ^C to skip.");
-  fprintftetris (stderr, "  Score\tPoints\tLevel\tName\n");
-  system ("cat " HIGH_SCORE_FILE);
-#endif /* ENABLE_HIGH_SCORE */
-'''
 
 fastDropDelay=50
 dropDelay=500
@@ -354,6 +285,7 @@ while(True):
       if (fits_in (shape, pos + B_COLS)):
         pos += B_COLS
         c=' '
+        thumby.audio.play(300, 10, 5000)
       else:
         place (shape, pos, 7)
         #points+=1;
@@ -367,10 +299,12 @@ while(True):
                 board[j] = 0
                 j-=1
               updateScreen()
+              thumby.audio.play(1000, 50)
               while(j):
                 board[j + B_COLS] = board[j]
                 j-=1
               updateScreen()
+              thumby.audio.play(100, 100)
             j+=1
           j = B_COLS * (j // B_COLS + 1)
         if(lines_cleared-currentLines==1):
@@ -381,6 +315,8 @@ while(True):
           points+=(((lines_cleared//5)+1)*300)
         if(lines_cleared-currentLines==4):
           points+=(((lines_cleared//5)+1)*1200)
+        if(lines_cleared-currentLines==0):
+          thumby.audio.play(100, 50)
         shape = next_shape()
         pos=17+3
         if (fits_in (shape, pos)==0):

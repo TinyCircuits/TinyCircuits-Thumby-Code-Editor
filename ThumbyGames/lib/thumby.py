@@ -61,25 +61,22 @@ DISPLAY_H = const(40)
 class ButtonClass:
     def __init__(self, pin):
         self.pin = pin
-        self.state = False
         self.lastState = False
     
     # Returns True if the button is currently pressed, False if not.
     @micropython.native
     def pressed(self):
-        self.lastState = self.state
-        self.state = False if self.pin.value() == 1 else True
-        return self.state
+        return False if self.pin.value() == 1 else True
     
     # Returns True if the button was just pressed, False if not.
     @micropython.native
     def justPressed(self):
-        if(self.state == True):
-            self.state = False
-        elif(self.pin.value() != self.lastState and self.pin.value() == 0):
-            self.state = True
-        self.lastState = self.pin.value()
-        return self.state
+        returnVal=False
+        currentState=self.pressed()
+        if(self.lastState == False and currentState==True):
+            returnVal = True
+        self.lastState = currentState
+        return returnVal
 
 
 # Audio class, from which the audio namespace is defined.
@@ -128,6 +125,10 @@ class AudioClass:
             while(time.ticks_ms() - t0 <= duration):
                 pass
             self.stop()
+        else:
+            while(time.ticks_ms() - t0 <= duration):
+                pass
+            
             
 # Fast reverse-bits-in-a-byte lookup table. Useful for graphics.
 # e.g. 11110000 -> 00001111, 11010101 -> 10101011, etc
@@ -303,7 +304,7 @@ def inputJustPressed():
     global buttonD
     global buttonL
     global buttonR
-    return (buttonA.pressed() or buttonB.justPressed() or buttonU.justPressed() or buttonD.justPressed() or buttonL.justPressed() or buttonR.justPressed())
+    return (buttonA.justPressed() or buttonB.justPressed() or buttonU.justPressed() or buttonD.justPressed() or buttonL.justPressed() or buttonR.justPressed())
 
 
 # Returns true if any dpad buttons are currently pressed on the thumby.

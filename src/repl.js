@@ -1086,41 +1086,36 @@ class ReplJS{
             await this.waitForSetEOT(false);    // Should not take more than 5s, timeout if it does
             this.setFilter(false);
 
-            // uploadFileToGamesFolder(fileName, fileContents, projectName)
-            await this.uploadFileToGamesFolder('HelloWorld.py', await this.downloadFile("/ThumbyGames/Games/HelloWorld/HelloWorld.py"), "HelloWorld");
-            loadingPercent = loadingPercent + 11.111;
-            loadingElem.style.width = loadingPercent + "%";
-
             await this.uploadFileToGamesFolder('RFSD.py', await this.downloadFile("/ThumbyGames/Games/RFSD/RFSD.py"), "RFSD");
-            loadingPercent = loadingPercent + 11.111;
+            loadingPercent = loadingPercent + 12.5;
             loadingElem.style.width = loadingPercent + "%";
 
             await this.uploadFileToGamesFolder('TinyAnnelid.py', await this.downloadFile("/ThumbyGames/Games/TinyAnnelid/TinyAnnelid.py"), "TinyAnnelid");
-            loadingPercent = loadingPercent + 11.111;
+            loadingPercent = loadingPercent + 12.5;
             loadingElem.style.width = loadingPercent + "%";
 
             await this.uploadFileToGamesFolder('TinyDelver.py', await this.downloadFile("/ThumbyGames/Games/TinyDelver/TinyDelver.py"), "TinyDelver");
-            loadingPercent = loadingPercent + 11.111;
+            loadingPercent = loadingPercent + 12.5;
             loadingElem.style.width = loadingPercent + "%";
 
             await this.uploadFileToGamesFolder('TinysaurRun.py', await this.downloadFile("/ThumbyGames/Games/TinysaurRun/TinysaurRun.py"), "TinysaurRun");
-            loadingPercent = loadingPercent + 11.111;
+            loadingPercent = loadingPercent + 12.5;
             loadingElem.style.width = loadingPercent + "%";
 
             await this.uploadFileToLibsFolder('ssd1306.py', await this.downloadFile("/ThumbyGames/lib/ssd1306.py"));
-            loadingPercent = loadingPercent + 11.111;
+            loadingPercent = loadingPercent + 12.5;
             loadingElem.style.width = loadingPercent + "%";
 
             await this.uploadFileToLibsFolder('thumby.py', await this.downloadFile("/ThumbyGames/lib/thumby.py"));
-            loadingPercent = loadingPercent + 11.111;
+            loadingPercent = loadingPercent + 12.5;
             loadingElem.style.width = loadingPercent + "%";
 
             await this.uploadFileToRoot('main.py', await this.downloadFile("/ThumbyGames/main.py"));
-            loadingPercent = loadingPercent + 11.111;
+            loadingPercent = loadingPercent + 12.5;
             loadingElem.style.width = loadingPercent + "%";
 
             await this.uploadFileToRoot('thumby.cfg', await this.downloadFile("/ThumbyGames/thumby.cfg"));
-            loadingPercent = loadingPercent + 11.111;
+            loadingPercent = loadingPercent + 12.5;
             loadingElem.style.width = loadingPercent + "%";
 
             // Update the FS tree
