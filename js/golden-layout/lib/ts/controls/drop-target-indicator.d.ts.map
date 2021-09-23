@@ -1,0 +1,1 @@
+{"version":3,"file":"drop-target-indicator.d.ts","sourceRoot":"","sources":["../../../src/ts/controls/drop-target-indicator.ts"],"names":[],"mappings":"AACA,OAAO,EAAE,cAAc,EAAE,MAAM,gBAAgB,CAAC;AAGhD,gBAAgB;AAChB,qBAAa,mBAAmB;IAC5B,OAAO,CAAC,QAAQ,CAAc;;IAa9B,OAAO,IAAI,IAAI;IAIf,aAAa,CAAC,IAAI,EAAE,cAAc,GAAG,IAAI;IAQzC,IAAI,IAAI,IAAI;CAGf"}
