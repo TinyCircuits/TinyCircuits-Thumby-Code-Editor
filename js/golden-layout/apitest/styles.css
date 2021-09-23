@@ -1,0 +1,122 @@
+html {
+    height: 100%;
+    width: 100%;
+}
+
+body {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    overflow: hidden;
+}
+
+#bodySection {
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+    width: 100%;
+}
+
+#layoutContainer {
+    position: relative;
+    height: 100%;
+    width: 100%;
+}
+
+#controls {
+    display: flex;
+    flex-direction: column;
+    padding: 2px;
+}
+
+.control {
+    margin: 2px;
+}
+
+.radioLine {
+    display: flex;
+    flex-wrap: nowrap;
+}
+
+.radioLine > *:not(:first-child) {
+    margin-left: 0.4em;
+}
+
+.labelledRadio {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+}
+
+.labelledRadio > input {
+    margin: 0;
+}
+
+.labelledRadio > label {
+    margin-left: 0.2em;
+}
+
+#registerSection {
+    display: flex;
+    flex-direction: column;
+}
+
+#registerNotVirtualRadioSection {
+    display: flex;
+    margin-left: 1em;
+}
+
+#registerVirtualRadioSection {
+    display: flex;
+    margin-left: 1em;
+}
+
+#eventBindingSection {
+    display: flex;
+}
+
+#eventBindingSpan {
+    white-space: nowrap;
+}
+
+#eventBindingRadios {
+    display: flex;
+    margin-left: 0.5em;
+}
+
+#addComponentSection {
+    display: flex;
+}
+
+#replaceComponentSection {
+    display: flex;
+}
+
+#predefinedLayoutsSection {
+    display: flex;
+}
+
+#saveAndReloadLayoutSection {
+    display: flex;
+}
+
+#clickCount {
+    display: flex;
+    flex-wrap: nowrap;
+    white-space: pre;
+}
+
+#captureClickCountSpan,
+#bubbleClickCountSpan {
+    min-width: 2em;
+}
+
+#stackHeaderClick {
+    display: flex;
+    flex-wrap: nowrap;
+    white-space: pre;
+}
+
+#stackHeaderClickedDiv {
+    display: inline-flex;
+}

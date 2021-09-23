@@ -1,0 +1,54 @@
+[ ] Finish UI for Webpage4 with new layout and reconnect all events
+	[X] Add 'Reset Page' option to reposition all panels without losing work/outputs
+		[x] Why do editor backgrounds turn black on reset? {for some reason background z-index changes, just made editor in editor-dark.css have a matching black background too}
+		[ ] How to ensure panel constructors are not reloaded and then set to defaults therefore clearing people's work/outputs? {no easy way around this, just reload modded config and refresh page for now}
+    [X] Why do the Bitmap Builder buttons stay highlighted in red? {CSS in UIkit had had focus element that made it stay red, got rid of it}
+    [ ] Clicked buttons lose their border
+    [ ] Add loading bar that can be used for common operations
+
+[ ] Change from strictly a project structure to Thonny like access (allow editing game files and re saving them right away)
+    but also keep the ability to make a 'New Game' and have it build the game file structure and then allow the same kind
+    of access and saving
+
+[X] Only allow for formatting the Thumby by erasing all files and re-uploading them, don't have separate button for reinstalling libs {only has a format button now}
+
+[ ] Make sure files are read in chunks so there is no memory allocation error (TinyDelver)
+
+[x] Investigate why when uploading firmware the Thumby device can't be reconnected without refreshing the page 
+    (recreate? Put in BOOTSEL mode, download and drag-drop the .uf2, try to connect the Thumby 'Connect Thumby')
+    {it's JUST fixed now with the new repl interaction}
+
+[x] Double click files to open them (instinct for most people)
+
+[x] Why can spamming the connect button quickly allow for some unwanted stuff to print to terminal? {Looks like two connect events stack in JS, rate limit connect button}
+
+[x] Remove editor from editor list when closing editor {remove editor from list and remove editor related webpage storage variables(had to use timeout hack so browser doesn't cause delete)}
+
+[x] let mouse click on panel focus that panel so widgets are added to that panel as a tab (more clean looking: https://github.com/golden-layout/golden-layout/issues/706)
+
+[x] Clear and invert in bitmap builder do not save the state of the bitmap {Very easy fix, just add saveLocally to end of each function}
+
+[ ] Do not allow for editors with the same file name to be opened, if you do, make it close the last one that was open with that name
+
+[ ] Tie add widget buttons into adding each type of widget but limiting bitmap, shell, and FS to one each
+
+[ ] Tie in import and export of bitmap builder
+
+[ ] Add inverted light theme
+
+[ ] FS and shell need the Thumby to connect again after either panel was closed and then added again {solved for now by refreshing the page so user know they have to reconnect}
+
+[ ] Powering off and then powering on the device will output extra garbage/intro message sometimes, not sure what caused this {caused by our main.py, I think, or something needs
+    to catch this}
+
+[ ] Display little messages on Thumby when the Thumby is busy
+
+[x] Why do helper programs sometimes get stuck on raw and need a newline? {Fixed by removing print('Done') on each thought was important but was not}
+
+[ ] Disable certain buttons if their actions are not usable at certain moments
+
+[x] Only usable with 2021-09-02 MP because of intro line {should be fixed by using indexOf and capturing the last common part of the line}
+
+[ ] Change title of editor on open file
+[ ] When an editor is added, try to add it to the same panel as another editor?
+[ ] Scrolling can be slow {depends on extensions installed and what they do the site. Profile with Performance -> start record ctrl-e -> look at how long tasks take}

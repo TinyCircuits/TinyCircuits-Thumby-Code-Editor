@@ -1,0 +1,15 @@
+node_modules
+typings
+.idea
+.vscode
+*.tgz
+npm-debug.log
+/dist
+/doc
+debug.log
+/debug.log
+/lib
+/apitest/dist
+/apitest/out-tsc
+/temp
+/test/dist
