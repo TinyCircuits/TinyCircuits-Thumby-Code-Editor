@@ -1,0 +1,309 @@
+html, body {
+    background-color: rgb(224, 224, 224);
+    color: white;
+    /* overflow: hidden; */
+}
+
+.header{
+    background-color: rgb(46, 46, 46);
+    height: 40px;
+    width: 100%;
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-evenly;
+    font-family: Roboto;
+}
+.header_logo_parent {
+    background-color: white;
+    flex: 0.36;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    object-fit: fill;
+}
+.header_logo {
+    width: 38%;
+    height: 80%;
+    display: block;
+}
+.header_buttons_parent{
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+}
+.header_buttons{
+    flex: 1;
+    /* padding-bottom: 5px; */
+    background-color: white;
+    color: black;
+    border: gray 1px solid;
+    font-family: Roboto;
+}
+.header_buttons:hover{
+    background-color: gray;
+}
+.header_buttons:disabled{
+    background-color: rgb(110, 110, 110);
+}
+.header_project{
+    display: flex;
+    flex: 2;
+    /* padding-bottom: 5px; */
+    background-color: white;
+    color: black;
+    border: gray 1px solid;
+    justify-content: center;
+    align-items: center;
+    font-size: 13px;
+}
+.header_utilites_menu {
+    position: absolute;
+    background-color: violet;
+    display: none;
+    flex-flow: column nowrap;
+    z-index: 10110;
+    border: solid gray 1px;
+    height: 125px;
+    width: 150px;
+    font-size: 13px;
+}
+.header_utilites_menu_btn{
+    display: flex;
+    width: 100%;
+    flex: 1;
+    background-color: white;
+    align-items: center;
+    word-wrap: break-word;
+    border: none;
+    border-top: solid gray 1px;
+    text-align: center;
+    justify-content: center;
+    padding: 5px;
+    color: black;
+    font-family: Roboto;
+}
+.header_utilites_menu_btn:hover{
+    background-color: gray;
+}
+
+.header_links_parent{
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    font-size: 13px;
+}
+.header_links{
+    position: relative;
+    background-color: rgb(223, 223, 223);
+    color: black;
+    border: 1px solid gray;
+    flex: 0.3333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-decoration: none;
+    font-family: Roboto;
+}
+.header_links_other{
+    background-color: rgb(223, 223, 223);
+    color: black;
+    border: 1px solid gray;
+    flex: 0.3333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* padding-bottom: 5px; */
+    text-decoration: none;
+}
+a:visited {color:rgb(68, 68, 68);}
+a:link {
+    color: rgb(0, 126, 148);
+}
+
+.editor{
+    background-color: rgb(255, 255, 255);
+    display: flex;
+    width: 100%;
+    /* height: calc(100% - 60px); */
+    height: calc(100% - 20px);
+  }
+.editor_footer_toolbar {
+    background-color:blue;
+    display:flex;
+    align-items:center;
+    width:100%;
+    height:40px;
+}
+.editor_footer_toolbar_btn {
+    color: black;
+    background-color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    height: 100%;
+    border: gray 1px solid;
+}
+.editor_footer_toolbar_btn:hover {
+    background-color: gray;
+}
+.editor_footer_toolbar_btn:disabled {
+    background-color: rgb(110, 110, 110);
+}
+.editor_header_toolbar {
+    background-color:white;
+    display:flex;
+    align-items:center;
+    width:100%;
+    height:20px;
+    border-bottom: gray 1px solid;
+}
+.editor_header_toolbar_btn {
+    color: black;
+    background-color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* flex: 1; */
+    width: auto;
+    padding-left: 10px;
+    padding-Right: 10px;
+    height: 100%;
+    border: gray 1px solid;
+    border-bottom: none;
+    font-family: Roboto;
+}
+.editor_header_toolbar_btn:hover {
+    background-color: gray;
+}
+.editor_header_toolbar_btn:disabled {
+    background-color: rgb(110, 110, 110);
+}
+
+
+.fs{
+    background-color: white;
+    color: black;
+    overflow: auto;
+    font-size: 14px;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    vertical-align: middle;
+    font-family: Roboto;
+}
+.fs_rc_menu_parent {
+    position: absolute;
+    background-color: violet;
+    display: none;
+    flex-flow: column nowrap;
+    z-index: 6;
+    border: solid gray 1px;
+    height: 125px;
+    width: 100px;
+}
+.fs_rc_menu_btn{
+    display: flex;
+    width: 100%;
+    flex: 1;
+    background-color: black;
+    align-items: center;
+    word-wrap: break-word;
+    border: none;
+    border-top: solid gray 1px;
+    text-align: center;
+    justify-content: center;
+    padding: 5px;
+    color: white;
+}
+.fs_rc_menu_btn:hover{
+    background-color: gray;
+}
+
+
+
+/* Scrollbar style */
+::-webkit-scrollbar{
+    height: 8px;
+    width: 8px;
+}
+::-webkit-scrollbar-thumb:horizontal{
+    background: gray;
+}
+::-webkit-scrollbar-thumb:vertical{
+    background: gray;
+}
+::-webkit-scrollbar-track {
+    background: rgb(209, 209, 209);
+}
+
+
+
+.bitmap_builder_inner_parent{
+    display: flex;
+    background-color: greenyellow;
+    width: 100%;
+    height: 100%;
+    flex-direction: column;
+}
+
+.bitmap_builder_grid_area{
+    background: rgb(94, 94, 94);
+    height: calc(100% - 60px);
+    overflow: scroll;
+    display: flex;
+}
+.bitmap_builder_grid{
+    width: auto;
+    height: auto;
+    margin: auto;
+    padding: 6px;
+    border: 1px dashed rgb(150, 150, 150);
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+}
+.bitmap_grid_cell{
+    background-color: white;
+    border: 1px gray solid;
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+    min-height: 28px;
+}
+
+.bitmap_builder_button_area{
+    background: #3d0055;
+    border-top: gray 1px solid;
+    height: 65px;
+    display: grid;
+    grid-template-columns: repeat(4,1fr);
+    grid-auto-rows: 50%;
+}
+
+.bitmap_builder_button{
+    background: white;
+    color: black;
+    border: 1px gray solid;
+    font-size: 12px;
+    font-family: Roboto;
+}
+.bitmap_builder_button:hover{
+    background: lightgrey;
+}
+
+#myProgress {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 60%;
+    background-color: grey;
+    z-index: 1000000000;
+    display: none;
+}
+
+#myBar {
+    width: 1%;
+    height: 30px;
+    background-color: green;
+}
