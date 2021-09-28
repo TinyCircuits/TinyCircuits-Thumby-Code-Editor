@@ -1,21 +1,21 @@
-// http://jsfiddle.net/42dj7jy8/3/
+// Inspired by ~ http://jsfiddle.net/42dj7jy8/3/
 
 
 class BITMAP_BUILDER{
     constructor(rowCount, columnCount, panelDivElemID){
         this.PANEL_DIV_ELEM_ID = panelDivElemID;
 
-        // The starign size of the bitmap
+        // The starting size of the bitmap
         this.ROW_COUNT = rowCount;
         this.COLUMN_COUNT = columnCount;
 
         // The size of each cell/bitmap pixel (square) in pixels
         this.CELL_SIZE_PX = 28;
 
-        // HOw many pixels to scale cell size by on zoom event
+        // How many pixels to scale cell size by, on zoom event
         this.ZOOM_STEP_PX = 1.5;
 
-        // Used to track number of times bitmaps exported, used to give each variable unqiue, 'enough', name
+        // Used to track number of times bitmaps exported, used to give each variable unique, 'enough', name
         this.BITMAP_EXPORT_COUNT = 0;
 
         // Set by setPanel() and used for setting title
@@ -35,7 +35,7 @@ class BITMAP_BUILDER{
         this.PANEL_DIV.appendChild(this.INNER_PARENT_DIV);
 
 
-        // COntains all elements for the bitmap grid
+        // Contains all elements for the bitmap grid
         this.GRID_AREA_DIV = document.createElement("div");
         this.GRID_AREA_DIV.addEventListener('wheel', this.scrollZoom.bind(this));
         this.GRID_AREA_DIV.onmousemove = function(event){event.preventDefault()}    // Don't stop user from drawing if out of grid area
@@ -204,7 +204,7 @@ class BITMAP_BUILDER{
                     this.renderGrid();
                     this.saveLocally();
                 }else{
-                    alert("That width is too large or small (min: 1, max: 72)")
+                    alert("That seems wrong! Width can be from 1 to 72.")
                 }
             }
         }
@@ -222,7 +222,7 @@ class BITMAP_BUILDER{
                     this.renderGrid();
                     this.saveLocally();
                 }else{
-                    alert("That height is too large (min: 1, max: 40)")
+                    alert("That seems wrong! Height can be from 1 to 40.")
                 }
             }
         }
@@ -360,7 +360,7 @@ class BITMAP_BUILDER{
 
 
     // Builds bytes from bitmap data to build buffer using editor wrapper.
-    // Allow selected lines to be passed so that highlited code can be used
+    // Allow selected lines to be passed so that highlighted code can be used
     // to find a variable name (this way not always needing to re-type)
     exportBitmap(selectedLines){
         
@@ -373,8 +373,8 @@ class BITMAP_BUILDER{
         // String that holds all export information for editor
         var str = "";
 
-        // If selected lines dones't equal any of the below, and there is only one equals sign 
-        // (meaning just the array selected) then use existing name from editor (splits into 2 elements)
+        // If selected lines doesn't equal any of the below, and there is only one equals sign 
+        // (meaning just the array selected) then use existing name from editor (splits into 2 elements).
         // Also ensure no newlines before the equals because that means user has selected line before name
         // and now don't know where start of name is otherwise
         if( selectedLines != undefined && selectedLines != "" && 
