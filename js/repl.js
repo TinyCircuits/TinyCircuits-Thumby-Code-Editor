@@ -101,15 +101,39 @@ class ReplJS{
     }
 
 
+    // Wait until an OK is received, else write ctrl-c since raw sometimes gets stuck? Seems to work for upload files
+    async waitUntilOK(){
+        var times = 0;
+
+        while (this.DISCONNECT == false) {
+            var tempLines = this.COLLECTED_DATA.split('\r\n');
+
+            for(var i=0; i<tempLines.length; i++){
+                if(tempLines[i] == "OK" || tempLines[i] == ">"){
+                    return;
+                }
+            }
+
+            times = times + 1;
+            if(times >= 15){
+                this.writeToDevice('');
+                return;
+            }
+            await new Promise(resolve => setTimeout(resolve, 10));
+        }
+    }
+
+
     // Will stall js until finds line set by startReaduntil().
     // Providing an offset will skip subsequent lines after the
     // found line set by startReaduntil.
     // Loops forever if never finds line set by startReaduntil()
     async haltUntilRead(omitOffset = 0){
+
         // Re-evaluate collected data for readUntil line every 85ms
         while (this.DISCONNECT == false) {
             var tempLines = this.COLLECTED_DATA.split('\r\n');
-            // console.log(tempLines);
+
             // console.log(this.READ_UNTIL_STRING);
 
             for(var i=0; i<tempLines.length; i++){
@@ -127,10 +151,6 @@ class ReplJS{
                         }
                     }
 
-                    // this.THE_REST_OF_THE_LINES = tempLines.slice(i+omitOffset+1).join('');
-                    // console.log(tempLines.slice(0, i+omitOffset));
-                    // console.log(tempLines.slice(i+omitOffset));
-                    // console.log(this.COLLECTED_DATA);
                     return tempLines.slice(0, i+omitOffset);    // Return all lines collected just before the line that switch off haltUntil()
                 }
             }
@@ -484,6 +504,7 @@ class ReplJS{
         // but is needed to only grab the FS lines/data
         this.startReaduntil(">");
         await this.writeToDevice(cmd + "\x04");
+        await this.waitUntilOK();
         await this.haltUntilRead(1);
 
         // Get back into normal mode and omit the 3 lines from the normal message,

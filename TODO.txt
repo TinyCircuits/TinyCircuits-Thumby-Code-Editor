@@ -112,4 +112,4 @@
     [ ] Some commands are not sent in 256 byte blocks and may exceed this. The size of the command should be accounted for as well as the extra data
     [ ] Can verify right away if a command worked or not, prints OK to raw if worked, right away or after small amount of time, could retry
         https://github.com/micropython/micropython/blob/master/tools/pyboard.py#L450
-    [ ] Hard reset page, format thumby, open lib/thumby.py, refresh page, try to save thumby.py
+    [x] Hard reset page, format thumby, open lib/thumby.py, refresh page, try to save thumby.py and it will hang on raw until a ctrl-c is given {detected this and made lame fix}
