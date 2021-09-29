@@ -1,0 +1,45 @@
+.dir_chooser{
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: black;
+    border: 1px solid gray;
+    width: 450px;
+    height: 60%;
+    z-index: 1000;
+    color: white;
+    display: none;
+    font-family: Roboto;
+    font-size: 13px;
+    flex-flow: column;
+    overflow: scroll;
+}
+
+.dir_chooser_header{
+    flex: 0.05;
+    font-family: Roboto;
+    font-size: 16px;
+    color: white;
+}
+
+.dir_chooser_area{
+    flex: 0.7;
+    background-color: black;
+    border-top: 1px solid gray;
+    border-bottom: 1px solid gray;
+}
+
+.dir_chooser_footer{
+    flex: 0.25;
+    background-color: rgb(43, 43, 43);
+    display: flex;
+    flex-flow: column;
+}
+
+.dir_chooser_footer_buttons{
+    flex: 1.0;
+    display: flex;
+    flex-flow: row;
+}

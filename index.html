@@ -1,129 +1,122 @@
 <!DOCTYPE html>
+
 <html>
     <head>
-        <meta charset="UTF-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        <title>Thumby Online Editor</title>
-        <link rel="stylesheet" href="src/lib/css/dock-manager.css">
-        <link rel="stylesheet" href="src/lib/css/dock-manager-style-dark.css">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        <script src="src/js/jquery-3.4.1.min.js"></script>
+    <title>Thumby Editor</title>
 
-        <script src="src/lib/es5/dock-spawn-ts.js"></script>
-        <link rel="stylesheet" href="src/main-dark.css">
-        <!-- <link rel="stylesheet" href="src/main-light.css"> -->
-        <link rel="stylesheet" href="node_modules/xterm/css/xterm.css"/>
+        <link rel="stylesheet" href="uikit-3.7.3/css/uikit-dark.css" />
+
+
+        <link rel="stylesheet" href="js/xterm/css/xterm.css"/>
+        <link rel="stylesheet" href="golden-layout/css/goldenlayout-base.css">
+        <link rel="stylesheet" href="golden-layout/css/themes/goldenlayout-dark-theme.css">
+
+        <link rel="stylesheet" href="css/dark/main-dark.css">
+        <link rel="stylesheet" href="css/dark/fs-dark.css">
+        <link rel="stylesheet" href="css/dark/dir_chooser-dark.css">
+        <link rel="stylesheet" href="css/dark/bitmap_builder-dark.css">
+        <link rel="stylesheet" href="css/dark/shell-dark.css">
+        <link rel="stylesheet" href="css/dark/editor-dark.css">
+
+        <link rel="stylesheet" href="js/treejs/treejs.css" />
 
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap" rel="stylesheet">
+        <link rel="icon" type="image/png" href="favicon.png">
     </head>
 
-    <body style="width: 100%; height: 100%; margin: 0;">
+    <body>
+        <div id="IDPageWrapper" class="page_wrapper">
+            <div id="IDPageHeader" class="header">
 
-        <div id="myProgress">
-            <div id="myBar"></div>
-        </div>
+                <div class="header_logo_space">
+                    <img id="logo" src="css/thumby_logo-light.png" width="150" height="" alt="Thumby Logo" uk-img>
+                </div>
 
-        
+                <div class="header_button_space">
+                    <div class="uk-button-group uk-width-1-1 uk-height-1-1">
+                        <!-- <button class="uk-button uk-button-secondary uk-width-1-1 uk-height-1-1 uk-text-small uk-text-nowrap">Project:</button> -->
+                        <!-- The button toggling the dropdown -->
+                        <!-- <button class="uk-button uk-button-secondary uk-width-small" type="button">&#9662</button> -->
+                        <div uk-dropdown="mode: click; boundary: ! .uk-button-group; boundary-align: true;"></div>
 
-        <div id="IDProjectSettingsMenu" class="header_utilites_menu" style="height:35px" onmouseover="javascript:handleProjectSettingsDropdown(event, 0)" onmouseout="javascript:handleProjectSettingsDropdown(event, 1)">
-            <button onclick="javascript:setProjectName()" title="Sets the name of the project and the name of the directory that files are saved to on the Thumby" id="IDSetProjectNameBtn" class="header_utilites_menu_btn">Set Project Name</button>
-            <!-- <button title="Saves a project file to the computer so the current layout and files can be opened again at a later time" id="IDSaveProjectBtn" class="header_utilites_menu_btn">Save Project To PC</button>
-            <button title="Opens a project file from the computer to restore previous files and layouts to the page" id="IDOpenProjectBtn" class="header_utilites_menu_btn">Open Project From PC</button> -->
-        </div>
+                        <button id="IDConnectThumbyBTN" uk-tooltip="delay: 500; pos: bottom-left; offset: 0; title: Connect Thumby to page manually, or automatically if connected before" class="uk-button uk-button-secondary uk-width-1-1 uk-height-1-1 uk-text-small uk-text-nowrap" uk-icon="shrink">Connect Thumby</button>
+                        <button id="IDDisconnectThumbyBTN" uk-tooltip="delay: 500; pos: bottom-left; offset: 0; title: Disconnect Thumby from page" class="uk-button uk-button-secondary uk-width-1-1 uk-height-1-1 uk-text-small uk-text-nowrap" uk-icon="expand">Disconnect Thumby</button>
+                        <button id="IDNewGameBTN" uk-tooltip="delay: 500; pos: bottom-left; offset: 0; title: Generates file structure needed for getting a game to show up on the Thumby start-up screen" class="uk-button uk-button-secondary uk-width-1-1 uk-height-1-1 uk-text-small uk-text-nowrap">Make New Game</button>
 
+                        <button uk-tooltip="delay: 500; pos: bottom-left; offset: 0; title: Common utilities for firmware, page layout, page state, theme, and widgets" class="uk-button uk-button-secondary uk-width-1-1 uk-height-1-1 uk-text-small uk-text-nowrap" type="button">Utilities&#9662</button>
+                        <div uk-dropdown="offset: 0">
+                            <ul class="uk-nav uk-dropdown-nav">
+                                <li><button uk-tooltip="delay: 500; pos: bottom-left; offset: 0; title: Downloads firmware for reformatting Thumby, follow the below steps <br> 1. Turn off Thumby <br> 2. Hold down bottom-left or down d-pad button <br> 3. Turn Thumby back on while holding button <br> 4. Download firmware .uf2 file by clicking this button <br> 5. Drag .uf2 file to Thumby RP2040 volume using a file explorer <br> 6. Press 'Format' in the filesystem widget" onclick="window.open('https://micropython.org/resources/firmware/rp2-pico-20210902-v1.17.uf2');" class="uk-button uk-button-secondary uk-width-1-1 uk-height-1-1">Download Firmware</button></li>
+                                <li><button uk-tooltip="delay: 500; pos: bottom-left; offset: 0; title: Resets all widget positions, refreshes page" id="IDResetLayoutBTN" class="uk-button uk-button-secondary uk-width-1-1 uk-height-1-1">Reset Layout</button></li>
+                                <li><button uk-tooltip="delay: 500; pos: bottom-left; offset: 0; title: Erases/closes all editors and bitmap builder then refreshes page" id="IDHardResetBTN" class="uk-button uk-button-secondary uk-width-1-1 uk-height-1-1">Hard Reset Page</button></li>
+                                <li><button uk-tooltip="delay: 500; pos: bottom-left; offset: 0; title: Toggles page theme between light and dark" id="IDInvertThemeBTN" class="uk-button uk-button-secondary uk-width-1-1 uk-height-1-1">Invert Theme</button></li>
+                                <li class="uk-nav-divider"></li>
 
-        <div id="IDUtilitesMenu" style="height:185px" class="header_utilites_menu" onmouseover="javascript:handleUtilitesDropdown(event, 0)" onmouseout="javascript:handleUtilitesDropdown(event, 1)">
-            <button onclick="window.open('https://micropython.org/resources/firmware/rp2-pico-20210902-v1.17.uf2')" title="Downloads firmware for reformatting Thumby, follow the below steps &#013;  1. Turn off Thumby &#013;  2. Hold down bottom-left button &#013;  3. Turn Thumby back on while holding button &#013;  4. Download firmware .uf2 file by clicking this button &#013;  5. Drag .uf2 file to Thumby RP2040 volume using a file explorer &#013;  6. Press 'Format Thumby' under 'Utilities'" id="IDUtilitesDownloadFirmwareBtn" class="header_utilites_menu_btn">Download Firmware</button>
-            <button title="Repositions all panels to default positions while keeping editors open and preserving project" id="IDUtilitesResetLayoutBtn" class="header_utilites_menu_btn" onclick="javascript:resetLayout()">Reset Layout</button>
-            <button title="Resets this page to the state it was the first time it was visted (clears layout, editors, project, refreshes page, etc.)" id="IDUtilitesHardResetPageBtn" class="header_utilites_menu_btn" onclick="javascript:hardResetLayout()">Hard Reset Page</button>
-            <button title="Swaps theme between light and dark" id="IDUtilitesInvertThemeBtn" class="header_utilites_menu_btn" onclick="javascript:invertTheme()">Invert Theme</button>
-            <button title="Erases all files on Thumby and uploads library files plus examples. Typically used after downlaoding and uploading a firmware .uf2" id="IDUtilitesFormatThumby" class="header_utilites_menu_btn" onclick="javascript:formatThumby()">Format Thumby</button>
-        </div>
+                                <button uk-tooltip="delay: 500; pos: bottom-left; offset: 0; title: Buttons for adding back any panel" class="uk-button uk-button-secondary uk-width-1-1 uk-height-1-1">Widgets&#9662</button>
+                                <div uk-dropdown="offset: 0">
+                                    <ul class="uk-nav uk-dropdown-nav">
+                                        <li><button uk-tooltip="delay: 500; pos: bottom-left; offset: 0; title: Adds a code editor panel" id="IDAddEditorBTN" class="uk-button uk-button-secondary uk-width-1-1 uk-height-1-1 uk-text-nowrap uk-text-left">+ Editor</button></li>
+                                        <!-- <li class="uk-nav-divider"></li> -->
+                                        <li><button uk-tooltip="delay: 500; pos: bottom-left; offset: 0; title: Adds a bitmap builder panel (only one can be open at a time)" id="IDAddBitmapBuilder" class="uk-button uk-button-secondary uk-width-1-1 uk-height-1-1 uk-text-nowrap uk-text-left">+ Bitmap Builder</button></li>
+                                        <!-- <li class="uk-nav-divider"></li> -->
+                                        <li><button uk-tooltip="delay: 500; pos: bottom-left; offset: 0; title: Adds a filesystem panel (only one can be open at a time)" id="IDAddFS" class="uk-button uk-button-secondary uk-width-1-1 uk-height-1-1 uk-text-nowrap uk-text-left">+ Filesystem</button></li>
+                                        <!-- <li class="uk-nav-divider"></li> -->
+                                        <li><button uk-tooltip="delay: 500; pos: bottom-left; offset: 0; title: Adds a shell panel (only one can be open at a time)" id="IDAddShell" class="uk-button uk-button-secondary uk-width-1-1 uk-height-1-1 uk-text-nowrap uk-text-left">+ Shell</button></li>
+                                    </ul>
+                                </div>
 
+                            </ul>
+                        </div>
 
-        <div id="IDOtherLinksMenu" class="header_utilites_menu" onmouseover="javascript:handleOtherLinksDropdown(event, 0)" onmouseout="javascript:handleOtherLinksDropdown(event, 1)">
-            <div class="header_links"> <a target="_blank" href="https://github.com/TinyCircuits" class="link">TiynCircuits Github</a> </div>
-            <div class="header_links"> <a target="_blank" href="https://tinycircuits.com/" class="link">TiynCircuits Store</a> </div>
-            <div class="header_links"> <a target="_blank" href="https://tinycircuits.com/pages/contact-us" class="link">Contact Us</a> </div>
-        </div>
+                    </div>
+                </div>
 
+                <div class="header_link_space">
+                    <div class="uk-button-group uk-width-1-1 uk-height-1-1">
+                        <button uk-tooltip="delay: 500; pos: bottom-left; offset: 0; title: Opens link in new tab" onclick="window.open('https://tinycircuits.com/blogs/thumby/building-a-game-with-the-thumby-ide', '_blank');" class="uk-button-default uk-link-text uk-width-1-1 uk-height-1-1">Tutorial</button>
+                        <button uk-tooltip="delay: 500; pos: bottom-left; offset: 0; title: Opens link in new tab" onclick="window.open('https://thumby.us/', '_blank');" class="uk-button-default uk-link-text uk-width-1-1 uk-height-1-1 link_button">Thumby Website</button>
+                        
+                        <button class="uk-button-default uk-link-text uk-width-1-1 uk-height-1-1 link_button" type="button">Other Links&#9662</button>
+                        <div uk-dropdown="offset: 0">
+                            <ul class="uk-nav uk-dropdown-nav">
+                                <li><button uk-tooltip="delay: 500; pos: bottom-left; offset: 0; title: Opens link in new tab. Found a bug with the page? Report it!" onclick="window.open('https://github.com/TinyCircuits/tinycircuits.github.io/issues', '_blank');" class="uk-button-default uk-link-text uk-width-1-1 uk-height-1-1 link_button" style="height:40px">Report a bug</button></li>
+                                <li><button uk-tooltip="delay: 500; pos: bottom-left; offset: 0; title: Opens link in new tab" onclick="window.open('http://forum.tinycircuits.com/index.php', '_blank');" class="uk-button-default uk-link-text uk-width-1-1 uk-height-1-1 link_button" style="height:40px">Forums</button></li>
+                                <li><button uk-tooltip="delay: 500; pos: bottom-left; offset: 0; title: Opens link in new tab" onclick="window.open('https://tinycircuits.com/', '_blank');" class="uk-button-default uk-link-text uk-width-1-1 uk-height-1-1 link_button" style="height:40px">Store</button></li>
+                                <li><button uk-tooltip="delay: 500; pos: bottom-left; offset: 0; title: Opens link in new tab" onclick="window.open('https://tinycircuits.com/pages/contact-us', '_blank');" class="uk-button-default uk-link-text uk-width-1-1 uk-height-1-1 link_button" style="height:40px">Contact Us</button></li>
+                            </ul>
+                        </div>
 
-        <div id="IDEditorFile" class="header_utilites_menu" onmouseover="javascript:handleEditorFileDropdown(event, 0)" onmouseout="javascript:handleEditorFileDropdown(event, 1)">
-            <button onclick="javascript:handleEditorSaveFile()" class="header_utilites_menu_btn">Export File to PC</button>
-            <button onclick="javascript:handleEditorOpenFile()" class="header_utilites_menu_btn">Import File From PC</button>
-            <button onclick="javascript:handleEditorRename()" class="header_utilites_menu_btn">Rename</button>
-        </div>
+                    </div>
+                </div>
 
-        <div id="IDEditorView" class="header_utilites_menu" style="height:85px;" onmouseover="javascript:handleEditorViewDropdown(event, 0)" onmouseout="javascript:handleEditorViewDropdown(event, 1)">
-            <button onclick="javascript:handleEditorIncraseFontSize()" class="header_utilites_menu_btn">Increase Font Size</button>
-            <button onclick="javascript:handleEditorDecraseFontSize()" class="header_utilites_menu_btn">Decrease Font Size</button>
-        </div>
-
-
-
-        <div class="header" id="header">
-            <div class="header_logo_parent">
-                <img id="logo" class="header_logo" src="thumby_logo-light.png" alt="Thumby Logo">
             </div>
+            <div id="IDLayoutContainer" class="layout_container"></div>
+        </div>
 
-            <div class="header_buttons_parent">
-                <div id="IDprojectName" title="The current project name (also the name of the directory files are saved to on the Thumby in the 'Games' folder)" class="header_project" title="">Project: New Project</div>
-                <button id="IDProjectSettings" onmouseover="javascript:handleProjectSettingsDropdown(event, 0)" onmouseout="javascript:handleProjectSettingsDropdown(event, 1)" class="header_buttons" title="Opens menu for actions related to Thumby IDE project files">Project Settings&#9662</button>
-                <button onclick="javascript:uploadProject()" id="IDuploadProjectBtn" title="Uplaods all open project files to Thumby 'Games' folder with project name as the folder name. &#013;The project will show up on the Thumby main screen after upload and a power cylce of the Thumby" class="header_buttons" onclick="">Upload Project</button>
-                <button id="IDconnectThumbyBtn" title="If Thumby is plugged in, connects it &#013;  * If Thumby was used on page before, auto connects when button pressed &#013;  * If first time connecting, interface to choose Thumby pops up" class="header_buttons" onclick="javascript:connectREPL()">Connect Thumby</button>
-                <button class="header_buttons" title="Creates a new MicroPython editor somewhere on the page" onclick="javascript:addEditor()">Add New Editor</button>
-                <button id="IDUtilites" class="header_buttons" title="Brings up menu for utilities related to firmware and page layout" onmouseover="javascript:handleUtilitesDropdown(event, 0)" onmouseout="javascript:handleUtilitesDropdown(event, 1)">Utilities&#9662</button>
-            </div>
-            <div class="header_links_parent">
-                <div class="header_links"> <a target="_blank" href="https://tinycircuits.com/blogs/thumby/building-a-game-with-the-thumby-ide" class="link" >Making a Game tutorial</a> </div>
-                <div class="header_links"> <a target="_blank" href="http://forum.tinycircuits.com/" class="link">Forums</a> </div>
-                <div id="IDOtherLinks" class="header_links_other" onmouseover="javascript:handleOtherLinksDropdown(event, 0)" onmouseout="javascript:handleOtherLinksDropdown(event, 1)">Other Links&#9662</div>
+        <div id="IDProgressBarParent" class="progress_bar_parent">
+            <div id="IDProgressBar" class="progress_bar">
             </div>
         </div>
 
-
-        <div id="dock_div" style="height:calc(100% - 46px); width: 100%; position: absolute; left: 0; top: 45px;">
-            <div id="my_dock_manager" class="my-dock-manager" style="position: relative;"></div>
-            <div id="IDBitMapBuilder" data-panel-caption="Bitmap Builder" style="background: lightcoral;"></div>
-
-
-            <div id="IDFileSystem" data-panel-caption="Thumby FileSystem" class="fs"><br><br>Waiting On Thumby Connection...<br><br>Left-click "Connect Thumby"</div>
-
-            
-            <div id="IDEditor0" data-panel-caption="Editor0" style="background: rgb(46, 46, 46);"></div>
-            <div id="IDEditor1" data-panel-caption="Editor1" style="background: rgb(46, 46, 46);"></div>
-            <div id="IDEditor2" data-panel-caption="Editor2" style="background: rgb(46, 46, 46);"></div>
-            <div id="IDEditor3" data-panel-caption="Editor3" style="background: rgb(46, 46, 46);"></div>
-            <div id="IDEditor4" data-panel-caption="Editor4" style="background: rgb(46, 46, 46);"></div>
-            <div id="IDEditor5" data-panel-caption="Editor5" style="background: rgb(46, 46, 46);"></div>
-            <div id="IDEditor6" data-panel-caption="Editor5" style="background: rgb(46, 46, 46);"></div>
-            <div id="IDEditor7" data-panel-caption="Editor5" style="background: rgb(46, 46, 46);"></div>
-            <div id="IDEditor8" data-panel-caption="Editor5" style="background: rgb(46, 46, 46);"></div>
-            <div id="IDEditor9" data-panel-caption="Editor5" style="background: rgb(46, 46, 46);"></div>
-            <div id="IDEditor10" data-panel-caption="Editor5" style="background: rgb(46, 46, 46);"></div>
-            <div id="IDTerminal" data-panel-caption="Terminal" style="background: black"></div>
-        </div>
-
-
-        <div id="IDfsMenuParent" class="fs_rc_menu_parent">
-            <button id="IDfsDeleteBtn" class="fs_rc_menu_btn">Delete</button>
-            <button id="IDfsOpeneBtn" class="fs_rc_menu_btn">Open</button>
-            <button id="IDfsRenameBtn" class="fs_rc_menu_btn">Rename</button>
-        </div>
-
-
-        <script src="src/treejs/tree.js"></script>
-        <link rel="stylesheet" href="src/treejs/treejs.css" />
-        <script src="src/filesystem_wrapper.js"></script>
-        <script src="src/ace/ace.js" type="text/javascript" charset="utf-8"></script>
-        <script src="src/editor_wrapper.js"></script>
-        <script src="node_modules/xterm-addon-fit/lib/xterm-addon-fit.js"></script>
-        <script src="node_modules/xterm/lib/xterm.js"></script>
-        <script src="src/active_terminal_wrapper.js"></script>
-        <script src="src/repl.js"></script>
-        <script src="src/bitmap_builder.js"></script>
-        <script type="module" src="src/main.js"></script>
+        <script src="uikit-3.7.3/js/uikit.min.js"></script>
+        <script src="uikit-3.7.3/js/uikit-icons.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/uikit@3.7.3/dist/js/uikit-icons.min.js"></script>
+        <script src="js/treejs/tree.js"></script>
+        <script src="js/xterm-addon-fit/lib/xterm-addon-fit.js"></script>
+        <script src="js/ace/ace.js" type="text/javascript" charset="utf-8"></script>
+        <script src="js/editor_wrapper.js"></script>
+        <script src="js/filesystem_wrapper.js"></script>
+        <script src="js/dir_chooser.js"></script>
+        <script src="js/xterm/lib/xterm.js"></script>
+        <script src="js/active_terminal_wrapper.js"></script>
+        <script src="js/bitmap_builder.js"></script>
+        <script src="js/repl.js"></script>
+        <script type="module" src="golden-layout/bundle/esm/golden-layout.js"></script>
+        <script type="module" src="js/main.js"></script>
     </body>
 </html>
