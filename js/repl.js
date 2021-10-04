@@ -117,9 +117,10 @@ class ReplJS{
             times = times + 1;
             if(times >= 15){
                 this.writeToDevice('');
+                console.error("Had to use ugly hack for hanging raw prompt...");
                 return;
             }
-            await new Promise(resolve => setTimeout(resolve, 10));
+            await new Promise(resolve => setTimeout(resolve, 5));
         }
     }
 
