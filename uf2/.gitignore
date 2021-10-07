@@ -2,5 +2,4 @@
 .history
 .idea
 node_modules
-dist
 *.log
