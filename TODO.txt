@@ -113,3 +113,13 @@
     [ ] Can verify right away if a command worked or not, prints OK to raw if worked, right away or after small amount of time, could retry
         https://github.com/micropython/micropython/blob/master/tools/pyboard.py#L450
     [x] Hard reset page, format thumby, open lib/thumby.py, refresh page, try to save thumby.py and it will hang on raw until a ctrl-c is given {detected this and made lame fix}
+
+[ ] When disconnected and save button pressed, don't toggle save * in tab and make sure to give a pop-up that it was not saved
+
+[ ] When accessing a file and a program is running, interrupt program first so file can be accessed without first stopping the program manually
+
+[ ] Emulator: Use button on screen to hold dpad down updates quicker than holding keyboard key down
+
+[ ] Emulator: Need four center buttons so user can use mouse to go diagonal
+
+[ ] Make sure to change and test server file retrieval in editor wrapper examples and repl formatting when names change

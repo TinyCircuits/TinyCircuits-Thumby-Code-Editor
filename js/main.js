@@ -1,4 +1,7 @@
 import { ComponentContainer, ComponentItemConfig, GoldenLayout, ItemType, LayoutManager, LayoutConfig } from "../golden-layout/bundle/esm/golden-layout.js";
+import { EMULATOR } from "./emulator_wrapper.js";
+
+console.log("Beta 2");
 
 // https://github.com/golden-layout/golden-layout#building-single-file-bundles (commands to build bundle from source need to be done on Windows)
 // https://codepen.io/pbklink/pen/dyWJNNm
@@ -9,6 +12,7 @@ const layoutSaveKey = "layout";
 var myLayout = new GoldenLayout(document.getElementById("IDLayoutContainer"));
 
 var DIR = new DIRCHOOSER();
+var EMU = new EMULATOR();
 
 
 var progressBarElem = document.getElementById("IDProgressBar");
@@ -523,6 +527,9 @@ function registerEditor(_container, state){
     editor.onFastExecute = async (lines) =>{
         REPL.executeLines(lines);
     }
+    editor.onEmulate = async (lines) =>{
+        await EMU.startEmulator(lines);
+    }
     EDITORS[editor.ID] = editor;
 }
 
@@ -597,3 +604,19 @@ String.prototype.convertToHex = function (delim) {
         return ("0" + c.charCodeAt(0).toString(16)).slice(-2);
     }).join(delim || "");
 };
+
+
+async function downloadFile(filePath) {
+    let response = await fetch(filePath);
+        
+    if(response.status != 200) {
+        throw new Error("Server Error");
+    }
+        
+    // read response stream as text
+    let text_data = await response.text();
+
+    return text_data;
+}
+
+window.downloadFile = downloadFile;

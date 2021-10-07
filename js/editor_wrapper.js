@@ -79,6 +79,67 @@ class EditorWrapper{
         listElem.appendChild(this.FILE_SAVEAS_BUTTON);
         this.FILE_DROPDOWN_UL.appendChild(listElem);
         
+        listElem = document.createElement("li");
+        listElem.classList = "uk-nav-divider";
+        this.FILE_DROPDOWN_UL.appendChild(listElem);
+
+        listElem = document.createElement("li");
+        this.FILE_EXAMPLES_BUTTON = document.createElement("button");
+        this.FILE_EXAMPLES_BUTTON.classList = "uk-button uk-button-primary uk-width-1-1 uk-height-1-1 uk-text-nowrap";
+        this.FILE_EXAMPLES_BUTTON.textContent = "Examples\u25BE";
+        this.FILE_EXAMPLES_BUTTON.setAttribute("uk-tooltip", "delay: 500; pos: bottom-left; offset: 0; title: Various MicroPython examples");
+        listElem.appendChild(this.FILE_EXAMPLES_BUTTON);
+        this.FILE_DROPDOWN_UL.appendChild(listElem);
+
+
+        this.EXAMPLES_DROPDOWN_DIV = document.createElement("div");
+        this.EXAMPLES_DROPDOWN_DIV.setAttribute("uk-dropdown", "offset: 0");
+        this.FILE_DROPDOWN_UL.appendChild(this.EXAMPLES_DROPDOWN_DIV);
+
+        this.EXAMPLES_DROPDOWN_UL = document.createElement("ul");
+        this.EXAMPLES_DROPDOWN_UL.classList = "uk-nav uk-dropdown-nav";
+        this.EXAMPLES_DROPDOWN_DIV.appendChild(this.EXAMPLES_DROPDOWN_UL);
+
+
+        listElem = document.createElement("li");
+        this.ANNELID_EXAMPLE_BTN = document.createElement("button");
+        this.ANNELID_EXAMPLE_BTN.classList = "uk-button uk-button-primary uk-width-1-1 uk-height-1-1 uk-text-nowrap";
+        this.ANNELID_EXAMPLE_BTN.textContent = "Annelid";
+        this.ANNELID_EXAMPLE_BTN.onclick = async () => {this.openFileContents(await window.downloadFile("/ThumbyGames/Games/Annelid/Annelid.py"))};
+        listElem.appendChild(this.ANNELID_EXAMPLE_BTN);
+        this.EXAMPLES_DROPDOWN_UL.appendChild(listElem);
+
+        listElem = document.createElement("li");
+        this.DELVER_EXAMPLE_BTN = document.createElement("button");
+        this.DELVER_EXAMPLE_BTN.classList = "uk-button uk-button-primary uk-width-1-1 uk-height-1-1 uk-text-nowrap";
+        this.DELVER_EXAMPLE_BTN.textContent = "Delver";
+        this.DELVER_EXAMPLE_BTN.onclick = async () => {this.openFileContents(await window.downloadFile("/ThumbyGames/Games/Delver/Delver.py"))};
+        listElem.appendChild(this.DELVER_EXAMPLE_BTN);
+        this.EXAMPLES_DROPDOWN_UL.appendChild(listElem);
+
+        listElem = document.createElement("li");
+        this.SAURRUN_EXAMPLE_BTN = document.createElement("button");
+        this.SAURRUN_EXAMPLE_BTN.classList = "uk-button uk-button-primary uk-width-1-1 uk-height-1-1 uk-text-nowrap";
+        this.SAURRUN_EXAMPLE_BTN.textContent = "SaurRun";
+        this.SAURRUN_EXAMPLE_BTN.onclick = async () => {this.openFileContents(await window.downloadFile("/ThumbyGames/Games/SaurRun/SaurRun.py"))};
+        listElem.appendChild(this.SAURRUN_EXAMPLE_BTN);
+        this.EXAMPLES_DROPDOWN_UL.appendChild(listElem);
+
+        listElem = document.createElement("li");
+        this.SPACEDEBRIS_EXAMPLE_BTN = document.createElement("button");
+        this.SPACEDEBRIS_EXAMPLE_BTN.classList = "uk-button uk-button-primary uk-width-1-1 uk-height-1-1 uk-text-nowrap";
+        this.SPACEDEBRIS_EXAMPLE_BTN.textContent = "SpaceDebris";
+        this.SPACEDEBRIS_EXAMPLE_BTN.onclick = async () => {this.openFileContents(await window.downloadFile("/ThumbyGames/Games/SpaceDebris/SpaceDebris.py"))};
+        listElem.appendChild(this.SPACEDEBRIS_EXAMPLE_BTN);
+        this.EXAMPLES_DROPDOWN_UL.appendChild(listElem);
+
+        listElem = document.createElement("li");
+        this.TINYBLOCKS_EXAMPLE_BTN = document.createElement("button");
+        this.TINYBLOCKS_EXAMPLE_BTN.classList = "uk-button uk-button-primary uk-width-1-1 uk-height-1-1 uk-text-nowrap";
+        this.TINYBLOCKS_EXAMPLE_BTN.textContent = "TinyBlocks";
+        this.TINYBLOCKS_EXAMPLE_BTN.onclick = async () => {this.openFileContents(await window.downloadFile("/ThumbyGames/Games/TinyBlocks/TinyBlocks.py"))};
+        listElem.appendChild(this.TINYBLOCKS_EXAMPLE_BTN);
+        this.EXAMPLES_DROPDOWN_UL.appendChild(listElem);
 
 
         this.VIEW_BUTTON = document.createElement("button");
@@ -122,8 +183,6 @@ class EditorWrapper{
         listElem.appendChild(this.VIEW_RESET_FONT_BUTTON);
         this.VIEW_DROPDOWN_UL.appendChild(listElem);
 
-
-
         
         this.FAST_EXECUTE_BUTTON = document.createElement("button");
         this.FAST_EXECUTE_BUTTON.classList = "uk-button uk-button-primary uk-height-1-1 uk-text-small uk-text-nowrap";
@@ -131,6 +190,15 @@ class EditorWrapper{
         this.FAST_EXECUTE_BUTTON.setAttribute("uk-tooltip", "delay: 500; pos: bottom-left; offset: 0; title: Execute editor contents at root '/' of Thumby");
         this.FAST_EXECUTE_BUTTON.onclick = () => {this.onFastExecute(this.getValue())};
         this.HEADER_TOOLBAR_DIV.appendChild(this.FAST_EXECUTE_BUTTON);
+
+
+        this.EMULATE_BUTTON = document.createElement("button");
+        this.EMULATE_BUTTON.classList = "uk-button uk-button-primary uk-height-1-1 uk-text-small uk-text-nowrap";
+        this.EMULATE_BUTTON.textContent = "Emulate";
+        this.EMULATE_BUTTON.setAttribute("uk-tooltip", "delay: 500; pos: bottom-left; offset: 0; title: Run editor contents in emulator");
+        this.EMULATE_BUTTON.onclick = () => {this.onEmulate(this.getValue())};
+        this.HEADER_TOOLBAR_DIV.appendChild(this.EMULATE_BUTTON);
+
 
         this.EDITOR_DIV = document.createElement("div");
         this.EDITOR_DIV.id = "IDEditorDiv" + this.ID;
@@ -170,6 +238,8 @@ class EditorWrapper{
         this.onFocus = undefined;
         this.onSaveToThumby = undefined;
         this.onSaveAsToThumby = undefined;
+        this.onFastExecute = undefined;
+        this.onEmulate = undefined;
 
         // Make sure mouse click anywhere on panel focuses the panel
         this._container.element.addEventListener('click', (event) => {
@@ -407,6 +477,14 @@ class EditorWrapper{
             fontSize: this.FONT_SIZE.toString() + "pt",
         });
         localStorage.setItem("EditorFontSize" + this.ID, this.FONT_SIZE);
+    }
+
+
+    async openFileContents(contents){
+        if(this.SAVED_TO_THUMBY == false && !confirm('You have unsaved changes, are you sure you want to overwrite this editor?')) {
+            return;
+        }
+        this.ACE_EDITOR.setValue(contents, 1);
     }
 
 

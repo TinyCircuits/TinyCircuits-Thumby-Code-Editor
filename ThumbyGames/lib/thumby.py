@@ -126,6 +126,7 @@ class AudioClass:
                 pass
             self.stop()
         else:
+            t0 = time.ticks_ms()
             while(time.ticks_ms() - t0 <= duration):
                 pass
             

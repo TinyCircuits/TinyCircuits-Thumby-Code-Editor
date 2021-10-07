@@ -17,6 +17,7 @@ Features:
 * Easy connect and disconnect of Thumby
     * Automatically connects Thumby if it has connected to the page before
 * Format Thumby filesystem to default - all files erased and then preloaded games are re-uploaded
+* Emulator (audio in the works, expect lag for un-optimized games)
 
 Only Google Chrome and Microsoft Edge are officially supported by the WebSerial JavaScript API
 

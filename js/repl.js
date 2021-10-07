@@ -591,23 +591,23 @@ class ReplJS{
         await this.deleteAllFiles();
         await this.getOnBoardFSTree();
 
-        await this.uploadFile("Games/SpaceDebris/SpaceDebris.py", await this.downloadFile("/ThumbyGames/Games/SpaceDebris/SpaceDebris.py"));
+        await this.uploadFile("Games/SpaceDebris/SpaceDebris.py", await window.downloadFile("/ThumbyGames/Games/SpaceDebris/SpaceDebris.py"));
         window.setPercent(11.1);
-        await this.uploadFile("Games/Annelid/Annelid.py", await this.downloadFile("/ThumbyGames/Games/Annelid/Annelid.py"));
+        await this.uploadFile("Games/Annelid/Annelid.py", await window.downloadFile("/ThumbyGames/Games/Annelid/Annelid.py"));
         window.setPercent(22.2);
-        await this.uploadFile("Games/Delver/Delver.py", await this.downloadFile("/ThumbyGames/Games/Delver/Delver.py"));
+        await this.uploadFile("Games/Delver/Delver.py", await window.downloadFile("/ThumbyGames/Games/Delver/Delver.py"));
         window.setPercent(33.3);
-        await this.uploadFile("Games/SaurRun/SaurRun.py", await this.downloadFile("/ThumbyGames/Games/SaurRun/SaurRun.py"));
+        await this.uploadFile("Games/SaurRun/SaurRun.py", await window.downloadFile("/ThumbyGames/Games/SaurRun/SaurRun.py"));
         window.setPercent(44.4);
-        await this.uploadFile("Games/TinyBlocks/TinyBlocks.py", await this.downloadFile("/ThumbyGames/Games/TinyBlocks/TinyBlocks.py"));
+        await this.uploadFile("Games/TinyBlocks/TinyBlocks.py", await window.downloadFile("/ThumbyGames/Games/TinyBlocks/TinyBlocks.py"));
         window.setPercent(55.5);
-        await this.uploadFile("lib/ssd1306.py", await this.downloadFile("/ThumbyGames/lib/ssd1306.py"));
+        await this.uploadFile("lib/ssd1306.py", await window.downloadFile("/ThumbyGames/lib/ssd1306.py"));
         window.setPercent(66.6);
-        await this.uploadFile("lib/thumby.py", await this.downloadFile("/ThumbyGames/lib/thumby.py"));
+        await this.uploadFile("lib/thumby.py", await window.downloadFile("/ThumbyGames/lib/thumby.py"));
         window.setPercent(77.7);
-        await this.uploadFile("main.py", await this.downloadFile("/ThumbyGames/main.py"));
+        await this.uploadFile("main.py", await window.downloadFile("/ThumbyGames/main.py"));
         window.setPercent(88.8);
-        await this.uploadFile("thumby.cfg", await this.downloadFile("/ThumbyGames/thumby.cfg"));
+        await this.uploadFile("thumby.cfg", await window.downloadFile("/ThumbyGames/thumby.cfg"));
         window.setPercent(99.9);
 
         // Make sure to update the filesystem after modifying it

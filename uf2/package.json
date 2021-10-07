@@ -1,0 +1,32 @@
+{
+  "name": "uf2",
+  "version": "1.0.0",
+  "description": "USB Flashing Format (UF2) JavaScript Library",
+  "main": "dist/cjs/uf2.js",
+  "module": "./dist/esm/uf2.js",
+  "types": "./dist/esm/uf2.d.ts",
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "uf2",
+    "firmware",
+    "file format",
+    "bootloader"
+  ],
+  "author": "Uri Shaked <uri@urishaked.com>",
+  "repository": "https://github.com/wokwi/uf2",
+  "license": "MIT",
+  "scripts": {
+    "build": "rimraf dist && tsc --sourceMap false && tsc -m commonjs --outDir dist/cjs --sourceMap false",
+    "test": "jest"
+  },
+  "devDependencies": {
+    "@types/jest": "^26.0.20",
+    "jest": "^26.6.3",
+    "rimraf": "^3.0.2",
+    "ts-jest": "^26.5.0",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.1.3"
+  }
+}

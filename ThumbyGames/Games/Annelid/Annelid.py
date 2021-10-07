@@ -99,6 +99,8 @@ while(gameRunning == True):
         while(thumby.actionPressed() == False):
             pass # Wait for the user to give us something
         if(thumby.buttonA.pressed() == True):
+            while(thumby.buttonA.pressed() == True):
+                    pass
             machine.reset()
         elif(thumby.buttonB.pressed() == True):
             gameRunning = True

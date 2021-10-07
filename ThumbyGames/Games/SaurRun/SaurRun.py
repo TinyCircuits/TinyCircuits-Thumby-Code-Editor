@@ -155,6 +155,8 @@ while(GameRunning):
                 CloudPos = random.randint(60, 200)
 
             elif(thumby.buttonA.pressed() == True):
+                while(thumby.buttonA.pressed() == True):
+                    pass
                 # Quit
                 machine.reset()
 

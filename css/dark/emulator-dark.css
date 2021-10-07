@@ -1,0 +1,155 @@
+.emulator_main{
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -52%);
+    background-color: transparent;
+    border: transparent;
+    width: 36.703vw;
+    height: 47vw;
+    z-index: 1001;
+    color: white;
+    display: none;
+    font-family: Roboto;
+    font-size: 13px;
+    flex-flow: column;
+    overflow: none;
+}
+
+.emulator_footer{
+    display: flex;
+    position: absolute;
+    font-family: Roboto;
+    font-size: 16px;
+    color: white;
+    width: 100%;
+    height: 25px;
+    background-color: rgb(55, 201, 36);
+    top: 100%;
+    border: 1px gray solid;
+}
+
+.emulator_area{
+    flex: 1;
+    background-color: rgb(122, 0, 102);
+    background: url(../../Emulator-THUMBY-CROP.svg) no-repeat ;
+    background-size: contain;
+}
+
+.emulator_dpad_up_btn{
+    display: block;
+    position: relative;
+    width: 13%;
+    aspect-ratio: 1 / 0.8;
+    background-color: transparent;
+    border: transparent;
+    top: 22.4%;
+    left: 21.55%;
+    z-index: 1003;
+}
+
+.emulator_dpad_left_btn{
+    display: block;
+    position: relative;
+    width: 13%;
+    aspect-ratio: 1 / 1;
+    background-color: transparent;
+    border: transparent;
+    top: 22.9%;
+    left: 10.45%;
+    z-index: 1003;
+}
+
+.emulator_dpad_down_btn{
+    display: block;
+    position: relative;
+    width: 13%;
+    aspect-ratio: 1 / 0.8;
+    background-color: transparent;
+    border: transparent;
+    top: 23.4%;
+    left: 21.55%;
+    z-index: 1003;
+}
+
+.emulator_dpad_right_btn{
+    display: block;
+    position: relative;
+    width: 13%;
+    aspect-ratio: 1 / 1;
+    background-color: transparent;
+    border: transparent;
+    top: 5.5%;
+    left: 32.65%;
+    z-index: 1003;
+}
+
+.emulator_b_btn{
+    border-radius: 50%;
+    display: block;
+    position: relative;
+    width: 15.5%;
+    aspect-ratio: 1 / 1;
+    background-color: transparent;
+    border: transparent;
+    top: -2.355%;
+    left: 58.885%;
+    z-index: 1003;
+}
+
+.emulator_a_btn{
+    border-radius: 50%;
+    display: block;
+    position: relative;
+    width: 15.5%;
+    aspect-ratio: 1 / 1;
+    background-color: transparent;
+    border: transparent;
+    top: -22.0%;
+    left: 75.4%;
+    z-index: 1003;
+}
+
+
+.emulator_canvas{
+    display: block;
+    margin-top: 26.5%;
+    margin-left: auto;
+    margin-right: auto;
+    width: 54%;
+    aspect-ratio: 1 / 0.556;
+    image-rendering: optimizeSpeed;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: -o-crisp-edges;
+    image-rendering: pixelated;
+    -ms-interpolation-mode: nearest-neighbor;
+}
+
+.emulator_dpad_img{
+    position: absolute;
+    aspect-ratio: 1 / 1;
+    width: 35%;
+    top: 67.65%;
+    left: 10.45%;
+    z-index: 1002;
+}
+
+.emulator_b_img{
+    position: absolute;
+    aspect-ratio: 1 / 1;
+    width: 15.75%;
+    top: 78.2375%;
+    left: 58.75%;
+    z-index: 1002;
+}
+
+.emulator_a_img{
+    position: absolute;
+    aspect-ratio: 1 / 1;
+    width: 15.75%;
+    top: 69.65%;
+    left: 75.4%;
+    z-index: 1002;
+}
