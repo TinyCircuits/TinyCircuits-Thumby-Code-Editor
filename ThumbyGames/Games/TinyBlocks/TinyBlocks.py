@@ -89,12 +89,13 @@ shapePos = random.randint(1, 10000000) % 7 * 4
 peek_shape = [shapes[shapePos],shapes[shapePos+1],shapes[shapePos+2],shapes[shapePos+3]]
 shape = [0,0,0,0]
 
-def clearScreen():
+def drawCheckerboard():
   thumby.display.fill(0)
   for x in range(72/2):
     for y in range(5):
       thumby.display.drawSprite([0x55,0xAA], x*2, y*8, 2, 8,0,0,0)
-      
+
+def clearScreen():
   thumby.display.fillRect(34,2,36,12 ,0)
   thumby.display.fillRect(39-5,18,14,12,0)
   thumby.display.fillRect(52,18,18,12,0)
@@ -108,8 +109,10 @@ def setBlock(xb, yb, val):
 
 def updateScreen():
   #print("update")
-  global level
+  
   clearScreen()
+  
+  global level
   #preview[B_COLS * 10];
   preview = []
   for i in range(B_COLS * 10):
@@ -252,6 +255,7 @@ while(True):
     else:
       board[(B_SIZE-1)-i] = 0
 
+  drawCheckerboard()
   clearScreen()
 
   shape = next_shape()

@@ -87,6 +87,8 @@
 
 [.] Scrolling in editor can be slow {depends on extensions installed and what they do the site. Profile with Performance -> start record ctrl-e -> look at how long tasks take, probably an extension}
 
+[ ] Enabled Ace live auto completion and editor ext lang tools file for exact match only
+
 [ ] Clicked buttons lose their border
 
 [ ] Reset layout does not re-add an editor, maybe it shouldn't

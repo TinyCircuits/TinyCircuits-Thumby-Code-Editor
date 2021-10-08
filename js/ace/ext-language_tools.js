@@ -1420,7 +1420,7 @@ var config = require("./config");
 var Autocomplete = function() {
     this.autoInsert = false;
     this.autoSelect = true;
-    this.exactMatch = false;
+    this.exactMatch = true;
     this.gatherCompletionsId = 0;
     this.keyboardHandler = new HashHandler();
     this.keyboardHandler.bindKeys(this.commands);

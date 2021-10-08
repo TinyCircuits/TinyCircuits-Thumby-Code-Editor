@@ -23,6 +23,7 @@ import { ConsoleLogger, LogLevel } from './utils/logging.js';
 export const FLASH_START_ADDRESS = 0x10000000;
 export const FLASH_END_ADDRESS = 0x14000000;
 export const RAM_START_ADDRESS = 0x20000000;
+export const RAM_END_ADDRESS = 0x20000000 + 270336;
 export const DPRAM_START_ADDRESS = 0x50100000;
 export const SIO_START_ADDRESS = 0xd0000000;
 /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -291,7 +292,7 @@ export class RP2040 {
     readUint32(address) {
         address = address >>> 0; // round to 32-bits, unsigned
         if (address & 0x3) {
-            this.logger.error(LOG_NAME, `read from address ${address.toString(16)}, which is not 32 bit aligned`);
+            // this.logger.error(LOG_NAME, `read from address ${address.toString(16)}, which is not 32 bit aligned`);
         }
         const { bootrom } = this;
         if (address < bootrom.length * 4) {
@@ -300,7 +301,7 @@ export class RP2040 {
         else if (address >= FLASH_START_ADDRESS && address < FLASH_END_ADDRESS) {
             return this.flashView.getUint32(address - FLASH_START_ADDRESS, true);
         }
-        else if (address >= RAM_START_ADDRESS && address < RAM_START_ADDRESS + this.sram.length) {
+        else if (address >= RAM_START_ADDRESS && address < RAM_END_ADDRESS) {
             return this.sramView.getUint32(address - RAM_START_ADDRESS, true);
         }
         else if (address >= DPRAM_START_ADDRESS &&
@@ -317,7 +318,7 @@ export class RP2040 {
         if (peripheral) {
             return peripheral.readUint32(address & 0x3fff);
         }
-        this.logger.warn(LOG_NAME, `Read from invalid memory address: ${address.toString(16)}`);
+        // this.logger.warn(LOG_NAME, `Read from invalid memory address: ${address.toString(16)}`);
         return 0xffffffff;
     }
     findPeripheral(address) {
@@ -328,7 +329,7 @@ export class RP2040 {
         if (address >= FLASH_START_ADDRESS && address < FLASH_END_ADDRESS) {
             return this.flashView.getUint16(address - FLASH_START_ADDRESS, true);
         }
-        else if (address >= RAM_START_ADDRESS && address < RAM_START_ADDRESS + this.sram.length) {
+        else if (address >= RAM_START_ADDRESS && address < RAM_END_ADDRESS) {
             return this.sramView.getUint16(address - RAM_START_ADDRESS, true);
         }
         const value = this.readUint32(address & 0xfffffffc);
@@ -338,7 +339,7 @@ export class RP2040 {
         if (address >= FLASH_START_ADDRESS && address < FLASH_END_ADDRESS) {
             return this.flash[address - FLASH_START_ADDRESS];
         }
-        else if (address >= RAM_START_ADDRESS && address < RAM_START_ADDRESS + this.sram.length) {
+        else if (address >= RAM_START_ADDRESS && address < RAM_END_ADDRESS) {
             return this.sram[address - RAM_START_ADDRESS];
         }
         const value = this.readUint16(address & 0xfffffffe);
@@ -359,7 +360,7 @@ export class RP2040 {
         else if (address >= FLASH_START_ADDRESS && address < FLASH_END_ADDRESS) {
             this.flashView.setUint32(address - FLASH_START_ADDRESS, value, true);
         }
-        else if (address >= RAM_START_ADDRESS && address < RAM_START_ADDRESS + this.sram.length) {
+        else if (address >= RAM_START_ADDRESS && address < RAM_END_ADDRESS) {
             this.sramView.setUint32(address - RAM_START_ADDRESS, value, true);
         }
         else if (address >= DPRAM_START_ADDRESS &&
@@ -375,11 +376,11 @@ export class RP2040 {
             this.ppb.writeUint32(address & 0xfff, value);
         }
         else {
-            this.logger.warn(LOG_NAME, `Write to undefined address: ${address.toString(16)}`);
+            // this.logger.warn(LOG_NAME, `Write to undefined address: ${address.toString(16)}`);
         }
     }
     writeUint8(address, value) {
-        if (address >= RAM_START_ADDRESS && address < RAM_START_ADDRESS + this.sram.length) {
+        if (address >= RAM_START_ADDRESS && address < RAM_END_ADDRESS) {
             this.sram[address - RAM_START_ADDRESS] = value;
             return;
         }
@@ -400,7 +401,7 @@ export class RP2040 {
     writeUint16(address, value) {
         // we assume that addess is 16-bit aligned.
         // Ideally we should generate a fault if not!
-        if (address >= RAM_START_ADDRESS && address < RAM_START_ADDRESS + this.sram.length) {
+        if (address >= RAM_START_ADDRESS && address < RAM_END_ADDRESS) {
             this.sramView.setUint16(address - RAM_START_ADDRESS, value, true);
             return;
         }
@@ -662,7 +663,7 @@ export class RP2040 {
             case SYSM_CONTROL:
                 return (this.SPSEL === StackPointerBank.SPprocess ? 2 : 0) | (this.nPRIV ? 1 : 0);
             default:
-                this.logger.warn(LOG_NAME, `MRS with unimplemented SYSm value: ${sysm}`);
+                // this.logger.warn(LOG_NAME, `MRS with unimplemented SYSm value: ${sysm}`);
                 return 0;
         }
     }
@@ -694,7 +695,7 @@ export class RP2040 {
                 }
                 break;
             default:
-                this.logger.warn(LOG_NAME, `MRS with unimplemented SYSm value: ${sysm}`);
+                // this.logger.warn(LOG_NAME, `MRS with unimplemented SYSm value: ${sysm}`);
                 return 0;
         }
     }
@@ -1286,7 +1287,7 @@ export class RP2040 {
         }
         // SEV
         else if (opcode === 0b1011111101000000) {
-            this.logger.info(LOG_NAME, 'SEV');
+            // this.logger.info(LOG_NAME, 'SEV');
         }
         // STMIA
         else if (opcode >> 11 === 0b11000) {
@@ -1475,11 +1476,11 @@ export class RP2040 {
         // YIELD
         else if (opcode === 0b1011111100010000) {
             // do nothing for now. Wait for event!
-            this.logger.info(LOG_NAME, 'Yield');
+            // this.logger.info(LOG_NAME, 'Yield');
         }
         else {
-            this.logger.warn(LOG_NAME, `Warning: Instruction at ${opcodePC.toString(16)} is not implemented yet!`);
-            this.logger.warn(LOG_NAME, `Opcode: 0x${opcode.toString(16)} (0x${opcode2.toString(16)})`);
+            // this.logger.warn(LOG_NAME, `Warning: Instruction at ${opcodePC.toString(16)} is not implemented yet!`);
+            // this.logger.warn(LOG_NAME, `Opcode: 0x${opcode.toString(16)} (0x${opcode2.toString(16)})`);
         }
     }
     slowIO(addr) {
@@ -1511,33 +1512,33 @@ export class RP2040 {
     }
 }
 
-    // Only add setZeroTimeout to the window object, and hide everything
-    // else in a closure.
-    // https://dbaron.org/log/20100309-faster-timeouts
-    (function() {
-        var timeouts = [];
-        var messageName = "zero-timeout-message";
+// Only add setZeroTimeout to the window object, and hide everything
+// else in a closure.
+// https://dbaron.org/log/20100309-faster-timeouts
+(function() {
+    var timeouts = [];
+    var messageName = "zero-timeout-message";
 
-        // Like setTimeout, but only takes a function argument.  There's
-        // no time argument (always zero) and no arguments (you have to
-        // use a closure).
-        function setZeroTimeout(fn) {
-            timeouts.push(fn);
-            window.postMessage(messageName, "*");
-        }
+    // Like setTimeout, but only takes a function argument.  There's
+    // no time argument (always zero) and no arguments (you have to
+    // use a closure).
+    function setZeroTimeout(fn) {
+        timeouts.push(fn);
+        window.postMessage(messageName, "*");
+    }
 
-        function handleMessage(event) {
-            if (event.source == window && event.data == messageName) {
-                event.stopPropagation();
-                if (timeouts.length > 0) {
-                    var fn = timeouts.shift();
-                    fn();
-                }
+    function handleMessage(event) {
+        if (event.source == window && event.data == messageName) {
+            event.stopPropagation();
+            if (timeouts.length > 0) {
+                var fn = timeouts.shift();
+                fn();
             }
         }
+    }
 
-        window.addEventListener("message", handleMessage, true);
+    window.addEventListener("message", handleMessage, true);
 
-        // Add the one thing we want added to the window object.
-        window.setZeroTimeout = setZeroTimeout;
-    })();
+    // Add the one thing we want added to the window object.
+    window.setZeroTimeout = setZeroTimeout;
+})();

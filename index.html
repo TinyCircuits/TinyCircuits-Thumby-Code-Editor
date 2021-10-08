@@ -50,9 +50,9 @@
                         <button id="IDNewGameBTN" uk-tooltip="delay: 500; pos: bottom-left; offset: 0; title: Generates file structure needed for getting a game to show up on the Thumby start-up screen" class="uk-button uk-button-secondary uk-width-1-1 uk-height-1-1 uk-text-small uk-text-nowrap">Make New Game</button>
 
                         <button uk-tooltip="delay: 500; pos: bottom-left; offset: 0; title: Common utilities for firmware, page layout, page state, theme, and widgets" class="uk-button uk-button-secondary uk-width-1-1 uk-height-1-1 uk-text-small uk-text-nowrap" type="button">Utilities&#9662</button>
-                        <div uk-dropdown="offset: 0">
+                        <div uk-dropdown="offset: 0; mode: click">
                             <ul class="uk-nav uk-dropdown-nav">
-                                <li><button uk-tooltip="delay: 500; pos: bottom-left; offset: 0; title: Downloads firmware for reformatting Thumby, follow the below steps <br> 1. Turn off Thumby <br> 2. Hold down bottom-left or down d-pad button <br> 3. Turn Thumby back on while holding button <br> 4. Download firmware .uf2 file by clicking this button <br> 5. Drag .uf2 file to Thumby RP2040 volume using a file explorer <br> 6. Press 'Format' in the filesystem widget" onclick="window.open('https://micropython.org/resources/firmware/rp2-pico-20210902-v1.17.uf2');" class="uk-button uk-button-secondary uk-width-1-1 uk-height-1-1">Download Firmware</button></li>
+                                <li><button uk-tooltip="delay: 500; pos: bottom-left; offset: 0; title: Downloads firmware for reformatting Thumby, follow the below steps <br> 1. Turn on Thumby <br> 2. Hold down bottom-left or down d-pad button <br> 3. Turn Thumby back off while holding button, keep holding for 3s <br> 4. Turn Thumby back on and release button <br> 5. Download firmware .uf2 file by clicking this button <br> 6. Drag .uf2 file to Thumby RP2040 volume using a file explorer <br> 7. Press 'Format' in the filesystem widget" onclick="window.open('https://micropython.org/resources/firmware/rp2-pico-20210902-v1.17.uf2');" class="uk-button uk-button-secondary uk-width-1-1 uk-height-1-1">Download Firmware</button></li>
                                 <li><button uk-tooltip="delay: 500; pos: bottom-left; offset: 0; title: Resets all widget positions, refreshes page" id="IDResetLayoutBTN" class="uk-button uk-button-secondary uk-width-1-1 uk-height-1-1">Reset Layout</button></li>
                                 <li><button uk-tooltip="delay: 500; pos: bottom-left; offset: 0; title: Erases/closes all editors and bitmap builder then refreshes page" id="IDHardResetBTN" class="uk-button uk-button-secondary uk-width-1-1 uk-height-1-1">Hard Reset Page</button></li>
                                 <li><button uk-tooltip="delay: 500; pos: bottom-left; offset: 0; title: Toggles page theme between light and dark" id="IDInvertThemeBTN" class="uk-button uk-button-secondary uk-width-1-1 uk-height-1-1">Invert Theme</button></li>
@@ -113,6 +113,7 @@
         <script src="js/treejs/tree.js"></script>
         <script src="js/xterm-addon-fit/lib/xterm-addon-fit.js"></script>
         <script src="js/ace/ace.js" type="text/javascript" charset="utf-8"></script>
+        <script src="js/ace/ext-language_tools.js"></script>
         <script src="js/editor_wrapper.js"></script>
         <script src="js/filesystem_wrapper.js"></script>
         <script src="js/dir_chooser.js"></script>

@@ -39,36 +39,42 @@ export class EMULATOR{
     this.EMULATOR_DPAD_UP_BTN.classList.add("emulator_dpad_up_btn");
     this.EMULATOR_DPAD_UP_BTN.onmousedown = () => {this.handleKeyDown({key: 'w'})};
     this.EMULATOR_DPAD_UP_BTN.onmouseup = () => {this.handleKeyUp({key: 'w'})};
+    this.EMULATOR_DPAD_UP_BTN.title = "Key: W";
     this.EMULATOR_AREA_DIV.appendChild(this.EMULATOR_DPAD_UP_BTN);
 
     this.EMULATOR_DPAD_LEFT_BTN = document.createElement("button");
     this.EMULATOR_DPAD_LEFT_BTN.classList.add("emulator_dpad_left_btn");
     this.EMULATOR_DPAD_LEFT_BTN.onmousedown = () => {this.handleKeyDown({key: 'a'})};
     this.EMULATOR_DPAD_LEFT_BTN.onmouseup = () => {this.handleKeyUp({key: 'a'})};
+    this.EMULATOR_DPAD_LEFT_BTN.title = "Key: A";
     this.EMULATOR_AREA_DIV.appendChild(this.EMULATOR_DPAD_LEFT_BTN);
 
     this.EMULATOR_DPAD_DOWN_BTN = document.createElement("button");
     this.EMULATOR_DPAD_DOWN_BTN.classList.add("emulator_dpad_down_btn");
     this.EMULATOR_DPAD_DOWN_BTN.onmousedown = () => {this.handleKeyDown({key: 's'})};
     this.EMULATOR_DPAD_DOWN_BTN.onmouseup = () => {this.handleKeyUp({key: 's'})};
+    this.EMULATOR_DPAD_DOWN_BTN.title = "Key: S";
     this.EMULATOR_AREA_DIV.appendChild(this.EMULATOR_DPAD_DOWN_BTN);
 
     this.EMULATOR_DPAD_RIGHT_BTN = document.createElement("button");
     this.EMULATOR_DPAD_RIGHT_BTN.classList.add("emulator_dpad_right_btn");
     this.EMULATOR_DPAD_RIGHT_BTN.onmousedown = () => {this.handleKeyDown({key: 'd'})};
     this.EMULATOR_DPAD_RIGHT_BTN.onmouseup = () => {this.handleKeyUp({key: 'd'})};
+    this.EMULATOR_DPAD_RIGHT_BTN.title = "Key: D";
     this.EMULATOR_AREA_DIV.appendChild(this.EMULATOR_DPAD_RIGHT_BTN);
 
     this.EMULATOR_B_BTN = document.createElement("button");
     this.EMULATOR_B_BTN.classList.add("emulator_b_btn");
     this.EMULATOR_B_BTN.onmousedown = () => {this.handleKeyDown({key: ','})};
     this.EMULATOR_B_BTN.onmouseup = () => {this.handleKeyUp({key: ','})};
+    this.EMULATOR_B_BTN.title = "B Key: , (comma)";
     this.EMULATOR_AREA_DIV.appendChild(this.EMULATOR_B_BTN);
 
     this.EMULATOR_A_BTN = document.createElement("button");
     this.EMULATOR_A_BTN.classList.add("emulator_a_btn");
     this.EMULATOR_A_BTN.onmousedown = () => {this.handleKeyDown({key: '.'})};
     this.EMULATOR_A_BTN.onmouseup = () => {this.handleKeyUp({key: '.'})};
+    this.EMULATOR_A_BTN.title = "A Key: . (period)";
     this.EMULATOR_AREA_DIV.appendChild(this.EMULATOR_A_BTN);
 
 
@@ -96,6 +102,7 @@ export class EMULATOR{
     this.EMULATOR_DPAD_SVG = document.createElement("img");
     this.EMULATOR_DPAD_SVG.classList = "emulator_dpad_img";
     this.EMULATOR_DPAD_SVG.src = "Emulator-DPAD_NORMAL.svg";
+    this.EMULATOR_DPAD_SVG.title = "Keys: WASD";
     this.EMULATOR_AREA_DIV.appendChild(this.EMULATOR_DPAD_SVG);
 
     this.EMULATOR_B_SVG = document.createElement("img");
@@ -364,7 +371,7 @@ export class EMULATOR{
 
     // Display updates based off MicroPython flipping a gpio pin in the ssd1306 library (special emulator
     // version that also prints out the display buffer address that is then used here for canvas drawing)
-    this.mcu.gpio[0].addListener(() => {
+    this.mcu.gpio[2].addListener(() => {
         this.drawDisplayBuffer();
     });
 

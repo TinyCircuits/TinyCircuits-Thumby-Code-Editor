@@ -6,6 +6,7 @@
 class EditorWrapper{
     constructor(_container, state, EDITORS){
 
+        this.EDITORS = EDITORS;
         this._container = _container;
 
         // New editor, find a unique ID for it. At this point, a new editor can only
@@ -13,14 +14,14 @@ class EditorWrapper{
         // by now
         this.ID = 0;
         if(state.id == -1 || state.id == undefined){
-            while(this.ID in EDITORS){
+            while(this.ID in this.EDITORS){
                 this.ID = this.ID + 1;
             }
         }else{
             this.ID = state.id;
         }
 
-        EDITORS[this.ID] = this;
+        this.EDITORS[this.ID] = this;
 
 
         this.HEADER_TOOLBAR_DIV = document.createElement("div");
@@ -141,6 +142,14 @@ class EditorWrapper{
         listElem.appendChild(this.TINYBLOCKS_EXAMPLE_BTN);
         this.EXAMPLES_DROPDOWN_UL.appendChild(listElem);
 
+        listElem = document.createElement("li");
+        this.THUMBYPY_EXAMPLE_BTN = document.createElement("button");
+        this.THUMBYPY_EXAMPLE_BTN.classList = "uk-button uk-button-primary uk-width-1-1 uk-height-1-1 uk-text-nowrap";
+        this.THUMBYPY_EXAMPLE_BTN.textContent = "thumby.py";
+        this.THUMBYPY_EXAMPLE_BTN.onclick = async () => {this.openFileContents(await window.downloadFile("/ThumbyGames/lib/thumby.py"))};
+        listElem.appendChild(this.THUMBYPY_EXAMPLE_BTN);
+        this.EXAMPLES_DROPDOWN_UL.appendChild(listElem);
+
 
         this.VIEW_BUTTON = document.createElement("button");
         this.VIEW_BUTTON.classList = "uk-button uk-button-primary uk-height-1-1 uk-text-small uk-text-nowrap";
@@ -181,6 +190,15 @@ class EditorWrapper{
         this.VIEW_RESET_FONT_BUTTON.setAttribute("uk-tooltip", "delay: 500; pos: bottom-left; offset: 0; title: Reset font to default");
         this.VIEW_RESET_FONT_BUTTON.onclick = () => {this.resetFontSize()};
         listElem.appendChild(this.VIEW_RESET_FONT_BUTTON);
+        this.VIEW_DROPDOWN_UL.appendChild(listElem);
+
+        listElem = document.createElement("li");
+        this.VIEW_AUTOCOMPLETE_BUTTON = document.createElement("button");
+        this.VIEW_AUTOCOMPLETE_BUTTON.classList = "uk-button uk-button-primary uk-width-1-1 uk-height-1-1 uk-text-nowrap";
+        this.VIEW_AUTOCOMPLETE_BUTTON.textContent = "Turn live autocomplete ...";
+        this.VIEW_AUTOCOMPLETE_BUTTON.setAttribute("uk-tooltip", "delay: 500; pos: bottom-left; offset: 0; title: When turned off, basic autocomplete can be accessed using left-ctrl + space. Affects all editors");
+        this.VIEW_AUTOCOMPLETE_BUTTON.onclick = () => {this.toggleAutocompleteStateForAll()};
+        listElem.appendChild(this.VIEW_AUTOCOMPLETE_BUTTON);
         this.VIEW_DROPDOWN_UL.appendChild(listElem);
 
         
@@ -348,8 +366,16 @@ class EditorWrapper{
         if(lastEditorFontSize != null){
             this.FONT_SIZE = lastEditorFontSize;
         }
+
+        // Get live autocomplete state, true if 'true' or undefined, affects all editors
+        var langTools = ace.require("ace/ext/language_tools");
+        this.AUTOCOMPLETE_STATE = (localStorage.getItem("EditorAutocompleteState") === 'true' || localStorage.getItem("EditorAutocompleteState") == undefined);
+        this.setAutocompleteButtonText();
+
         this.ACE_EDITOR.setOptions({
             fontSize: this.FONT_SIZE.toString() + "pt",
+            enableBasicAutocompletion: true,
+            enableLiveAutocompletion: this.AUTOCOMPLETE_STATE
         });
 
         if(lastEditorSavedToThumby != null){
@@ -390,6 +416,39 @@ class EditorWrapper{
         // Set to light theme if window is set to light because theme was toggled
         if(window.theme == "light"){
             this.setThemeLight();
+        }
+    }
+
+    setAutocompleteButtonText(){
+        if(this.AUTOCOMPLETE_STATE){
+            this.VIEW_AUTOCOMPLETE_BUTTON.textContent = "Turn live autocomplete OFF";
+        }else{
+            this.VIEW_AUTOCOMPLETE_BUTTON.textContent = "Turn live autocomplete ON";
+        }
+    }
+
+
+    setAutocompleteState(state){
+        this.ACE_EDITOR.setOptions({
+            enableLiveAutocompletion: state
+        });
+        this.AUTOCOMPLETE_STATE = state;
+        this.setAutocompleteButtonText();
+    }
+
+
+    toggleAutocompleteStateForAll(){
+        if(this.AUTOCOMPLETE_STATE){
+            this.AUTOCOMPLETE_STATE = false;
+        }else{
+            this.AUTOCOMPLETE_STATE = true;
+        }
+
+        localStorage.setItem("EditorAutocompleteState", this.AUTOCOMPLETE_STATE);
+
+        // Apply to all editors, even this one
+        for (const [id, editor] of Object.entries(this.EDITORS)) {
+            editor.setAutocompleteState(this.AUTOCOMPLETE_STATE);
         }
     }
 

@@ -33,7 +33,7 @@
 .emulator_area{
     flex: 1;
     background-color: rgb(122, 0, 102);
-    background: url(../../Emulator-THUMBY-CROP.svg) no-repeat ;
+    background: url(../../Emulator-THUMBY-CROP.svg) no-repeat;
     background-size: contain;
 }
 
