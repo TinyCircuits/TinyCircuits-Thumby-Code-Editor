@@ -281,6 +281,7 @@ class ReplJS{
         // but is needed to only grab the FS lines/data
         this.startReaduntil(">");
         await this.writeToDevice(cmd + "\x04");
+        await this.waitUntilOK();
         var hiddenLines = await this.haltUntilRead(1);
 
         // Make sure this wasn't executed when no Thumby was attached
@@ -309,6 +310,7 @@ class ReplJS{
         this.SPECIAL_FORCE_OUTPUT_FLAG = true;
         this.startReaduntil(">");
         await this.writeToDevice(lines + "\x04");
+        await this.waitUntilOK();
         await this.haltUntilRead(1);
 
         // Get back into normal mode and omit the 3 lines from the normal message,
@@ -555,6 +557,7 @@ class ReplJS{
         // but is needed to only grab the FS lines/data
         this.startReaduntil(">");
         await this.writeToDevice(openFileCmd + "\x04");
+        await this.waitUntilOK();
         await this.haltUntilRead(1);
         if(usePercent) window.setPercent(3);
 
