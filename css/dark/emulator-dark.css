@@ -6,8 +6,10 @@
     transform: translate(-50%, -52%);
     background-color: transparent;
     border: transparent;
-    width: 36.703vw;
-    height: 47vw;
+    /* width: 36.703vw;
+    height: 47vw; */
+    height: 80vh;
+    aspect-ratio: 0.781 / 1;
     z-index: 1001;
     color: white;
     display: none;
@@ -131,7 +133,7 @@
     position: absolute;
     aspect-ratio: 1 / 1;
     width: 35%;
-    top: 67.65%;
+    top: 68.55%;
     left: 10.45%;
     z-index: 1002;
 }
@@ -140,7 +142,7 @@
     position: absolute;
     aspect-ratio: 1 / 1;
     width: 15.75%;
-    top: 78.2375%;
+    top: 79.185%;
     left: 58.75%;
     z-index: 1002;
 }
@@ -149,7 +151,7 @@
     position: absolute;
     aspect-ratio: 1 / 1;
     width: 15.75%;
-    top: 69.65%;
+    top: 70.525%;
     left: 75.4%;
     z-index: 1002;
 }

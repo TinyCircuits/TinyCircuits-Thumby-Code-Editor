@@ -2422,7 +2422,8 @@ export class RP2040 {
     }
     execute() {
         for (let i = 0; i < 100000 && !this.stopped && !this.waiting; i++) {
-            this.executeInstruction();
+            // this.executeInstruction();
+            this.executeInstructionOPED();
         }
         if (!this.stopped) {
             // this.executeTimer = window.setTimeout(() => this.execute(), 0);
