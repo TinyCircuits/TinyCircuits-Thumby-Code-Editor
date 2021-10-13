@@ -601,7 +601,7 @@ for (const [id, editor] of Object.entries(EDITORS)) {
 // can use delim = '\\x' for Python like hex/byte string (fails for unicode characters)
 String.prototype.convertToHex = function (delim) {
     return this.split("").map(function(c) {
-        return ("0" + c.charCodeAt(0).toString(16)).slice(-2);
+        return ("0" + c.charCodeAt(0).toString(16)).slice(-2)
     }).join(delim || "");
 };
 

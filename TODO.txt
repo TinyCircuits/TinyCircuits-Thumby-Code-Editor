@@ -125,3 +125,13 @@
 [ ] Emulator: Need four center buttons so user can use mouse to go diagonal
 
 [ ] Make sure to change and test server file retrieval in editor wrapper examples and repl formatting when names change
+
+
+[ ] Get binary data into correct format in JS and send to MP (https://stackoverflow.com/questions/47215327/how-do-i-convert-a-string-in-javascript-to-a-sequence-of-bytes)
+
+[.] Rare emulator bug where changes do not end up in flash (I guess)
+    [x] Looked into it, variable for collecting serial data was not reset between runs and 'may' fix the problem (hard to replicate)
+
+[x] Optimize emulator by turning opcodes if-else chain into switch blocks
+
+[x] Revert changes to repl file upload, line endings are not correct

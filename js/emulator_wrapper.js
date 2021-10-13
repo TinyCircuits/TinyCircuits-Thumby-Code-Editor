@@ -160,7 +160,6 @@ export class EMULATOR{
             animateDepressed: () => {this.EMULATOR_A_SVG.src = "Emulator-BTN_NORMAL.svg";}},
     }
 
-
     this.LAST_FILE_CONTENTS = "";
     this.LAST_KEY = "";
   }
@@ -297,7 +296,12 @@ export class EMULATOR{
   async startEmulator(fileContents){
     this.LAST_FILE_CONTENTS = fileContents;
 
-    // Reset the littlefs module state
+    // These all need reset or subsequent runs will start at the wrong places
+    this.collectedData = "";
+    this.displayBufferAdr = undefined;
+    this.nextLineIsAddr = false;
+
+    // Reset the littlefs module state (js/load-file.js)
     await window.startLittleFS();
 
     // Make sure emulator is stopped if starting a new one
@@ -366,7 +370,7 @@ export class EMULATOR{
         
         // Start the emulator
         this.mcu.PC = 0x10000000;
-        this.mcu.execute();
+        this.mcu.start();
     }).catch(console.error);
 
     // Display updates based off MicroPython flipping a gpio pin in the ssd1306 library (special emulator

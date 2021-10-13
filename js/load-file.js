@@ -15,6 +15,12 @@ var lfs = undefined;
 
 
 async function startLittleFS(){
+  flash = undefined;;
+  littlefs = undefined;
+  writeFile = undefined;
+  config = undefined;
+  lfs = undefined;
+
   flash = new Uint8Array(BLOCK_COUNT * BLOCK_SIZE);
   console.log("FS setup started");
   littlefs = await createLittleFS();
