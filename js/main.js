@@ -243,6 +243,9 @@ document.getElementById("IDDisconnectThumbyBTN").onclick = (event) =>{
 
 // Reset page by clearing storage and refreshing
 document.getElementById("IDHardResetBTN").onclick = (event) =>{
+    if(!confirm("Are you sure? This will erase and reset everything about the page (code, bitmap, etc)")){
+        return;
+    }
     console.log("PAGE: Hard reset page");
     localStorage.clear();
     location.reload();

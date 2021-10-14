@@ -27,10 +27,10 @@ class BITMAP_BUILDER{
         this.COLUMN_COUNT = 8;
 
         // The size of each cell/bitmap pixel (square) in pixels
-        this.CELL_SIZE_PX = 25;
+        this.GRID_SIZE_PX = 225;
 
         // How many pixels to scale cell size by on zoom event
-        this.ZOOM_STEP_PX = 1.5;
+        this.ZOOM_STEP_PX = 5.0;
 
         // Used to track number of times bitmaps exported, used to give each variable unique, 'enough', name
         this.BITMAP_EXPORT_COUNT = 0;
@@ -131,12 +131,12 @@ class BITMAP_BUILDER{
         var rowCount = localStorage.getItem("ROW_COUNT");
         var colCount = localStorage.getItem("COL_COUNT");
         var cellValues = localStorage.getItem("CELL_VALUES");
-        var cellPxSize = localStorage.getItem("CELL_SIZE_PX");
+        var cellPxSize = localStorage.getItem("GRID_SIZE_PX");
 
         if(rowCount != null && colCount != null && cellValues != null && cellPxSize != null){
             this.ROW_COUNT = parseInt(rowCount);
             this.COLUMN_COUNT = parseInt(colCount);
-            this.CELL_SIZE_PX = parseInt(cellPxSize);
+            this.GRID_SIZE_PX = parseInt(cellPxSize);
             this.renderGrid();
 
             cellValues = cellValues.split(',');
@@ -151,13 +151,14 @@ class BITMAP_BUILDER{
                 }
             }
         }
+        this.applyGridSize();
     }
 
 
     saveLocally(){
         localStorage.setItem("ROW_COUNT", this.ROW_COUNT);
         localStorage.setItem("COL_COUNT", this.COLUMN_COUNT);
-        localStorage.setItem("CELL_SIZE_PX", this.CELL_SIZE_PX);
+        localStorage.setItem("GRID_SIZE_PX", this.GRID_SIZE_PX);
 
         var cellValues = [];
 
@@ -227,8 +228,10 @@ class BITMAP_BUILDER{
                 }
             }
         }
+        this.applyGridSize();
     }
 
+    
      // Asks user for number, makes sure valid, updates grid and title
      setHeight(){
         var newHeight = prompt("Enter a new bitmap height: ", 8);
@@ -245,6 +248,7 @@ class BITMAP_BUILDER{
                 }
             }
         }
+        this.applyGridSize();
     }
 
 
@@ -283,15 +287,10 @@ class BITMAP_BUILDER{
     }
 
 
-    updateCellSizes(){
-        var cells = this.GRID_DIV.children;
-        for (var i = 0; i < cells.length; i++) {
-            var cell = cells[i];
-            cell.style.width = this.CELL_SIZE_PX.toString() + "px";
-            cell.style.height = this.CELL_SIZE_PX.toString() + "px";
-            cell.style.minWidth = this.CELL_SIZE_PX.toString() + "px";
-            cell.style.minHeight = this.CELL_SIZE_PX.toString() + "px";
-        }
+    applyGridSize(){
+        this.GRID_DIV.style.aspectRatio = this.COLUMN_COUNT + "/" + this.ROW_COUNT;
+        this.GRID_DIV.style.width = (this.COLUMN_COUNT / this.ROW_COUNT) * this.GRID_SIZE_PX + "px";
+        this.GRID_DIV.style.height = this.GRID_SIZE_PX + "px";
     }
 
 
@@ -311,20 +310,20 @@ class BITMAP_BUILDER{
 
     // Make each grid pixel larger and re-render grid
     zoomIn(){
-        this.CELL_SIZE_PX = this.CELL_SIZE_PX + this.ZOOM_STEP_PX;
-        this.updateCellSizes();
+        this.GRID_SIZE_PX = this.GRID_SIZE_PX + this.ZOOM_STEP_PX;
+        this.applyGridSize();
         this.saveLocally();
     }
 
 
     // Make each grid pixel smaller and re-render grid
     zoomOut(){
-        if(this.CELL_SIZE_PX - this.ZOOM_STEP_PX < 1){
-            this.CELL_SIZE_PX = 1;
+        if(this.GRID_SIZE_PX - this.ZOOM_STEP_PX < 1){
+            this.GRID_SIZE_PX = 1;
         }else{
-            this.CELL_SIZE_PX = this.CELL_SIZE_PX - this.ZOOM_STEP_PX;
+            this.GRID_SIZE_PX = this.GRID_SIZE_PX - this.ZOOM_STEP_PX;
         }
-        this.updateCellSizes();
+        this.applyGridSize();
         this.saveLocally();
     }
 
@@ -347,11 +346,6 @@ class BITMAP_BUILDER{
                 cell.className = "bitmap_grid_cell";
 
                 cell.style.backgroundColor = "white";
-
-                cell.style.width = this.CELL_SIZE_PX.toString() + "px";
-                cell.style.height = this.CELL_SIZE_PX.toString() + "px";
-                cell.style.minWidth = this.CELL_SIZE_PX.toString() + "px";
-                cell.style.minHeight = this.CELL_SIZE_PX.toString() + "px";
 
                 cell.onclick = this.cellLeftClickCallback.bind(this, cell);
                 cell.oncontextmenu = this.cellRightClickCallback.bind(this, cell);

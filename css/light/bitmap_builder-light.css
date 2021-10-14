@@ -20,14 +20,16 @@
   border: 1px dashed rgb(150, 150, 150);
   display: grid;
   grid-template-columns: repeat(3,1fr);
+  aspect-ratio: 1/1;
 }
 .bitmap_grid_cell{
   background-color: white;
-  border: 1px gray solid;
-  width: 28px;
-  height: 28px;
-  min-width: 28px;
-  min-height: 28px;
+  outline: 1px gray solid;
+  width: auto;
+  height: auto;
+  min-width: 0;
+  min-height: 0;
+  aspect-ratio: 1/1;
 }
 
 .bitmap_builder_button_area{
