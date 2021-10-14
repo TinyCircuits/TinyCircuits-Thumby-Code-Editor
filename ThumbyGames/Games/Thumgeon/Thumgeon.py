@@ -1,11 +1,11 @@
-# Tiny Delver.
+# Thumgeon.
 
 # Explore an endless, tough-as-nails pseudorandom dungeon
 # crawler. Collect items, potions, and weapons, kill monsters
 # with aforementioned loot -- and stay alive!
 
 # Written by Mason Watmough for TinyCircuits.
-# Last edited 09/09/2021
+# Last edited 10/14/2021
 
 '''
     This program is free software: you can redistribute it and/or modify
@@ -33,7 +33,7 @@ import sys
 
 machine.freq(48000000)
 
-# Tiny Delver
+# Thumgeon
 # Enter a pseudorandom dungeon in search of riches and goodies.
 
 # Written by Mason Watmough for TinyCircuits
@@ -84,13 +84,13 @@ signMessages = (
     ("Always", "remember:", "", "finders", "keepers!"),
     ("man, I", "had so", "much", "gold...", "...had..."),
     ("Hang in", "there!", "", "- M.W."),
-    ("Happy", "crawling,", "fellow", "delver."),
+    ("Happy", "crawling,", "fellow", "knight."),
     ("Only 8", "gold for", "an ULTRA", "SWORD!?"),
     ("Why do", "all these", "potions", "taste so", "terrible?"),
     ("Am I the", "only", "person", "down", "here?"),
     ("This food", "could be", "centuries", "old..."),
     ("It smells", "like an", "ancient", "closet"),
-    ("How many", "delvers", "have been", "down", "here?"),
+    ("How many", "knights", "have been", "down", "here?"),
     ("Who took", "my epic", "bow!?"),
     ("Who keeps", "leaving", "rocks in", "my shirt?"),
     ("Man, I'm", "tired."),
@@ -1332,8 +1332,7 @@ def updateMonsters():
                     
 
 display.fill(0)
-display.text("  Tiny", 0, 0)
-display.text(" Delver", 0, 8)
+display.text("Thumgeon", 0, 0)
 display.text("@", 32, 16)
 display.show()
 getcharinputNew()

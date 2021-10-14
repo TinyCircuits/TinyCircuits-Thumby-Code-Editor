@@ -111,11 +111,11 @@ class EditorWrapper{
         this.EXAMPLES_DROPDOWN_UL.appendChild(listElem);
 
         listElem = document.createElement("li");
-        this.DELVER_EXAMPLE_BTN = document.createElement("button");
-        this.DELVER_EXAMPLE_BTN.classList = "uk-button uk-button-primary uk-width-1-1 uk-height-1-1 uk-text-nowrap";
-        this.DELVER_EXAMPLE_BTN.textContent = "Delver";
-        this.DELVER_EXAMPLE_BTN.onclick = async () => {this.openFileContents(await window.downloadFile("/ThumbyGames/Games/Delver/Delver.py"))};
-        listElem.appendChild(this.DELVER_EXAMPLE_BTN);
+        this.THUMGEON_EXAMPLE_BTN = document.createElement("button");
+        this.THUMGEON_EXAMPLE_BTN.classList = "uk-button uk-button-primary uk-width-1-1 uk-height-1-1 uk-text-nowrap";
+        this.THUMGEON_EXAMPLE_BTN.textContent = "Thumgeon";
+        this.THUMGEON_EXAMPLE_BTN.onclick = async () => {this.openFileContents(await window.downloadFile("/ThumbyGames/Games/Thumgeon/Thumgeon.py"))};
+        listElem.appendChild(this.THUMGEON_EXAMPLE_BTN);
         this.EXAMPLES_DROPDOWN_UL.appendChild(listElem);
 
         listElem = document.createElement("li");

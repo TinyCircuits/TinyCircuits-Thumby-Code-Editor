@@ -231,7 +231,7 @@ class BITMAP_BUILDER{
         this.applyGridSize();
     }
 
-    
+
      // Asks user for number, makes sure valid, updates grid and title
      setHeight(){
         var newHeight = prompt("Enter a new bitmap height: ", 8);
