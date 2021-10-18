@@ -145,9 +145,11 @@ class BITMAP_BUILDER{
         this.LAST_IMPORTED_IMAGE.onload = () => {
             if(this.LAST_IMPORTED_IMAGE.width > 72){
                 console.log("Image width is greater than 72px at" + this.LAST_IMPORTED_IMAGE.width + "px, import canceled");
+                alert("Image width is greater than 72px at" + this.LAST_IMPORTED_IMAGE.width + "px, import canceled");
                 return;
             }else if(this.LAST_IMPORTED_IMAGE.height > 40){
                 console.log("Image height is greater than 40px at" + this.LAST_IMPORTED_IMAGE.height + "px, import canceled");
+                alert("Image height is greater than 40px at" + this.LAST_IMPORTED_IMAGE.height + "px, import canceled");
                 return;
             }else{
                 this.OFFSCREEN_CANVAS.width = this.LAST_IMPORTED_IMAGE.width;
