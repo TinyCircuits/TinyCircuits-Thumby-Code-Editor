@@ -59,12 +59,12 @@ class BITMAP_BUILDER{
         this.INNER_PARENT_DIV.appendChild(this.BUTTON_AREA_DIV);
 
 
-        this.SET_WIDTH_BTN = document.createElement("button");
-        this.SET_WIDTH_BTN.textContent = "Width";
-        this.SET_WIDTH_BTN.onclick = this.setWidth.bind(this);
-        this.SET_WIDTH_BTN.className = "uk-button uk-button-primary uk-button-small uk-width-1-1 uk-text-small";
-        this.SET_WIDTH_BTN.setAttribute("uk-tooltip", "delay: 500; pos: bottom-left; offset: 0; title: Opens dialog for setting the bitmap width (erases bitmap)");
-        this.BUTTON_AREA_DIV.appendChild(this.SET_WIDTH_BTN);
+        this.SET_SIZE_BTN = document.createElement("button");
+        this.SET_SIZE_BTN.textContent = "Size";
+        this.SET_SIZE_BTN.onclick = this.setSize.bind(this);
+        this.SET_SIZE_BTN.className = "uk-button uk-button-primary uk-button-small uk-width-1-1 uk-text-small";
+        this.SET_SIZE_BTN.setAttribute("uk-tooltip", "delay: 500; pos: bottom-left; offset: 0; title: Opens dialogs for setting the bitmap width adn height (erases bitmap)");
+        this.BUTTON_AREA_DIV.appendChild(this.SET_SIZE_BTN);
 
         this.ZOOM_IN_BTN = document.createElement("button");
         this.ZOOM_IN_BTN.setAttribute("uk-icon", "plus-circle");
@@ -88,12 +88,12 @@ class BITMAP_BUILDER{
         this.IMPORT_LINES_BTN.setAttribute("uk-tooltip", "delay: 500; pos: bottom-left; offset: 0; title: Import selected lines containing bitmap array and comment from an editor");
         this.BUTTON_AREA_DIV.appendChild(this.IMPORT_LINES_BTN);
 
-        this.SET_HEIGHT_BTN = document.createElement("button");
-        this.SET_HEIGHT_BTN.textContent = "Height";
-        this.SET_HEIGHT_BTN.onclick = this.setHeight.bind(this);
-        this.SET_HEIGHT_BTN.className = "uk-button uk-button-primary uk-button-small uk-width-1-1 uk-text-small";
-        this.SET_HEIGHT_BTN.setAttribute("uk-tooltip", "delay: 500; pos: bottom-left; offset: 0; title: Opens dialog for setting the bitmap height (erases bitmap)");
-        this.BUTTON_AREA_DIV.appendChild(this.SET_HEIGHT_BTN);
+        this.IMPORT_IMAGE_BTN = document.createElement("button");
+        this.IMPORT_IMAGE_BTN.textContent = "Image";
+        this.IMPORT_IMAGE_BTN.onclick = this.importImage.bind(this);
+        this.IMPORT_IMAGE_BTN.className = "uk-button uk-button-primary uk-button-small uk-width-1-1 uk-text-small";
+        this.IMPORT_IMAGE_BTN.setAttribute("uk-tooltip", "delay: 500; pos: bottom-left; offset: 0; title: Import image from computer and apply threshold to convert to monochrome");
+        this.BUTTON_AREA_DIV.appendChild(this.IMPORT_IMAGE_BTN);
 
         this.INVERT_BTN = document.createElement("button");
         this.INVERT_BTN.textContent = "Invert";
@@ -123,6 +123,65 @@ class BITMAP_BUILDER{
         this.updatePanelTitle();
 
         this.restoreFromLocally();
+
+        this.LAST_IMPORTED_IMAGE = undefined;
+
+        this.OFFSCREEN_CANVAS = document.createElement('canvas');
+        this.OFFSCREEN_CANVAS_CONTEXT = undefined;
+    }
+
+
+
+    async importImage(){
+        let fileHandle;
+        try{
+            [fileHandle] = await window.showOpenFilePicker(this.FILE_OPTIONS);
+        }catch(err){
+            return;
+        }
+        const file = await fileHandle.getFile();
+
+        this.LAST_IMPORTED_IMAGE = new Image();
+        this.LAST_IMPORTED_IMAGE.onload = () => {
+            if(this.LAST_IMPORTED_IMAGE.width > 72){
+                console.log("Image width is greater than 72px at" + this.LAST_IMPORTED_IMAGE.width + "px, import canceled");
+                return;
+            }else if(this.LAST_IMPORTED_IMAGE.height > 40){
+                console.log("Image height is greater than 40px at" + this.LAST_IMPORTED_IMAGE.height + "px, import canceled");
+                return;
+            }else{
+                this.OFFSCREEN_CANVAS.width = this.LAST_IMPORTED_IMAGE.width;
+                this.OFFSCREEN_CANVAS.height = this.LAST_IMPORTED_IMAGE.height;
+                this.OFFSCREEN_CANVAS_CONTEXT = this.OFFSCREEN_CANVAS.getContext('2d');
+                this.OFFSCREEN_CANVAS_CONTEXT.drawImage(this.LAST_IMPORTED_IMAGE, 0, 0, this.LAST_IMPORTED_IMAGE.width, this.LAST_IMPORTED_IMAGE.height);
+                
+                this.COLUMN_COUNT = this.LAST_IMPORTED_IMAGE.width;
+                this.ROW_COUNT = this.LAST_IMPORTED_IMAGE.height;
+                this.updatePanelTitle();
+                this.renderGrid();
+                this.saveLocally();
+                this.applyGridSize();
+
+                var pixelData = this.OFFSCREEN_CANVAS_CONTEXT.getImageData(0, 0, this.LAST_IMPORTED_IMAGE.width, this.LAST_IMPORTED_IMAGE.height).data;
+                var cells = this.GRID_DIV.children;
+                var cellIndex = 0;
+                for (var i = 0, n = pixelData.length; i < n; i += 4) {
+                    // i+3 is alpha (the fourth element)
+                    var pixAvg = (pixelData[i] + pixelData[i+1] + pixelData[i+2]) / 3;
+                    if(pixAvg > 127){   // White
+                        cells[cellIndex].style.backgroundColor = "white";
+                    }else{              // Black
+                        cells[cellIndex].style.backgroundColor = "black";
+                    }
+                    cellIndex = cellIndex + 1;
+                }
+
+                // https://stackoverflow.com/a/6776055
+                URL.revokeObjectURL(this.LAST_IMPORTED_IMAGE.src);
+                console.log("Image import successful");
+            }
+        }
+        this.LAST_IMPORTED_IMAGE.src = URL.createObjectURL(file);
     }
 
 
@@ -212,6 +271,13 @@ class BITMAP_BUILDER{
     }
 
 
+    setSize(){
+        if(this.setWidth()){
+            this.setHeight();
+        }
+    }
+
+
     // Asks user for number, makes sure valid, updates grid and title
     setWidth(){
         var newWidth = prompt("Enter a new bitmap width: ", 8);
@@ -223,12 +289,15 @@ class BITMAP_BUILDER{
                     this.updatePanelTitle();
                     this.renderGrid();
                     this.saveLocally();
+                    this.applyGridSize();
+                    return true;
                 }else{
-                    alert("That width is too large or small (min: 1, max: 72)")
+                    alert("That width is too large or small (min: 1, max: 72)");
+                    return false;
                 }
             }
         }
-        this.applyGridSize();
+        return false;
     }
 
 
@@ -243,12 +312,15 @@ class BITMAP_BUILDER{
                     this.updatePanelTitle();
                     this.renderGrid();
                     this.saveLocally();
+                    this.applyGridSize();
+                    return true;
                 }else{
                     alert("That height is too large (min: 1, max: 40)")
+                    return false;
                 }
             }
         }
-        this.applyGridSize();
+        return false;
     }
 
 

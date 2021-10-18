@@ -1,7 +1,7 @@
 import { ComponentContainer, ComponentItemConfig, GoldenLayout, ItemType, LayoutManager, LayoutConfig } from "../golden-layout/bundle/esm/golden-layout.js";
 import { EMULATOR } from "./emulator_wrapper.js";
 
-console.log("Beta 4.1");
+console.log("Beta 4.2");
 
 // https://github.com/golden-layout/golden-layout#building-single-file-bundles (commands to build bundle from source need to be done on Windows)
 // https://codepen.io/pbklink/pen/dyWJNNm
@@ -459,8 +459,7 @@ function registerShell(_container, state){
         // Allow certain characters through so thumby can pick them up
         if(REPL.BUSY == true && data != '' && data != 'w' && data != 'a' && data != 's' && data != 'd' && data != ',' && data != '.'){
            return;
-        } 
-        
+        }
         REPL.writeToDevice(data);
     }
 
