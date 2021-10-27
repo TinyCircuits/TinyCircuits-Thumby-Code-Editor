@@ -557,8 +557,13 @@ class BITMAP_BUILDER{
             var arrayEndIndex = selectedLines.indexOf(')');
 
             if(arrayStartIndex == -1 || arrayEndIndex == -1){
-                alert("Could not find array start or end, please select the array including '(' and ')'");
-                return 0;   // Could not find either start or end of an array in selected
+                arrayStartIndex = selectedLines.indexOf('[');
+                arrayEndIndex = selectedLines.indexOf(']');
+
+                if(arrayStartIndex == -1 || arrayEndIndex == -1){
+                    alert("Could not find array start or end, please select the array including '(' or '[' and ')' or ']");
+                    return 0;   // Could not find either start or end of an array in selected
+                }
             }
 
             // Get everything between the start and end off the array

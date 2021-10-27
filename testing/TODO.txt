@@ -135,3 +135,10 @@
 [x] Optimize emulator by turning opcodes if-else chain into switch blocks
 
 [x] Revert changes to repl file upload, line endings are not correct
+
+
+[ ] Look into recording from the emulator, or at least screenshots 
+
+[ ] Look into how multiplayer/lan can be emulated (most likely over internet and connect to another browser if there is an in-between server)
+
+[ ] Build workflow for getting files onto Thumby better (binary, ascii, line endings) and about the best way to get them back from Thumby

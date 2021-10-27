@@ -94,7 +94,7 @@ class EditorWrapper{
 
 
         this.EXAMPLES_DROPDOWN_DIV = document.createElement("div");
-        this.EXAMPLES_DROPDOWN_DIV.setAttribute("uk-dropdown", "offset: 0");
+        this.EXAMPLES_DROPDOWN_DIV.setAttribute("uk-dropdown", "offset: 0; mode: click");
         this.FILE_DROPDOWN_UL.appendChild(this.EXAMPLES_DROPDOWN_DIV);
 
         this.EXAMPLES_DROPDOWN_UL = document.createElement("ul");

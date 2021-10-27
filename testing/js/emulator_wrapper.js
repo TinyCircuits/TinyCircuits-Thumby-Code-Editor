@@ -52,6 +52,8 @@ export class EMULATOR{
     this.EMULATOR_CANVAS.setAttribute("height", this.HEIGHT);
     this.EMULATOR_CANVAS.classList.add("emulator_canvas");
     this.EMULATOR_THUMBY.appendChild(this.EMULATOR_CANVAS);
+    this.EMULATOR_CANVAS.width = this.WIDTH;
+    this.EMULATOR_CANVAS.height = this.HEIGHT;
 
 
     this.EMULATOR_DPAD_UP_BTN = document.createElement("button");
@@ -118,15 +120,13 @@ export class EMULATOR{
     this.EMULATOR_FOOTER_DIV.appendChild(this.EMULATOR_STOP_BTN);
 
 
+    // Resize events happen when page is zoomed in, always try to keep the same Thumby image and canvas size
     window.addEventListener('resize', (event) => {
-        this.EMULATOR_THUMBY.style.transform = "scale(" + 1/window.devicePixelRatio + ")";
-        this.EMULATOR_CANVAS.style.transform = "scale(" + window.devicePixelRatio + ")";
-
-        var newXOffset = ((this.EMULATOR_CANVAS.clientWidth * (window.devicePixelRatio))) - this.EMULATOR_CANVAS.clientWidth;
-        var newYOffset = ((this.EMULATOR_CANVAS.clientHeight * (window.devicePixelRatio))) - this.EMULATOR_CANVAS.clientHeight;
-
-        this.EMULATOR_CANVAS.style.transform += " translate(" + newXOffset/2 + "px, " + newYOffset/2 + "px" + ")";
-    })
+      this.adjustSize();
+    });
+    document.addEventListener("DOMContentLoaded", () => {
+      this.adjustSize();
+    });
 
 
     this.EMULATOR_SCALE = localStorage.getItem("EmulatorScale");
@@ -134,11 +134,11 @@ export class EMULATOR{
       this.EMULATOR_SCALE = 1;
     }else{
       this.EMULATOR_SCALE = parseInt(this.EMULATOR_SCALE);
-      window.onload = () => {
+      document.addEventListener("DOMContentLoaded", () => {
         this.EMULATOR_THUMBY.style.width = (this.EMULATOR_THUMBY.clientWidth * this.EMULATOR_SCALE) + "px";
         this.EMULATOR_CANVAS.style.width = (this.EMULATOR_CANVAS.clientWidth * this.EMULATOR_SCALE) + "px";
         this.EMULATOR_CANVAS.style.height = (this.EMULATOR_CANVAS.clientHeight * this.EMULATOR_SCALE) + "px";
-      };
+      });
     }
 
     this.EMULATOR_ZOOM_IN_BTN = document.createElement("button");
@@ -180,7 +180,9 @@ export class EMULATOR{
       this.EMULATOR_ROTATION = 0;
     }else{
       this.EMULATOR_ROTATION = parseInt(this.EMULATOR_ROTATION);
-      this.EMULATOR_THUMBY.style.transform = "rotate(" + this.EMULATOR_ROTATION + "deg)";
+      document.addEventListener("DOMContentLoaded", () => {
+        this.EMULATOR_THUMBY.style.transform = "rotate(" + this.EMULATOR_ROTATION + "deg)";
+      });
     }
 
     this.EMULATOR_ROTATE_BTN = document.createElement("button");
@@ -194,6 +196,20 @@ export class EMULATOR{
       localStorage.setItem("EmulatorRotation", this.EMULATOR_ROTATION);
     };
     this.EMULATOR_FOOTER_DIV.appendChild(this.EMULATOR_ROTATE_BTN);
+
+
+    this.EMULATOR_SCREENSHOT_BTN = document.createElement("button");
+    this.EMULATOR_SCREENSHOT_BTN.classList = "uk-button uk-button-default";
+    this.EMULATOR_SCREENSHOT_BTN.className = "uk-button uk-button-primary uk-button-small uk-width-1-1 uk-text-small";
+    this.EMULATOR_SCREENSHOT_BTN.title = "Save current from the emulator to a .png (native size, 72x40)";
+    this.EMULATOR_SCREENSHOT_BTN.setAttribute("uk-icon", "camera");
+    this.EMULATOR_SCREENSHOT_BTN.onclick = () => {
+      var link = document.createElement('a');
+      link.download = 'thumby_emulator_screenshot.png';
+      link.href = this.EMULATOR_CANVAS.toDataURL();
+      link.click();
+    };
+    this.EMULATOR_FOOTER_DIV.appendChild(this.EMULATOR_SCREENSHOT_BTN);
 
 
     this.EMULATOR_DPAD_SVG = document.createElement("img");
@@ -268,14 +284,9 @@ export class EMULATOR{
   }
 
 
-  toggleSize(){
-    if(this.EMULATOR_MAIN_DIV.style.height == "0.945in"){
-      this.EMULATOR_MAIN_DIV.style.height = "97%";
-      // console.log(document.getElementById("ID_EMULATOR_MAIN").clientWidth);
-      // console.log(document.getElementById("ID_EMULATOR_MAIN").clientHeight);
-    }else{
-      this.EMULATOR_MAIN_DIV.style.height = "0.945in";
-    }
+  adjustSize(){
+    this.EMULATOR_THUMBY.style.transform = "scale(" + 1/window.devicePixelRatio + ")";
+    // this.EMULATOR_CANVAS.style.transform = "scale(" + window.devicePixelRatio + ")";
   }
 
 
@@ -377,33 +388,11 @@ export class EMULATOR{
           ib += 1;
         }
       }
-    
       
       const imageData = new ImageData(this.PIXELS, this.WIDTH, this.HEIGHT);
 
-
-      // https://web.dev/device-pixel-content-box/#devicepixelcontentbox VERY IMPORTANT
-      const observer = new ResizeObserver((entries) => {
-        const entry = entries.find((entry) => entry.target === this.EMULATOR_CANVAS);
-        // this.EMULATOR_CANVAS.width = (entry.devicePixelContentBoxSize[0].inlineSize/4) + ((entry.devicePixelContentBoxSize[0].inlineSize%4)/2);
-        // this.EMULATOR_CANVAS.height = (entry.devicePixelContentBoxSize[0].blockSize/4) + ((entry.devicePixelContentBoxSize[0].blockSize%4)/2);
-        this.EMULATOR_CANVAS.width = (entry.devicePixelContentBoxSize[0].inlineSize/this.EMULATOR_SCALE);
-        this.EMULATOR_CANVAS.height = (entry.devicePixelContentBoxSize[0].blockSize/this.EMULATOR_SCALE);
-        // this.EMULATOR_CANVAS.style.width = this.EMULATOR_CANVAS.width + "px";
-        // this.EMULATOR_CANVAS.style.height = this.EMULATOR_CANVAS.height + "px";
-
-        this.context.putImageData(imageData, 0, 0);
-
-        
-
-        // var imageObject=new Image();
-        // imageObject.onload=() => {
-        //   this.context.clearRect(0,0,this.WIDTH, this.HEIGHT);
-        //   this.context.drawImage(imageObject,0,0);
-        // }
-        // imageObject.src=this.EMULATOR_CANVAS.toDataURL();
-      });
-      observer.observe(this.EMULATOR_CANVAS, {box: ['device-pixel-content-box']});
+      // Maybe change this to putImage(): https://themadcreator.github.io/gifler/docs.html#animator::createBufferCanvas()
+      this.context.putImageData(imageData, 0, 0);
   }
 
 

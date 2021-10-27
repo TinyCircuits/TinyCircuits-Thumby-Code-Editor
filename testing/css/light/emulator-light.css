@@ -8,7 +8,7 @@
 }
 
 .emulator_body{
-    background-color: #333;
+    background-color: rgb(117, 117, 117);
     display: grid;
     height: calc(100% - 25px);
     width: 100%;

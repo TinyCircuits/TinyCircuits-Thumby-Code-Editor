@@ -180,6 +180,12 @@ function invertPageTheme(){
                 link.href = "css/dark/bitmap_builder-dark.css";
             }
 
+            if(href == "emulator-dark.css"){
+                link.href = "css/light/emulator-light.css";
+            }else if(href == "emulator-light.css"){
+                link.href = "css/dark/emulator-dark.css";
+            }
+
             if(href == "dir_chooser-dark.css"){
                 link.href = "css/light/dir_chooser-light.css";
                 ATERM.setLightTheme();
