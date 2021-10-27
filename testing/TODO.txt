@@ -1,0 +1,137 @@
+[X] Only allow for formatting the Thumby by erasing all files and re-uploading them, don't have separate button for reinstalling libs {only has a format button now}
+
+[x] Make sure files are read in chunks so there is no memory allocation error (TinyDelver) {read in chunks now and collected by webpage}
+
+[x] Investigate why when uploading firmware the Thumby device can't be reconnected without refreshing the page 
+    (recreate? Put in BOOTSEL mode, download and drag-drop the .uf2, try to connect the Thumby 'Connect Thumby')
+    {it's JUST fixed now with the new repl interaction}
+
+[x] Double click files to open them (instinct for most people)
+
+[x] Why can spamming the connect button quickly allow for some unwanted stuff to print to terminal? {Looks like two connect events stack in JS, rate limit connect button}
+
+[x] Remove editor from editor list when closing editor {remove editor from list and remove editor related webpage storage variables(had to use timeout hack so browser doesn't cause delete)}
+
+[x] let mouse click on panel focus that panel so widgets are added to that panel as a tab (more clean looking: https://github.com/golden-layout/golden-layout/issues/706)
+
+[x] Clear and invert in bitmap builder do not save the state of the bitmap {Very easy fix, just add saveLocally to end of each function}
+
+[x] Tie add widget buttons into adding each type of widget but limiting bitmap, shell, and FS to one each
+
+[x] Tie in import and export of bitmap builder {each editor sets itself to a global last editor var and the bitmap builder uses that}
+
+[x] FS and shell need the Thumby to connect again after either panel was closed and then added again {solved for now by refreshing the page so user know they have to reconnect}
+
+[x] Powering off and then powering on the device will output extra garbage/intro message sometimes, not sure what caused this {caused by our main.py, I think, or something needs
+    to catch this} {looks like power off then on interrupted main.py by disconnect and connect did not. Anyway, fixed by going to interrupt, raw and then normal instead}
+
+[x] Why do helper programs sometimes get stuck on raw and need a newline? {Fixed by removing print('Done') on each thought was important but was not}
+
+[x] Only usable with 2021-09-02 MP because of intro line {should be fixed by using indexOf and capturing the last common part of the line}
+
+[x] Change title of editor on open file {uses the file path on the Thumby and no syncing will be done if file deleted on Thumby}
+
+[x] When an editor is added, try to add it to the same panel as another editor? {Adds to editor, if any are open, with smallest ID (could make it the last selected)}
+
+[x] Click the format button while the thumby is disconnected means will never be able to connect afterward {previous repl EOT fixes fixed this}
+
+[x] Got rid of extra close button that was not in tab by modifying golden layout (line 2353) {if this was pressed, all editors would close under parent and not be deleted}
+
+[x] If disconnected at just the right time, will freeze forever since a REPL EOT never gets its line {fixed by making forever loop dependent on disconnect flag}
+
+[x] Full FS not retrieved when start main.py not connected and then connect {needed to do a soft reset like pyboard, https://github.com/micropython/micropython/blob/master/tools/pyboard.py}
+
+[X] Able to use the terminal to input characters when Thumby is busy, need to only allow special ones like ctrl-c
+
+[x] Tie in events for delete and rename file on Thumby and use new UI {both work and use uiKit library}
+
+[x] Doing any operation during startup sequence will allow for garbage to be spit to terminal and for soft lock until power recycle/reconnect {fixed, busy flag was set false by readuntil function when it should not have been}
+
+[x] Ensure file menu for delete, rename, new folder is force hidden since it will default to root if a folder is deleted therefore deleting everything
+
+[x] Change from strictly a project structure to Thonny like access (allow editing game files and re saving them right away)
+    but also keep the ability to make a 'New Game' and have it build the game file structure and then allow the same kind
+    of access and saving
+    [x] Make file dialog chooser for picking where file will be saved to on Thumby
+
+[.] MAJOR: Very rarely during format it will hang and enter needs to be pressed {does this still happen? YES! Reproduce: Hard reset page, format Thumby, Open TinyDelver,
+    save as test.py to TinyDelver, refresh page, connect thumby, save test.py, HANGS on raw!} {doesn't just happen when overwriting a file} {still happens...} {may just limit bytes sent}
+
+[.] Do not allow typing into shell when RP2040 is busy {done, only ctrl-c is allowed through but might be a problem for MP programs that read stdin from shell. May need
+    special flag that is BUSY for common operations and BUSY for custom user programs, is that possible?}
+
+[x] Show little message in loading bar about what is loading {done}
+
+[x] Do not allow for editors with the same file name to be opened, if you do, make it close the last one that was open with that name
+    [x] During opening from Thumby
+    [x] When saving to Thumby and picking a folder (new file or save as) need to check if a file with that path already is open
+
+[x] Add inverted light theme to new UI
+
+[x] Redo the file, view, and fast execute buttons {file, view are done but not fast execute} {All done now}
+
+[x] Finish UI for Webpage4 with new layout and reconnect all events
+	[X] Add 'Reset Page' option to reposition all panels without losing work/outputs
+		[x] Why do editor backgrounds turn black on reset? {for some reason background z-index changes, just made editor in editor-dark.css have a matching black background too}
+		[x] How to ensure panel constructors are not reloaded and then set to defaults therefore clearing people's work/outputs? {no easy way around this, just reload modded config and refresh page for now}
+    [X] Why do the Bitmap Builder buttons stay highlighted in red? {CSS in uikit had had focus element that made it stay red, got rid of it}
+    [x] Add loading bar that can be used for common operations
+
+[x] Fast execute button doesn't do anything {now it does}
+
+[x] Add 'report bugs' button to GitHub (when there is one) {one under 'other links' and leads to tinycircuits.github.io for now}
+
+[x] Add back brief tooltips for all buttons and some UI elements {make sure to keep adding these for all new ui elements}
+
+[.] Add Beta to IDE in top needs actual font for 'beta'
+
+[.] Scrolling in editor can be slow {depends on extensions installed and what they do the site. Profile with Performance -> start record ctrl-e -> look at how long tasks take, probably an extension}
+
+[ ] Enabled Ace live auto completion and editor ext lang tools file for exact match only
+
+[ ] Clicked buttons lose their border
+
+[ ] Reset layout does not re-add an editor, maybe it shouldn't
+
+[ ] Sometimes when opening files it won't get past raw then the next file to open will be replaced by the default code (very rare and old bug)
+
+[ ] Disable certain buttons if their actions are not usable at certain moments
+
+[ ] Make editor dropdown buttons need to be clicked so they are not in the way too often
+
+[ ] Running a program from the shell and then typing random characters that do not get consumed means an interrupt can't happen through shell or utility functions (power cycle ahs to be done)
+
+[ ] Show user a warning when the port is likely in use already or just show manual choosers or when using MAKE A NEW GAME
+
+[ ] Display little messages on Thumby when the Thumby is busy
+    [ ] Need to make sure thumby.py is on Thumby before using it for status messages for screen
+
+[ ] In the DIR chooser, show a waring that an overwrite is going to happen on the Thumby, might also make it possible to select file and overwrite directly
+    as well as use the current editors path as default path
+
+[ ] REPL:
+    [ ] Random hanging on raw could have been because of sending too many bytes at a time: https://github.com/micropython/micropython/blob/master/tools/pyboard.py#L444
+    [ ] Some commands are not sent in 256 byte blocks and may exceed this. The size of the command should be accounted for as well as the extra data
+    [ ] Can verify right away if a command worked or not, prints OK to raw if worked, right away or after small amount of time, could retry
+        https://github.com/micropython/micropython/blob/master/tools/pyboard.py#L450
+    [x] Hard reset page, format thumby, open lib/thumby.py, refresh page, try to save thumby.py and it will hang on raw until a ctrl-c is given {detected this and made lame fix}
+
+[ ] When disconnected and save button pressed, don't toggle save * in tab and make sure to give a pop-up that it was not saved
+
+[ ] When accessing a file and a program is running, interrupt program first so file can be accessed without first stopping the program manually
+
+[ ] Emulator: Use button on screen to hold dpad down updates quicker than holding keyboard key down
+
+[ ] Emulator: Need four center buttons so user can use mouse to go diagonal
+
+[ ] Make sure to change and test server file retrieval in editor wrapper examples and repl formatting when names change
+
+
+[ ] Get binary data into correct format in JS and send to MP (https://stackoverflow.com/questions/47215327/how-do-i-convert-a-string-in-javascript-to-a-sequence-of-bytes)
+
+[.] Rare emulator bug where changes do not end up in flash (I guess)
+    [x] Looked into it, variable for collecting serial data was not reset between runs and 'may' fix the problem (hard to replicate)
+
+[x] Optimize emulator by turning opcodes if-else chain into switch blocks
+
+[x] Revert changes to repl file upload, line endings are not correct

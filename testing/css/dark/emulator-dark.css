@@ -1,0 +1,162 @@
+.emulator_panel{
+    background-color: rgb(58, 58, 58);
+    width: 100%;
+    height: 100%;
+    display: flex;
+    overflow: none;
+    flex-flow: column;
+}
+
+.emulator_body{
+    background-color: rgb(82, 82, 82);
+    display: grid;
+    height: calc(100% - 25px);
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    overflow: auto;
+    vertical-align: middle;
+}
+
+.emulator_footer{
+    background-color: chartreuse;
+    display: flex;
+    position: relative;
+    font-family: Roboto;
+    font-size: 16px;
+    color: white;
+    width: 100%;
+    height: 25px;
+    border: 1px gray solid;
+}
+
+.emulator_thumby{
+    position: relative;
+    margin-left: auto;
+    margin-right: auto;
+    width: 225px;
+    aspect-ratio: 1/1;
+    background-color: rgb(122, 0, 102);
+    background: url(../../Emulator-THUMBY-NOOUTLINE.svg) no-repeat center;
+    background-size: contain;
+    display: flex;
+    justify-content: center;
+    vertical-align: middle;
+}
+
+/* https://devlog.disco.zone/2016/07/22/canvas-scaling/ */
+/* https://web.dev/device-pixel-content-box/#devicepixelcontentbox */
+.emulator_canvas{
+    width: 72px;
+    height: 40px;
+    margin-top: 16.5%;
+    image-rendering: optimizeQuality;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: -o-crisp-edges;
+    image-rendering: pixelated;
+    -ms-interpolation-mode: nearest-neighbor;
+    /* transform-origin: center left; */
+}
+
+
+.emulator_dpad_up_btn{
+    display: block;
+    position: absolute;
+    width: 10%;
+    aspect-ratio: 1 / 0.8;
+    background-color: transparent;
+    border: transparent;
+    top: 51.5%;
+    left: 31.6%;
+    z-index: 1003;
+}
+
+.emulator_dpad_left_btn{
+    display: block;
+    position: absolute;
+    width: 10%;
+    aspect-ratio: 1 / 1;
+    background-color: transparent;
+    border: transparent;
+    top: 59.0%;
+    left: 25%;
+    z-index: 1003;
+}
+
+.emulator_dpad_down_btn{
+    display: block;
+    position: absolute;
+    width: 10%;
+    aspect-ratio: 1 / 0.8;
+    background-color: transparent;
+    border: transparent;
+    top: 68.5%;
+    left: 31.6%;
+    z-index: 1003;
+}
+
+.emulator_dpad_right_btn{
+    display: block;
+    position: absolute;
+    width: 10%;
+    aspect-ratio: 1 / 1;
+    background-color: transparent;
+    border: transparent;
+    top: 59.0%;
+    left: 38.25%;
+    z-index: 1003;
+}
+
+.emulator_b_btn{
+    border-radius: 50%;
+    display: block;
+    position: absolute;
+    width: 10%;
+    aspect-ratio: 1 / 1;
+    background-color: transparent;
+    border: transparent;
+    top: 61%;
+    left: 55.125%;
+    z-index: 1003;
+}
+
+.emulator_a_btn{
+    border-radius: 50%;
+    display: block;
+    position: absolute;
+    width: 10%;
+    aspect-ratio: 1 / 1;
+    background-color: transparent;
+    border: transparent;
+    top: 54.35%;
+    left: 65.3%;
+    z-index: 1003;
+}
+
+.emulator_dpad_img{
+    position: absolute;
+    aspect-ratio: 1 / 1;
+    width: 22.25%;
+    top: 52.6%;
+    left: 25.4%;
+    z-index: 1002;
+}
+
+.emulator_b_img{
+    position: absolute;
+    aspect-ratio: 1 / 1;
+    width: 10.25%;
+    top: 61.0%;
+    left: 55.0%;
+    z-index: 1002;
+}
+
+.emulator_a_img{
+    position: absolute;
+    aspect-ratio: 1 / 1;
+    width: 10.25%;
+    top: 54.325%;
+    left: 65.1%;
+    z-index: 1002;
+} 

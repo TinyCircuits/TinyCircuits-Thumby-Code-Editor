@@ -1,0 +1,99 @@
+html, body{
+    background-color: gray;
+    overflow: hidden;
+    font-family: Roboto;
+}
+
+.page_wrapper{
+    background-color: gray;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: calc(100% - 20px);
+    width: 100%;
+    display: flex;
+}
+
+
+.layout_container{
+    background-color: gray;
+    height: calc(100% - 45px);
+    width: 100%;
+    position: absolute;
+    left: 0;
+    top: 45px;
+    box-shadow: -3px 0px 9px 0px rgba( 0, 0, 0, 0.4 );
+}
+
+
+.progress_bar_parent {
+  background-color: rgb(43, 43, 43);
+  width: 100%;
+  height: 20px;
+  position: absolute;
+  bottom: 0;
+  z-index: 1000000000;
+  display: flex;
+  color: white;
+  font-family: Roboto;
+  font-size: 14px;
+  overflow: visible;
+  white-space: nowrap;
+}
+
+.progress_bar {
+  width: 0%;
+  height: 30px;
+  background-color: green;
+}
+
+
+/* Scrollbar style */
+::-webkit-scrollbar{
+  height: 8px;
+  width: 8px;
+}
+::-webkit-scrollbar-thumb:horizontal{
+  background: gray;
+}
+::-webkit-scrollbar-thumb:vertical{
+  background: gray;
+}
+::-webkit-scrollbar-track {
+  background: rgb(209, 209, 209);
+}
+
+/* Visited link color */
+a:visited {color:white;}
+
+/* Default link color */
+a:link {
+  color: rgb(0, 185, 218);
+}
+
+.header{
+  background-color: rgb(131, 131, 131);
+  height: 45px;
+  width: 100%;
+  display: flex;
+  flex-flow: row wrap;
+}
+.header_logo_space{
+  background-color: black;
+  flex: 0.1675;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  object-fit: fill;
+}
+.header_button_space{
+  background-color: rgb(117, 117, 117);
+  flex: 0.42;
+  height: 100%;
+}
+.header_link_space{
+  background-color: rgb(122, 122, 122);
+  flex: 0.417;
+  height: 100%;
+}
