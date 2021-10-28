@@ -19,58 +19,58 @@
     * `thumby.display.setPixel(x, y, color)` | sets pixel to `color` at `x` and `y`. Returns None
         * `x`
             * type: int
-            * values: 0 (left) ~ 72 (right)
+            * values: 0 (left) ~ 71 (right)
         * `y`
             * type: int
-            * values: 0 (top) ~ 40 (bottom)
+            * values: 0 (top) ~ 39 (bottom)
         * `color`
             * type: int
             * values: 0 or 1 (default: 1)
     * `thumby.display.drawLine(x1, y1, x2, y2, color)` | draws 1px thick line in `color` from `x1` and `y1` to `x2` and `y2` (thickness not variable). Returns None
         * `x1`
             * type: int
-            * values: 0 (left) ~ 72 (right)
+            * values: 0 (left) ~ 71 (right)
         * `y1`
             * type: int
-            * values: 0 (top) ~ 40 (bottom)
+            * values: 0 (top) ~ 39 (bottom)
         * `x2`
             * type: int
-            * values: 0 (left) ~ 72 (right)
+            * values: 0 (left) ~ 71 (right)
         * `y2`
             * type: int
-            * values: 0 (top) ~ 40 (bottom)
+            * values: 0 (top) ~ 39 (bottom)
         * `color`
             * type: int
             * values: 0 or 1 (default: 1)
     * `thumby.display.fillRect(x, y, w, h, color)` | creates filled rectangle with `color` at `x` and `y` with dimensions `w` (width) and `h` (height). Returns None
         * `x`
             * type: int
-            * values: 0 (left) ~ 72 (right)
+            * values: 0 (left) ~ 71 (right)
         * `y`
             * type: int
-            * values: 0 (top) ~ 40 (bottom)
+            * values: 0 (top) ~ 39 (bottom)
         * `w`
             * type: int
-            * values: 0 ~ 72
+            * values: 0 ~ 71
         * `h`
             * type: int
-            * values: 0 ~ 40
+            * values: 0 ~ 39
         * `color`
             * type: int
             * values: 0 or 1 (default: 1)
     * `thumby.display.rect(x, y, w, h, color)` | creates 1px thick outline rectangle with `color` at `x` and `y` with dimensions `w` (width) and `h` (height) (thickness not variable). Returns None
         * `x`
             * type: int
-            * values: 0 (left) ~ 72 (right)
+            * values: 0 (left) ~ 71 (right)
         * `y`
             * type: int
-            * values: 0 (top) ~ 40 (bottom)
+            * values: 0 (top) ~ 39 (bottom)
         * `w`
             * type: int
-            * values: 0 ~ 72
+            * values: 0 ~ 71
         * `h`
             * type: int
-            * values: 0 ~ 40
+            * values: 0 ~ 39
         * `color`
             * type: int
             * values: 0 or 1 (default: 1)
@@ -80,42 +80,42 @@
             * values: 128 ASCII characters
         * `x`
             * type: int
-            * values: 0 (left) ~ 72 (right)
+            * values: 0 (left) ~ 71 (right)
         * `y`
             * type: int
-            * values: 0 (top) ~ 40 (bottom)
+            * values: 0 (top) ~ 39 (bottom)
         * `color`
             * type: int
             * values: 0 or 1 (default: 1)
     * `thumby.display.blit(inspr, x, y, width, height, key)` | draws pixels defined in bitmap `inspr` array at `x` and `y` provided the bitmap's `width` and `height` with transparent pixels defined by `key` (e.g. `key = 0` means black pixels are not drawn/are transparent). Returns None
         * `x`
             * type: int
-            * values: 0 (left) ~ 72 (right)
+            * values: 0 (left) ~ 71 (right)
         * `y`
             * type: int
-            * values: 0 (top) ~ 40 (bottom)
+            * values: 0 (top) ~ 39 (bottom)
         * `width`
             * type: int
-            * values: 0 ~ 72
+            * values: 0 ~ 71
         * `height`
             * type: int
-            * values: 0 ~ 40
+            * values: 0 ~ 39
         * `key`
             * type: int
             * values: 0 or 1 (default: -1, both black and white pixels drawn)
     * `thumby.display.drawSprite(inspr, x, y, width, height, mirrorX, mirrorY, key)` | draws pixels defined in bitmap `inspr` array at `x` and `y` provided the bitmap's `width` and `height` but with bitmap mirrorable about x and y axes using `mirrorX` and `mirrorY` flags with transparent pixels defined by `key` (e.g. `key = 0` means black pixels are not drawn/are transparent). Returns None
         * `x`
             * type: int
-            * values: 0 (left) ~ 72 (right)
+            * values: 0 (left) ~ 71 (right)
         * `y`
             * type: int
-            * values: 0 (top) ~ 40 (bottom)
+            * values: 0 (top) ~ 39 (bottom)
         * `width`
             * type: int
-            * values: 0 ~ 72
+            * values: 0 ~ 71
         * `height`
             * type: int
-            * values: 0 ~ 40
+            * values: 0 ~ 39
         * `mirrorX`
             * type: bool
             * values: 1/True (do mirror) or 0/False (do not mirror)
@@ -139,6 +139,7 @@
     * `thumby.buttonX.justPressed()` | returns True if the last button pressed was `thumby.buttonX`, False otherwise (replace `buttonX` by any of the above button objects)
 
 ## Audio
+* Note: audio not implemented on web IDE emulator but is unlikely to cause exceptions
 * ### Functions
     * `thumby.audio.play(freq, duration, duty)` | plays audio at sound frequency `freq` and duty cycle `duty` for `duration` in milliseconds without blocking code execution. For now, try searching 'music notes to frequency chart' to relate these parameters to musical notes. Returns None
         * `freq`
@@ -167,7 +168,7 @@
             * values: 1/True (audio enabled) or 0/False (audio disabled)
 
 ## Files
-* Caution: file creation does not work on the web IDE emulator
+* Caution: file creation and writing does not work on the web IDE emulator and may cause exceptions
 * ### Functions
     * `thumby.files.openFile(filename, options)` | Opens a file provided a file path in `filename` (e.g. /Games/MyGame/config.txt) with provided Python file opening `options` (https://docs.micropython.org/en/latest/esp8266/tutorial/filesystem.html). Returns None
         * `filename`

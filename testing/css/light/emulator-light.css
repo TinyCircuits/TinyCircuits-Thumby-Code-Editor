@@ -159,4 +159,12 @@
     top: 54.325%;
     left: 65.1%;
     z-index: 1002;
-} 
+}
+
+.emulator_screenshot_btn{
+    position: absolute;
+    border-radius: 50%;
+    aspect-ratio: 1/1;
+    top: 10px;
+    left: 10px;
+}

@@ -34,6 +34,8 @@
     position: relative;
     margin-left: auto;
     margin-right: auto;
+    margin-top: 25px;
+    margin-bottom: 25px;
     width: 225px;
     aspect-ratio: 1/1;
     background-color: rgb(58, 58, 58);
@@ -159,4 +161,22 @@
     top: 54.325%;
     left: 65.1%;
     z-index: 1002;
-} 
+}
+
+.emulator_screenshot_btn{
+    position: absolute;
+    width: 50px;
+    border-radius: 50%;
+    aspect-ratio: 1/1;
+    top: 70px;
+    left: 10px;
+}
+
+.emulator_screenshot_scale_btn{
+    position: absolute;
+    width: 50px;
+    border-radius: 50%;
+    aspect-ratio: 1/1;
+    top: 10px;
+    left: 10px;
+}
