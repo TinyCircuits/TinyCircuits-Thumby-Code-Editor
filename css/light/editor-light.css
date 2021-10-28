@@ -1,6 +1,6 @@
 .editor{
     /* Matches terminal ace theme */
-    background-color: white;
+    background-color: none;
     display: flex;
     width: 100%;
     /* height: calc(100% - 60px); */

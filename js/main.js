@@ -1,8 +1,6 @@
 import { ComponentContainer, ComponentItemConfig, GoldenLayout, ItemType, LayoutManager, LayoutConfig } from "../golden-layout/bundle/esm/golden-layout.js";
 import { EMULATOR } from "./emulator_wrapper.js";
 
-console.log("Beta 4.4");
-
 // https://github.com/golden-layout/golden-layout#building-single-file-bundles (commands to build bundle from source need to be done on Windows)
 // https://codepen.io/pbklink/pen/dyWJNNm
 // https://replit.com/@koenigmm/GoldenLayout-dynamic-component-creation-example
