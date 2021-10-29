@@ -205,7 +205,7 @@ export class EMULATOR{
 
     this.EMULATOR_SCREENSHOT_BTN = document.createElement("button");
     this.EMULATOR_SCREENSHOT_BTN.className = "uk-button uk-button-primary uk-button-small emulator_screenshot_btn";
-    this.EMULATOR_SCREENSHOT_BTN.title = "Save current from the emulator to a .png (native size, 72x40)";
+    this.EMULATOR_SCREENSHOT_BTN.title = "Take screenshot of emulator and download as a .png";
     this.EMULATOR_SCREENSHOT_BTN.setAttribute("uk-icon", "camera");
     this.EMULATOR_SCREENSHOT_BTN.onclick = () => {
       console.log("Taking screenshot!");
@@ -346,7 +346,6 @@ export class EMULATOR{
 
     this.LAST_FILE_CONTENTS = "";
     this.LAST_KEY = "";
-
     this.onData = undefined;
   }
 

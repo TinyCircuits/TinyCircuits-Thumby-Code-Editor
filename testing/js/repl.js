@@ -11,7 +11,6 @@ class ReplJS{
         this.USB_PRODUCT_ID = 5;    // For filtering ports during auto or manual selection
 
         // https://github.com/micropython/micropython/blob/master/tools/pyboard.py#L444 need to only send 256 bytes each time
-        // Account for extra bytes: write("b") = 10 at some point as well as \x0x
         this.THUMBY_SEND_BLOCK_SIZE = 255;  // How many bytes to send to Thumby at a time when uploading a file to it
 
         // Set true so most terminal output gets passed to javascript terminal
@@ -506,27 +505,13 @@ class ReplJS{
     }
 
 
-    unicodeStringToTypedArray(s) {
-        var escstr = encodeURIComponent(s);
-        var binstr = escstr.replace(/%([0-9A-F]{2})/g, function(match, p1) {
-            return String.fromCharCode('0x' + p1);
-        });
-        var ua = new Uint8Array(binstr.length);
-        Array.prototype.forEach.call(binstr, function (ch, i) {
-            ua[i] = ch.charCodeAt(0);
-        });
-        return ua;
-    }
-
-
-
-    async uploadFile(filePath, fileContents, usePercent = false, fixNewlines = false){
+    async uploadFile(filePath, fileContents, usePercent = false, binaryFile = false){
         if(this.BUSY == true){
             return true;
         }
 
         // Sometimes newlines are incorrect even though they look correct in ace?
-        if(fixNewlines){
+        if(binaryFile == false){
             var fileContents = fileContents.split(/\r\n|\n|\r/);
         
             // Recombine everything with correct newlines
@@ -560,8 +545,12 @@ class ReplJS{
 
 
         var bytes = new Uint8Array(fileContents.length);
-        for(var i=0; i<bytes.length; i++){
-            bytes[i] = fileContents[i].charCodeAt();
+        if(binaryFile == false){
+            for(var i=0; i<bytes.length; i++){
+                bytes[i] = fileContents[i].charCodeAt();
+            }
+        }else{
+            bytes = fileContents;
         }
 
 
@@ -658,7 +647,6 @@ class ReplJS{
             if(usePercent) window.setPercent(currentPercent);
         }
 
-
         // await this.haltUntilRead(1);
         await this.getToNormal(3);
         this.BUSY = false;
@@ -670,28 +658,46 @@ class ReplJS{
         await this.deleteAllFiles();
         await this.getOnBoardFSTree();
 
-        await this.uploadFile("Games/SpaceDebris/SpaceDebris.py", await window.downloadFile("/ThumbyGames/Games/SpaceDebris/SpaceDebris.py"), false, true);
+        await this.uploadFile("Games/SpaceDebris/SpaceDebris.py", await window.downloadFile("/ThumbyGames/Games/SpaceDebris/SpaceDebris.py"), false, false);
         window.setPercent(11.1);
-        await this.uploadFile("Games/Annelid/Annelid.py", await window.downloadFile("/ThumbyGames/Games/Annelid/Annelid.py"), false, true);
+        await this.uploadFile("Games/Annelid/Annelid.py", await window.downloadFile("/ThumbyGames/Games/Annelid/Annelid.py"), false, false);
         window.setPercent(22.2);
-        await this.uploadFile("Games/Thumgeon/Thumgeon.py", await window.downloadFile("/ThumbyGames/Games/Thumgeon/Thumgeon.py"), false, true);
+        await this.uploadFile("Games/Thumgeon/Thumgeon.py", await window.downloadFile("/ThumbyGames/Games/Thumgeon/Thumgeon.py"), false, false);
         window.setPercent(33.3);
-        await this.uploadFile("Games/SaurRun/SaurRun.py", await window.downloadFile("/ThumbyGames/Games/SaurRun/SaurRun.py"), false, true);
+        await this.uploadFile("Games/SaurRun/SaurRun.py", await window.downloadFile("/ThumbyGames/Games/SaurRun/SaurRun.py"), false, false);
         window.setPercent(44.4);
-        await this.uploadFile("Games/TinyBlocks/TinyBlocks.py", await window.downloadFile("/ThumbyGames/Games/TinyBlocks/TinyBlocks.py"), false, true);
+        await this.uploadFile("Games/TinyBlocks/TinyBlocks.py", await window.downloadFile("/ThumbyGames/Games/TinyBlocks/TinyBlocks.py"), false, false);
         window.setPercent(55.5);
-        await this.uploadFile("lib/ssd1306.py", await window.downloadFile("/ThumbyGames/lib/ssd1306.py"), false, true);
+        await this.uploadFile("lib/ssd1306.py", await window.downloadFile("/ThumbyGames/lib/ssd1306.py"), false, false);
         window.setPercent(66.6);
-        await this.uploadFile("lib/thumby.py", await window.downloadFile("/ThumbyGames/lib/thumby.py"), false, true);
+        await this.uploadFile("lib/thumby.py", await window.downloadFile("/ThumbyGames/lib/thumby.py"), false, false);
         window.setPercent(77.7);
-        await this.uploadFile("main.py", await window.downloadFile("/ThumbyGames/main.py"), false, true);
+        await this.uploadFile("main.py", await window.downloadFile("/ThumbyGames/main.py"), false, false);
         window.setPercent(88.8);
-        await this.uploadFile("thumby.cfg", await window.downloadFile("/ThumbyGames/thumby.cfg"), false, true);
+        await this.uploadFile("thumby.cfg", await window.downloadFile("/ThumbyGames/thumby.cfg"), false, false);
         window.setPercent(99.9);
 
         // Make sure to update the filesystem after modifying it
         await this.getOnBoardFSTree();
         window.resetPercentDelay();
+    }
+
+
+    async uploadFiles(path, fileHandles){
+        if(this.BUSY == true){
+            return;
+        }
+
+        for(var i=0; i<fileHandles.length; i++){
+            const file = await fileHandles[i].getFile();
+            if(file.name.indexOf(".py") != -1 || file.name.indexOf(".txt") != -1 || file.name.indexOf(".text") != -1 || file.name.indexOf(".cfg") != -1){
+                await this.uploadFile(path + file.name, await file.text(), false, false);
+            }else{
+                await this.uploadFile(path + file.name, new Uint8Array(await file.arrayBuffer()), false, true);
+            }
+        }
+
+        await this.getOnBoardFSTree();
     }
 
 
@@ -702,13 +708,14 @@ class ReplJS{
         this.BUSY = true;
         window.setPercent(1, "Getting file...");
 
-        var cmd =   "chunk_size = 1024\n" +
-                    "onboard_file = open('" + filePath + "', 'r')\n" +
+        var cmd =   "import sys\n" +
+                    "chunk_size = 1024\n" +
+                    "onboard_file = open('" + filePath + "', 'rb')\n" +
                     "while True:\n" +
                     "    data = onboard_file.read(chunk_size)\n" +
                     "    if not data:\n" +
                     "        break\n" +
-                    "    print(data)\n" +
+                    "    sys.stdout.write(data)\n" +
                     "onboard_file.close()\n" +
                     "print('###DONE READING FILE###')\n";
 
@@ -854,6 +861,7 @@ class ReplJS{
             this.BUSY = false;
         }
     }
+
 
     async disconnect(){
         if(this.PORT != undefined){

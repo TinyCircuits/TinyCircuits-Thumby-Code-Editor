@@ -573,9 +573,17 @@ class EditorWrapper{
         const file = await fileHandle.getFile();
         var code = await file.text();
 
+        this.CURRENT_FILE_NAME = file.name;
+
+        // See this.FILE_OPTIONS 'text/python': ['.py'], 'text/plain': ['.txt', '.text', '.cfg']
+        if(file.name.indexOf(".py") == -1 && file.name.indexOf(".txt") == -1 && file.name.indexOf(".text") == -1 && file.name.indexOf(".cfg") == -1){
+            if(!confirm("Unrecognized file extension, are you sure you want to import this?\n\nTry using the filesystem upload button instead")){
+                return;
+            }
+        }
+
         this.ACE_EDITOR.setValue(code, 1);
 
-        this.CURRENT_FILE_NAME = file.name;
         console.log(this.ELEM_ID + "Name");
         localStorage.setItem(this.ELEM_ID + "Name", this.CURRENT_FILE_NAME);
 

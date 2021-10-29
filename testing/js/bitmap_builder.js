@@ -34,6 +34,10 @@ class BITMAP_BUILDER{
         })
 
 
+        this.BITMAP_WIDTH_LIMIT = 72 * 2;
+        this.BITMAP_HEIGHT_LIMIT = 40 * 2;
+
+
         // The starting size of the bitmap
         this.ROW_COUNT = 8;
         this.COLUMN_COUNT = 8;
@@ -155,13 +159,13 @@ class BITMAP_BUILDER{
 
         this.LAST_IMPORTED_IMAGE = new Image();
         this.LAST_IMPORTED_IMAGE.onload = () => {
-            if(this.LAST_IMPORTED_IMAGE.width > 72){
-                console.log("Image width is greater than 72px at " + this.LAST_IMPORTED_IMAGE.width + "px, import canceled");
-                alert("Image width is greater than 72px at" + this.LAST_IMPORTED_IMAGE.width + "px, import canceled");
+            if(this.LAST_IMPORTED_IMAGE.width > this.BITMAP_WIDTH_LIMIT){
+                console.log("Image width is greater than" + this.BITMAP_WIDTH_LIMIT + "px at " + this.LAST_IMPORTED_IMAGE.width + "px, import canceled");
+                alert("Image width is greater than" + this.BITMAP_WIDTH_LIMIT + "px at " + this.LAST_IMPORTED_IMAGE.width + "px, import canceled");
                 return;
-            }else if(this.LAST_IMPORTED_IMAGE.height > 40){
-                console.log("Image height is greater than 40px at " + this.LAST_IMPORTED_IMAGE.height + "px, import canceled");
-                alert("Image height is greater than 40px at" + this.LAST_IMPORTED_IMAGE.height + "px, import canceled");
+            }else if(this.LAST_IMPORTED_IMAGE.height > this.BITMAP_HEIGHT_LIMIT){
+                console.log("Image height is greater than" + this.BITMAP_HEIGHT_LIMIT + "px at " + this.LAST_IMPORTED_IMAGE.height + "px, import canceled");
+                alert("Image height is greater than" + this.BITMAP_HEIGHT_LIMIT + "px at " + this.LAST_IMPORTED_IMAGE.height + "px, import canceled");
                 return;
             }else{
                 this.OFFSCREEN_CANVAS.width = this.LAST_IMPORTED_IMAGE.width;
@@ -295,11 +299,11 @@ class BITMAP_BUILDER{
 
     // Asks user for number, makes sure valid, updates grid and title
     setWidth(){
-        var newWidth = prompt("Enter a new bitmap width: ", 8);
+        var newWidth = prompt("Enter a new bitmap width (limit: "+ this.BITMAP_WIDTH_LIMIT +"): ", 8);
         if(newWidth != null){
             newWidth = parseInt(newWidth);
             if(newWidth != NaN){
-                if(newWidth >= 1 && newWidth <= 72){
+                if(newWidth >= 1 && newWidth <= this.BITMAP_WIDTH_LIMIT){
                     this.COLUMN_COUNT = newWidth;
                     this.updatePanelTitle();
                     this.renderGrid();
@@ -307,7 +311,7 @@ class BITMAP_BUILDER{
                     this.applyGridSize();
                     return true;
                 }else{
-                    alert("That width is too large or small (min: 1, max: 72)");
+                    alert("That width is too large or small (min: 1, max: " + this.BITMAP_WIDTH_LIMIT + ")");
                     return false;
                 }
             }
@@ -318,11 +322,11 @@ class BITMAP_BUILDER{
 
      // Asks user for number, makes sure valid, updates grid and title
      setHeight(){
-        var newHeight = prompt("Enter a new bitmap height: ", 8);
+        var newHeight = prompt("Enter a new bitmap height (limit: " + this.BITMAP_HEIGHT_LIMIT + "): ", 8);
         if(newHeight != null){
             newHeight = parseInt(newHeight);
             if(newHeight != NaN){
-                if(newHeight >= 1 && newHeight <= 40){
+                if(newHeight >= 1 && newHeight <= this.BITMAP_HEIGHT_LIMIT){
                     this.ROW_COUNT = newHeight;
                     this.updatePanelTitle();
                     this.renderGrid();
@@ -330,7 +334,7 @@ class BITMAP_BUILDER{
                     this.applyGridSize();
                     return true;
                 }else{
-                    alert("That height is too large (min: 1, max: 40)")
+                    alert("That height is too large (min: 1, max: " + this.BITMAP_HEIGHT_LIMIT + ")")
                     return false;
                 }
             }
@@ -609,8 +613,8 @@ class BITMAP_BUILDER{
             var tempColumnCount = bitmapWidth;
 
             // Make sure entered dimensions are not too big, if so let user know and stop
-            if(tempRowCount > 40 || tempColumnCount > 72){
-                alert("Entered dimensions are too large, try again (WIDTH limit <= 72, HEIGHT limit <= 40)");
+            if(tempRowCount > this.BITMAP_HEIGHT_LIMIT || tempColumnCount > this.BITMAP_WIDTH_LIMIT){
+                alert("Entered dimensions are too large, try again (WIDTH limit <= " + this.BITMAP_WIDTH_LIMIT + ", HEIGHT limit <=" + this.BITMAP_HEIGHT_LIMIT + ")");
                 return 0;
             }
 

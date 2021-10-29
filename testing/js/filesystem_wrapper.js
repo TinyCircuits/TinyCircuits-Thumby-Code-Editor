@@ -16,7 +16,7 @@ class FILESYSTEM{
         this.FS_ALL_DIV.appendChild(this.FS_AREA_DIV);
 
         this.FS_FOOTER_DIV = document.createElement("div");
-        this.FS_FOOTER_DIV.classList.add("fs_footer");
+        this.FS_FOOTER_DIV.classList = "fs_footer uk-button-group";
         this.FS_ALL_DIV.appendChild(this.FS_FOOTER_DIV);
 
         this.FS_REFORMAT_BTN = document.createElement("button");
@@ -29,15 +29,15 @@ class FILESYSTEM{
         this.FS_REFORMAT_BTN.title = "Erases all files on Thumby then reloads default library and game files";
         this.FS_FOOTER_DIV.appendChild(this.FS_REFORMAT_BTN);
 
-
-        // this.FS_REINSTALL_LIBS_BTN = document.createElement("button");
-        // this.FS_REINSTALL_LIBS_BTN.classList.add("uk-button");
-        // this.FS_REINSTALL_LIBS_BTN.classList.add("uk-button-secondary");
-        // this.FS_REINSTALL_LIBS_BTN.classList.add("uk-button-small");
-        // this.FS_REINSTALL_LIBS_BTN.classList.add("uk-width-1-1");
-        // this.FS_REINSTALL_LIBS_BTN.innerText = "Reformat Thumby"
-        // this.FS_REINSTALL_LIBS_BTN.innerText = "INSTALL LIBS"
-        // this.FS_FOOTER_DIV.appendChild(this.FS_REINSTALL_LIBS_BTN);
+        this.FS_UPLOAD_BTN = document.createElement("button");
+        this.FS_UPLOAD_BTN.classList.add("uk-button");
+        this.FS_UPLOAD_BTN.classList.add("uk-button-secondary");
+        this.FS_UPLOAD_BTN.classList.add("uk-button-small");
+        this.FS_UPLOAD_BTN.classList.add("uk-width-1-1");
+        this.FS_UPLOAD_BTN.onclick = () => {this.onUploadFiles()};
+        this.FS_UPLOAD_BTN.innerText = "UPLOAD FILES";
+        this.FS_UPLOAD_BTN.title = "Uploads files to Thumby (use this for text and binary files)";
+        this.FS_FOOTER_DIV.appendChild(this.FS_UPLOAD_BTN);
 
 
         this.FS_DROPDOWN_DIV = document.createElement("div");
@@ -76,6 +76,15 @@ class FILESYSTEM{
         li.appendChild(this.FS_DROPDOWN_NEWFOLDER_BTN);
         this.FS_DROPDOWN_UL.appendChild(li);
 
+        li = document.createElement("li");
+        this.FS_DROPDOWN_DOWNLOAD_BTN = document.createElement("button");
+        this.FS_DROPDOWN_DOWNLOAD_BTN.classList = "uk-button uk-button-secondary uk-width-1-1";
+        this.FS_DROPDOWN_DOWNLOAD_BTN.onclick = () => {this.downloadSelected(this.getSelectedNodeFileOrDir(), this.getSelectedNodePath())};
+        this.FS_DROPDOWN_DOWNLOAD_BTN.innerText = "Download";
+        this.FS_DROPDOWN_DOWNLOAD_BTN.title = "Downloads selected items to computer (all files under directory will be downloaded)";
+        li.appendChild(this.FS_DROPDOWN_DOWNLOAD_BTN);
+        this.FS_DROPDOWN_UL.appendChild(li);
+
 
         this._container.element.appendChild(this.FS_ALL_DIV);
 
@@ -99,6 +108,8 @@ class FILESYSTEM{
         this.onFormat = undefined;
         this.onOpen = undefined;
         this.onNewFolder = undefined;
+        this.onUploadFiles = undefined;
+        this.onDownloadFiles = undefined;
 
 
         // Make sure mouse click anywhere on panel focuses the panel
@@ -119,6 +130,16 @@ class FILESYSTEM{
         });
 
         this.DIR_CHOOSER_PATH = "";
+    }
+
+
+    downloadSelected(isDir, fullPath){
+        // If directory, find all child nodes and download them, otherwise download single file
+        if(isDir){
+
+        }else{
+            this.onDownloadFiles([fullPath]);
+        }
     }
 
 

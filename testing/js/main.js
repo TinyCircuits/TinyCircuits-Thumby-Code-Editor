@@ -1,8 +1,6 @@
 import { ComponentContainer, ComponentItemConfig, GoldenLayout, ItemType, LayoutManager, LayoutConfig } from "../golden-layout/bundle/esm/golden-layout.js";
 import { EMULATOR } from "./emulator_wrapper.js";
 
-console.log("Beta 4.5");
-
 // https://github.com/golden-layout/golden-layout#building-single-file-bundles (commands to build bundle from source need to be done on Windows)
 // https://codepen.io/pbklink/pen/dyWJNNm
 // https://replit.com/@koenigmm/GoldenLayout-dynamic-component-creation-example
@@ -247,7 +245,7 @@ document.getElementById("IDNewGameBTN").onclick = async (event) => {
         state.value = "";
         state.path = filePath;
         myLayout.addComponent('Editor', state, 'Editor');
-        await REPL.uploadFile(filePath, "", true);
+        await REPL.uploadFile(filePath, "", true, false);
         await REPL.getOnBoardFSTree();
         window.setPercent(100);
         window.resetPercentDelay();
@@ -432,7 +430,27 @@ function registerFilesystem(_container, state){
     FS.onDelete = (path) => REPL.deleteFileOrDir(path);
     FS.onRename = (path) => REPL.renameFile(path, prompt("Type a new name:", path.substring(path.lastIndexOf("/")+1)));
     FS.onFormat = () => REPL.format();
+    FS.onUploadFiles = async () => {
+        if(REPL.PORT != undefined){
+            console.log("Pick files to upload");
+            const fileHandles = await window.showOpenFilePicker({multiple: true});
+            if(fileHandles && fileHandles.length > 0){
+                var path = await DIR.getPathFromUser(document.body, true);
+                if(path != undefined){
+                    REPL.uploadFiles(path, fileHandles);
+                }
+            }
+        }else{
+            alert("Thumby not connected, can't upload files");
+        }
+    }
     FS.onOpen = async (filePath) => {
+        if(filePath.indexOf(".py") == -1 && filePath.indexOf(".txt") == -1 && filePath.indexOf(".text") == -1 && filePath.indexOf(".cfg") == -1){
+            if(!confirm("Unrecognized file extension, are you sure you want to open this?\n\nTry right-clicking and choosing 'Download' and use it on your computer")){
+                return;
+            }
+        }
+
         // Make sure no editors with this file path already exist
         for (const [id, editor] of Object.entries(EDITORS)) {
             if(editor.EDITOR_PATH == filePath){
@@ -473,6 +491,27 @@ function registerFilesystem(_container, state){
                 await REPL.buildPath(path.substring(0, path.lastIndexOf("/")) + "/" + newFolderName);
             }
             await REPL.getOnBoardFSTree();
+        }
+    }
+    FS.onDownloadFiles = async (fullFilePaths) => {
+        for(var i=0; i<fullFilePaths.length; i++){
+            var startOfFileName = fullFilePaths[i].lastIndexOf('/');
+            var fileName = "";
+            if(startOfFileName != -1){
+                fileName = fullFilePaths[i].substring(startOfFileName+1, fullFilePaths[i].length);
+            }else{
+                fileName = fullFilePaths[i];
+            }
+
+            var fileContents = await REPL.getFileContents(fullFilePaths[i]);
+
+            var element = document.createElement('a');
+            element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(fileContents));
+            element.setAttribute('download', fileName);
+            element.style.display = 'none';
+            document.body.appendChild(element);
+            element.click();
+            document.body.removeChild(element);
         }
     }
 }
@@ -546,7 +585,7 @@ function registerEditor(_container, state){
             console.log('Saved');
             editor.SAVED_TO_THUMBY = true;
             editor.updateTitleSaved();
-            var busy = await REPL.uploadFile(editor.EDITOR_PATH, editor.getValue(), true, true);
+            var busy = await REPL.uploadFile(editor.EDITOR_PATH, editor.getValue(), true, false);
             if(busy != true){
                 await REPL.getOnBoardFSTree();
                 window.setPercent(100);
@@ -660,5 +699,18 @@ async function downloadFile(filePath) {
 
     return text_data;
 }
-
 window.downloadFile = downloadFile;
+
+
+function downloadFileBytes(data, fileName){
+    var a = document.createElement("a");
+    document.body.appendChild(a);
+    a.style = "display: none";
+
+    var blob = new Blob(data, {type: "octet/stream"}), url = window.URL.createObjectURL(blob);
+    a.href = url;
+    a.download = fileName;
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+}
