@@ -79,7 +79,7 @@ class FILESYSTEM{
         li = document.createElement("li");
         this.FS_DROPDOWN_DOWNLOAD_BTN = document.createElement("button");
         this.FS_DROPDOWN_DOWNLOAD_BTN.classList = "uk-button uk-button-secondary uk-width-1-1";
-        this.FS_DROPDOWN_DOWNLOAD_BTN.onclick = () => {this.downloadSelected(this.getSelectedNodeFileOrDir(), this.getSelectedNodePath())};
+        this.FS_DROPDOWN_DOWNLOAD_BTN.onclick = () => {this.downloadSelected(this.FS_TREE.getSelectedNodes()[0], this.getSelectedNodeFileOrDir(), this.getSelectedNodePath())};
         this.FS_DROPDOWN_DOWNLOAD_BTN.innerText = "Download";
         this.FS_DROPDOWN_DOWNLOAD_BTN.title = "Downloads selected items to computer (all files under directory will be downloaded)";
         li.appendChild(this.FS_DROPDOWN_DOWNLOAD_BTN);
@@ -133,12 +133,25 @@ class FILESYSTEM{
     }
 
 
-    downloadSelected(isDir, fullPath){
+    // Recursively traverse the directory tree starting at the right-clicked dir and download all files
+    async downloadChildren(parent){
+        var childNodes = parent.getChildren();
+        
+        for(var c=0; c<childNodes.length; c++){
+            if(childNodes[c].getChildren().length > 0){
+                await this.downloadChildren(childNodes[c]);
+            }else{
+                await this.onDownloadFiles([this.getNodePath(childNodes[c])]);
+            }
+        }
+    }
+
+    async downloadSelected(selectedNode, isDir, fullPath){
         // If directory, find all child nodes and download them, otherwise download single file
         if(isDir){
-
+            await this.downloadChildren(selectedNode);
         }else{
-            this.onDownloadFiles([fullPath]);
+            await this.onDownloadFiles([fullPath]);
         }
     }
 

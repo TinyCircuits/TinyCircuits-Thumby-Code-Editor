@@ -503,15 +503,9 @@ function registerFilesystem(_container, state){
                 fileName = fullFilePaths[i];
             }
 
-            var fileContents = await REPL.getFileContents(fullFilePaths[i]);
+            var fileContents = await REPL.getFileContents(fullFilePaths[i], true);
 
-            var element = document.createElement('a');
-            element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(fileContents));
-            element.setAttribute('download', fileName);
-            element.style.display = 'none';
-            document.body.appendChild(element);
-            element.click();
-            document.body.removeChild(element);
+            window.downloadFileBytes(fileContents, fileName);
         }
     }
 }
@@ -707,10 +701,12 @@ function downloadFileBytes(data, fileName){
     document.body.appendChild(a);
     a.style = "display: none";
 
-    var blob = new Blob(data, {type: "octet/stream"}), url = window.URL.createObjectURL(blob);
+    var blob = new Blob([new Uint8Array(data).buffer], {type: "octet/stream"});
+    var url = window.URL.createObjectURL(blob);
     a.href = url;
     a.download = fileName;
     a.click();
     window.URL.revokeObjectURL(url);
     document.body.removeChild(a);
 }
+window.downloadFileBytes = downloadFileBytes;

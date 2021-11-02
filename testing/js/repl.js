@@ -16,6 +16,9 @@ class ReplJS{
         // Set true so most terminal output gets passed to javascript terminal
         this.DEBUG_CONSOLE_ON = true;
 
+        this.COLLECT_RAW_DATA = false;
+        this.COLLECTED_RAW_DATA = [];
+
         // Used to stop interaction with the RP2040
         this.BUSY = false;
 
@@ -94,6 +97,16 @@ class ReplJS{
     }
 
 
+    startCollectRawData(){
+        this.COLLECT_RAW_DATA = true;
+        this.COLLECTED_RAW_DATA = [];
+    }
+
+    endCollectRawData(){
+        this.COLLECT_RAW_DATA = false;
+    }
+
+
     startReaduntil(str){
         this.READ_UNTIL_STRING = str;
         this.COLLECTED_DATA = "";
@@ -134,8 +147,6 @@ class ReplJS{
         while (this.DISCONNECT == false) {
             var tempLines = this.COLLECTED_DATA.split('\r\n');
 
-            // console.log(this.READ_UNTIL_STRING);
-
             for(var i=0; i<tempLines.length; i++){
                 if(tempLines[i] == this.READ_UNTIL_STRING || this.READ_UNTIL_STRING == "" || tempLines[i].indexOf(this.READ_UNTIL_STRING) != -1
                   || tempLines[i] == ">"){ // Keyboard interrupt
@@ -154,7 +165,6 @@ class ReplJS{
                     return tempLines.slice(0, i+omitOffset);    // Return all lines collected just before the line that switched off haltUntil()
                 }
             }
-
             await new Promise(resolve => setTimeout(resolve, 85));
         }
     }
@@ -191,6 +201,13 @@ class ReplJS{
                                 this.onData(this.TEXT_DECODER.decode(value));
                             }
                             this.COLLECTED_DATA += this.TEXT_DECODER.decode(value);
+
+                            // If raw flag set true, collect raw data for now
+                            if(this.COLLECT_RAW_DATA == true){
+                                for(var i=0; i<value.length; i++){
+                                    this.COLLECTED_RAW_DATA.push(value[i]);
+                                }
+                            }
                         }
                     }
                 }
@@ -538,12 +555,6 @@ class ReplJS{
         // this.startReaduntil(">");
 
 
-        // https://stackoverflow.com/questions/23795034/creating-a-blob-or-a-file-from-javascript-binary-string-changes-the-number-of-by
-        // const res = await fetch("video.raw");
-        // const buffer = await res.arrayBuffer();
-        // const bytes = new Uint8Array(buffer);
-
-
         var bytes = new Uint8Array(fileContents.length);
         if(binaryFile == false){
             for(var i=0; i<bytes.length; i++){
@@ -594,10 +605,6 @@ class ReplJS{
                                 "micropython.kbd_intr(0x03)\n";
 
 
-        // this.startReaduntil("OK");
-        // await this.writeToDevice(writeFileScript + "\x04");
-        // await this.haltUntilRead(1);
-        // await this.waitUntilOK();
         await this.writeUtilityCmdRaw(writeFileScript, true, 1, "OK");
 
         // https://stackoverflow.com/a/1127966
@@ -701,70 +708,55 @@ class ReplJS{
     }
 
 
-    async getFileContents(filePath){
+    async getFileContents(filePath, binary = false){
         if(this.BUSY == true){
             return;
         }
         this.BUSY = true;
-        window.setPercent(1, "Getting file...");
 
         var cmd =   "import sys\n" +
-                    "chunk_size = 1024\n" +
+                    "chunk_size = 256\n" +
                     "onboard_file = open('" + filePath + "', 'rb')\n" +
                     "while True:\n" +
                     "    data = onboard_file.read(chunk_size)\n" +
                     "    if not data:\n" +
                     "        break\n" +
-                    "    sys.stdout.write(data)\n" +
+                    "    sys.stdout.buffer.write(data)\n" +
                     "onboard_file.close()\n" +
-                    "print('###DONE READING FILE###')\n";
+                    "sys.stdout.write('###DONE READING FILE###')\n";
 
         // Get into raw mode
         await this.getToRaw();
-        window.setPercent(2);
 
         // Not really needed for hiding output to terminal since raw does not echo
         // but is needed to only grab the FS lines/data
+        if(binary) this.startCollectRawData();
         this.startReaduntil("###DONE READING FILE###");
         await this.writeToDevice(cmd + "\x04");
-        var fileContents = await this.haltUntilRead(2);
-        fileContents[0] = fileContents[0].substring(2);
-        fileContents = fileContents.splice(0, fileContents.length - 2);
-        window.setPercent(55);
 
-        // Get back into normal mode and omit the 3 lines from the normal message,
-        // don't want to repeat (assumes already on a normal prompt)
-        await this.getToNormal(3);
-        this.BUSY = false;
-        window.setPercent(100);
-        window.resetPercentDelay();
-        return fileContents.join('');
-    }
-
-
-    async writeConnectedMessage(){
-        if(this.BUSY == true){
-            return;
+        // fielcontents only used for case of script ascii, otherwise use COLLECTED_RAW_DATA to get raw binary data to save
+        var fileContents = undefined;
+        if(!binary){
+            fileContents = await this.haltUntilRead(2);
+            fileContents = fileContents.join('');
+            fileContents = fileContents.substring(2, fileContents.length-26);
+        }else{
+            await this.haltUntilRead(2);
         }
-        this.BUSY = true;
 
-        var cmd =   "import thumby;\n" +
-                    "thumby.display.drawText('Connected',0,16,1)\n" +
-                    "thumby.display.update()\n";
-
-        // Get into raw mode
-        await this.getToRaw();
-
-        // Not really needed for hiding output to terminal since raw does not echo
-        // but is needed to only grab the FS lines/data
-        this.startReaduntil(">");
-        await this.writeToDevice(cmd + "\x04");
-        await this.haltUntilRead(2);
+        if(binary) this.endCollectRawData();
 
         // Get back into normal mode and omit the 3 lines from the normal message,
         // don't want to repeat (assumes already on a normal prompt)
         await this.getToNormal(3);
         this.BUSY = false;
+
+        if(!binary){
+            return fileContents;
+        }else{
+            console.log(this.COLLECTED_RAW_DATA.slice(2, this.COLLECTED_RAW_DATA.length-26).length);
+            return this.COLLECTED_RAW_DATA.slice(2, this.COLLECTED_RAW_DATA.length-26);
+        }
     }
 
 
