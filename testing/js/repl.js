@@ -527,6 +527,7 @@ class ReplJS{
             return true;
         }
 
+
         // Sometimes newlines are incorrect even though they look correct in ace?
         if(binaryFile == false){
             var fileContents = fileContents.split(/\r\n|\n|\r/);
@@ -536,13 +537,14 @@ class ReplJS{
             for(var row=0; row<fileContents.length; row++){
                 // Make sure not to add an extra newline at end
                 if(row != fileContents.length - 1){
-                    combined = combined + fileContents[row] + "\r\n";
+                    combined = combined + fileContents[row] + "\n";
                 }else{
                     combined = combined + fileContents[row];
                 }
             }
             fileContents = combined;
         }
+
 
         var pathToFile = filePath.substring(0, filePath.lastIndexOf('/'));
         await this.buildPath(pathToFile);

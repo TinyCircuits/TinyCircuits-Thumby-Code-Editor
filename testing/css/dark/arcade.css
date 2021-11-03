@@ -1,0 +1,43 @@
+.arcade_overlay{
+    background-color: rgba(0, 0, 0, 0.0);
+    border: white solid 1px;
+    display: none;
+    z-index: 1005;
+    width: 40%;
+    height: 90%;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    flex-flow: column;
+}
+
+.arcade_header{
+    width: 100%;
+    height: 25px;
+    background-color: rgb(0, 0, 0);
+    border-bottom: white solid 1px;
+}
+
+.arcade_scroll_area{
+    background-color: rgb(0, 0, 0, 0.85);
+    width: 100%;
+    height: 100%;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+    border-bottom: white solid 1px;
+}
+
+.arcade_game{
+    position: relative;
+    background-color: mediumseagreen;
+    border: gray;
+    width: 90%;
+    aspect-ratio: 1/0.5555556;
+    margin: auto;
+    margin-bottom: 10%;
+    transform: translate(0, 10%);
+}

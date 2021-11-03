@@ -10,6 +10,7 @@ const layoutSaveKey = "layout";
 var myLayout = new GoldenLayout(document.getElementById("IDLayoutContainer"));
 
 var DIR = new DIRCHOOSER();
+var ARCADE = new Arcade();
 
 
 // Want the dropdown to disappear if mouse leaves it (doesn't disappear if mouse leaves button that starts it though)
@@ -199,6 +200,44 @@ function invertPageTheme(){
             }
         }
     }
+}
+
+
+document.getElementById("IDArcadeBTN").onclick = async (event) => {
+    ARCADE.show();
+
+    // const gameListRepoURL = "https://api.github.com/repos/TinyCircuits/tinycircuits.github.io/git/trees/master?recursive=1";
+
+    // fetch(gameListRepoURL)
+    // .then(response => response.json())
+    // .then(data => console.log(data));
+    
+    // Get the list of games from a direct link to the .txt of repo links (make sure to click raw in Github and use that link)
+    // var repoLinksTxt = undefined;
+    // const gameListTxtURL = "https://raw.githubusercontent.com/arduino/library-registry/main/repositories.txt";
+    // await fetch(gameListTxtURL).then(async (response) => {
+    //     await response.text().then((text) => {
+    //         repoLinksTxt = text;
+    //     });
+    // });
+
+    // // Split the list by whatever newline may be after each link
+    // var repoLinksList = repoLinksTxt.split(/\r\n|\n|\r/);
+    
+    // for(var linkIndex=0; linkIndex < repoLinksList.length/4; linkIndex++){
+    //     var splitRepoUrl = repoLinksList[linkIndex].split('/');
+        
+    //     // Extract the Github username and repo name and skip if either undefined
+    //     var repoName = splitRepoUrl[splitRepoUrl.length-1];
+    //     var repoUsername = splitRepoUrl[splitRepoUrl.length-2];
+    //     if(repoName == undefined || repoUsername == undefined){
+    //         continue;
+    //     }
+
+    //     var recursiveRepoUrl = "https://api.github.com/repos/"+ repoUsername +"/"+ repoName +"/git/trees/master?recursive=1";
+    //     console.log(recursiveRepoUrl);
+        
+    // }
 }
 
 
