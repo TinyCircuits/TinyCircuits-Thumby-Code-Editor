@@ -1,14 +1,22 @@
+class GameURLContainer{
+    constructor(){
+        this.GAME_IMAGE_URL = undefined;
+        this.GAME_VIDEO_URL = undefined;
+        this.GAME_DESCRIPTION_URL = undefined;
+        this.GAME_FILE_URLS = [];
+    }
+}
+
+
 class Arcade{
     constructor(){
         this.SHOWN = false;
 
-        // Direct link to raw page from Github of txt file list of repos plus list of list where each sub list is [username, reponame]
-        this.DIRECT_REPO_LIST_TXT_URL = "https://raw.githubusercontent.com/arduino/library-registry/main/repositories.txt";
-        this.REPO_URL_LIST = [];
-        this.FILLED_REPO_LIST = false;
-        
-        // Index of last game repo pulled from this.FILLED_USER_AND_REPO_NAME_LIST
-        this.LAST_LOADED_GAME_REPO_INDEX = 0;
+        // Direct link to raw page from Github of txt file
+        this.DIRECT_TXT_URL = "https://raw.githubusercontent.com/TinyCircuits/TinyCircuits-Thumby-Games/master/url_list.txt";
+        this.GAME_URL_CONTAINERS = [];
+        this.FILLED_GAME_URLS = false;
+        this.NEXT_GAME_INDEX = 0;
 
 
         this.ARCADE_BACKGROUND_DIV = document.createElement("div");
@@ -55,36 +63,120 @@ class Arcade{
     }
 
 
-    loadNewGames(count){
-        for(var i=0; i<count; i++){
-            // Get index for next game
-            var currentGameRepoIndex = this.LAST_LOADED_GAME_REPO_INDEX + i;
+    async sleep(tenms){
 
-
-            console.log(this.REPO_URL_LIST[currentGameRepoIndex]);
-
-            fetch(this.REPO_URL_LIST[currentGameRepoIndex], {mode: 'cors'})
-            .then(response => {
-                if (response.ok) {
-                    
-
-
-                } else if(response.status === 404) {
-                    return Promise.reject('error 404')
-                } else {
-                    return Promise.reject('some other error: ' + response.status)
-                }
-            })
-            // .then(data => console.log('data is', data))
-            .catch(error => console.log('error is', error));
-
-
-            this.LAST_LOADED_GAME_REPO_INDEX = currentGameRepoIndex;
-
-            var newGameDiv = document.createElement("div");
-            newGameDiv.classList = "arcade_game";
-            this.ARCADE_SCROLL_AREA_DIV.appendChild(newGameDiv);
+        var tenmsCount = 0;
+        
+        while (true) {
+            tenmsCount = tenmsCount + 1;
+            if(tenmsCount >= tenms){
+                return;
+            }
+            await new Promise(resolve => setTimeout(resolve, 10));
         }
+    }
+
+
+    async loadNewGames(count){
+        for(var i=0; i<count; i++){
+            if(this.NEXT_GAME_INDEX < this.GAME_URL_CONTAINERS.length-1){
+
+                var newGameImgDiv = document.createElement("div");
+                newGameImgDiv.classList = "arcade_game uk-transition-toggle";
+                newGameImgDiv.style.backgroundImage = "url(" + this.GAME_URL_CONTAINERS[this.NEXT_GAME_INDEX].GAME_IMAGE_URL + ")";
+                this.ARCADE_SCROLL_AREA_DIV.appendChild(newGameImgDiv);
+
+
+                var descText = "";
+                await fetch(this.GAME_URL_CONTAINERS[this.NEXT_GAME_INDEX].GAME_DESCRIPTION_URL).then(async (response) => {
+                    await response.text().then((text) => {
+                        descText = text;
+                    });
+                });
+
+
+                var transitionDiv = document.createElement("div");
+                transitionDiv.classList = "uk-margin-remove uk-transition-fade uk-position-cover uk-overlay uk-overlay-default uk-text-medium uk-text-success arcade_game_transition_parent";
+                // newGameTransitionDiv.textContent = descText;
+                newGameImgDiv.appendChild(transitionDiv);
+
+                var textScrollAreaParentDiv = document.createElement("div");
+                textScrollAreaParentDiv.classList = "uk-position-top arcade_game_text_scroll_parent";
+                transitionDiv.appendChild(textScrollAreaParentDiv);
+
+                var textScrollAreaDiv = document.createElement("div");
+                textScrollAreaDiv.classList = "uk-position-top arcade_game_text_scroll_area";
+                textScrollAreaDiv.innerHTML = descText.replace(/(?:\r\n\r\n|\r\r|\n\n)/g, '<br><br>');
+                textScrollAreaParentDiv.appendChild(textScrollAreaDiv);
+
+                var buttonAreaDiv = document.createElement("div");
+                buttonAreaDiv.classList = "uk-position-bottom uk-button-group arcade_game_button_area";
+                transitionDiv.appendChild(buttonAreaDiv);
+
+                var downloadButton = document.createElement("button");
+                downloadButton.classList = "uk-button uk-button-primary uk-text-small uk-width-1-1";
+                downloadButton.textContent = "DOWNLOAD";
+                downloadButton.title = "Downloads all game content to connected Thumby";
+                buttonAreaDiv.appendChild(downloadButton);
+
+                var openButton = document.createElement("button");
+                openButton.classList = "uk-button uk-button-primary uk-text-small uk-width-1-1";
+                openButton.textContent = "OPEN";
+                openButton.title = "Opens game content in editors. Files with unrecognized file extensions will be asked to be downloaded to PC instead";
+                buttonAreaDiv.appendChild(openButton);
+
+                // var downloadButton = document.createElement("button");
+                // downloadButton.textContent = "Download";
+                // newGameTransitionDiv.appendChild(downloadButton);
+
+                // var newGameText = document.createElement("p");
+                // newGameText.classList = "uk-h4 uk-margin-remove";
+                // newGameText.textContent = descText;
+                // newGameTransitionDiv.appendChild(newGameText);
+                
+
+
+
+                // Wait a small amount of time so don't fetch from repo too quickly (rate limiting)
+                await this.sleep(8);
+
+                this.NEXT_GAME_INDEX = this.NEXT_GAME_INDEX + 1;
+            }else{
+                console.log("Reached library limit, no more games to browse");
+            }
+        }
+
+
+
+
+
+        //     var currentGameRepoIndex = this.LAST_LOADED_GAME_REPO_INDEX + i;
+
+
+        //     console.log(this.REPO_URL_LIST[currentGameRepoIndex]);
+
+
+        //     fetch(this.REPO_URL_LIST[currentGameRepoIndex], {mode: 'cors', credentials: 'include'})
+        //     // fetch(this.REPO_URL_LIST[currentGameRepoIndex])
+        //     .then(response => {
+        //         if (response.ok) {
+
+        //         } else if(response.status === 404) {
+        //             return Promise.reject('error 404')
+        //         } else {
+        //             return Promise.reject('some other error: ' + response.status)
+        //         }
+        //     })
+        //     // .then(data => console.log('data is', data))
+        //     .catch(error => console.log('error is', error));
+
+
+        //     this.LAST_LOADED_GAME_REPO_INDEX = currentGameRepoIndex;
+
+        //     var newGameDiv = document.createElement("div");
+        //     newGameDiv.classList = "arcade_game";
+        //     this.ARCADE_SCROLL_AREA_DIV.appendChild(newGameDiv);
+        // }
     }
 
 
@@ -93,16 +185,34 @@ class Arcade{
     // each repo listed (not all at once, only when scrolling happens)
     async fillUserAndRepoNameList(){
         var repoLinksTxt = undefined;
-        const gameListTxtURL = "https://raw.githubusercontent.com/arduino/library-registry/main/repositories.txt";
-        await fetch(gameListTxtURL).then(async (response) => {
+        await fetch(this.DIRECT_TXT_URL).then(async (response) => {
             await response.text().then((text) => {
                 repoLinksTxt = text;
             });
         });
 
-        // Split the list by whatever newline may be after each link
-        this.REPO_URL_LIST = repoLinksTxt.split(/\r\n|\n|\r/);
-        console.log("Found: " + this.REPO_URL_LIST.length + " projects in txt");
+        // Split the list by whatever newline may be after each line
+        var txtFileLines = repoLinksTxt.split(/\r\n|\n|\r/);
+        if(txtFileLines.length > 0){
+            var currentURLContainer = new GameURLContainer();
+
+            for(var i=0; i < txtFileLines.length; i++){
+                if(txtFileLines[i].indexOf("arcade_title_image.png") != -1){
+                    currentURLContainer.GAME_IMAGE_URL = txtFileLines[i];
+                }else if(txtFileLines[i].indexOf("arcade_title_video.webm") != -1){
+                    currentURLContainer.GAME_VIDEO_URL = txtFileLines[i];
+                }else if(txtFileLines[i].indexOf("arcade_description.txt") != -1){
+                    currentURLContainer.GAME_DESCRIPTION_URL = txtFileLines[i];
+                }else if(txtFileLines[i] != ""){
+                    currentURLContainer.GAME_FILE_URLS.push(txtFileLines[i]);
+                }else{
+                    this.GAME_URL_CONTAINERS.push(currentURLContainer);
+                    currentURLContainer = new GameURLContainer();
+                }
+            }
+        }else{
+            console.error("ERROR: Could not fetch games list, please let TinyCircuits know!");
+        }
     }
 
 
@@ -110,13 +220,13 @@ class Arcade{
         this.ARCADE_BACKGROUND_DIV.style.display = "flex";
         this.SHOWN = true;
 
-        if(this.FILLED_REPO_LIST == false){
+        if(this.FILLED_GAME_URLS == false){
             await this.fillUserAndRepoNameList();
-            this.FILLED_REPO_LIST = true;
+            this.FILLED_GAME_URLS = true;
 
             // Start arcade with some number of items loaded (should be enough so that the scroll bar
             // is active (if enough games) and more games can be loaded on all screen sizes)
-            this.loadNewGames(1);
+            this.loadNewGames(12);
         }
     }
 
