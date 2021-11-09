@@ -47,6 +47,7 @@ export class EMULATOR{
     this.EMULATOR_THUMBY.classList = "emulator_thumby";
     this.EMULATOR_BODY_DIV.appendChild(this.EMULATOR_THUMBY);
 
+    
     this.EMULATOR_CANVAS = document.createElement("canvas");
     this.EMULATOR_CANVAS.setAttribute("width", this.WIDTH);
     this.EMULATOR_CANVAS.setAttribute("height", this.HEIGHT);
@@ -149,9 +150,9 @@ export class EMULATOR{
     this.EMULATOR_ZOOM_IN_BTN.onclick = () => {
       this.EMULATOR_THUMBY.style.width = (this.EMULATOR_THUMBY.clientWidth * 2) + "px";
 
-      this.EMULATOR_CANVAS.style.width = (this.EMULATOR_CANVAS.clientWidth * 2) + "px";
-      this.EMULATOR_CANVAS.style.height = (this.EMULATOR_CANVAS.clientHeight * 2) + "px";
       this.EMULATOR_SCALE = this.EMULATOR_SCALE * 2;
+      this.adjustCanvas();
+
       localStorage.setItem("EmulatorScale", this.EMULATOR_SCALE);
     };
     this.EMULATOR_FOOTER_DIV.appendChild(this.EMULATOR_ZOOM_IN_BTN);
@@ -166,9 +167,9 @@ export class EMULATOR{
       if(this.EMULATOR_SCALE > 1){
         this.EMULATOR_THUMBY.style.width = (this.EMULATOR_THUMBY.clientWidth / 2) + "px";
 
-        this.EMULATOR_CANVAS.style.width = (this.EMULATOR_CANVAS.clientWidth / 2) + "px";
-        this.EMULATOR_CANVAS.style.height = (this.EMULATOR_CANVAS.clientHeight / 2) + "px";
         this.EMULATOR_SCALE = this.EMULATOR_SCALE / 2;
+        this.adjustCanvas();
+
         localStorage.setItem("EmulatorScale", this.EMULATOR_SCALE);
       }
     };
@@ -182,6 +183,7 @@ export class EMULATOR{
       this.EMULATOR_ROTATION = parseInt(this.EMULATOR_ROTATION);
       document.addEventListener("DOMContentLoaded", () => {
         this.EMULATOR_THUMBY.style.transform = "rotate(" + this.EMULATOR_ROTATION + "deg)" + " scale(" + 1/window.devicePixelRatio + ")";
+        this.EMULATOR_CANVAS.style.transform = "rotate(" + -this.EMULATOR_ROTATION + "deg)";
       });
     }
 
@@ -197,7 +199,11 @@ export class EMULATOR{
         this.EMULATOR_ROTATION = 0;
       }
       this.remapButtons();
-      this.EMULATOR_THUMBY.style.transform = "rotate(" + this.EMULATOR_ROTATION + "deg)";
+
+      this.EMULATOR_THUMBY.style.transform = "rotate(" + this.EMULATOR_ROTATION + "deg)" + " scale(" + 1/window.devicePixelRatio + ")";
+      this.EMULATOR_CANVAS.style.transform = "rotate(" + -this.EMULATOR_ROTATION + "deg)";
+      this.adjustCanvas();
+
       localStorage.setItem("EmulatorRotation", this.EMULATOR_ROTATION);
     };
     this.EMULATOR_FOOTER_DIV.appendChild(this.EMULATOR_ROTATE_BTN);
@@ -211,63 +217,29 @@ export class EMULATOR{
       console.log("Taking screenshot!");
       var link = document.createElement('a');
       link.download = 'thumby_emulator_screenshot.png';
-
-      // Have to make a new canvas since get nothing if use current canvas
-      // Don't save the canvas, brute-force method remake a new one every time
-      var screenshotCanvas = document.createElement("canvas");
-      var screenshotContext = screenshotCanvas.getContext('2d', { alpha: false });
-      if(this.EMULATOR_ROTATION == 90 || this.EMULATOR_ROTATION == 270){
-        screenshotCanvas.width = this.HEIGHT * this.SCREENSHOT_SCALE;
-        screenshotCanvas.height = this.WIDTH * this.SCREENSHOT_SCALE;
-        screenshotContext.translate((this.EMULATOR_CANVAS.height*this.SCREENSHOT_SCALE)/2, (this.EMULATOR_CANVAS.width*this.SCREENSHOT_SCALE)/2);
-      }else{
-        screenshotCanvas.width = this.WIDTH * this.SCREENSHOT_SCALE;
-        screenshotCanvas.height = this.HEIGHT * this.SCREENSHOT_SCALE;
-        screenshotContext.translate((this.EMULATOR_CANVAS.width*this.SCREENSHOT_SCALE)/2, (this.EMULATOR_CANVAS.height*this.SCREENSHOT_SCALE)/2);
-      }
-      
-      screenshotContext.rotate(this.EMULATOR_ROTATION * Math.PI / 180);
-      screenshotCanvas.classList.add("emulator_canvas");
-      screenshotContext.imageSmoothingEnabled = false;
-      screenshotContext.mozImageSmoothingEnabled = false;
-      screenshotContext.oImageSmoothingEnabled = false;
-      screenshotContext.webkitImageSmoothingEnabled = false;
-      screenshotContext.msImageSmoothingEnabled = false;
-
-      screenshotContext.scale(this.SCREENSHOT_SCALE, this.SCREENSHOT_SCALE);
-      screenshotContext.drawImage(this.EMULATOR_CANVAS, -(this.EMULATOR_CANVAS.width)/2, -(this.EMULATOR_CANVAS.height)/2);
-      link.href = screenshotCanvas.toDataURL();
-
+      link.href = this.EMULATOR_CANVAS.toDataURL();
       link.click();
-
-      // Let garbage collector take these
-      screenshotCanvas = null;
-      screenshotContext = null;
     };
     this.EMULATOR_BODY_DIV.appendChild(this.EMULATOR_SCREENSHOT_BTN);
 
-    
-    // Recover last scale if exists and setup screenshot button
-    this.SCREENSHOT_SCALE = localStorage.getItem("EmulatorScreenshotScale");
-    if(this.SCREENSHOT_SCALE == null){
-      this.SCREENSHOT_SCALE = 1;
-    }else{
-      this.SCREENSHOT_SCALE = parseInt(this.SCREENSHOT_SCALE);
-    }
 
-    this.EMULATOR_SCREENSHOT_SCALE_BTN = document.createElement("button");
-    this.EMULATOR_SCREENSHOT_SCALE_BTN.className = "uk-button uk-button-primary uk-button-small emulator_screenshot_scale_btn";
-    this.EMULATOR_SCREENSHOT_SCALE_BTN.title = "Screenshot scale from 1x to 16x (current resolution: 72x40px)";
-    this.EMULATOR_SCREENSHOT_SCALE_BTN.textContent = "1x";
-    this.EMULATOR_SCREENSHOT_SCALE_BTN.onclick = () => {
-      this.SCREENSHOT_SCALE = this.SCREENSHOT_SCALE * 2;
-      if(this.SCREENSHOT_SCALE > 16){
-        this.SCREENSHOT_SCALE = 1;
-      }
-      this.updateScreenshotScale();
-    }
-    this.EMULATOR_BODY_DIV.appendChild(this.EMULATOR_SCREENSHOT_SCALE_BTN);
-    this.updateScreenshotScale();
+    this.RECORDING = false;
+
+    this.EMULATOR_TOGGLE_RECORD_BTN = document.createElement("button");
+    this.EMULATOR_TOGGLE_RECORD_BTN.className = "uk-button uk-button-primary uk-button-small emulator_record_toggle_btn";
+    this.EMULATOR_TOGGLE_RECORD_BTN.title = "Toggle recording of emulator to .webm file";
+    this.EMULATOR_TOGGLE_RECORD_BTN.setAttribute("uk-icon", "video-camera");
+    this.EMULATOR_TOGGLE_RECORD_BTN.onclick = () => {this.toggleRecording()};
+    this.EMULATOR_BODY_DIV.appendChild(this.EMULATOR_TOGGLE_RECORD_BTN);
+
+
+    // <button title="Opens link in new tab" onclick="window.open('https://tinycircuits.com/blogs/thumby/building-a-game-with-the-thumby-ide', '_blank');" class="uk-button-default uk-link-text uk-width-1-1 uk-height-1-1">Tutorial</button>
+    this.EMULATOR_SCALE_DISPLAY = document.createElement("button");
+    this.EMULATOR_SCALE_DISPLAY.className = "uk-button uk-button-default uk-button-small emulator_resolution_display";
+    this.EMULATOR_SCALE_DISPLAY.title = "Current scale of emulator (canvas resolution: 72x40px)";
+    this.EMULATOR_SCALE_DISPLAY.style.cursor = "initial";
+    this.EMULATOR_SCALE_DISPLAY.textContent = "1x";
+    this.EMULATOR_BODY_DIV.appendChild(this.EMULATOR_SCALE_DISPLAY);
 
 
     this.EMULATOR_DPAD_SVG = document.createElement("img");
@@ -347,13 +319,94 @@ export class EMULATOR{
     this.LAST_FILE_CONTENTS = "";
     this.LAST_KEY = "";
     this.onData = undefined;
+
+    
+    // Adjust the size and rotation of the canvas after everything loads on the page, start the media recorder
+    document.addEventListener("DOMContentLoaded", () => {
+      this.adjustCanvas();
+
+      this.EMULATOR_RECORD_STREAM = this.EMULATOR_CANVAS.captureStream();
+      this.EMULATOR_RECORDED_CHUNKS = [];
+      var options = {};
+      this.EMULATOR_MEDIA_RECORDER = new MediaRecorder(this.EMULATOR_RECORD_STREAM, options);
+
+      this.EMULATOR_MEDIA_RECORDER.ondataavailable = (event) => {
+        console.log(event.data);
+        this.EMULATOR_RECORDED_CHUNKS.push(event.data);
+  
+        // after stop `dataavilable` event run one more time to push last chunk
+        if (this.EMULATOR_MEDIA_RECORDER.state === 'recording') {
+          this.EMULATOR_MEDIA_RECORDER.stop();
+        }
+      }
+  
+      this.EMULATOR_MEDIA_RECORDER.onstop = (event) => {
+        var blob = new Blob(this.EMULATOR_RECORDED_CHUNKS, {type: "video/webm" });
+        var url = URL.createObjectURL(blob);
+        var link = document.createElement('a');
+        link.download = 'emulator_video.webm';
+        link.href = url;
+        link.click();
+        window.URL.revokeObjectURL(url);
+      }
+    });
   }
 
 
-  updateScreenshotScale(){
-    this.EMULATOR_SCREENSHOT_SCALE_BTN.textContent = this.SCREENSHOT_SCALE + "x";
-    this.EMULATOR_SCREENSHOT_SCALE_BTN.title = "Screenshot scale from 1x to 16x (current resolution: " + 72*this.SCREENSHOT_SCALE + "x" + 40*this.SCREENSHOT_SCALE + "px)";
-    localStorage.setItem("EmulatorScreenshotScale", this.SCREENSHOT_SCALE);
+  // Emulator canvas manually sized, rotated, and scaled so recording can be done as it happens (not css transforms)
+  adjustCanvas(){
+    if(this.EMULATOR_ROTATION == 90 || this.EMULATOR_ROTATION == 270){
+      this.EMULATOR_CANVAS.width = this.HEIGHT * this.EMULATOR_SCALE;
+      this.EMULATOR_CANVAS.height = this.WIDTH * this.EMULATOR_SCALE;
+      this.context.translate((this.HEIGHT*this.EMULATOR_SCALE)/2, (this.WIDTH*this.EMULATOR_SCALE)/2);
+      this.EMULATOR_CANVAS.style.marginTop = "9.5%";
+    }else{
+      this.EMULATOR_CANVAS.width = this.WIDTH * this.EMULATOR_SCALE;
+      this.EMULATOR_CANVAS.height = this.HEIGHT * this.EMULATOR_SCALE;
+      this.context.translate((this.WIDTH*this.EMULATOR_SCALE)/2, (this.HEIGHT*this.EMULATOR_SCALE)/2);
+      this.EMULATOR_CANVAS.style.marginTop = "16.5%";
+    }
+
+    this.EMULATOR_SCALE_DISPLAY.textContent = this.EMULATOR_SCALE + "x";
+    this.EMULATOR_SCALE_DISPLAY.title = "Current scale of emulator (canvas resolution: " + this.WIDTH * this.EMULATOR_SCALE + "x" + this.HEIGHT * this.EMULATOR_SCALE + "px)";
+
+    this.EMULATOR_CANVAS.style.width = this.EMULATOR_CANVAS.width + "px";
+    this.EMULATOR_CANVAS.style.height = this.EMULATOR_CANVAS.height + "px";
+
+    this.context.rotate(this.EMULATOR_ROTATION * Math.PI / 180);
+    this.context.scale(this.EMULATOR_SCALE, this.EMULATOR_SCALE);
+
+    this.context.imageSmoothingEnabled = false;
+    this.context.mozImageSmoothingEnabled = false;
+    this.context.oImageSmoothingEnabled = false;
+    this.context.webkitImageSmoothingEnabled = false;
+    this.context.msImageSmoothingEnabled = false;
+  }
+
+
+  async stopRecording(){
+    this.EMULATOR_TOGGLE_RECORD_BTN.style.backgroundColor = "#222";
+    this.RECORDING = false;
+    this.EMULATOR_MEDIA_RECORDER.stop();
+    console.log("Stopped Recording...");
+  }
+
+
+  startRecording(){
+    this.EMULATOR_TOGGLE_RECORD_BTN.style.backgroundColor = "red";
+    this.RECORDING = true;
+    this.EMULATOR_RECORDED_CHUNKS = [];
+    this.EMULATOR_MEDIA_RECORDER.start();
+    console.log("Started Recording...");
+  }
+
+
+  toggleRecording(){
+    if(this.RECORDING){
+      this.stopRecording();
+    }else{
+      this.startRecording();
+    }
   }
 
 
@@ -431,9 +484,9 @@ export class EMULATOR{
   }
 
 
+  // Used to make Thumby resistent to page zoom
   adjustSize(){
     this.EMULATOR_THUMBY.style.transform = "rotate(" + this.EMULATOR_ROTATION + "deg)" + " scale(" + 1/window.devicePixelRatio + ")";
-    // this.EMULATOR_CANVAS.style.transform = "scale(" + window.devicePixelRatio + ")";
   }
 
 
@@ -511,35 +564,41 @@ export class EMULATOR{
   }
 
 
-  // Use address fed through serial from emulator to display the contents of MicroPython's Thumby framebuffer
-  drawDisplayBuffer(address){
-      var ib = 0;
-    
-      const buffer = new Uint8Array(this.mcu.sramView.buffer.slice(this.displayBufferAdr, this.displayBufferAdr+360));
-
-      for(var row=0; row < this.HEIGHT; row+=8){
-        for(var col=0; col < this.WIDTH; col++){
-          var curByte = buffer[ib];
-    
-          for(var i=0; i<8; i++){
-            const x = col;
-            const y = row + i;
-            const bit = ((curByte & (1 << i)) === 0 ? 0 : 1) * 255;
-            const p = (y * this.WIDTH + x) * 4;
-            this.PIXELS[p] = bit;
-            this.PIXELS[p+1] = bit;
-            this.PIXELS[p+2] = bit;
-            this.PIXELS[p+3] = 255;
-          }
-    
-          ib += 1;
+  bufferToImageData(buffer){
+    var ib = 0;
+    for(var row=0; row < this.HEIGHT; row+=8){
+      for(var col=0; col < this.WIDTH; col++){
+        var curByte = buffer[ib];
+  
+        for(var i=0; i<8; i++){
+          const x = col;
+          const y = row + i;
+          const bit = ((curByte & (1 << i)) === 0 ? 0 : 1) * 255;
+          const p = (y * this.WIDTH + x) * 4;
+          this.PIXELS[p] = bit;
+          this.PIXELS[p+1] = bit;
+          this.PIXELS[p+2] = bit;
+          this.PIXELS[p+3] = 255;
         }
+  
+        ib += 1;
       }
-      
-      const imageData = new ImageData(this.PIXELS, this.WIDTH, this.HEIGHT);
+    }
+    
+    return new ImageData(this.PIXELS, this.WIDTH, this.HEIGHT);
+  }
 
-      // Maybe change this to putImage(): https://themadcreator.github.io/gifler/docs.html#animator::createBufferCanvas()
-      this.context.putImageData(imageData, 0, 0);
+
+  // Use address fed through serial from emulator to display the contents of MicroPython's Thumby framebuffer
+  async drawDisplayBuffer(address){
+    const buffer = new Uint8Array(this.mcu.sramView.buffer.slice(this.displayBufferAdr, this.displayBufferAdr+360));
+    // if(this.RECORDING) this.RECORDED_BUFFER_FRAMES.push(buffer);
+
+    // Maybe change this to putImage(): https://themadcreator.github.io/gifler/docs.html#animator::createBufferCanvas()
+    // this.context.putImageData(this.bufferToImageData(buffer), 0, 0);
+    await createImageBitmap(this.bufferToImageData(buffer)).then(async (imgBitmap) => {
+      this.context.drawImage(imgBitmap, -this.WIDTH/2, -this.HEIGHT/2);
+    });
   }
 
 
@@ -550,7 +609,7 @@ export class EMULATOR{
     // Get server file contents and check if OK
     let response = await fetch(serverFilePath);
     if(response.status != 200) {
-        throw new Error("Server Error");
+      throw new Error("Server Error");
     }
         
     // Read response stream as text and use load-file.js + load-file-gen.js to make littlefs entries
@@ -563,7 +622,7 @@ export class EMULATOR{
   // Sends a string to the MicroPython normal prompt
   sendStringToNormal(str){
     for (const byte of str) {
-        this.cdc.sendSerialByte(byte.charCodeAt(0));
+      this.cdc.sendSerialByte(byte.charCodeAt(0));
     }
     
     this.cdc.sendSerialByte('\r'.charCodeAt(0));
@@ -585,8 +644,8 @@ export class EMULATOR{
 
     // Make sure emulator is stopped if starting a new one
     if(this.mcu != undefined){
-        this.mcu.stop();
-        this.mcu.reset();
+      this.mcu.stop();
+      this.mcu.reset();
     }
 
     // I guess reassigning everything works, idk, JS
@@ -602,61 +661,60 @@ export class EMULATOR{
     this.cdc = new USBCDC(this.mcu.usbCtrl);
 
     this.cdc.onDeviceConnected = () => {
-        // We send a newline so the user sees the MicroPython prompt
-        this.cdc.sendSerialByte('\r'.charCodeAt(0));
-        this.cdc.sendSerialByte('\n'.charCodeAt(0));
+      // We send a newline so the user sees the MicroPython prompt
+      this.cdc.sendSerialByte('\r'.charCodeAt(0));
+      this.cdc.sendSerialByte('\n'.charCodeAt(0));
 
-        // this.sendStringToNormal("import os");
-        // this.sendStringToNormal("print(os.listdir('/'))");
-        
-        // Set default button gpio pin states
-        this.mcu.gpio[24].setInputValue(true);
-        this.mcu.gpio[27].setInputValue(true);
-        this.mcu.gpio[4].setInputValue(true);
-        this.mcu.gpio[3].setInputValue(true);
-        this.mcu.gpio[6].setInputValue(true);
-        this.mcu.gpio[5].setInputValue(true);
-        
-        // Start the program the user choose to emulate
-        this.sendStringToNormal("import main");
+      // this.sendStringToNormal("import os");
+      // this.sendStringToNormal("print(os.listdir('/'))");
+      
+      // Set default button gpio pin states
+      this.mcu.gpio[24].setInputValue(true);
+      this.mcu.gpio[27].setInputValue(true);
+      this.mcu.gpio[4].setInputValue(true);
+      this.mcu.gpio[3].setInputValue(true);
+      this.mcu.gpio[6].setInputValue(true);
+      this.mcu.gpio[5].setInputValue(true);
+      
+      // Start the program the user choose to emulate
+      this.sendStringToNormal("import main");
     };
     this.cdc.onSerialData = (value) => {
-        this.collectedData += this.decoder.decode(value);
-        this.onData(this.decoder.decode(value));
-        var lines = this.collectedData.split("\n");
-        
-        while(lines.length > 1){
-            var line = lines.shift();
-            console.log(line);
-        
-            // Check if this is a special line signifying the location of the display buffer address in emulated ram
-            if(this.nextLineIsAddr == true){
-                this.displayBufferAdr = parseInt(line.replace(/(\r\n|\n|\r)/gm, "")) - 0x20000000;
-                this.nextLineIsAddr = false;
-            }else if(line.replace(/(\r\n|\n|\r)/gm, "") == "###ADDRESS###"){
-                this.nextLineIsAddr = true;
-            }
-        }
-        this.collectedData = lines[0];
+      this.collectedData += this.decoder.decode(value);
+      this.onData(this.decoder.decode(value));
+      var lines = this.collectedData.split("\n");
+      
+      while(lines.length > 1){
+          var line = lines.shift();
+          console.log(line);
+      
+          // Check if this is a special line signifying the location of the display buffer address in emulated ram
+          if(this.nextLineIsAddr == true){
+              this.displayBufferAdr = parseInt(line.replace(/(\r\n|\n|\r)/gm, "")) - 0x20000000;
+              this.nextLineIsAddr = false;
+          }else if(line.replace(/(\r\n|\n|\r)/gm, "") == "###ADDRESS###"){
+              this.nextLineIsAddr = true;
+          }
+      }
+      this.collectedData = lines[0];
     };
 
     // Load UF2 then custom emulator MP library files + the user file(s)
     loadUF2(this.uf2Name, this.mcu).then(async () => {
-
-        await window.loadFileData(fileContents, 'main.py');
-        await this.loadServerFile("ThumbyGames/lib-emulator/thumby.py", 'thumby.py');
-        await this.loadServerFile("ThumbyGames/lib-emulator/ssd1306.py", 'ssd1306.py');
-        await window.copyFSToFlash(this.mcu);
-        
-        // Start the emulator
-        this.mcu.PC = 0x10000000;
-        this.mcu.start();
+      await window.loadFileData(fileContents, 'main.py');
+      await this.loadServerFile("ThumbyGames/lib-emulator/thumby.py", 'thumby.py');
+      await this.loadServerFile("ThumbyGames/lib-emulator/ssd1306.py", 'ssd1306.py');
+      await window.copyFSToFlash(this.mcu);
+      
+      // Start the emulator
+      this.mcu.PC = 0x10000000;
+      this.mcu.start();
     }).catch(console.error);
 
     // Display updates based off MicroPython flipping a gpio pin in the ssd1306 library (special emulator
     // version that also prints out the display buffer address that is then used here for canvas drawing)
     this.mcu.gpio[2].addListener(() => {
-        this.drawDisplayBuffer();
+      this.drawDisplayBuffer();
     });
 
     // Show the emulator (un-hide)

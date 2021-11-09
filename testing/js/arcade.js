@@ -31,7 +31,20 @@ class Arcade{
         this.ARCADE_REFRESH_BTN.classList = "uk-button uk-button-primary uk-button-small uk-width-1-1 uk-text-small";
         this.ARCADE_REFRESH_BTN.title = "Grabs the list of game repos and starts from the beginning (as if the page was refreshed)";
         this.ARCADE_REFRESH_BTN.textContent = "REFRESH";
-        // this.ARCADE_REFRESH_BTN.onclick = () => {this.startEmulator(this.LAST_FILE_CONTENTS)};
+        this.ARCADE_REFRESH_BTN.onclick = async () => {
+            // Scroll to start, remove all child divs, reset state machine, re-fetch games
+            this.ARCADE_SCROLL_AREA_DIV.scrollTo(0, 0);
+            while(this.ARCADE_SCROLL_AREA_DIV.children.length > 0){
+                this.ARCADE_SCROLL_AREA_DIV.removeChild(this.ARCADE_SCROLL_AREA_DIV.children[0]);
+            }
+
+            this.GAME_URL_CONTAINERS = [];
+            this.FILLED_GAME_URLS = true;
+            this.NEXT_GAME_INDEX = 0;
+
+            await this.fillUserAndRepoNameList();
+            this.loadNewGames(12);
+        };
         this.ARCADE_HEADER_DIV.appendChild(this.ARCADE_REFRESH_BTN);
 
         this.ARCADE_CLOSE_BTN = document.createElement("button");
@@ -63,20 +76,7 @@ class Arcade{
     }
 
 
-    async sleep(tenms){
-
-        var tenmsCount = 0;
-        
-        while (true) {
-            tenmsCount = tenmsCount + 1;
-            if(tenmsCount >= tenms){
-                return;
-            }
-            await new Promise(resolve => setTimeout(resolve, 10));
-        }
-    }
-
-
+    // Actually add games to the arcade, fetch assets using URLs compiled before
     async loadNewGames(count){
         for(var i=0; i<count; i++){
             if(this.NEXT_GAME_INDEX < this.GAME_URL_CONTAINERS.length-1){
@@ -125,58 +125,14 @@ class Arcade{
                 openButton.title = "Opens game content in editors. Files with unrecognized file extensions will be asked to be downloaded to PC instead";
                 buttonAreaDiv.appendChild(openButton);
 
-                // var downloadButton = document.createElement("button");
-                // downloadButton.textContent = "Download";
-                // newGameTransitionDiv.appendChild(downloadButton);
-
-                // var newGameText = document.createElement("p");
-                // newGameText.classList = "uk-h4 uk-margin-remove";
-                // newGameText.textContent = descText;
-                // newGameTransitionDiv.appendChild(newGameText);
-                
-
-
-
                 // Wait a small amount of time so don't fetch from repo too quickly (rate limiting)
-                await this.sleep(8);
+                await window.sleep(7);
 
                 this.NEXT_GAME_INDEX = this.NEXT_GAME_INDEX + 1;
             }else{
                 console.log("Reached library limit, no more games to browse");
             }
         }
-
-
-
-
-
-        //     var currentGameRepoIndex = this.LAST_LOADED_GAME_REPO_INDEX + i;
-
-
-        //     console.log(this.REPO_URL_LIST[currentGameRepoIndex]);
-
-
-        //     fetch(this.REPO_URL_LIST[currentGameRepoIndex], {mode: 'cors', credentials: 'include'})
-        //     // fetch(this.REPO_URL_LIST[currentGameRepoIndex])
-        //     .then(response => {
-        //         if (response.ok) {
-
-        //         } else if(response.status === 404) {
-        //             return Promise.reject('error 404')
-        //         } else {
-        //             return Promise.reject('some other error: ' + response.status)
-        //         }
-        //     })
-        //     // .then(data => console.log('data is', data))
-        //     .catch(error => console.log('error is', error));
-
-
-        //     this.LAST_LOADED_GAME_REPO_INDEX = currentGameRepoIndex;
-
-        //     var newGameDiv = document.createElement("div");
-        //     newGameDiv.classList = "arcade_game";
-        //     this.ARCADE_SCROLL_AREA_DIV.appendChild(newGameDiv);
-        // }
     }
 
 

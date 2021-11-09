@@ -749,3 +749,18 @@ function downloadFileBytes(data, fileName){
     document.body.removeChild(a);
 }
 window.downloadFileBytes = downloadFileBytes;
+
+
+async function sleep(tenms){
+
+    var tenmsCount = 0;
+    
+    while (true) {
+        tenmsCount = tenmsCount + 1;
+        if(tenmsCount >= tenms){
+            return;
+        }
+        await new Promise(resolve => setTimeout(resolve, 10));
+    }
+}
+window.sleep = sleep;

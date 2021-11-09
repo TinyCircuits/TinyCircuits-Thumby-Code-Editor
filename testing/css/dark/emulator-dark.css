@@ -58,7 +58,7 @@
     image-rendering: -o-crisp-edges;
     image-rendering: pixelated;
     -ms-interpolation-mode: nearest-neighbor;
-    transform-origin: top left;
+    transform-origin: center;
 }
 
 
@@ -168,15 +168,24 @@
     width: 50px;
     border-radius: 50%;
     aspect-ratio: 1/1;
-    top: 70px;
+    top: 10px;
     left: 10px;
 }
 
-.emulator_screenshot_scale_btn{
+.emulator_record_toggle_btn{
     position: absolute;
     width: 50px;
     border-radius: 50%;
     aspect-ratio: 1/1;
-    top: 10px;
+    top: 70px;
+    left: 10px;
+}
+
+.emulator_resolution_display{
+    position: absolute;
+    width: 50px;
+    border-radius: 50%;
+    aspect-ratio: 1/1;
+    bottom: 38px;
     left: 10px;
 }
