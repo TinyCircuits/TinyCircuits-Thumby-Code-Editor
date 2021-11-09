@@ -83,7 +83,11 @@ class Arcade{
 
                 var newGameImgDiv = document.createElement("div");
                 newGameImgDiv.classList = "arcade_game uk-transition-toggle";
-                newGameImgDiv.style.backgroundImage = "url(" + this.GAME_URL_CONTAINERS[this.NEXT_GAME_INDEX].GAME_IMAGE_URL + ")";
+                if(this.GAME_URL_CONTAINERS[this.NEXT_GAME_INDEX].GAME_VIDEO_URL != undefined){
+                    newGameImgDiv.style.backgroundImage = "url(" + this.GAME_URL_CONTAINERS[this.NEXT_GAME_INDEX].GAME_VIDEO_URL + ")";
+                }else{
+                    newGameImgDiv.style.backgroundImage = "url(" + this.GAME_URL_CONTAINERS[this.NEXT_GAME_INDEX].GAME_IMAGE_URL + ")";
+                }
                 this.ARCADE_SCROLL_AREA_DIV.appendChild(newGameImgDiv);
 
 
