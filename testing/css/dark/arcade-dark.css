@@ -36,13 +36,23 @@
     background-color: rgba(0, 0, 0, 0);
     border: gray;
     width: 90%;
-    aspect-ratio: 1/0.5555556;
+    aspect-ratio: 1/1;
     margin: auto;
     margin-bottom: 10%;
     transform: translate(0, 10%);
     background-image: none;
     background-size: contain;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
+
+.arcade_banner_parent{
+    background-color: blueviolet;
+    width: 100%;
+    aspect-ratio: 1/0.555555556;
+}
+
 
 .arcade_game_transition_parent{
     background-color: rgba(0, 0, 0, 0);

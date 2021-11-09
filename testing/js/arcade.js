@@ -81,14 +81,31 @@ class Arcade{
         for(var i=0; i<count; i++){
             if(this.NEXT_GAME_INDEX < this.GAME_URL_CONTAINERS.length-1){
 
-                var newGameImgDiv = document.createElement("div");
-                newGameImgDiv.classList = "arcade_game uk-transition-toggle";
+                var arcadeGameDiv = document.createElement("div");
+                arcadeGameDiv.classList = "arcade_game uk-transition-toggle";
+                this.ARCADE_SCROLL_AREA_DIV.appendChild(arcadeGameDiv);
+
+                var arcadeGameBannerParentDiv = document.createElement("div");
+                arcadeGameBannerParentDiv.classList = "arcade_banner_parent uk-transition-toggle";
+                arcadeGameDiv.appendChild(arcadeGameBannerParentDiv);
+
+                
+                var arcadeGameBannerElem = undefined;
                 if(this.GAME_URL_CONTAINERS[this.NEXT_GAME_INDEX].GAME_VIDEO_URL != undefined){
-                    newGameImgDiv.style.backgroundImage = "url(" + this.GAME_URL_CONTAINERS[this.NEXT_GAME_INDEX].GAME_VIDEO_URL + ")";
+                    arcadeGameBannerElem = document.createElement("video");
+                    arcadeGameBannerElem.autoplay = "true";
+                    arcadeGameBannerElem.muted = "true";
+                    arcadeGameBannerElem.loop = "true";
+                    arcadeGameBannerElem.src = this.GAME_URL_CONTAINERS[this.NEXT_GAME_INDEX].GAME_VIDEO_URL;
+                    
                 }else{
-                    newGameImgDiv.style.backgroundImage = "url(" + this.GAME_URL_CONTAINERS[this.NEXT_GAME_INDEX].GAME_IMAGE_URL + ")";
+                    arcadeGameBannerElem = document.createElement("div");
+                    arcadeGameBannerElem.style.backgroundImage = "url(" + this.GAME_URL_CONTAINERS[this.NEXT_GAME_INDEX].GAME_IMAGE_URL + ")";
+                    arcadeGameBannerElem.style.backgroundSize = "cover";
+                    arcadeGameBannerElem.style.width = "100%";
+                    arcadeGameBannerElem.style.height = "100%";
                 }
-                this.ARCADE_SCROLL_AREA_DIV.appendChild(newGameImgDiv);
+                arcadeGameBannerParentDiv.appendChild(arcadeGameBannerElem);
 
 
                 var descText = "";
@@ -102,7 +119,7 @@ class Arcade{
                 var transitionDiv = document.createElement("div");
                 transitionDiv.classList = "uk-margin-remove uk-transition-fade uk-position-cover uk-overlay uk-overlay-default uk-text-medium uk-text-success arcade_game_transition_parent";
                 // newGameTransitionDiv.textContent = descText;
-                newGameImgDiv.appendChild(transitionDiv);
+                arcadeGameDiv.appendChild(transitionDiv);
 
                 var textScrollAreaParentDiv = document.createElement("div");
                 textScrollAreaParentDiv.classList = "uk-position-top arcade_game_text_scroll_parent";
