@@ -9,7 +9,7 @@
 
 .arcade_overlay{
     background-color: rgba(0, 0, 0, 0.0);
-    border: white solid 1px;
+    border: gray solid 1px;
     display: none;
     z-index: 1005;
     width: 40%;
@@ -29,7 +29,7 @@
 }
 
 .arcade_scroll_area{
-    background-color: rgba(46, 46, 46, 1.0);
+    background-color: white;
     width: 100%;
     height: 100%;
     overflow-y: scroll;
@@ -55,7 +55,7 @@
 }
 
 .arcade_banner_parent{
-    background-color: rgb(31, 31, 31);
+    background-color: rgb(235, 235, 235);
     border: gray 1px solid;
     display: flex;
     align-items: center;
@@ -106,8 +106,8 @@
 
 .arcade_name_div{
     position: absolute;
-    background-color: rgba(71, 35, 67, 0.25);
-    color: white;
+    background-color: rgba(78, 29, 73, 0.25);
+    color: black;
     font-family: Roboto;
     font-size: 25px;
     width: 100%;

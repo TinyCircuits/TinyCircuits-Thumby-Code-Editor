@@ -244,18 +244,18 @@ export class EMULATOR{
 
     this.EMULATOR_DPAD_SVG = document.createElement("img");
     this.EMULATOR_DPAD_SVG.classList = "emulator_dpad_img";
-    this.EMULATOR_DPAD_SVG.src = "Emulator-DPAD_NORMAL.svg";
+    this.EMULATOR_DPAD_SVG.src = "/css/svgs/emulator/Emulator-DPAD_NORMAL.svg";
     this.EMULATOR_DPAD_SVG.title = "Keys: WASD";
     this.EMULATOR_THUMBY.appendChild(this.EMULATOR_DPAD_SVG);
 
     this.EMULATOR_B_SVG = document.createElement("img");
     this.EMULATOR_B_SVG.classList = "emulator_b_img";
-    this.EMULATOR_B_SVG.src = "Emulator-BTN_NORMAL.svg";
+    this.EMULATOR_B_SVG.src = "/css/svgs/emulator/Emulator-BTN_NORMAL.svg";
     this.EMULATOR_THUMBY.appendChild(this.EMULATOR_B_SVG);
 
     this.EMULATOR_A_SVG = document.createElement("img");
     this.EMULATOR_A_SVG.classList = "emulator_a_img";
-    this.EMULATOR_A_SVG.src = "Emulator-BTN_NORMAL.svg";
+    this.EMULATOR_A_SVG.src = "/css/svgs/emulator/Emulator-BTN_NORMAL.svg";
     this.EMULATOR_THUMBY.appendChild(this.EMULATOR_A_SVG);
 
     this.context = this.EMULATOR_CANVAS.getContext('2d', { alpha: false });
@@ -274,43 +274,43 @@ export class EMULATOR{
             pin: 4,
             press: () => {this.mcu.gpio[this.BUTTONS['w'].pin].setInputValue(false)},
             depress: () => {this.mcu.gpio[this.BUTTONS['w'].pin].setInputValue(true)},
-            animatePressed: () => {this.EMULATOR_DPAD_SVG.src = "Emulator-DPAD_U_PRESSED.svg";},
-            animateDepressed: () => {this.EMULATOR_DPAD_SVG.src = "Emulator-DPAD_NORMAL.svg";}},
+            animatePressed: () => {this.EMULATOR_DPAD_SVG.src = "/css/svgs/emulator/Emulator-DPAD_U_PRESSED.svg";},
+            animateDepressed: () => {this.EMULATOR_DPAD_SVG.src = "/css/svgs/emulator/Emulator-DPAD_NORMAL.svg";}},
 
       'a': {pressed: false,
             pin: 3,
             press: () => {this.mcu.gpio[this.BUTTONS['a'].pin].setInputValue(false)},
             depress: () => {this.mcu.gpio[this.BUTTONS['a'].pin].setInputValue(true)},
-            animatePressed: () => {this.EMULATOR_DPAD_SVG.src = "Emulator-DPAD_L_PRESSED.svg";},
-            animateDepressed: () => {this.EMULATOR_DPAD_SVG.src = "Emulator-DPAD_NORMAL.svg";}},
+            animatePressed: () => {this.EMULATOR_DPAD_SVG.src = "/css/svgs/emulator/Emulator-DPAD_L_PRESSED.svg";},
+            animateDepressed: () => {this.EMULATOR_DPAD_SVG.src = "/css/svgs/emulator/Emulator-DPAD_NORMAL.svg";}},
 
       's': {pressed: false,
             pin: 6,
             press: () => {this.mcu.gpio[this.BUTTONS['s'].pin].setInputValue(false)},
             depress: () => {this.mcu.gpio[this.BUTTONS['s'].pin].setInputValue(true)},
-            animatePressed: () => {this.EMULATOR_DPAD_SVG.src = "Emulator-DPAD_D_PRESSED.svg";},
-            animateDepressed: () => {this.EMULATOR_DPAD_SVG.src = "Emulator-DPAD_NORMAL.svg";}},
+            animatePressed: () => {this.EMULATOR_DPAD_SVG.src = "/css/svgs/emulator/Emulator-DPAD_D_PRESSED.svg";},
+            animateDepressed: () => {this.EMULATOR_DPAD_SVG.src = "/css/svgs/emulator/Emulator-DPAD_NORMAL.svg";}},
 
       'd': {pressed: false,
             pin: 5,
             press: () => {this.mcu.gpio[this.BUTTONS['d'].pin].setInputValue(false)},
             depress: () => {this.mcu.gpio[this.BUTTONS['d'].pin].setInputValue(true)},
-            animatePressed: () => {this.EMULATOR_DPAD_SVG.src = "Emulator-DPAD_R_PRESSED.svg";},
-            animateDepressed: () => {this.EMULATOR_DPAD_SVG.src = "Emulator-DPAD_NORMAL.svg";}},
+            animatePressed: () => {this.EMULATOR_DPAD_SVG.src = "/css/svgs/emulator/Emulator-DPAD_R_PRESSED.svg";},
+            animateDepressed: () => {this.EMULATOR_DPAD_SVG.src = "/css/svgs/emulator/Emulator-DPAD_NORMAL.svg";}},
 
       ',': {pressed: false,
             pin: 27,
             press: () => {this.mcu.gpio[this.BUTTONS[','].pin].setInputValue(false)},
             depress: () => {this.mcu.gpio[this.BUTTONS[','].pin].setInputValue(true)},
-            animatePressed: () => {this.EMULATOR_B_SVG.src = "Emulator-BTN_PRESSED.svg";},
-            animateDepressed: () => {this.EMULATOR_B_SVG.src = "Emulator-BTN_NORMAL.svg";}},
+            animatePressed: () => {this.EMULATOR_B_SVG.src = "/css/svgs/emulator/Emulator-BTN_PRESSED.svg";},
+            animateDepressed: () => {this.EMULATOR_B_SVG.src = "/css/svgs/emulator/Emulator-BTN_NORMAL.svg";}},
 
       '.': {pressed: false,
             pin: 24,
             press: () => {this.mcu.gpio[this.BUTTONS['.'].pin].setInputValue(false)},
             depress: () => {this.mcu.gpio[this.BUTTONS['.'].pin].setInputValue(true)},
-            animatePressed: () => {this.EMULATOR_A_SVG.src = "Emulator-BTN_PRESSED.svg";},
-            animateDepressed: () => {this.EMULATOR_A_SVG.src = "Emulator-BTN_NORMAL.svg";}},
+            animatePressed: () => {this.EMULATOR_A_SVG.src = "/css/svgs/emulator/Emulator-BTN_PRESSED.svg";},
+            animateDepressed: () => {this.EMULATOR_A_SVG.src = "/css/svgs/emulator/Emulator-BTN_NORMAL.svg";}},
     }
 
     // Make sure to remap buttons to saved rotation
@@ -416,70 +416,70 @@ export class EMULATOR{
       // console.log("0");
       this.BUTTONS['w'].pin = 4;
       this.EMULATOR_DPAD_UP_BTN.title = "Key: W";
-      this.BUTTONS['w'].animatePressed = () => {this.EMULATOR_DPAD_SVG.src = "Emulator-DPAD_U_PRESSED.svg";};
+      this.BUTTONS['w'].animatePressed = () => {this.EMULATOR_DPAD_SVG.src = "/css/svgs/emulator/Emulator-DPAD_U_PRESSED.svg";};
 
       this.BUTTONS['a'].pin = 3;
       this.EMULATOR_DPAD_LEFT_BTN.title = "Key: A";
-      this.BUTTONS['a'].animatePressed = () => {this.EMULATOR_DPAD_SVG.src = "Emulator-DPAD_L_PRESSED.svg";};
+      this.BUTTONS['a'].animatePressed = () => {this.EMULATOR_DPAD_SVG.src = "/css/svgs/emulator/Emulator-DPAD_L_PRESSED.svg";};
 
       this.BUTTONS['s'].pin = 6;
       this.EMULATOR_DPAD_DOWN_BTN.title = "Key: S";
-      this.BUTTONS['s'].animatePressed = () => {this.EMULATOR_DPAD_SVG.src = "Emulator-DPAD_D_PRESSED.svg";};
+      this.BUTTONS['s'].animatePressed = () => {this.EMULATOR_DPAD_SVG.src = "/css/svgs/emulator/Emulator-DPAD_D_PRESSED.svg";};
 
       this.BUTTONS['d'].pin = 5;
       this.EMULATOR_DPAD_RIGHT_BTN.title = "Key: D";
-      this.BUTTONS['d'].animatePressed = () => {this.EMULATOR_DPAD_SVG.src = "Emulator-DPAD_R_PRESSED.svg";};
+      this.BUTTONS['d'].animatePressed = () => {this.EMULATOR_DPAD_SVG.src = "/css/svgs/emulator/Emulator-DPAD_R_PRESSED.svg";};
     }else if(this.EMULATOR_ROTATION == 90){
       // console.log("90");
       this.BUTTONS['w'].pin = 3;
       this.EMULATOR_DPAD_LEFT_BTN.title = "Key: W";
-      this.BUTTONS['w'].animatePressed = () => {this.EMULATOR_DPAD_SVG.src = "Emulator-DPAD_L_PRESSED.svg";};
+      this.BUTTONS['w'].animatePressed = () => {this.EMULATOR_DPAD_SVG.src = "/css/svgs/emulator/Emulator-DPAD_L_PRESSED.svg";};
 
       this.BUTTONS['a'].pin = 6;
       this.EMULATOR_DPAD_DOWN_BTN.title = "Key: A";
-      this.BUTTONS['a'].animatePressed = () => {this.EMULATOR_DPAD_SVG.src = "Emulator-DPAD_D_PRESSED.svg";};
+      this.BUTTONS['a'].animatePressed = () => {this.EMULATOR_DPAD_SVG.src = "/css/svgs/emulator/Emulator-DPAD_D_PRESSED.svg";};
 
       this.BUTTONS['s'].pin = 5;
       this.EMULATOR_DPAD_RIGHT_BTN.title = "Key: S";
-      this.BUTTONS['s'].animatePressed = () => {this.EMULATOR_DPAD_SVG.src = "Emulator-DPAD_R_PRESSED.svg";};
+      this.BUTTONS['s'].animatePressed = () => {this.EMULATOR_DPAD_SVG.src = "/css/svgs/emulator/Emulator-DPAD_R_PRESSED.svg";};
 
       this.BUTTONS['d'].pin = 4;
       this.EMULATOR_DPAD_UP_BTN.title = "Key: D";
-      this.BUTTONS['d'].animatePressed = () => {this.EMULATOR_DPAD_SVG.src = "Emulator-DPAD_U_PRESSED.svg";};
+      this.BUTTONS['d'].animatePressed = () => {this.EMULATOR_DPAD_SVG.src = "/css/svgs/emulator/Emulator-DPAD_U_PRESSED.svg";};
     }else if(this.EMULATOR_ROTATION == 180){
       // console.log("180");
       this.BUTTONS['w'].pin = 6;
       this.EMULATOR_DPAD_DOWN_BTN.title = "Key: W";
-      this.BUTTONS['w'].animatePressed = () => {this.EMULATOR_DPAD_SVG.src = "Emulator-DPAD_D_PRESSED.svg";};
+      this.BUTTONS['w'].animatePressed = () => {this.EMULATOR_DPAD_SVG.src = "/css/svgs/emulator/Emulator-DPAD_D_PRESSED.svg";};
 
       this.BUTTONS['a'].pin = 5;
       this.EMULATOR_DPAD_RIGHT_BTN.title = "Key: A";
-      this.BUTTONS['a'].animatePressed = () => {this.EMULATOR_DPAD_SVG.src = "Emulator-DPAD_R_PRESSED.svg";};
+      this.BUTTONS['a'].animatePressed = () => {this.EMULATOR_DPAD_SVG.src = "/css/svgs/emulator/Emulator-DPAD_R_PRESSED.svg";};
 
       this.BUTTONS['s'].pin = 4;
       this.EMULATOR_DPAD_UP_BTN.title = "Key: S";
-      this.BUTTONS['s'].animatePressed = () => {this.EMULATOR_DPAD_SVG.src = "Emulator-DPAD_U_PRESSED.svg";};
+      this.BUTTONS['s'].animatePressed = () => {this.EMULATOR_DPAD_SVG.src = "/css/svgs/emulator/Emulator-DPAD_U_PRESSED.svg";};
 
       this.BUTTONS['d'].pin = 3;
       this.EMULATOR_DPAD_LEFT_BTN.title = "Key: D"
-      this.BUTTONS['d'].animatePressed = () => {this.EMULATOR_DPAD_SVG.src = "Emulator-DPAD_L_PRESSED.svg";};
+      this.BUTTONS['d'].animatePressed = () => {this.EMULATOR_DPAD_SVG.src = "/css/svgs/emulator/Emulator-DPAD_L_PRESSED.svg";};
     }else if(this.EMULATOR_ROTATION == 270){
       // console.log("270");
       this.BUTTONS['w'].pin = 5;
       this.EMULATOR_DPAD_RIGHT_BTN.title = "Key: W";
-      this.BUTTONS['w'].animatePressed = () => {this.EMULATOR_DPAD_SVG.src = "Emulator-DPAD_R_PRESSED.svg";};
+      this.BUTTONS['w'].animatePressed = () => {this.EMULATOR_DPAD_SVG.src = "/css/svgs/emulator/Emulator-DPAD_R_PRESSED.svg";};
 
       this.BUTTONS['a'].pin = 4;
       this.EMULATOR_DPAD_UP_BTN.title = "Key: A";
-      this.BUTTONS['a'].animatePressed = () => {this.EMULATOR_DPAD_SVG.src = "Emulator-DPAD_U_PRESSED.svg";};
+      this.BUTTONS['a'].animatePressed = () => {this.EMULATOR_DPAD_SVG.src = "/css/svgs/emulator/Emulator-DPAD_U_PRESSED.svg";};
 
       this.BUTTONS['s'].pin = 3;
       this.EMULATOR_DPAD_LEFT_BTN.title = "Key: S";
-      this.BUTTONS['s'].animatePressed = () => {this.EMULATOR_DPAD_SVG.src = "Emulator-DPAD_L_PRESSED.svg";};
+      this.BUTTONS['s'].animatePressed = () => {this.EMULATOR_DPAD_SVG.src = "/css/svgs/emulator/Emulator-DPAD_L_PRESSED.svg";};
 
       this.BUTTONS['d'].pin = 6;
       this.EMULATOR_DPAD_DOWN_BTN.title = "Key: D";
-      this.BUTTONS['d'].animatePressed = () => {this.EMULATOR_DPAD_SVG.src = "Emulator-DPAD_D_PRESSED.svg";};
+      this.BUTTONS['d'].animatePressed = () => {this.EMULATOR_DPAD_SVG.src = "/css/svgs/emulator/Emulator-DPAD_D_PRESSED.svg";};
     }
   }
 
@@ -510,13 +510,13 @@ export class EMULATOR{
   // Always animate A + B buttons separate from DPAD since can be pressed at same time
   animatePressedButtons(){
     if(this.BUTTONS['w'].pressed && this.BUTTONS['a'].pressed){
-      this.EMULATOR_DPAD_SVG.src = "Emulator-DPAD_UL_PRESSED.svg";
+      this.EMULATOR_DPAD_SVG.src = "/css/svgs/emulator/Emulator-DPAD_UL_PRESSED.svg";
     }else if(this.BUTTONS['a'].pressed && this.BUTTONS['s'].pressed){
-      this.EMULATOR_DPAD_SVG.src = "Emulator-DPAD_LD_PRESSED.svg";
+      this.EMULATOR_DPAD_SVG.src = "/css/svgs/emulator/Emulator-DPAD_LD_PRESSED.svg";
     }else if(this.BUTTONS['s'].pressed && this.BUTTONS['d'].pressed){
-      this.EMULATOR_DPAD_SVG.src = "Emulator-DPAD_DR_PRESSED.svg";
+      this.EMULATOR_DPAD_SVG.src = "/css/svgs/emulator/Emulator-DPAD_DR_PRESSED.svg";
     }else if(this.BUTTONS['d'].pressed && this.BUTTONS['w'].pressed){
-      this.EMULATOR_DPAD_SVG.src = "Emulator-DPAD_UR_PRESSED.svg";
+      this.EMULATOR_DPAD_SVG.src = "/css/svgs/emulator/Emulator-DPAD_UR_PRESSED.svg";
     }else{
       if(this.BUTTONS['w'].pressed){
         this.BUTTONS['w'].animatePressed();

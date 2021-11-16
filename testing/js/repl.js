@@ -522,29 +522,10 @@ class ReplJS{
     }
 
 
-    async uploadFile(filePath, fileContents, usePercent = false, binaryFile = false){
+    async uploadFile(filePath, fileContents, usePercent = false){
         if(this.BUSY == true){
             return true;
         }
-
-
-        // Sometimes newlines are incorrect even though they look correct in ace?
-        if(binaryFile == false){
-            var fileContents = fileContents.split(/\r\n|\n|\r/);
-        
-            // Recombine everything with correct newlines
-            var combined = "";
-            for(var row=0; row<fileContents.length; row++){
-                // Make sure not to add an extra newline at end
-                if(row != fileContents.length - 1){
-                    combined = combined + fileContents[row] + "\n";
-                }else{
-                    combined = combined + fileContents[row];
-                }
-            }
-            fileContents = combined;
-        }
-
 
         var pathToFile = filePath.substring(0, filePath.lastIndexOf('/'));
         await this.buildPath(pathToFile);
@@ -556,11 +537,12 @@ class ReplJS{
         if(usePercent) window.setPercent(2);
         // this.startReaduntil(">");
 
-
-        var bytes = new Uint8Array(fileContents.length);
-        if(binaryFile == false){
-            for(var i=0; i<bytes.length; i++){
-                bytes[i] = fileContents[i].charCodeAt();
+        // Convert strings to binary
+        var bytes = undefined;
+        if(typeof fileContents == "string"){
+            bytes = new Uint8Array(fileContents.length);
+            for(var i = 0; i < fileContents.length; i++) {
+                bytes[i] = fileContents.charCodeAt(i);
             }
         }else{
             bytes = fileContents;
@@ -667,23 +649,23 @@ class ReplJS{
         await this.deleteAllFiles();
         await this.getOnBoardFSTree();
 
-        await this.uploadFile("Games/SpaceDebris/SpaceDebris.py", await window.downloadFile("/ThumbyGames/Games/SpaceDebris/SpaceDebris.py"), false, false);
+        await this.uploadFile("Games/SpaceDebris/SpaceDebris.py", await window.downloadFile("/ThumbyGames/Games/SpaceDebris/SpaceDebris.py"), false);
         window.setPercent(11.1);
-        await this.uploadFile("Games/Annelid/Annelid.py", await window.downloadFile("/ThumbyGames/Games/Annelid/Annelid.py"), false, false);
+        await this.uploadFile("Games/Annelid/Annelid.py", await window.downloadFile("/ThumbyGames/Games/Annelid/Annelid.py"), false);
         window.setPercent(22.2);
-        await this.uploadFile("Games/Thumgeon/Thumgeon.py", await window.downloadFile("/ThumbyGames/Games/Thumgeon/Thumgeon.py"), false, false);
+        await this.uploadFile("Games/Thumgeon/Thumgeon.py", await window.downloadFile("/ThumbyGames/Games/Thumgeon/Thumgeon.py"), false);
         window.setPercent(33.3);
-        await this.uploadFile("Games/SaurRun/SaurRun.py", await window.downloadFile("/ThumbyGames/Games/SaurRun/SaurRun.py"), false, false);
+        await this.uploadFile("Games/SaurRun/SaurRun.py", await window.downloadFile("/ThumbyGames/Games/SaurRun/SaurRun.py"), false);
         window.setPercent(44.4);
-        await this.uploadFile("Games/TinyBlocks/TinyBlocks.py", await window.downloadFile("/ThumbyGames/Games/TinyBlocks/TinyBlocks.py"), false, false);
+        await this.uploadFile("Games/TinyBlocks/TinyBlocks.py", await window.downloadFile("/ThumbyGames/Games/TinyBlocks/TinyBlocks.py"), false);
         window.setPercent(55.5);
-        await this.uploadFile("lib/ssd1306.py", await window.downloadFile("/ThumbyGames/lib/ssd1306.py"), false, false);
+        await this.uploadFile("lib/ssd1306.py", await window.downloadFile("/ThumbyGames/lib/ssd1306.py"), false);
         window.setPercent(66.6);
-        await this.uploadFile("lib/thumby.py", await window.downloadFile("/ThumbyGames/lib/thumby.py"), false, false);
+        await this.uploadFile("lib/thumby.py", await window.downloadFile("/ThumbyGames/lib/thumby.py"), false);
         window.setPercent(77.7);
-        await this.uploadFile("main.py", await window.downloadFile("/ThumbyGames/main.py"), false, false);
+        await this.uploadFile("main.py", await window.downloadFile("/ThumbyGames/main.py"), false);
         window.setPercent(88.8);
-        await this.uploadFile("thumby.cfg", await window.downloadFile("/ThumbyGames/thumby.cfg"), false, false);
+        await this.uploadFile("thumby.cfg", await window.downloadFile("/ThumbyGames/thumby.cfg"), false);
         window.setPercent(99.9);
 
         // Make sure to update the filesystem after modifying it
@@ -710,7 +692,7 @@ class ReplJS{
     }
 
 
-    async getFileContents(filePath, binary = false){
+    async getFileContents(filePath){
         if(this.BUSY == true){
             return;
         }
@@ -732,33 +714,22 @@ class ReplJS{
 
         // Not really needed for hiding output to terminal since raw does not echo
         // but is needed to only grab the FS lines/data
-        if(binary) this.startCollectRawData();
+        this.startCollectRawData();
         this.startReaduntil("###DONE READING FILE###");
         await this.writeToDevice(cmd + "\x04");
 
         // fielcontents only used for case of script ascii, otherwise use COLLECTED_RAW_DATA to get raw binary data to save
         var fileContents = undefined;
-        if(!binary){
-            fileContents = await this.haltUntilRead(2);
-            fileContents = fileContents.join('');
-            fileContents = fileContents.substring(2, fileContents.length-26);
-        }else{
-            await this.haltUntilRead(2);
-        }
+        await this.haltUntilRead(2);
 
-        if(binary) this.endCollectRawData();
+        this.endCollectRawData();
 
         // Get back into normal mode and omit the 3 lines from the normal message,
         // don't want to repeat (assumes already on a normal prompt)
         await this.getToNormal(3);
         this.BUSY = false;
 
-        if(!binary){
-            return fileContents;
-        }else{
-            console.log(this.COLLECTED_RAW_DATA.slice(2, this.COLLECTED_RAW_DATA.length-26).length);
-            return this.COLLECTED_RAW_DATA.slice(2, this.COLLECTED_RAW_DATA.length-26);
-        }
+        return this.COLLECTED_RAW_DATA.slice(2, this.COLLECTED_RAW_DATA.length-26);     // Get rid of 'OK' and '###DONE READING FILE###'
     }
 
 

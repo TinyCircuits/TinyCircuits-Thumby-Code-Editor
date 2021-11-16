@@ -244,10 +244,7 @@ class FILESYSTEM{
                         }
                 
                         // Full path to root after this (removes three back slashes)
-                        path = path.substring(3);
-                        // var fileName = node.toString();
-                
-                        // this.CALLBACK_OPEN(path, fileName);
+                        path = "/" + path.substring(3);
                         this.onOpen(path);
                     });
 

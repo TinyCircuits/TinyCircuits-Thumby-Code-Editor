@@ -4,6 +4,47 @@ class GameURLContainer{
         this.GAME_VIDEO_URL = undefined;
         this.GAME_DESCRIPTION_URL = undefined;
         this.GAME_FILE_URLS = [];
+        this.GAME_NAME = undefined;
+
+        // Gets defined by Arcade on game load in scroll
+        this.downloadButton = undefined;
+        this.downloadFunc = undefined;
+
+        this.openButton = undefined;
+        this.openFunc = undefined;
+    }
+
+    // Inits button callback for download button
+    initDownloadButton(downloadFunc){
+        this.downloadFunc = downloadFunc;
+
+        // On click, split URL, forget about the first 5 elements, combine the last elements to path, fetch file from URL, send to Thumby
+        this.downloadButton.onclick = async () => {
+            for(var i=0; i<this.GAME_FILE_URLS.length; i++){
+                // Make URL from root of Thumby (start at '/')
+                var thumbyURL = "/Games/" + this.GAME_FILE_URLS[i].split('/').slice(6).join('/');
+                
+                await fetch(this.GAME_FILE_URLS[i]).then(async (response) => {
+                    await this.downloadFunc(thumbyURL, new Uint8Array(await response.arrayBuffer()));
+                });
+            }
+        }
+    }
+
+    initOpenButton(openFunc){
+        this.openFunc = openFunc;
+
+        // On click, split URL, forget about the first 5 elements, combine the last elements to path, fetch file from URL, open in editors
+        this.openButton.onclick = async () => {
+            for(var i=0; i<this.GAME_FILE_URLS.length; i++){
+                // Make URL from root of Thumby (start at '/')
+                var thumbyURL = "/Games/" + this.GAME_FILE_URLS[i].split('/').slice(6).join('/');
+                
+                await fetch(this.GAME_FILE_URLS[i]).then(async (response) => {
+                    await this.openFunc(thumbyURL, new Uint8Array(await response.arrayBuffer()));
+                });
+            }
+        }
     }
 }
 
@@ -18,6 +59,9 @@ class Arcade{
         this.FILLED_GAME_URLS = false;
         this.NEXT_GAME_INDEX = 0;
 
+        this.ARCADE_PAGE_OVERLAY = document.createElement("div");
+        this.ARCADE_PAGE_OVERLAY.classList = "arcade_page_overlay";
+        document.body.appendChild(this.ARCADE_PAGE_OVERLAY);
 
         this.ARCADE_BACKGROUND_DIV = document.createElement("div");
         this.ARCADE_BACKGROUND_DIV.classList = "arcade_overlay";
@@ -73,6 +117,10 @@ class Arcade{
                 this.loadNewGames(4);
             }
         }
+
+        // Functions that are defined outside this module
+        this.onDownload = undefined;
+        this.onOpen = undefined;
     }
 
 
@@ -89,24 +137,37 @@ class Arcade{
                 arcadeGameBannerParentDiv.classList = "arcade_banner_parent uk-transition-toggle";
                 arcadeGameDiv.appendChild(arcadeGameBannerParentDiv);
 
-                
+                var arcadeNameDiv = document.createElement("div");
+                arcadeNameDiv.classList = "arcade_name_div";
+                arcadeNameDiv.innerText = this.GAME_URL_CONTAINERS[this.NEXT_GAME_INDEX].GAME_NAME;
+                arcadeGameDiv.appendChild(arcadeNameDiv);
+
+
                 var arcadeGameBannerElem = undefined;
                 if(this.GAME_URL_CONTAINERS[this.NEXT_GAME_INDEX].GAME_VIDEO_URL != undefined){
+                    arcadeGameBannerParentDiv.style.width = "100%";
+                    arcadeGameBannerParentDiv.style.aspectRatio = "1/0.555555556";
+
                     arcadeGameBannerElem = document.createElement("video");
                     arcadeGameBannerElem.autoplay = "true";
                     arcadeGameBannerElem.muted = "true";
                     arcadeGameBannerElem.loop = "true";
                     arcadeGameBannerElem.src = this.GAME_URL_CONTAINERS[this.NEXT_GAME_INDEX].GAME_VIDEO_URL;
-                    
+                    arcadeGameBannerElem.style.height = "180%";
                 }else{
+                    arcadeGameBannerParentDiv.style.width = "100%";
+                    arcadeGameBannerParentDiv.style.height = "100%";
+
                     arcadeGameBannerElem = document.createElement("div");
+                    arcadeGameBannerElem.classList = "arcade_image_banner";
                     arcadeGameBannerElem.style.backgroundImage = "url(" + this.GAME_URL_CONTAINERS[this.NEXT_GAME_INDEX].GAME_IMAGE_URL + ")";
-                    arcadeGameBannerElem.style.backgroundSize = "cover";
-                    arcadeGameBannerElem.style.width = "100%";
+                    arcadeGameBannerElem.style.backgroundSize = "contain";
+                    arcadeGameBannerElem.style.backgroundRepeat = "no-repeat";
+                    arcadeGameBannerElem.style.backgroundPosition = "center";
                     arcadeGameBannerElem.style.height = "100%";
+                    arcadeGameBannerElem.style.width = "100%";
                 }
                 arcadeGameBannerParentDiv.appendChild(arcadeGameBannerElem);
-
 
                 var descText = "";
                 await fetch(this.GAME_URL_CONTAINERS[this.NEXT_GAME_INDEX].GAME_DESCRIPTION_URL).then(async (response) => {
@@ -127,24 +188,26 @@ class Arcade{
 
                 var textScrollAreaDiv = document.createElement("div");
                 textScrollAreaDiv.classList = "uk-position-top arcade_game_text_scroll_area";
-                textScrollAreaDiv.innerHTML = descText.replace(/(?:\r\n\r\n|\r\r|\n\n)/g, '<br><br>');
+                textScrollAreaDiv.innerText = descText;
                 textScrollAreaParentDiv.appendChild(textScrollAreaDiv);
 
                 var buttonAreaDiv = document.createElement("div");
                 buttonAreaDiv.classList = "uk-position-bottom uk-button-group arcade_game_button_area";
                 transitionDiv.appendChild(buttonAreaDiv);
 
-                var downloadButton = document.createElement("button");
-                downloadButton.classList = "uk-button uk-button-primary uk-text-small uk-width-1-1";
-                downloadButton.textContent = "DOWNLOAD";
-                downloadButton.title = "Downloads all game content to connected Thumby";
-                buttonAreaDiv.appendChild(downloadButton);
+                this.GAME_URL_CONTAINERS[this.NEXT_GAME_INDEX].downloadButton = document.createElement("button");
+                this.GAME_URL_CONTAINERS[this.NEXT_GAME_INDEX].downloadButton.classList = "uk-button uk-button-primary uk-text-small uk-width-1-1";
+                this.GAME_URL_CONTAINERS[this.NEXT_GAME_INDEX].downloadButton.textContent = "DOWNLOAD";
+                this.GAME_URL_CONTAINERS[this.NEXT_GAME_INDEX].downloadButton.title = "Downloads all game content to connected Thumby";
+                buttonAreaDiv.appendChild(this.GAME_URL_CONTAINERS[this.NEXT_GAME_INDEX].downloadButton);
+                this.GAME_URL_CONTAINERS[this.NEXT_GAME_INDEX].initDownloadButton(this.onDownload);
 
-                var openButton = document.createElement("button");
-                openButton.classList = "uk-button uk-button-primary uk-text-small uk-width-1-1";
-                openButton.textContent = "OPEN";
-                openButton.title = "Opens game content in editors. Files with unrecognized file extensions will be asked to be downloaded to PC instead";
-                buttonAreaDiv.appendChild(openButton);
+                this.GAME_URL_CONTAINERS[this.NEXT_GAME_INDEX].openButton = document.createElement("button");
+                this.GAME_URL_CONTAINERS[this.NEXT_GAME_INDEX].openButton.classList = "uk-button uk-button-primary uk-text-small uk-width-1-1";
+                this.GAME_URL_CONTAINERS[this.NEXT_GAME_INDEX].openButton.textContent = "OPEN";
+                this.GAME_URL_CONTAINERS[this.NEXT_GAME_INDEX].openButton.title = "Opens game content in editors. Files with unrecognized file extensions will be asked to be downloaded to PC instead";
+                buttonAreaDiv.appendChild(this.GAME_URL_CONTAINERS[this.NEXT_GAME_INDEX].openButton);
+                this.GAME_URL_CONTAINERS[this.NEXT_GAME_INDEX].initOpenButton(this.onOpen);
 
                 // Wait a small amount of time so don't fetch from repo too quickly (rate limiting)
                 await window.sleep(7);
@@ -180,6 +243,8 @@ class Arcade{
                     currentURLContainer.GAME_VIDEO_URL = txtFileLines[i];
                 }else if(txtFileLines[i].indexOf("arcade_description.txt") != -1){
                     currentURLContainer.GAME_DESCRIPTION_URL = txtFileLines[i];
+                }else if(txtFileLines[i].indexOf("NAME=") != -1){
+                    currentURLContainer.GAME_NAME = txtFileLines[i].substring(txtFileLines[i].indexOf('=')+1);
                 }else if(txtFileLines[i] != ""){
                     currentURLContainer.GAME_FILE_URLS.push(txtFileLines[i]);
                 }else{
@@ -195,6 +260,7 @@ class Arcade{
 
     async show(){
         this.ARCADE_BACKGROUND_DIV.style.display = "flex";
+        this.ARCADE_PAGE_OVERLAY.style.display = "block";
         this.SHOWN = true;
 
         if(this.FILLED_GAME_URLS == false){
@@ -210,6 +276,7 @@ class Arcade{
 
     hide(){
         this.ARCADE_BACKGROUND_DIV.style.display = "none";
+        this.ARCADE_PAGE_OVERLAY.style.display = "none";
         this.SHOWN = false;
     }
 }

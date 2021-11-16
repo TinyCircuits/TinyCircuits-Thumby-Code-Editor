@@ -13,6 +13,30 @@ var DIR = new DIRCHOOSER();
 var ARCADE = new Arcade();
 
 
+// Show pop-up containing IDE changelog every time showChangelogVersion is increased
+const showChangelogVersion = 0;
+if(localStorage.getItem(showChangelogVersion) == null){
+    console.log("Updates to IDE! Showing changelog...");    // Show message in console
+    localStorage.removeItem(showChangelogVersion-1);        // Remove flag from last version
+
+    await fetch("https://raw.githubusercontent.com/TinyCircuits/tinycircuits.github.io/master/testing/CHANGELOG.txt").then(async (response) => {
+        await response.text().then((text) => {
+            var listener = window.addEventListener("keydown", (event) => {
+                document.getElementById("IDChangelog").style.display = "none";
+                window.removeEventListener("keydown", listener);
+            });
+            document.getElementById("IDChnagelogExitBtn").onclick = (event) => {
+                document.getElementById("IDChangelog").style.display = "none";
+            }
+            document.getElementById("IDChangelog").style.display = "flex";
+            document.getElementById("IDChangelogText").innerText = text;
+        });
+    });
+
+    localStorage.setItem(showChangelogVersion, true);       // Set this show not shown on next page load
+}
+
+
 // Want the dropdown to disappear if mouse leaves it (doesn't disappear if mouse leaves button that starts it though)
 document.getElementById("IDUtilitesDropdown").addEventListener("mouseleave", () => {
     UIkit.dropdown(document.getElementById("IDUtilitesDropdown")).hide();
@@ -185,6 +209,12 @@ function invertPageTheme(){
                 link.href = "css/dark/emulator-dark.css";
             }
 
+            if(href == "arcade-dark.css"){
+                link.href = "css/light/arcade-light.css";
+            }else if(href == "arcade-light.css"){
+                link.href = "css/dark/arcade-dark.css";
+            }
+
             if(href == "dir_chooser-dark.css"){
                 link.href = "css/light/dir_chooser-light.css";
                 ATERM.setLightTheme();
@@ -205,39 +235,6 @@ function invertPageTheme(){
 
 document.getElementById("IDArcadeBTN").onclick = async (event) => {
     ARCADE.show();
-
-    // const gameListRepoURL = "https://api.github.com/repos/TinyCircuits/tinycircuits.github.io/git/trees/master?recursive=1";
-
-    // fetch(gameListRepoURL)
-    // .then(response => response.json())
-    // .then(data => console.log(data));
-    
-    // Get the list of games from a direct link to the .txt of repo links (make sure to click raw in Github and use that link)
-    // var repoLinksTxt = undefined;
-    // const gameListTxtURL = "https://raw.githubusercontent.com/arduino/library-registry/main/repositories.txt";
-    // await fetch(gameListTxtURL).then(async (response) => {
-    //     await response.text().then((text) => {
-    //         repoLinksTxt = text;
-    //     });
-    // });
-
-    // // Split the list by whatever newline may be after each link
-    // var repoLinksList = repoLinksTxt.split(/\r\n|\n|\r/);
-    
-    // for(var linkIndex=0; linkIndex < repoLinksList.length/4; linkIndex++){
-    //     var splitRepoUrl = repoLinksList[linkIndex].split('/');
-        
-    //     // Extract the Github username and repo name and skip if either undefined
-    //     var repoName = splitRepoUrl[splitRepoUrl.length-1];
-    //     var repoUsername = splitRepoUrl[splitRepoUrl.length-2];
-    //     if(repoName == undefined || repoUsername == undefined){
-    //         continue;
-    //     }
-
-    //     var recursiveRepoUrl = "https://api.github.com/repos/"+ repoUsername +"/"+ repoName +"/git/trees/master?recursive=1";
-    //     console.log(recursiveRepoUrl);
-        
-    // }
 }
 
 
@@ -499,7 +496,7 @@ function registerFilesystem(_container, state){
             }
         }
 
-        var fileContents = await REPL.getFileContents(filePath);
+        var fileContents = new TextDecoder().decode(new Uint8Array(await REPL.getFileContents(filePath)));
         if(fileContents == undefined){
             return; // RP2040 was busy
         }
@@ -660,6 +657,59 @@ function registerBitmapBuilder(_container, state){
             return LAST_ACTIVE_EDITOR.getSelectedText();
         }
     }
+}
+
+
+
+ARCADE.onDownload = async (thumbyURL, binaryFileContents) => {
+    await REPL.uploadFile(thumbyURL, binaryFileContents, false, true);
+    await REPL.getOnBoardFSTree();
+}
+
+ARCADE.onOpen = async (thumbyURL, binaryFileContents) => {
+    if(thumbyURL.indexOf(".py") == -1 && thumbyURL.indexOf(".txt") == -1 && thumbyURL.indexOf(".text") == -1 && thumbyURL.indexOf(".cfg") == -1){
+        if(!confirm("Unrecognized file extension, are you sure you want to open this?\n\nClick 'cancel to download'")){
+            var blob = new Blob(binaryFileContents, {type: "text/txt" });
+            var url = URL.createObjectURL(blob);
+            var link = document.createElement('a');
+            link.download = thumbyURL.substring(thumbyURL.lastIndexOf('/')+1);
+            link.href = url;
+            link.click();
+            window.URL.revokeObjectURL(url);
+            return;
+        }
+    }
+
+    // Make sure no editors with this file path already exist
+    for (const [id, editor] of Object.entries(EDITORS)) {
+        if(editor.EDITOR_PATH == thumbyURL){
+            editor._container.parent.focus();
+            alert("This file is already open in Editor" + id + "! Please close it first");
+            return;
+        }
+    }
+
+    var fileContents = new TextDecoder().decode(binaryFileContents);
+    if(fileContents == undefined){
+        return; // RP2040 was busy
+    }
+
+    // Find editor with smallest ID, focus it, then add new editor with file contents
+    var currentId = Infinity;
+    for (const [id, editor] of Object.entries(EDITORS)) {
+        if(id < currentId){
+            currentId = id;
+        }
+    }
+    if(currentId != Infinity){
+        EDITORS[currentId]._container.parent.focus();
+    }
+
+    // Pass the file contents to the new editor using the state
+    var state = {};
+    state.value = fileContents;
+    state.path = thumbyURL;
+    myLayout.addComponent('Editor', state, 'Editor');
 }
 
 
