@@ -2,7 +2,7 @@ Thumby IDE changelog!
 
 ####################
 
-November 15, 2021
+November 16, 2021
 
 NOTE: it is recommended to use 'Utilities -> Reset Layout' or 'Utilities -> Hard Reset' (note, all data will be deleted from page) to see new panels
 
