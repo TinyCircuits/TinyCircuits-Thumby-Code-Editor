@@ -1,0 +1,31 @@
+Thumby IDE changelog!
+
+####################
+
+November 15, 2021
+
+NOTE: it is recommended to use 'Utilities -> Reset Layout' or 'Utilities -> Hard Reset' (note, all data will be deleted from page) to see new panels
+
+General
+* Added this changelog popup that will appear every time the IDE is updated
+* Added an arcade for sharing games
+
+Emulator
+* Moved emulator to its own panel
+* Camera icon takes and saves PNG of current frame in emulator
+* Video camera icon starts recording emulator video (WEBM) on first left-click, saves on second left-click
+* Zoom buttons affect image and video scale
+* bottom left scale icon shows current scale of emulator and image/video (hover to see resolution)
+* Rotate button in bottom right for rotating emulator - affects image/video output
+* Emulator outputs to both the page console and now the in-page shell
+
+Arcade
+* Added 'Arcade' button in top bar
+* Get your game on the arcade: https://github.com/TinyCircuits/TinyCircuits-Thumby-Games
+* Download game files directly from the arcade to a connected Thumby
+* Open game files in IDE
+* Supports games with horizontal and vertical gameplay
+
+Filesystem
+* Upload batches of files quickly
+* Upload and download binary files

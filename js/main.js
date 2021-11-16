@@ -10,7 +10,37 @@ const layoutSaveKey = "layout";
 var myLayout = new GoldenLayout(document.getElementById("IDLayoutContainer"));
 
 var DIR = new DIRCHOOSER();
-var EMU = new EMULATOR();
+var ARCADE = new Arcade();
+
+
+// Show pop-up containing IDE changelog every time showChangelogVersion is increased
+const showChangelogVersion = 0;
+if(localStorage.getItem(showChangelogVersion) == null){
+    console.log("Updates to IDE! Showing changelog...");    // Show message in console
+    localStorage.removeItem(showChangelogVersion-1);        // Remove flag from last version
+
+    await fetch("https://raw.githubusercontent.com/TinyCircuits/tinycircuits.github.io/master/testing/CHANGELOG.txt").then(async (response) => {
+        await response.text().then((text) => {
+            var listener = window.addEventListener("keydown", (event) => {
+                document.getElementById("IDChangelog").style.display = "none";
+                window.removeEventListener("keydown", listener);
+            });
+            document.getElementById("IDChnagelogExitBtn").onclick = (event) => {
+                document.getElementById("IDChangelog").style.display = "none";
+            }
+            document.getElementById("IDChangelog").style.display = "flex";
+            document.getElementById("IDChangelogText").innerText = text;
+        });
+    });
+
+    localStorage.setItem(showChangelogVersion, true);       // Set this show not shown on next page load
+}
+
+
+// Want the dropdown to disappear if mouse leaves it (doesn't disappear if mouse leaves button that starts it though)
+document.getElementById("IDUtilitesDropdown").addEventListener("mouseleave", () => {
+    UIkit.dropdown(document.getElementById("IDUtilitesDropdown")).hide();
+})
 
 
 var progressBarElem = document.getElementById("IDProgressBar");
@@ -31,6 +61,7 @@ window.resetPercentDelay = () =>{
         progressBarElem.innerText = "";
     }, 100);
 }
+
 
 var defaultConfig = {
     header:{
@@ -100,6 +131,13 @@ var defaultConfig = {
                     // isClosable: false,
                     title: 'Shell',
                     id: "aShell"
+                },{
+                    type: 'component',
+                    componentName: 'Emulator',
+                    componentState: { label: 'Emulator' },
+                    // isClosable: false,
+                    title: 'Emulator',
+                    id: "aEmulator"
                 }]
             }]
         }]
@@ -165,6 +203,18 @@ function invertPageTheme(){
                 link.href = "css/dark/bitmap_builder-dark.css";
             }
 
+            if(href == "emulator-dark.css"){
+                link.href = "css/light/emulator-light.css";
+            }else if(href == "emulator-light.css"){
+                link.href = "css/dark/emulator-dark.css";
+            }
+
+            if(href == "arcade-dark.css"){
+                link.href = "css/light/arcade-light.css";
+            }else if(href == "arcade-light.css"){
+                link.href = "css/dark/arcade-dark.css";
+            }
+
             if(href == "dir_chooser-dark.css"){
                 link.href = "css/light/dir_chooser-light.css";
                 ATERM.setLightTheme();
@@ -180,6 +230,11 @@ function invertPageTheme(){
             }
         }
     }
+}
+
+
+document.getElementById("IDArcadeBTN").onclick = async (event) => {
+    ARCADE.show();
 }
 
 
@@ -226,7 +281,7 @@ document.getElementById("IDNewGameBTN").onclick = async (event) => {
         state.value = "";
         state.path = filePath;
         myLayout.addComponent('Editor', state, 'Editor');
-        await REPL.uploadFile(filePath, "", true);
+        await REPL.uploadFile(filePath, "", true, false);
         await REPL.getOnBoardFSTree();
         window.setPercent(100);
         window.resetPercentDelay();
@@ -284,6 +339,16 @@ document.getElementById("IDAddShell").onclick = (event) =>{
         // REPL.tryAutoConnect();
     }else{
         alert("Only one shell can be open");
+    }
+}
+
+// Add emulator panel to layout
+document.getElementById("IDAddEmulator").onclick = (event) =>{
+    if(recursiveFindTitle(myLayout.saveLayout().root.content, "Emulator") == false){
+        console.log("PAGE: +Emulator");
+        myLayout.addComponent('Emulator', undefined, 'Emulator');
+    }else{
+        alert("Only one emulator can be open");
     }
 }
 
@@ -401,7 +466,27 @@ function registerFilesystem(_container, state){
     FS.onDelete = (path) => REPL.deleteFileOrDir(path);
     FS.onRename = (path) => REPL.renameFile(path, prompt("Type a new name:", path.substring(path.lastIndexOf("/")+1)));
     FS.onFormat = () => REPL.format();
+    FS.onUploadFiles = async () => {
+        if(REPL.PORT != undefined){
+            console.log("Pick files to upload");
+            const fileHandles = await window.showOpenFilePicker({multiple: true});
+            if(fileHandles && fileHandles.length > 0){
+                var path = await DIR.getPathFromUser(document.body, true);
+                if(path != undefined){
+                    REPL.uploadFiles(path, fileHandles);
+                }
+            }
+        }else{
+            alert("Thumby not connected, can't upload files");
+        }
+    }
     FS.onOpen = async (filePath) => {
+        if(filePath.indexOf(".py") == -1 && filePath.indexOf(".txt") == -1 && filePath.indexOf(".text") == -1 && filePath.indexOf(".cfg") == -1){
+            if(!confirm("Unrecognized file extension, are you sure you want to open this?\n\nTry right-clicking and choosing 'Download' and use it on your computer")){
+                return;
+            }
+        }
+
         // Make sure no editors with this file path already exist
         for (const [id, editor] of Object.entries(EDITORS)) {
             if(editor.EDITOR_PATH == filePath){
@@ -411,7 +496,7 @@ function registerFilesystem(_container, state){
             }
         }
 
-        var fileContents = await REPL.getFileContents(filePath);
+        var fileContents = new TextDecoder().decode(new Uint8Array(await REPL.getFileContents(filePath)));
         if(fileContents == undefined){
             return; // RP2040 was busy
         }
@@ -442,6 +527,21 @@ function registerFilesystem(_container, state){
                 await REPL.buildPath(path.substring(0, path.lastIndexOf("/")) + "/" + newFolderName);
             }
             await REPL.getOnBoardFSTree();
+        }
+    }
+    FS.onDownloadFiles = async (fullFilePaths) => {
+        for(var i=0; i<fullFilePaths.length; i++){
+            var startOfFileName = fullFilePaths[i].lastIndexOf('/');
+            var fileName = "";
+            if(startOfFileName != -1){
+                fileName = fullFilePaths[i].substring(startOfFileName+1, fullFilePaths[i].length);
+            }else{
+                fileName = fullFilePaths[i];
+            }
+
+            var fileContents = await REPL.getFileContents(fullFilePaths[i], true);
+
+            window.downloadFileBytes(fileContents, fileName);
         }
     }
 }
@@ -477,6 +577,15 @@ function registerShell(_container, state){
 }
 
 
+
+var EMU;
+function registerEmulator(_container, state){
+    EMU = new EMULATOR(_container, state);
+    EMU.onData = (data) => ATERM.write(data);
+}
+
+
+
 // Editor module
 var EDITORS = {};
 var LAST_ACTIVE_EDITOR = undefined; // Each editor will set this to themselves on focus, bitmap builder uses this
@@ -506,7 +615,7 @@ function registerEditor(_container, state){
             console.log('Saved');
             editor.SAVED_TO_THUMBY = true;
             editor.updateTitleSaved();
-            var busy = await REPL.uploadFile(editor.EDITOR_PATH, editor.getValue(), true);
+            var busy = await REPL.uploadFile(editor.EDITOR_PATH, editor.getValue(), true, false);
             if(busy != true){
                 await REPL.getOnBoardFSTree();
                 window.setPercent(100);
@@ -551,11 +660,66 @@ function registerBitmapBuilder(_container, state){
 }
 
 
+
+ARCADE.onDownload = async (thumbyURL, binaryFileContents) => {
+    await REPL.uploadFile(thumbyURL, binaryFileContents, false, true);
+    await REPL.getOnBoardFSTree();
+}
+
+ARCADE.onOpen = async (thumbyURL, binaryFileContents) => {
+    if(thumbyURL.indexOf(".py") == -1 && thumbyURL.indexOf(".txt") == -1 && thumbyURL.indexOf(".text") == -1 && thumbyURL.indexOf(".cfg") == -1){
+        if(!confirm("Unrecognized file extension, are you sure you want to open this?\n\nClick 'cancel to download'")){
+            var blob = new Blob(binaryFileContents, {type: "text/txt" });
+            var url = URL.createObjectURL(blob);
+            var link = document.createElement('a');
+            link.download = thumbyURL.substring(thumbyURL.lastIndexOf('/')+1);
+            link.href = url;
+            link.click();
+            window.URL.revokeObjectURL(url);
+            return;
+        }
+    }
+
+    // Make sure no editors with this file path already exist
+    for (const [id, editor] of Object.entries(EDITORS)) {
+        if(editor.EDITOR_PATH == thumbyURL){
+            editor._container.parent.focus();
+            alert("This file is already open in Editor" + id + "! Please close it first");
+            return;
+        }
+    }
+
+    var fileContents = new TextDecoder().decode(binaryFileContents);
+    if(fileContents == undefined){
+        return; // RP2040 was busy
+    }
+
+    // Find editor with smallest ID, focus it, then add new editor with file contents
+    var currentId = Infinity;
+    for (const [id, editor] of Object.entries(EDITORS)) {
+        if(id < currentId){
+            currentId = id;
+        }
+    }
+    if(currentId != Infinity){
+        EDITORS[currentId]._container.parent.focus();
+    }
+
+    // Pass the file contents to the new editor using the state
+    var state = {};
+    state.value = fileContents;
+    state.path = thumbyURL;
+    myLayout.addComponent('Editor', state, 'Editor');
+}
+
+
+
 // Register Golden layout panels
 myLayout.registerComponentConstructor("Bitmap Builder", registerBitmapBuilder);
 myLayout.registerComponentConstructor("Filesystem", registerFilesystem);
 myLayout.registerComponentConstructor("Editor", registerEditor);
 myLayout.registerComponentConstructor("Shell", registerShell);
+myLayout.registerComponentConstructor("Emulator", registerEmulator);
 
 
 // Restore from previous layout if it exists, otherwise default
@@ -618,5 +782,35 @@ async function downloadFile(filePath) {
 
     return text_data;
 }
-
 window.downloadFile = downloadFile;
+
+
+function downloadFileBytes(data, fileName){
+    var a = document.createElement("a");
+    document.body.appendChild(a);
+    a.style = "display: none";
+
+    var blob = new Blob([new Uint8Array(data).buffer], {type: "octet/stream"});
+    var url = window.URL.createObjectURL(blob);
+    a.href = url;
+    a.download = fileName;
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+}
+window.downloadFileBytes = downloadFileBytes;
+
+
+async function sleep(tenms){
+
+    var tenmsCount = 0;
+    
+    while (true) {
+        tenmsCount = tenmsCount + 1;
+        if(tenmsCount >= tenms){
+            return;
+        }
+        await new Promise(resolve => setTimeout(resolve, 10));
+    }
+}
+window.sleep = sleep;

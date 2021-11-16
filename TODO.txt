@@ -83,11 +83,17 @@
 
 [x] Add back brief tooltips for all buttons and some UI elements {make sure to keep adding these for all new ui elements}
 
-[.] Add Beta to IDE in top needs actual font for 'beta'
+[x] Add Beta to IDE in top needs actual font for 'beta'
+
+[x] Make editor dropdown buttons need to be clicked so they are not in the way too often
+
+[x] Enabled Ace live auto completion and editor ext lang tools file for exact match only
+
+[x] Look into recording from the emulator, or at least screenshots
+
+[x] Build workflow for getting files onto Thumby better (binary, ascii, line endings) and about the best way to get them back from Thumby
 
 [.] Scrolling in editor can be slow {depends on extensions installed and what they do the site. Profile with Performance -> start record ctrl-e -> look at how long tasks take, probably an extension}
-
-[ ] Enabled Ace live auto completion and editor ext lang tools file for exact match only
 
 [ ] Clicked buttons lose their border
 
@@ -96,8 +102,6 @@
 [ ] Sometimes when opening files it won't get past raw then the next file to open will be replaced by the default code (very rare and old bug)
 
 [ ] Disable certain buttons if their actions are not usable at certain moments
-
-[ ] Make editor dropdown buttons need to be clicked so they are not in the way too often
 
 [ ] Running a program from the shell and then typing random characters that do not get consumed means an interrupt can't happen through shell or utility functions (power cycle ahs to be done)
 
@@ -135,3 +139,13 @@
 [x] Optimize emulator by turning opcodes if-else chain into switch blocks
 
 [x] Revert changes to repl file upload, line endings are not correct
+
+[ ] Look into how multiplayer/lan can be emulated (most likely over internet and connect to another browser if there is an in-between server)
+
+[ ] Handle emulator and thumby printing to same shell better
+
+[ ] Finish all progress bars
+
+[ ] Allow multiple files to be uploaded to the emulator at once
+
+[ ] Look into why files can't be created in emulator in MP

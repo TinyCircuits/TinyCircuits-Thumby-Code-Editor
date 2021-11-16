@@ -96,6 +96,12 @@ class DIRCHOOSER{
             this.FS_DROPDOWN_DIV.style.display = "none";
         });
 
+        document.addEventListener("keydown", (event) => {
+            if(this.FS_DROPDOWN_DIV.style.display != "none" && event.key == "Escape"){
+                this.WAITING_FOR_USER = -1;
+            }
+        })
+
 
         this.WAITING_FOR_USER = false;
         this.LAST_SELECTED_PATH = "";
@@ -120,7 +126,7 @@ class DIRCHOOSER{
 
 
     updateFinalPath(){
-        this.DIR_CHOOSER_FOOTER_OUTPUT.value = "FINAL PATH: " + this.LAST_SELECTED_PATH + "/" + this.DIR_CHOOSER_FOOTER_INPUT.value;
+        this.DIR_CHOOSER_FOOTER_OUTPUT.value = "FINAL PATH: " + this.LAST_SELECTED_PATH + this.DIR_CHOOSER_FOOTER_INPUT.value;
     }
 
 
@@ -145,7 +151,15 @@ class DIRCHOOSER{
 
 
 
-    async getPathFromUser(editorDiv){
+    async getPathFromUser(editorDiv, disableFileName = false){
+        if(disableFileName){
+            this.DIR_CHOOSER_FOOTER_INPUT.disabled = true;
+            this.DIR_CHOOSER_FOOTER_INPUT.style.backgroundColor = "lightgray";
+        }else{
+            this.DIR_CHOOSER_FOOTER_INPUT.disabled = false;
+            this.DIR_CHOOSER_FOOTER_INPUT.style.backgroundColor = "white";
+        }
+
         editorDiv.appendChild(this.DIR_CHOOSER_DIV);
         this.FS_ROOT = new TreeNode("\\");                                      // Start new tree from start/root
         if(this.LAST_JSON_DATA != undefined){
@@ -159,6 +173,7 @@ class DIRCHOOSER{
                 return undefined;
             }
         }else{
+            console.log("No filesystem, Thumby not connected");
             alert("No filesystem, Thumby not connected");
             return undefined;
         }
@@ -182,7 +197,7 @@ class DIRCHOOSER{
         // Assign event so that left clicked nodes can be opened in webpage
         treeNode.on("click", (event, node) => {
             this.FS_TREE.expandAllNodes();
-            this.LAST_SELECTED_PATH = this.getNodePath(node);
+            this.LAST_SELECTED_PATH = "/" + this.getNodePath(node);
             this.updateFinalPath();
             console.log(this.LAST_SELECTED_PATH);
         });
@@ -216,6 +231,11 @@ class DIRCHOOSER{
                     dirTreeNode.on("contextmenu", (event, node) => {
                         console.log("File/Dir right clicked");
 
+                        // Set this so new folders are created in the correct spot
+                        this.LAST_SELECTED_PATH = "/" + this.getNodePath(node);
+                        this.updateFinalPath();
+                        console.log(this.LAST_SELECTED_PATH);
+
                         // Show menu for renaming, moving, deleting files and move to cursor.
                         this.FS_DROPDOWN_DIV.style.display = "block";
                         this.FS_DROPDOWN_DIV.style.left = (event.clientX - 15) + 'px';
@@ -223,7 +243,6 @@ class DIRCHOOSER{
                         node.setSelected(true);
                         return false;
                     }, false);
-        
 
                     dirTreeNode.changeOption("forceParent", true);                                  // If node marked as dir then force it to be a dir
                     dirTreeNode.setEnabled(this.STATE);

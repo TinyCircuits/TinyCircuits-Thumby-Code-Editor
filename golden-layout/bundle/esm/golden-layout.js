@@ -5179,6 +5179,7 @@ class RowOrColumn extends _content_item__WEBPACK_IMPORTED_MODULE_0__.ContentItem
      * @internal
      */
     onSplitterDragStart(splitter) {
+        window.dispatchEvent(new Event("splitterDragStart"));
         const items = this.getItemsForSplitter(splitter);
         const minSize = this.layoutManager.layoutConfig.dimensions[this._isColumn ? 'minItemHeight' : 'minItemWidth'];
         const beforeMinDim = this.getMinimumDimensions(items.before.contentItems);
@@ -5221,6 +5222,7 @@ class RowOrColumn extends _content_item__WEBPACK_IMPORTED_MODULE_0__.ContentItem
      * @internal
      */
     onSplitterDragStop(splitter) {
+        window.dispatchEvent(new Event("splitterDragStop"));
         if (this._splitterPosition === null) {
             throw new _errors_internal_error__WEBPACK_IMPORTED_MODULE_2__.UnexpectedNullError('ROCOSDS66932');
         }

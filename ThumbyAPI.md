@@ -11,7 +11,7 @@
         * type: int
         * value: 40
 * ### Functions
-    * `thumby.display.update()` | draws result of the below drawing functions to the screen. Call this as little often as possible and after any drawing functions (e.g. `thumby.display.rect(...)`, `thumby.display.drawText(...)`, etc.). Returns None
+    * `thumby.display.update()` | draws result of the below drawing functions to the screen. Call this as little as possible and after any drawing functions (e.g. `thumby.display.rect(...)`, `thumby.display.drawText(...)`, etc.). Returns None
     * `thumby.display.fill(color)` | fills entire screen with `color`. Returns None
         * `color`
             * type: int

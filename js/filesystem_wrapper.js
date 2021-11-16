@@ -16,7 +16,7 @@ class FILESYSTEM{
         this.FS_ALL_DIV.appendChild(this.FS_AREA_DIV);
 
         this.FS_FOOTER_DIV = document.createElement("div");
-        this.FS_FOOTER_DIV.classList.add("fs_footer");
+        this.FS_FOOTER_DIV.classList = "fs_footer uk-button-group";
         this.FS_ALL_DIV.appendChild(this.FS_FOOTER_DIV);
 
         this.FS_REFORMAT_BTN = document.createElement("button");
@@ -26,18 +26,18 @@ class FILESYSTEM{
         this.FS_REFORMAT_BTN.classList.add("uk-width-1-1");
         this.FS_REFORMAT_BTN.onclick = () => {if(confirm("Are you sure? This will delete and replace all files on the Thumby")){this.onFormat()}};
         this.FS_REFORMAT_BTN.innerText = "FORMAT";
-        this.FS_REFORMAT_BTN.setAttribute("uk-tooltip", "delay: 500; pos: bottom-left; offset: 0; title: Erases all files on Thumby then reloads default library and game files");
+        this.FS_REFORMAT_BTN.title = "Erases all files on Thumby then reloads default library and game files";
         this.FS_FOOTER_DIV.appendChild(this.FS_REFORMAT_BTN);
 
-
-        // this.FS_REINSTALL_LIBS_BTN = document.createElement("button");
-        // this.FS_REINSTALL_LIBS_BTN.classList.add("uk-button");
-        // this.FS_REINSTALL_LIBS_BTN.classList.add("uk-button-secondary");
-        // this.FS_REINSTALL_LIBS_BTN.classList.add("uk-button-small");
-        // this.FS_REINSTALL_LIBS_BTN.classList.add("uk-width-1-1");
-        // this.FS_REINSTALL_LIBS_BTN.innerText = "Reformat Thumby"
-        // this.FS_REINSTALL_LIBS_BTN.innerText = "INSTALL LIBS"
-        // this.FS_FOOTER_DIV.appendChild(this.FS_REINSTALL_LIBS_BTN);
+        this.FS_UPLOAD_BTN = document.createElement("button");
+        this.FS_UPLOAD_BTN.classList.add("uk-button");
+        this.FS_UPLOAD_BTN.classList.add("uk-button-secondary");
+        this.FS_UPLOAD_BTN.classList.add("uk-button-small");
+        this.FS_UPLOAD_BTN.classList.add("uk-width-1-1");
+        this.FS_UPLOAD_BTN.onclick = () => {this.onUploadFiles()};
+        this.FS_UPLOAD_BTN.innerText = "UPLOAD FILES";
+        this.FS_UPLOAD_BTN.title = "Uploads files to Thumby (use this for text and binary files)";
+        this.FS_FOOTER_DIV.appendChild(this.FS_UPLOAD_BTN);
 
 
         this.FS_DROPDOWN_DIV = document.createElement("div");
@@ -54,7 +54,7 @@ class FILESYSTEM{
         this.FS_DROPDOWN_DELETE_BTN.classList = "uk-button uk-button-secondary uk-width-1-1";
         this.FS_DROPDOWN_DELETE_BTN.onclick = () => {this.onDelete(this.getSelectedNodePath()); this.FS_DROPDOWN_DIV.style.display = "none";};
         this.FS_DROPDOWN_DELETE_BTN.innerText = "Delete";
-        this.FS_DROPDOWN_DELETE_BTN.setAttribute("uk-tooltip", "delay: 500; pos: bottom-left; offset: 0; title: Deletes selected file or directory on Thumby");
+        this.FS_DROPDOWN_DELETE_BTN.title = "Deletes selected file or directory on Thumby";
         li.appendChild(this.FS_DROPDOWN_DELETE_BTN);
         this.FS_DROPDOWN_UL.appendChild(li);
 
@@ -63,7 +63,7 @@ class FILESYSTEM{
         this.FS_DROPDOWN_RENAME_BTN.classList = "uk-button uk-button-secondary uk-width-1-1";
         this.FS_DROPDOWN_RENAME_BTN.onclick = () => {this.onRename(this.getSelectedNodePath())};
         this.FS_DROPDOWN_RENAME_BTN.innerText = "Rename";
-        this.FS_DROPDOWN_RENAME_BTN.setAttribute("uk-tooltip", "delay: 500; pos: bottom-left; offset: 0; title: Renames selected file or directory on Thumby");
+        this.FS_DROPDOWN_RENAME_BTN.title = "Renames selected file or directory on Thumby";
         li.appendChild(this.FS_DROPDOWN_RENAME_BTN);
         this.FS_DROPDOWN_UL.appendChild(li);
 
@@ -72,8 +72,17 @@ class FILESYSTEM{
         this.FS_DROPDOWN_NEWFOLDER_BTN.classList = "uk-button uk-button-secondary uk-width-1-1";
         this.FS_DROPDOWN_NEWFOLDER_BTN.onclick = () => {this.onNewFolder(this.getSelectedNodeFileOrDir(), this.getSelectedNodePath())};
         this.FS_DROPDOWN_NEWFOLDER_BTN.innerText = "New Folder";
-        this.FS_DROPDOWN_NEWFOLDER_BTN.setAttribute("uk-tooltip", "delay: 500; pos: bottom-left; offset: 0; title: Creates new directory in same folder of file or under selected folder");
+        this.FS_DROPDOWN_NEWFOLDER_BTN.title = "Creates new directory in same folder of file or under selected folder";
         li.appendChild(this.FS_DROPDOWN_NEWFOLDER_BTN);
+        this.FS_DROPDOWN_UL.appendChild(li);
+
+        li = document.createElement("li");
+        this.FS_DROPDOWN_DOWNLOAD_BTN = document.createElement("button");
+        this.FS_DROPDOWN_DOWNLOAD_BTN.classList = "uk-button uk-button-secondary uk-width-1-1";
+        this.FS_DROPDOWN_DOWNLOAD_BTN.onclick = () => {this.downloadSelected(this.FS_TREE.getSelectedNodes()[0], this.getSelectedNodeFileOrDir(), this.getSelectedNodePath())};
+        this.FS_DROPDOWN_DOWNLOAD_BTN.innerText = "Download";
+        this.FS_DROPDOWN_DOWNLOAD_BTN.title = "Downloads selected items to computer (all files under directory will be downloaded)";
+        li.appendChild(this.FS_DROPDOWN_DOWNLOAD_BTN);
         this.FS_DROPDOWN_UL.appendChild(li);
 
 
@@ -99,6 +108,8 @@ class FILESYSTEM{
         this.onFormat = undefined;
         this.onOpen = undefined;
         this.onNewFolder = undefined;
+        this.onUploadFiles = undefined;
+        this.onDownloadFiles = undefined;
 
 
         // Make sure mouse click anywhere on panel focuses the panel
@@ -119,6 +130,29 @@ class FILESYSTEM{
         });
 
         this.DIR_CHOOSER_PATH = "";
+    }
+
+
+    // Recursively traverse the directory tree starting at the right-clicked dir and download all files
+    async downloadChildren(parent){
+        var childNodes = parent.getChildren();
+        
+        for(var c=0; c<childNodes.length; c++){
+            if(childNodes[c].getChildren().length > 0){
+                await this.downloadChildren(childNodes[c]);
+            }else{
+                await this.onDownloadFiles([this.getNodePath(childNodes[c])]);
+            }
+        }
+    }
+
+    async downloadSelected(selectedNode, isDir, fullPath){
+        // If directory, find all child nodes and download them, otherwise download single file
+        if(isDir){
+            await this.downloadChildren(selectedNode);
+        }else{
+            await this.onDownloadFiles([fullPath]);
+        }
     }
 
 
@@ -210,10 +244,7 @@ class FILESYSTEM{
                         }
                 
                         // Full path to root after this (removes three back slashes)
-                        path = path.substring(3);
-                        // var fileName = node.toString();
-                
-                        // this.CALLBACK_OPEN(path, fileName);
+                        path = "/" + path.substring(3);
                         this.onOpen(path);
                     });
 

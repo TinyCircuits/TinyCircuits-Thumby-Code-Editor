@@ -1,0 +1,119 @@
+.arcade_page_overlay{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(78, 78, 78, 0.4);
+    z-index: 1000;
+    display: none;
+}
+
+.arcade_overlay{
+    background-color: rgba(0, 0, 0, 0.0);
+    border: white solid 1px;
+    display: none;
+    z-index: 1005;
+    width: 40%;
+    height: 90%;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    flex-flow: column;
+}
+
+.arcade_header{
+    width: 100%;
+    height: 25px;
+    background-color: rgb(0, 0, 0);
+    border-bottom: white solid 1px;
+}
+
+.arcade_scroll_area{
+    background-color: rgba(46, 46, 46, 1.0);
+    width: 100%;
+    height: 100%;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+    border-bottom: white solid 1px;
+}
+
+.arcade_game{
+    position: relative;
+    background-color: rgba(0, 0, 0, 0);
+    border: gray;
+    width: 85%;
+    aspect-ratio: 1/1;
+    margin: auto;
+    margin-bottom: 15%;
+    transform: translate(0, 10%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.arcade_banner_parent{
+    background-color: rgb(31, 31, 31);
+    border: gray 1px solid;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.arcade_image_banner{
+    image-rendering: optimizeQuality;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: -o-crisp-edges;
+    image-rendering: pixelated;
+    -ms-interpolation-mode: nearest-neighbor;
+}
+
+
+.arcade_game_transition_parent{
+    background-color: rgba(0, 0, 0, 0);
+    color: white;
+    display: flex;
+    flex-flow: column;
+}
+
+.arcade_game_text_scroll_parent{
+    background-color: rgb(22, 22, 22);
+    height: 85%;
+    width: 100%;
+    overflow-y: auto;
+    outline: gray solid 1px;
+    border-top: gray solid 1px;
+}
+
+.arcade_game_text_scroll_area{
+    background-color: transparent;
+    height: auto;
+    width: 90%;
+    font-family: Roboto;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 2.5%;
+}
+
+.arcade_game_button_area{
+    background-color: lightseagreen;
+    width: 100%;
+    height: 15%;
+}
+
+.arcade_name_div{
+    position: absolute;
+    background-color: rgba(71, 35, 67, 0.25);
+    color: white;
+    font-family: Roboto;
+    font-size: 25px;
+    width: 100%;
+    height: 50px;
+    bottom: 0;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 50px;  /* The same as div height */
+}

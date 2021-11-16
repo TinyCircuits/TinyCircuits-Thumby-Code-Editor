@@ -21,6 +21,8 @@
         <link rel="stylesheet" href="css/dark/shell-dark.css">
         <link rel="stylesheet" href="css/dark/editor-dark.css">
         <link rel="stylesheet" href="css/dark/emulator-dark.css">
+        <link rel="stylesheet" href="css/dark/changelog-dark.css">
+        <link rel="stylesheet" href="css/dark/arcade-dark.css">
 
         <link rel="stylesheet" href="js/treejs/treejs.css" />
 
@@ -31,6 +33,11 @@
     </head>
 
     <body>
+        <div id="IDChangelog" class="changelog">
+            <button id="IDChnagelogExitBtn" class="changelog_exit_btn" uk-icon="icon: close"></button>
+            <div id="IDChangelogText" class="changelog_text"></div>
+        </div>
+
         <div id="IDPageWrapper" class="page_wrapper">
             <div id="IDPageHeader" class="header">
 
@@ -45,54 +52,58 @@
                         <!-- <button class="uk-button uk-button-secondary uk-width-small" type="button">&#9662</button> -->
                         <div uk-dropdown="mode: click; boundary: ! .uk-button-group; boundary-align: true;"></div>
 
-                        <button id="IDConnectThumbyBTN" uk-tooltip="delay: 500; pos: bottom-left; offset: 0; title: Connect Thumby to page manually, or automatically if connected before" class="uk-button uk-button-secondary uk-width-1-1 uk-height-1-1 uk-text-small uk-text-nowrap" uk-icon="shrink">Connect Thumby</button>
-                        <button id="IDDisconnectThumbyBTN" uk-tooltip="delay: 500; pos: bottom-left; offset: 0; title: Disconnect Thumby from page" class="uk-button uk-button-secondary uk-width-1-1 uk-height-1-1 uk-text-small uk-text-nowrap" uk-icon="expand">Disconnect Thumby</button>
-                        <button id="IDNewGameBTN" uk-tooltip="delay: 500; pos: bottom-left; offset: 0; title: Generates file structure needed for getting a game to show up on the Thumby start-up screen" class="uk-button uk-button-secondary uk-width-1-1 uk-height-1-1 uk-text-small uk-text-nowrap">Make New Game</button>
+                        <button id="IDConnectThumbyBTN" title="Connect Thumby to page manually, or automatically if connected before" class="uk-button uk-button-secondary uk-width-1-1 uk-height-1-1 uk-text-small uk-text-nowrap" uk-icon="shrink">Connect Thumby</button>
+                        <button id="IDDisconnectThumbyBTN" title="Disconnect Thumby from page" class="uk-button uk-button-secondary uk-width-1-1 uk-height-1-1 uk-text-small uk-text-nowrap" uk-icon="expand">Disconnect Thumby</button>
+                        <button id="IDNewGameBTN" title="Generates file structure needed for getting a game to show up on the Thumby start-up screen" class="uk-button uk-button-secondary uk-width-1-1 uk-height-1-1 uk-text-small uk-text-nowrap">Make New Game</button>
 
-                        <button uk-tooltip="delay: 500; pos: bottom-left; offset: 0; title: Common utilities for firmware, page layout, page state, theme, and widgets" class="uk-button uk-button-secondary uk-width-1-1 uk-height-1-1 uk-text-small uk-text-nowrap" type="button">Utilities&#9662</button>
-                        <div uk-dropdown="offset: 0; mode: click">
+                        <button id="IDArcadeBTN" title="Opens overlay for browsing community made games" class="uk-button uk-button-secondary uk-width-1-1 uk-height-1-1 uk-text-small uk-text-nowrap">Arcade</button>
+
+                        <button id="IDUtilites" title="Common utilities for firmware, page layout, page state, theme, and widgets" class="uk-button uk-button-secondary uk-width-1-1 uk-height-1-1 uk-text-small uk-text-nowrap" type="button">Utilities&#9662</button>
+                        <div id="IDUtilitesDropdown" uk-dropdown="offset: 0; mode: click; delay-hide: 200">
                             <ul class="uk-nav uk-dropdown-nav">
-                                <li><button uk-tooltip="delay: 500; pos: bottom-left; offset: 0; title: Downloads firmware for reformatting Thumby, follow the below steps <br> 1. Turn on Thumby <br> 2. Hold down bottom-left or down d-pad button <br> 3. Turn Thumby back off while holding button, keep holding for 3s <br> 4. Turn Thumby back on and release button <br> 5. Download firmware .uf2 file by clicking this button <br> 6. Drag .uf2 file to Thumby RP2040 volume using a file explorer <br> 7. Press 'Format' in the filesystem widget" onclick="window.open('https://micropython.org/resources/firmware/rp2-pico-20210902-v1.17.uf2');" class="uk-button uk-button-secondary uk-width-1-1 uk-height-1-1">Download Firmware</button></li>
-                                <li><button uk-tooltip="delay: 500; pos: bottom-left; offset: 0; title: Resets all widget positions, refreshes page" id="IDResetLayoutBTN" class="uk-button uk-button-secondary uk-width-1-1 uk-height-1-1">Reset Layout</button></li>
-                                <li><button uk-tooltip="delay: 500; pos: bottom-left; offset: 0; title: Erases/closes all editors and bitmap builder then refreshes page" id="IDHardResetBTN" class="uk-button uk-button-secondary uk-width-1-1 uk-height-1-1">Hard Reset Page</button></li>
-                                <li><button uk-tooltip="delay: 500; pos: bottom-left; offset: 0; title: Toggles page theme between light and dark" id="IDInvertThemeBTN" class="uk-button uk-button-secondary uk-width-1-1 uk-height-1-1">Invert Theme</button></li>
+                                <li><button title="Downloads firmware for reformatting Thumby, follow the below steps &#10; 1. Turn on Thumby &#10; 2. Hold down bottom-left or down d-pad button &#10; 3. Turn Thumby back off while holding button, keep holding for 3s &#10; 4. Turn Thumby back on and release button &#10; 5. Download firmware .uf2 file by clicking this button &#10; 6. Drag .uf2 file to Thumby RP2040 volume using a file explorer &#10; 7. Press 'Format' in the filesystem widget" onclick="window.open('https://micropython.org/resources/firmware/rp2-pico-20210902-v1.17.uf2');" class="uk-button uk-button-secondary uk-width-1-1 uk-height-1-1">Download Firmware</button></li>
+                                <li><button title="Resets all widget positions, refreshes page" id="IDResetLayoutBTN" class="uk-button uk-button-secondary uk-width-1-1 uk-height-1-1">Reset Layout</button></li>
+                                <li><button title="Erases/closes all editors and bitmap builder then refreshes page" id="IDHardResetBTN" class="uk-button uk-button-secondary uk-width-1-1 uk-height-1-1">Hard Reset Page</button></li>
+                                <li><button title="Toggles page theme between light and dark" id="IDInvertThemeBTN" class="uk-button uk-button-secondary uk-width-1-1 uk-height-1-1">Invert Theme</button></li>
                                 <li class="uk-nav-divider"></li>
 
-                                <button uk-tooltip="delay: 500; pos: bottom-left; offset: 0; title: Buttons for adding back any panel" class="uk-button uk-button-secondary uk-width-1-1 uk-height-1-1">Widgets&#9662</button>
-                                <div uk-dropdown="offset: 0">
+                                <button title="Buttons for adding back any panel" class="uk-button uk-button-secondary uk-width-1-1 uk-height-1-1">Widgets&#9662</button>
+                                <div uk-dropdown="offset: 0; mode: click">
                                     <ul class="uk-nav uk-dropdown-nav">
-                                        <li><button uk-tooltip="delay: 500; pos: bottom-left; offset: 0; title: Adds a code editor panel" id="IDAddEditorBTN" class="uk-button uk-button-secondary uk-width-1-1 uk-height-1-1 uk-text-nowrap uk-text-left">+ Editor</button></li>
+                                        <li><button title="Adds a code editor panel" id="IDAddEditorBTN" class="uk-button uk-button-secondary uk-width-1-1 uk-height-1-1 uk-text-nowrap uk-text-left">+ Editor</button></li>
                                         <!-- <li class="uk-nav-divider"></li> -->
-                                        <li><button uk-tooltip="delay: 500; pos: bottom-left; offset: 0; title: Adds a bitmap builder panel (only one can be open at a time)" id="IDAddBitmapBuilder" class="uk-button uk-button-secondary uk-width-1-1 uk-height-1-1 uk-text-nowrap uk-text-left">+ Bitmap Builder</button></li>
+                                        <li><button title="Adds a bitmap builder panel (only one can be open at a time)" id="IDAddBitmapBuilder" class="uk-button uk-button-secondary uk-width-1-1 uk-height-1-1 uk-text-nowrap uk-text-left">+ Bitmap Builder</button></li>
                                         <!-- <li class="uk-nav-divider"></li> -->
-                                        <li><button uk-tooltip="delay: 500; pos: bottom-left; offset: 0; title: Adds a filesystem panel (only one can be open at a time)" id="IDAddFS" class="uk-button uk-button-secondary uk-width-1-1 uk-height-1-1 uk-text-nowrap uk-text-left">+ Filesystem</button></li>
+                                        <li><button title="Adds a filesystem panel (only one can be open at a time)" id="IDAddFS" class="uk-button uk-button-secondary uk-width-1-1 uk-height-1-1 uk-text-nowrap uk-text-left">+ Filesystem</button></li>
                                         <!-- <li class="uk-nav-divider"></li> -->
-                                        <li><button uk-tooltip="delay: 500; pos: bottom-left; offset: 0; title: Adds a shell panel (only one can be open at a time)" id="IDAddShell" class="uk-button uk-button-secondary uk-width-1-1 uk-height-1-1 uk-text-nowrap uk-text-left">+ Shell</button></li>
+                                        <li><button title="Adds a shell panel (only one can be open at a time)" id="IDAddShell" class="uk-button uk-button-secondary uk-width-1-1 uk-height-1-1 uk-text-nowrap uk-text-left">+ Shell</button></li>
+                                        <!-- <li class="uk-nav-divider"></li> -->
+                                        <li><button title="Adds a emulator panel (only one can be open at a time)" id="IDAddEmulator" class="uk-button uk-button-secondary uk-width-1-1 uk-height-1-1 uk-text-nowrap uk-text-left">+ Emulator</button></li>
                                     </ul>
                                 </div>
 
                             </ul>
                         </div>
-
                     </div>
                 </div>
 
                 <div class="header_link_space">
                     <div class="uk-button-group uk-width-1-1 uk-height-1-1">
-                        <button uk-tooltip="delay: 500; pos: bottom-left; offset: 0; title: Opens link in new tab" onclick="window.open('https://tinycircuits.com/blogs/thumby/building-a-game-with-the-thumby-ide', '_blank');" class="uk-button-default uk-link-text uk-width-1-1 uk-height-1-1">Tutorial</button>
-                        <button uk-tooltip="delay: 500; pos: bottom-left; offset: 0; title: Opens link in new tab" onclick="window.open('https://github.com/TinyCircuits/tinycircuits.github.io/blob/master/ThumbyAPI.md', '_blank');" class="uk-button-default uk-link-text uk-width-1-1 uk-height-1-1">Thumby API</button>
-                        <button uk-tooltip="delay: 500; pos: bottom-left; offset: 0; title: Opens link in new tab" onclick="window.open('https://thumby.us/', '_blank');" class="uk-button-default uk-link-text uk-width-1-1 uk-height-1-1 link_button">Thumby Website</button>
-                        
+                        <button title="Opens link in new tab" onclick="window.open('https://tinycircuits.com/blogs/thumby/building-a-game-with-the-thumby-ide', '_blank');" class="uk-button-default uk-link-text uk-width-1-1 uk-height-1-1">Tutorial</button>
+                        <button title="Opens link in new tab" onclick="window.open('https://github.com/TinyCircuits/tinycircuits.github.io/blob/master/ThumbyAPI.md', '_blank');" class="uk-button-default uk-link-text uk-width-1-1 uk-height-1-1">Thumby API</button>
+                        <button title="Opens link in new tab" onclick="window.open('https://github.com/TinyCircuits/TinyCircuits-Thumby-Games', '_blank');" class="uk-button-default uk-link-text uk-width-1-1 uk-height-1-1 link_button">Add Game To Arcade</button>
+
                         <button class="uk-button-default uk-link-text uk-width-1-1 uk-height-1-1 link_button" type="button">Other Links&#9662</button>
-                        <div uk-dropdown="offset: 0">
+                        <div uk-dropdown="offset: 0; delay-hide: 200">
                             <ul class="uk-nav uk-dropdown-nav">
-                                <li><button uk-tooltip="delay: 500; pos: bottom-left; offset: 0; title: Opens link in new tab. Found a bug with the page? Report it!" onclick="window.open('https://github.com/TinyCircuits/tinycircuits.github.io/issues', '_blank');" class="uk-button-default uk-link-text uk-width-1-1 uk-height-1-1 link_button" style="height:40px">Report a bug</button></li>
-                                <li><button uk-tooltip="delay: 500; pos: bottom-left; offset: 0; title: Opens link in new tab" onclick="window.open('http://forum.tinycircuits.com/index.php', '_blank');" class="uk-button-default uk-link-text uk-width-1-1 uk-height-1-1 link_button" style="height:40px">Forums</button></li>
-                                <li><button uk-tooltip="delay: 500; pos: bottom-left; offset: 0; title: Opens link in new tab" onclick="window.open('https://tinycircuits.com/', '_blank');" class="uk-button-default uk-link-text uk-width-1-1 uk-height-1-1 link_button" style="height:40px">Store</button></li>
-                                <li><button uk-tooltip="delay: 500; pos: bottom-left; offset: 0; title: Opens link in new tab" onclick="window.open('https://tinycircuits.com/pages/contact-us', '_blank');" class="uk-button-default uk-link-text uk-width-1-1 uk-height-1-1 link_button" style="height:40px">Contact Us</button></li>
+                                <button title="Opens link in new tab" onclick="window.open('https://thumby.us/', '_blank');" class="uk-button-default uk-link-text uk-width-1-1 uk-height-1-1 link_button" style="height:40px">Thumby Website</button>
+                                <li><button title="Opens link in new tab. Found a bug with the page? Report it!" onclick="window.open('https://github.com/TinyCircuits/tinycircuits.github.io/issues', '_blank');" class="uk-button-default uk-link-text uk-width-1-1 uk-height-1-1 link_button" style="height:40px">Report a bug</button></li>
+                                <li><button title="Opens link in new tab" onclick="window.open('http://forum.tinycircuits.com/index.php', '_blank');" class="uk-button-default uk-link-text uk-width-1-1 uk-height-1-1 link_button" style="height:40px">Forums</button></li>
+                                <li><button title="Opens link in new tab" onclick="window.open('https://tinycircuits.com/', '_blank');" class="uk-button-default uk-link-text uk-width-1-1 uk-height-1-1 link_button" style="height:40px">Store</button></li>
+                                <li><button title="Opens link in new tab" onclick="window.open('https://tinycircuits.com/pages/contact-us', '_blank');" class="uk-button-default uk-link-text uk-width-1-1 uk-height-1-1 link_button" style="height:40px">Contact Us</button></li>
                             </ul>
                         </div>
-                        <button class="uk-button-default uk-link-text uk-width-1-1 uk-height-1-1 link_button">Version: 10.28.2021_1</button>
+                        <button class="uk-button-default uk-link-text uk-width-1-1 uk-height-1-1 link_button">Version: 11.16.2021_1</button>
 
                     </div>
                 </div>
@@ -123,6 +134,7 @@
         <script src="js/active_terminal_wrapper.js"></script>
         <script src="js/bitmap_builder.js"></script>
         <script src="js/repl.js"></script>
+        <script src="js/arcade.js"></script>
         <script type="module" src="golden-layout/bundle/esm/golden-layout.js"></script>
         <script type="module" src="js/main.js"></script>
     </body>

@@ -33,11 +33,11 @@ class EditorWrapper{
         this.FILE_BUTTON = document.createElement("button");
         this.FILE_BUTTON.classList = "uk-button uk-button-primary uk-height-1-1 uk-text-small uk-text-nowrap";
         this.FILE_BUTTON.textContent = "File\u25BE";
-        this.FILE_BUTTON.setAttribute("uk-tooltip", "delay: 500; pos: bottom-left; offset: 0; title: File operations for PC and Thumby");
+        this.FILE_BUTTON.title = "File operations for PC and Thumby";
         this.HEADER_TOOLBAR_DIV.appendChild(this.FILE_BUTTON);
 
         this.FILE_DROPDOWN = document.createElement("div");
-        this.FILE_DROPDOWN.setAttribute("uk-dropdown", "mode: click; offset: 0");
+        this.FILE_DROPDOWN.setAttribute("uk-dropdown", "mode: click; offset: 0; delay-hide: 200");
         this.HEADER_TOOLBAR_DIV.appendChild(this.FILE_DROPDOWN);
 
         this.FILE_DROPDOWN_UL = document.createElement("div");
@@ -48,7 +48,7 @@ class EditorWrapper{
         this.FILE_EXPORT_BUTTON = document.createElement("button");
         this.FILE_EXPORT_BUTTON.classList = "uk-button uk-button-primary uk-width-1-1 uk-height-1-1 uk-text-nowrap";
         this.FILE_EXPORT_BUTTON.textContent = "Export to PC";
-        this.FILE_EXPORT_BUTTON.setAttribute("uk-tooltip", "delay: 500; pos: bottom-left; offset: 0; title: Export editor contents to file on PC");
+        this.FILE_EXPORT_BUTTON.title = "Export editor contents to file on PC";
         this.FILE_EXPORT_BUTTON.onclick = () => {this.exportFileAs()}
         listElem.appendChild(this.FILE_EXPORT_BUTTON);
         this.FILE_DROPDOWN_UL.appendChild(listElem);
@@ -57,7 +57,7 @@ class EditorWrapper{
         this.FILE_IMPORT_BUTTON = document.createElement("button");
         this.FILE_IMPORT_BUTTON.classList = "uk-button uk-button-primary uk-width-1-1 uk-height-1-1 uk-text-nowrap";
         this.FILE_IMPORT_BUTTON.textContent = "Import from PC";
-        this.FILE_IMPORT_BUTTON.setAttribute("uk-tooltip", "delay: 500; pos: bottom-left; offset: 0; title: Import editor contents from file on PC");
+        this.FILE_IMPORT_BUTTON.title = "Import editor contents from file on PC";
         this.FILE_IMPORT_BUTTON.onclick = () => {this.openFile()}
         listElem.appendChild(this.FILE_IMPORT_BUTTON);
         this.FILE_DROPDOWN_UL.appendChild(listElem);
@@ -66,7 +66,7 @@ class EditorWrapper{
         this.FILE_SAVE_BUTTON = document.createElement("button");
         this.FILE_SAVE_BUTTON.classList = "uk-button uk-button-primary uk-width-1-1 uk-height-1-1 uk-text-nowrap";
         this.FILE_SAVE_BUTTON.textContent = "Save to Thumby";
-        this.FILE_SAVE_BUTTON.setAttribute("uk-tooltip", "delay: 500; pos: bottom-left; offset: 0; title: Save editor contents to file on Thumby (ctrl-s)");
+        this.FILE_SAVE_BUTTON.title = "Save editor contents to file on Thumby (ctrl-s)";
         this.FILE_SAVE_BUTTON.onclick = () => {this.onSaveToThumby()};
         listElem.appendChild(this.FILE_SAVE_BUTTON);
         this.FILE_DROPDOWN_UL.appendChild(listElem);
@@ -75,7 +75,7 @@ class EditorWrapper{
         this.FILE_SAVEAS_BUTTON = document.createElement("button");
         this.FILE_SAVEAS_BUTTON.classList = "uk-button uk-button-primary uk-width-1-1 uk-height-1-1 uk-text-nowrap";
         this.FILE_SAVEAS_BUTTON.textContent = "Save As to Thumby";
-        this.FILE_SAVEAS_BUTTON.setAttribute("uk-tooltip", "delay: 500; pos: bottom-left; offset: 0; title: Save editor contents to file on Thumby under a specific path");
+        this.FILE_SAVEAS_BUTTON.title = "Save editor contents to file on Thumby under a specific path";
         this.FILE_SAVEAS_BUTTON.onclick = () => {this.onSaveAsToThumby()};
         listElem.appendChild(this.FILE_SAVEAS_BUTTON);
         this.FILE_DROPDOWN_UL.appendChild(listElem);
@@ -88,13 +88,13 @@ class EditorWrapper{
         this.FILE_EXAMPLES_BUTTON = document.createElement("button");
         this.FILE_EXAMPLES_BUTTON.classList = "uk-button uk-button-primary uk-width-1-1 uk-height-1-1 uk-text-nowrap";
         this.FILE_EXAMPLES_BUTTON.textContent = "Examples\u25BE";
-        this.FILE_EXAMPLES_BUTTON.setAttribute("uk-tooltip", "delay: 500; pos: bottom-left; offset: 0; title: Various MicroPython examples");
+        this.FILE_EXAMPLES_BUTTON.title = "Various MicroPython examples";
         listElem.appendChild(this.FILE_EXAMPLES_BUTTON);
         this.FILE_DROPDOWN_UL.appendChild(listElem);
 
 
         this.EXAMPLES_DROPDOWN_DIV = document.createElement("div");
-        this.EXAMPLES_DROPDOWN_DIV.setAttribute("uk-dropdown", "offset: 0");
+        this.EXAMPLES_DROPDOWN_DIV.setAttribute("uk-dropdown", "offset: 0; mode: click");
         this.FILE_DROPDOWN_UL.appendChild(this.EXAMPLES_DROPDOWN_DIV);
 
         this.EXAMPLES_DROPDOWN_UL = document.createElement("ul");
@@ -154,11 +154,11 @@ class EditorWrapper{
         this.VIEW_BUTTON = document.createElement("button");
         this.VIEW_BUTTON.classList = "uk-button uk-button-primary uk-height-1-1 uk-text-small uk-text-nowrap";
         this.VIEW_BUTTON.textContent = "View\u25BE";
-        this.VIEW_BUTTON.setAttribute("uk-tooltip", "delay: 500; pos: bottom-left; offset: 0; title: View settings");
+        this.VIEW_BUTTON.title = "View settings";
         this.HEADER_TOOLBAR_DIV.appendChild(this.VIEW_BUTTON);
 
         this.VIEW_DROPDOWN = document.createElement("div");
-        this.VIEW_DROPDOWN.setAttribute("uk-dropdown", "mode: click; offset: 0");
+        this.VIEW_DROPDOWN.setAttribute("uk-dropdown", "mode: click; offset: 0; delay-hide: 200");
         this.HEADER_TOOLBAR_DIV.appendChild(this.VIEW_DROPDOWN);
 
         this.VIEW_DROPDOWN_UL = document.createElement("div");
@@ -169,7 +169,7 @@ class EditorWrapper{
         this.VIEW_INC_FONT_BUTTON = document.createElement("button");
         this.VIEW_INC_FONT_BUTTON.classList = "uk-button uk-button-primary uk-width-1-1 uk-height-1-1 uk-text-nowrap";
         this.VIEW_INC_FONT_BUTTON.textContent = "Increase Font";
-        this.VIEW_INC_FONT_BUTTON.setAttribute("uk-tooltip", "delay: 500; pos: bottom-left; offset: 0; title: Increase editor font size");
+        this.VIEW_INC_FONT_BUTTON.title = "Increase editor font size";
         this.VIEW_INC_FONT_BUTTON.onclick = () => {this.increaseFontSize()};
         listElem.appendChild(this.VIEW_INC_FONT_BUTTON);
         this.VIEW_DROPDOWN_UL.appendChild(listElem);
@@ -178,7 +178,7 @@ class EditorWrapper{
         this.VIEW_DEC_FONT_BUTTON = document.createElement("button");
         this.VIEW_DEC_FONT_BUTTON.classList = "uk-button uk-button-primary uk-width-1-1 uk-height-1-1 uk-text-nowrap";
         this.VIEW_DEC_FONT_BUTTON.textContent = "Decrease Font";
-        this.VIEW_DEC_FONT_BUTTON.setAttribute("uk-tooltip", "delay: 500; pos: bottom-left; offset: 0; title: Decrease editor font size");
+        this.VIEW_DEC_FONT_BUTTON.title = "Decrease editor font size";
         this.VIEW_DEC_FONT_BUTTON.onclick = () => {this.decreaseFontSize()};
         listElem.appendChild(this.VIEW_DEC_FONT_BUTTON);
         this.VIEW_DROPDOWN_UL.appendChild(listElem);
@@ -187,7 +187,7 @@ class EditorWrapper{
         this.VIEW_RESET_FONT_BUTTON = document.createElement("button");
         this.VIEW_RESET_FONT_BUTTON.classList = "uk-button uk-button-primary uk-width-1-1 uk-height-1-1 uk-text-nowrap";
         this.VIEW_RESET_FONT_BUTTON.textContent = "Reset Font Size";
-        this.VIEW_RESET_FONT_BUTTON.setAttribute("uk-tooltip", "delay: 500; pos: bottom-left; offset: 0; title: Reset font to default");
+        this.VIEW_RESET_FONT_BUTTON.title = "Reset font to default";
         this.VIEW_RESET_FONT_BUTTON.onclick = () => {this.resetFontSize()};
         listElem.appendChild(this.VIEW_RESET_FONT_BUTTON);
         this.VIEW_DROPDOWN_UL.appendChild(listElem);
@@ -196,7 +196,7 @@ class EditorWrapper{
         this.VIEW_AUTOCOMPLETE_BUTTON = document.createElement("button");
         this.VIEW_AUTOCOMPLETE_BUTTON.classList = "uk-button uk-button-primary uk-width-1-1 uk-height-1-1 uk-text-nowrap";
         this.VIEW_AUTOCOMPLETE_BUTTON.textContent = "Turn live autocomplete ...";
-        this.VIEW_AUTOCOMPLETE_BUTTON.setAttribute("uk-tooltip", "delay: 500; pos: bottom-left; offset: 0; title: When turned off, basic autocomplete can be accessed using left-ctrl + space. Affects all editors");
+        this.VIEW_AUTOCOMPLETE_BUTTON.title = "When turned off, basic autocomplete can be accessed using left-ctrl + space. Affects all editors";
         this.VIEW_AUTOCOMPLETE_BUTTON.onclick = () => {this.toggleAutocompleteStateForAll()};
         listElem.appendChild(this.VIEW_AUTOCOMPLETE_BUTTON);
         this.VIEW_DROPDOWN_UL.appendChild(listElem);
@@ -205,7 +205,7 @@ class EditorWrapper{
         this.FAST_EXECUTE_BUTTON = document.createElement("button");
         this.FAST_EXECUTE_BUTTON.classList = "uk-button uk-button-primary uk-height-1-1 uk-text-small uk-text-nowrap";
         this.FAST_EXECUTE_BUTTON.textContent = "\u21bb Fast Execute";
-        this.FAST_EXECUTE_BUTTON.setAttribute("uk-tooltip", "delay: 500; pos: bottom-left; offset: 0; title: Execute editor contents at root '/' of Thumby");
+        this.FAST_EXECUTE_BUTTON.title = "Execute editor contents at root '/' of Thumby";
         this.FAST_EXECUTE_BUTTON.onclick = () => {this.onFastExecute(this.getValue())};
         this.HEADER_TOOLBAR_DIV.appendChild(this.FAST_EXECUTE_BUTTON);
 
@@ -213,7 +213,7 @@ class EditorWrapper{
         this.EMULATE_BUTTON = document.createElement("button");
         this.EMULATE_BUTTON.classList = "uk-button uk-button-primary uk-height-1-1 uk-text-small uk-text-nowrap";
         this.EMULATE_BUTTON.textContent = "Emulate";
-        this.EMULATE_BUTTON.setAttribute("uk-tooltip", "delay: 500; pos: bottom-left; offset: 0; title: Run editor contents in emulator");
+        this.EMULATE_BUTTON.title = "Run editor contents in emulator";
         this.EMULATE_BUTTON.onclick = () => {this.onEmulate(this.getValue())};
         this.HEADER_TOOLBAR_DIV.appendChild(this.EMULATE_BUTTON);
 
@@ -224,10 +224,20 @@ class EditorWrapper{
         this._container.element.appendChild(this.EDITOR_DIV);
 
 
-        // // Listen for window resize event and re-fit terminal
+        // Make the dropdowns disappear if the mouse leaves (mode click doesn't do that)
+        this.FILE_DROPDOWN.addEventListener("mouseleave", () => {
+            UIkit.dropdown(this.FILE_DROPDOWN).hide();
+        })
+
+        this.VIEW_DROPDOWN.addEventListener("mouseleave", () => {
+            UIkit.dropdown(this.VIEW_DROPDOWN).hide();
+        })
+
+
+        // Listen for window resize event and re-fit terminal
         window.addEventListener('resize', this.resize.bind(this));
 
-            // Listen for layout resize event and re-fit terminal
+        // Listen for layout resize event and re-fit terminal
         this._container._layoutManager.on('stateChanged', () => {
             this.resize();
 
@@ -563,9 +573,17 @@ class EditorWrapper{
         const file = await fileHandle.getFile();
         var code = await file.text();
 
+        this.CURRENT_FILE_NAME = file.name;
+
+        // See this.FILE_OPTIONS 'text/python': ['.py'], 'text/plain': ['.txt', '.text', '.cfg']
+        if(file.name.indexOf(".py") == -1 && file.name.indexOf(".txt") == -1 && file.name.indexOf(".text") == -1 && file.name.indexOf(".cfg") == -1){
+            if(!confirm("Unrecognized file extension, are you sure you want to import this?\n\nTry using the filesystem upload button instead")){
+                return;
+            }
+        }
+
         this.ACE_EDITOR.setValue(code, 1);
 
-        this.CURRENT_FILE_NAME = file.name;
         console.log(this.ELEM_ID + "Name");
         localStorage.setItem(this.ELEM_ID + "Name", this.CURRENT_FILE_NAME);
 

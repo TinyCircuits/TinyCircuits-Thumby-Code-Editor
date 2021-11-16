@@ -11,11 +11,13 @@ class ReplJS{
         this.USB_PRODUCT_ID = 5;    // For filtering ports during auto or manual selection
 
         // https://github.com/micropython/micropython/blob/master/tools/pyboard.py#L444 need to only send 256 bytes each time
-        // Account for extra bytes: write("b") = 10 at some point as well as \x0x
-        this.THUMBY_SEND_BLOCK_SIZE = 256;  // How many bytes to send to Thumby at a time when uploading a file to it
+        this.THUMBY_SEND_BLOCK_SIZE = 255;  // How many bytes to send to Thumby at a time when uploading a file to it
 
         // Set true so most terminal output gets passed to javascript terminal
         this.DEBUG_CONSOLE_ON = true;
+
+        this.COLLECT_RAW_DATA = false;
+        this.COLLECTED_RAW_DATA = [];
 
         // Used to stop interaction with the RP2040
         this.BUSY = false;
@@ -95,6 +97,16 @@ class ReplJS{
     }
 
 
+    startCollectRawData(){
+        this.COLLECT_RAW_DATA = true;
+        this.COLLECTED_RAW_DATA = [];
+    }
+
+    endCollectRawData(){
+        this.COLLECT_RAW_DATA = false;
+    }
+
+
     startReaduntil(str){
         this.READ_UNTIL_STRING = str;
         this.COLLECTED_DATA = "";
@@ -135,8 +147,6 @@ class ReplJS{
         while (this.DISCONNECT == false) {
             var tempLines = this.COLLECTED_DATA.split('\r\n');
 
-            // console.log(this.READ_UNTIL_STRING);
-
             for(var i=0; i<tempLines.length; i++){
                 if(tempLines[i] == this.READ_UNTIL_STRING || this.READ_UNTIL_STRING == "" || tempLines[i].indexOf(this.READ_UNTIL_STRING) != -1
                   || tempLines[i] == ">"){ // Keyboard interrupt
@@ -152,10 +162,9 @@ class ReplJS{
                         }
                     }
 
-                    return tempLines.slice(0, i+omitOffset);    // Return all lines collected just before the line that switch off haltUntil()
+                    return tempLines.slice(0, i+omitOffset);    // Return all lines collected just before the line that switched off haltUntil()
                 }
             }
-
             await new Promise(resolve => setTimeout(resolve, 85));
         }
     }
@@ -181,7 +190,7 @@ class ReplJS{
                         break;
                     }
                     if (value) {
-                        // Reading from serial is done in chunks of a inconsistent/unguaranteed size,
+                        // Reading from serial is done in chunks of a inconsistent/non-guaranteed size,
                         if(this.DEBUG_CONSOLE_ON) console.log(this.TEXT_DECODER.decode(value));
 
                         // Collect lines when read until active, otherwise, output to terminal
@@ -192,6 +201,13 @@ class ReplJS{
                                 this.onData(this.TEXT_DECODER.decode(value));
                             }
                             this.COLLECTED_DATA += this.TEXT_DECODER.decode(value);
+
+                            // If raw flag set true, collect raw data for now
+                            if(this.COLLECT_RAW_DATA == true){
+                                for(var i=0; i<value.length; i++){
+                                    this.COLLECTED_RAW_DATA.push(value[i]);
+                                }
+                            }
                         }
                     }
                 }
@@ -242,6 +258,30 @@ class ReplJS{
     }
 
 
+    // Goes into raw mode and writes a command according to the THUMBY_SEND_BLOCK_SIZE then executes
+    async writeUtilityCmdRaw(cmdStr, waitForCmdEnd = false, omitAmount = 0, customWaitForStr = ">"){
+        // Get into raw mode
+        await this.getToRaw();
+
+        // Send the cmd string
+        var numberOfChunks = Math.ceil(cmdStr.length/this.THUMBY_SEND_BLOCK_SIZE)+1;
+        for(var b=0; b < numberOfChunks; b++){
+            var writeDataCMD = cmdStr.slice(b*this.THUMBY_SEND_BLOCK_SIZE, (b+1)*this.THUMBY_SEND_BLOCK_SIZE);
+            console.log(writeDataCMD);
+            await this.writeToDevice(writeDataCMD);
+        }
+
+
+        if(waitForCmdEnd){
+            this.startReaduntil(customWaitForStr);
+            await this.writeToDevice("\x04");
+            if(customWaitForStr == ">") await this.waitUntilOK();
+            return await this.haltUntilRead(omitAmount);
+        }else{
+            await this.writeToDevice("\x04");
+        }
+    }
+
 
     async getOnBoardFSTree(){
         if(this.BUSY == true){
@@ -274,15 +314,7 @@ class ReplJS{
         "struct = {}\n" +
         "print(ujson.dumps(walk(\"\", struct, \"\")))\n";
 
-        // Get into raw mode
-        await this.getToRaw();
-
-        // Not really needed for hiding output to terminal since raw does not echo
-        // but is needed to only grab the FS lines/data
-        this.startReaduntil(">");
-        await this.writeToDevice(cmd + "\x04");
-        await this.waitUntilOK();
-        var hiddenLines = await this.haltUntilRead(1);
+        var hiddenLines = await this.writeUtilityCmdRaw(cmd, true, 1);
 
         // Make sure this wasn't executed when no Thumby was attached
         if(hiddenLines != undefined){
@@ -307,10 +339,10 @@ class ReplJS{
 
         // Not really needed for hiding output to terminal since raw does not echo
         // but is needed to only grab the FS lines/data
-        this.SPECIAL_FORCE_OUTPUT_FLAG = true;
         this.startReaduntil(">");
         await this.writeToDevice(lines + "\x04");
         await this.waitUntilOK();
+        this.SPECIAL_FORCE_OUTPUT_FLAG = true;
         await this.haltUntilRead(1);
 
         // Get back into normal mode and omit the 3 lines from the normal message,
@@ -354,15 +386,9 @@ class ReplJS{
                     "       print('rm_failed')\n" +
                     "rm('" + path + "')\n";
 
-        // Get into raw mode
-        await this.getToRaw();
-        window.setPercent(2);
 
-        // Not really needed for hiding output to terminal since raw does not echo
-        // but is needed to only grab the FS lines/data
-        this.startReaduntil(">");
-        await this.writeToDevice(cmd + "\x04");
-        await this.haltUntilRead(1);
+        window.setPercent(2);
+        await this.writeUtilityCmdRaw(cmd, true, 1);
         window.setPercent(55);
 
         // Get back into normal mode and omit the 3 lines from the normal message,
@@ -401,15 +427,8 @@ class ReplJS{
                         "else:\n" +
                         "   print('rename_error')\n";
             
-            // Get into raw mode
-            await this.getToRaw();
             window.setPercent(2);
-
-            // Not really needed for hiding output to terminal since raw does not echo
-            // but is needed to only grab the FS lines/data
-            this.startReaduntil(">");
-            await this.writeToDevice(cmd + "\x04");
-            await this.haltUntilRead(1);
+            await this.writeUtilityCmdRaw(cmd, true, 1);
             window.setPercent(55);
 
             // Get back into normal mode and omit the 3 lines from the normal message,
@@ -462,14 +481,7 @@ class ReplJS{
                     "for f in filelist:\n" +
                     "    rm('/' + f)\n";
 
-        // Get into raw mode
-        await this.getToRaw();
-
-        // Not really needed for hiding output to terminal since raw does not echo
-        // but is needed to only grab the FS lines/data
-        this.startReaduntil(">");
-        await this.writeToDevice(cmd + "\x04");
-        await this.haltUntilRead(1);
+        await this.writeUtilityCmdRaw(cmd, true, 1);
 
         // Get back into normal mode and omit the 3 lines from the normal message,
         // don't want to repeat (assumes already on a normal prompt)
@@ -500,15 +512,7 @@ class ReplJS{
                   "except Exception as err:\n" +
                   "    print('Some kind of error while building path...' + err)\n";
 
-        // Get into raw mode
-        await this.getToRaw();
-
-        // Not really needed for hiding output to terminal since raw does not echo
-        // but is needed to only grab the FS lines/data
-        this.startReaduntil(">");
-        await this.writeToDevice(cmd + "\x04");
-        await this.waitUntilOK();
-        await this.haltUntilRead(1);
+        await this.writeUtilityCmdRaw(cmd, true, 1);
 
         // Get back into normal mode and omit the 3 lines from the normal message,
         // don't want to repeat (assumes already on a normal prompt)
@@ -529,61 +533,112 @@ class ReplJS{
         this.BUSY = true;
         if(usePercent) window.setPercent(1, "Uploading file...");
 
-        // Dont need to check if directory exists, already created by buildPath
-        var openFileCmd =   "onboard_file = open('" + filePath + "','wb')";
-        var closeFileCmd =  "onboard_file.close()";
-
-        // First, split string for \n, \r, and \r\n (lineseps)
-        fileContents = fileContents.split(/\r\n|\n|\r/);
-
-        // Recombine everything with correct newlines
-        var combined = "";
-        for(var row=0; row<fileContents.length; row++){
-            // Make sure not to add an extra newline at end
-            if(row != fileContents.length - 1){
-                combined = combined + fileContents[row] + "\r\n";
-            }else{
-                combined = combined + fileContents[row];
-            }
-        }
-        combined = "\\x" + combined.convertToHex('\\x');
-
-
-        // Get into raw mode
         await this.getToRaw();
         if(usePercent) window.setPercent(2);
+        // this.startReaduntil(">");
 
-        // Not really needed for hiding output to terminal since raw does not echo
-        // but is needed to only grab the FS lines/data
-        this.startReaduntil(">");
-        await this.writeToDevice(openFileCmd + "\x04");
-        await this.waitUntilOK();
-        await this.haltUntilRead(1);
+        // Convert strings to binary
+        var bytes = undefined;
+        if(typeof fileContents == "string"){
+            bytes = new Uint8Array(fileContents.length);
+            for(var i = 0; i < fileContents.length; i++) {
+                bytes[i] = fileContents.charCodeAt(i);
+            }
+        }else{
+            bytes = fileContents;
+        }
+
+
+        if(bytes.length >= 2000000){
+            alert("This file is at least 2MB, too large, not uploading");
+            return;
+        }
+
+
+        // https://forum.micropython.org/viewtopic.php?t=10659&p=58710
+        var writeFileScript =   "import micropython\n" +
+                                "import sys\n" +
+                                "import time\n" +
+                                "micropython.kbd_intr(-1)\n" +
+                                "w = open('" + filePath + "','wb')\n" +
+
+                                "byte_count_to_read = -1\n" +
+                                "read_byte_count = -7\n" +
+                                "read_buffer = bytearray(255)\n" +
+                                "specialStartIndex = 0\n" +
+                                "specialEndIndex = 255\n" +
+                                "while True:\n" +
+                                "    read_byte_count = read_byte_count + sys.stdin.buffer.readinto(read_buffer, 255)\n" +
+
+                                "    if byte_count_to_read == -1:\n" +
+                                "        byte_count_to_read = int(read_buffer[0:7].decode('utf-8'))\n" +
+                                "        specialIndex = 7\n" +
+
+                                "    if read_byte_count >= byte_count_to_read:\n" +
+                                "        specialEndIndex = 255 - (read_byte_count - byte_count_to_read)\n" +
+                                "        read_byte_count = read_byte_count - 255 + specialEndIndex\n" +
+
+                                "    w.write(bytearray(read_buffer[specialIndex:specialEndIndex]))\n" +
+                                "    specialIndex = 0\n" +
+                                // "    print(read_byte_count)\n" +
+                                // "    sys.stdout.write('EOF')\n" +
+                                "    if read_byte_count >= byte_count_to_read:\n" +
+                                "        break\n" +
+                                "w.close()\n" +
+
+                                "micropython.kbd_intr(0x03)\n";
+
+
+        await this.writeUtilityCmdRaw(writeFileScript, true, 1, "OK");
+
+        // https://stackoverflow.com/a/1127966
+        var bytesLenStr = "" + bytes.length;
+        while (bytesLenStr.length < 7) {
+            bytesLenStr = "0" + bytesLenStr;
+        }
+        await this.writeToDevice(bytesLenStr);
+
+
         if(usePercent) window.setPercent(3);
 
-        var numberOfChunks = Math.ceil(combined.length/this.THUMBY_SEND_BLOCK_SIZE);
+        var numberOfChunks = Math.ceil(bytes.length/this.THUMBY_SEND_BLOCK_SIZE)+1;
         var currentPercent = 3;
         var endingPercent = 98;
         var percentStep = (endingPercent - currentPercent) / numberOfChunks;
 
 
-        // Send the whole file to Thumby, as Thonny does, in chunks
-        // Do the actual sending of file data now that the file is open, use .slice over
-        // .substr or .substring since those modify the original string and take WAY longer
-        for(var b=0; b<numberOfChunks; b++){
-            var writeDataCMD = "onboard_file.write(b\"" + combined.slice(b*this.THUMBY_SEND_BLOCK_SIZE, (b+1)*this.THUMBY_SEND_BLOCK_SIZE) + "\")\n";
-            this.startReaduntil(">");
-            await this.writeToDevice(writeDataCMD + "\x04");
+        var bytesSent = 0;
+        for(var b=0; b < numberOfChunks; b++){
+            var writeDataCMD = bytes.slice(b*this.THUMBY_SEND_BLOCK_SIZE, (b+1)*this.THUMBY_SEND_BLOCK_SIZE);
+        
+            bytesSent = bytesSent + writeDataCMD.length;
+
+            if(bytesSent == bytes.length && writeDataCMD.length < this.THUMBY_SEND_BLOCK_SIZE){
+                var fillerArray = new Uint8Array(this.THUMBY_SEND_BLOCK_SIZE - writeDataCMD.length);
+                for(var i = 0; i < fillerArray.length; i++){
+                    fillerArray[i] = 255;
+                }
+
+                var finalArray = new Uint8Array(writeDataCMD.length + fillerArray.length);
+                finalArray.set(writeDataCMD, 0);
+                finalArray.set(fillerArray, writeDataCMD.length);
+                writeDataCMD = finalArray;
+            }
+
+            if(this.WRITER != undefined){
+                // this.startReaduntil("EOF");
+                await this.WRITER.write(writeDataCMD);
+                console.log("Sent file chunk: " + b);
+                // await this.haltUntilRead(0);
+            }else{
+                if(this.DEBUG_CONSOLE_ON) console.log("%cNot writing to device, none connected", "color: red");
+            }
+
             currentPercent = currentPercent + percentStep;
             if(usePercent) window.setPercent(currentPercent);
         }
 
-        this.startReaduntil(">");
-        await this.writeToDevice(closeFileCmd + "\x04");
-        await this.haltUntilRead(1);
-
-        // Get back into normal mode and omit the 3 lines from the normal message,
-        // don't want to repeat (assumes already on a normal prompt)
+        // await this.haltUntilRead(1);
         await this.getToNormal(3);
         this.BUSY = false;
     }
@@ -594,23 +649,23 @@ class ReplJS{
         await this.deleteAllFiles();
         await this.getOnBoardFSTree();
 
-        await this.uploadFile("Games/SpaceDebris/SpaceDebris.py", await window.downloadFile("/ThumbyGames/Games/SpaceDebris/SpaceDebris.py"));
+        await this.uploadFile("Games/SpaceDebris/SpaceDebris.py", await window.downloadFile("/ThumbyGames/Games/SpaceDebris/SpaceDebris.py"), false);
         window.setPercent(11.1);
-        await this.uploadFile("Games/Annelid/Annelid.py", await window.downloadFile("/ThumbyGames/Games/Annelid/Annelid.py"));
+        await this.uploadFile("Games/Annelid/Annelid.py", await window.downloadFile("/ThumbyGames/Games/Annelid/Annelid.py"), false);
         window.setPercent(22.2);
-        await this.uploadFile("Games/Thumgeon/Thumgeon.py", await window.downloadFile("/ThumbyGames/Games/Thumgeon/Thumgeon.py"));
+        await this.uploadFile("Games/Thumgeon/Thumgeon.py", await window.downloadFile("/ThumbyGames/Games/Thumgeon/Thumgeon.py"), false);
         window.setPercent(33.3);
-        await this.uploadFile("Games/SaurRun/SaurRun.py", await window.downloadFile("/ThumbyGames/Games/SaurRun/SaurRun.py"));
+        await this.uploadFile("Games/SaurRun/SaurRun.py", await window.downloadFile("/ThumbyGames/Games/SaurRun/SaurRun.py"), false);
         window.setPercent(44.4);
-        await this.uploadFile("Games/TinyBlocks/TinyBlocks.py", await window.downloadFile("/ThumbyGames/Games/TinyBlocks/TinyBlocks.py"));
+        await this.uploadFile("Games/TinyBlocks/TinyBlocks.py", await window.downloadFile("/ThumbyGames/Games/TinyBlocks/TinyBlocks.py"), false);
         window.setPercent(55.5);
-        await this.uploadFile("lib/ssd1306.py", await window.downloadFile("/ThumbyGames/lib/ssd1306.py"));
+        await this.uploadFile("lib/ssd1306.py", await window.downloadFile("/ThumbyGames/lib/ssd1306.py"), false);
         window.setPercent(66.6);
-        await this.uploadFile("lib/thumby.py", await window.downloadFile("/ThumbyGames/lib/thumby.py"));
+        await this.uploadFile("lib/thumby.py", await window.downloadFile("/ThumbyGames/lib/thumby.py"), false);
         window.setPercent(77.7);
-        await this.uploadFile("main.py", await window.downloadFile("/ThumbyGames/main.py"));
+        await this.uploadFile("main.py", await window.downloadFile("/ThumbyGames/main.py"), false);
         window.setPercent(88.8);
-        await this.uploadFile("thumby.cfg", await window.downloadFile("/ThumbyGames/thumby.cfg"));
+        await this.uploadFile("thumby.cfg", await window.downloadFile("/ThumbyGames/thumby.cfg"), false);
         window.setPercent(99.9);
 
         // Make sure to update the filesystem after modifying it
@@ -619,69 +674,62 @@ class ReplJS{
     }
 
 
+    async uploadFiles(path, fileHandles){
+        if(this.BUSY == true){
+            return;
+        }
+
+        for(var i=0; i<fileHandles.length; i++){
+            const file = await fileHandles[i].getFile();
+            if(file.name.indexOf(".py") != -1 || file.name.indexOf(".txt") != -1 || file.name.indexOf(".text") != -1 || file.name.indexOf(".cfg") != -1){
+                await this.uploadFile(path + file.name, await file.text(), false, false);
+            }else{
+                await this.uploadFile(path + file.name, new Uint8Array(await file.arrayBuffer()), false, true);
+            }
+        }
+
+        await this.getOnBoardFSTree();
+    }
+
+
     async getFileContents(filePath){
         if(this.BUSY == true){
             return;
         }
         this.BUSY = true;
-        window.setPercent(1, "Getting file...");
 
-        var cmd =   "chunk_size = 1024\n" +
-                    "onboard_file = open('" + filePath + "', 'r')\n" +
+        var cmd =   "import sys\n" +
+                    "chunk_size = 256\n" +
+                    "onboard_file = open('" + filePath + "', 'rb')\n" +
                     "while True:\n" +
                     "    data = onboard_file.read(chunk_size)\n" +
                     "    if not data:\n" +
                     "        break\n" +
-                    "    print(data)\n" +
+                    "    sys.stdout.buffer.write(data)\n" +
                     "onboard_file.close()\n" +
-                    "print('###DONE READING FILE###')\n";
+                    "sys.stdout.write('###DONE READING FILE###')\n";
 
         // Get into raw mode
         await this.getToRaw();
-        window.setPercent(2);
 
         // Not really needed for hiding output to terminal since raw does not echo
         // but is needed to only grab the FS lines/data
+        this.startCollectRawData();
         this.startReaduntil("###DONE READING FILE###");
         await this.writeToDevice(cmd + "\x04");
-        var fileContents = await this.haltUntilRead(2);
-        fileContents[0] = fileContents[0].substring(2);
-        fileContents = fileContents.splice(0, fileContents.length - 2);
-        window.setPercent(55);
 
-        // Get back into normal mode and omit the 3 lines from the normal message,
-        // don't want to repeat (assumes already on a normal prompt)
-        await this.getToNormal(3);
-        this.BUSY = false;
-        window.setPercent(100);
-        window.resetPercentDelay();
-        return fileContents.join('');
-    }
-
-
-    async writeConnectedMessage(){
-        if(this.BUSY == true){
-            return;
-        }
-        this.BUSY = true;
-
-        var cmd =   "import thumby;\n" +
-                    "thumby.display.drawText('Connected',0,16,1)\n" +
-                    "thumby.display.update()\n";
-
-        // Get into raw mode
-        await this.getToRaw();
-
-        // Not really needed for hiding output to terminal since raw does not echo
-        // but is needed to only grab the FS lines/data
-        this.startReaduntil(">");
-        await this.writeToDevice(cmd + "\x04");
+        // fielcontents only used for case of script ascii, otherwise use COLLECTED_RAW_DATA to get raw binary data to save
+        var fileContents = undefined;
         await this.haltUntilRead(2);
 
+        this.endCollectRawData();
+
         // Get back into normal mode and omit the 3 lines from the normal message,
         // don't want to repeat (assumes already on a normal prompt)
         await this.getToNormal(3);
         this.BUSY = false;
+
+        return this.COLLECTED_RAW_DATA.slice(2, this.COLLECTED_RAW_DATA.length-26);     // Get rid of 'OK' and '###DONE READING FILE###'
     }
 
 
@@ -778,6 +826,7 @@ class ReplJS{
             this.BUSY = false;
         }
     }
+
 
     async disconnect(){
         if(this.PORT != undefined){

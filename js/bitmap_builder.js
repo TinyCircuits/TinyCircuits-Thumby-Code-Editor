@@ -7,6 +7,7 @@ class BITMAP_BUILDER{
         this._container = _container;
         const title = this._container.title;
 
+
         // Contains all bitmap builder elements
         this.INNER_PARENT_DIV = document.createElement("div");
         this.INNER_PARENT_DIV.classList.add("bitmap_builder_inner_parent");
@@ -20,6 +21,21 @@ class BITMAP_BUILDER{
         this._container.element.addEventListener('focusin', (event) => {
             this._container.focus();
         });
+
+        this.dragging = false;
+
+        // Added to golden layout around lines 5224
+        addEventListener("splitterDragStop", () => {
+            this.dragging = false;
+        })
+
+        addEventListener("splitterDragStart", () => {
+            this.dragging = true;
+        })
+
+
+        this.BITMAP_WIDTH_LIMIT = 72 * 2;
+        this.BITMAP_HEIGHT_LIMIT = 40 * 2;
 
 
         // The starting size of the bitmap
@@ -63,21 +79,21 @@ class BITMAP_BUILDER{
         this.SET_SIZE_BTN.textContent = "Size";
         this.SET_SIZE_BTN.onclick = this.setSize.bind(this);
         this.SET_SIZE_BTN.className = "uk-button uk-button-primary uk-button-small uk-width-1-1 uk-text-small";
-        this.SET_SIZE_BTN.setAttribute("uk-tooltip", "delay: 500; pos: bottom-left; offset: 0; title: Opens dialogs for setting the bitmap width adn height (erases bitmap)");
+        this.SET_SIZE_BTN.title = "Opens dialogs for setting the bitmap width adn height (erases bitmap)";
         this.BUTTON_AREA_DIV.appendChild(this.SET_SIZE_BTN);
 
         this.ZOOM_IN_BTN = document.createElement("button");
         this.ZOOM_IN_BTN.setAttribute("uk-icon", "plus-circle");
         this.ZOOM_IN_BTN.onclick = this.zoomIn.bind(this);
         this.ZOOM_IN_BTN.className = "uk-button uk-button-primary uk-button-small uk-width-1-1 uk-text-small";
-        this.ZOOM_IN_BTN.setAttribute("uk-tooltip", "delay: 500; pos: bottom-left; offset: 0; title: Zoom in on the bitmap (left ctrl + scroll wheel forward/up)");
+        this.ZOOM_IN_BTN.title = "Zoom in on the bitmap (left ctrl + scroll wheel forward/up)";
         this.BUTTON_AREA_DIV.appendChild(this.ZOOM_IN_BTN);
 
         this.ZOOM_OUT_BTN = document.createElement("button");
         this.ZOOM_OUT_BTN.setAttribute("uk-icon", "minus-circle");
         this.ZOOM_OUT_BTN.onclick = this.zoomOut.bind(this);
         this.ZOOM_OUT_BTN.className = "uk-button uk-button-primary uk-button-small uk-width-1-1 uk-text-small";
-        this.ZOOM_OUT_BTN.setAttribute("uk-tooltip", "delay: 500; pos: bottom-left; offset: 0; title: Zoom out on the bitmap (left ctrl + scroll wheel backwards/down)");
+        this.ZOOM_OUT_BTN.title = "Zoom out on the bitmap (left ctrl + scroll wheel backwards/down)";
         this.BUTTON_AREA_DIV.appendChild(this.ZOOM_OUT_BTN);
 
         this.IMPORT_LINES_CALLBACK = undefined;
@@ -85,28 +101,28 @@ class BITMAP_BUILDER{
         this.IMPORT_LINES_BTN.textContent = "Import";
         this.IMPORT_LINES_BTN.onclick = () => {this.importBitmap(this.onImport())}
         this.IMPORT_LINES_BTN.className = "uk-button uk-button-primary uk-button-small uk-width-1-1 uk-text-small";
-        this.IMPORT_LINES_BTN.setAttribute("uk-tooltip", "delay: 500; pos: bottom-left; offset: 0; title: Import selected lines containing bitmap array and comment from an editor");
+        this.IMPORT_LINES_BTN.title = "Import selected lines containing bitmap array and comment from an editor";
         this.BUTTON_AREA_DIV.appendChild(this.IMPORT_LINES_BTN);
 
         this.IMPORT_IMAGE_BTN = document.createElement("button");
         this.IMPORT_IMAGE_BTN.textContent = "Image";
         this.IMPORT_IMAGE_BTN.onclick = this.importImage.bind(this);
         this.IMPORT_IMAGE_BTN.className = "uk-button uk-button-primary uk-button-small uk-width-1-1 uk-text-small";
-        this.IMPORT_IMAGE_BTN.setAttribute("uk-tooltip", "delay: 500; pos: bottom-left; offset: 0; title: Import image from computer and apply threshold to convert to monochrome");
+        this.IMPORT_IMAGE_BTN.title = "Import image from computer and auto apply threshold to convert to monochrome (most image types work: .png, .jpg, etc.)";
         this.BUTTON_AREA_DIV.appendChild(this.IMPORT_IMAGE_BTN);
 
         this.INVERT_BTN = document.createElement("button");
         this.INVERT_BTN.textContent = "Invert";
         this.INVERT_BTN.onclick = this.invertCells.bind(this);
         this.INVERT_BTN.className = "uk-button uk-button-primary uk-button-small uk-width-1-1 uk-text-small";
-        this.INVERT_BTN.setAttribute("uk-tooltip", "delay: 500; pos: bottom-left; offset: 0; title: Inverts all pixels");
+        this.INVERT_BTN.title = "Inverts all pixels";
         this.BUTTON_AREA_DIV.appendChild(this.INVERT_BTN);
 
         this.CLEAR_BTN = document.createElement("button");
         this.CLEAR_BTN.textContent = "Clear";
         this.CLEAR_BTN.onclick = this.clearCells.bind(this);
         this.CLEAR_BTN.className = "uk-button uk-button-primary uk-button-small uk-width-1-1 uk-text-small";
-        this.CLEAR_BTN.setAttribute("uk-tooltip", "delay: 500; pos: bottom-left; offset: 0; title: Clears all pixels to white");
+        this.CLEAR_BTN.title = "Clears all pixels to white";
         this.BUTTON_AREA_DIV.appendChild(this.CLEAR_BTN);
 
         this.EXPORT_LINES_CALLBACK = undefined;
@@ -114,7 +130,7 @@ class BITMAP_BUILDER{
         this.EXPORT_LINES_BTN.textContent = "Export";
         this.EXPORT_LINES_BTN.onclick = () => {this.onExport(this.exportBitmap())}
         this.EXPORT_LINES_BTN.className = "uk-button uk-button-primary uk-button-small uk-width-1-1 uk-text-small";
-        this.EXPORT_LINES_BTN.setAttribute("uk-tooltip", "delay: 500; pos: bottom-left; offset: 0; title: Exports bitmap to line selected in an editor as an array with accompany comment");
+        this.EXPORT_LINES_BTN.title = "Exports bitmap to line selected in an editor as an array with accompany comment";
         this.BUTTON_AREA_DIV.appendChild(this.EXPORT_LINES_BTN);
 
         // Render grid for the first time
@@ -143,13 +159,13 @@ class BITMAP_BUILDER{
 
         this.LAST_IMPORTED_IMAGE = new Image();
         this.LAST_IMPORTED_IMAGE.onload = () => {
-            if(this.LAST_IMPORTED_IMAGE.width > 72){
-                console.log("Image width is greater than 72px at" + this.LAST_IMPORTED_IMAGE.width + "px, import canceled");
-                alert("Image width is greater than 72px at" + this.LAST_IMPORTED_IMAGE.width + "px, import canceled");
+            if(this.LAST_IMPORTED_IMAGE.width > this.BITMAP_WIDTH_LIMIT){
+                console.log("Image width is greater than" + this.BITMAP_WIDTH_LIMIT + "px at " + this.LAST_IMPORTED_IMAGE.width + "px, import canceled");
+                alert("Image width is greater than" + this.BITMAP_WIDTH_LIMIT + "px at " + this.LAST_IMPORTED_IMAGE.width + "px, import canceled");
                 return;
-            }else if(this.LAST_IMPORTED_IMAGE.height > 40){
-                console.log("Image height is greater than 40px at" + this.LAST_IMPORTED_IMAGE.height + "px, import canceled");
-                alert("Image height is greater than 40px at" + this.LAST_IMPORTED_IMAGE.height + "px, import canceled");
+            }else if(this.LAST_IMPORTED_IMAGE.height > this.BITMAP_HEIGHT_LIMIT){
+                console.log("Image height is greater than" + this.BITMAP_HEIGHT_LIMIT + "px at " + this.LAST_IMPORTED_IMAGE.height + "px, import canceled");
+                alert("Image height is greater than" + this.BITMAP_HEIGHT_LIMIT + "px at " + this.LAST_IMPORTED_IMAGE.height + "px, import canceled");
                 return;
             }else{
                 this.OFFSCREEN_CANVAS.width = this.LAST_IMPORTED_IMAGE.width;
@@ -181,6 +197,7 @@ class BITMAP_BUILDER{
                 // https://stackoverflow.com/a/6776055
                 URL.revokeObjectURL(this.LAST_IMPORTED_IMAGE.src);
                 console.log("Image import successful");
+                this.saveLocally();
             }
         }
         this.LAST_IMPORTED_IMAGE.src = URL.createObjectURL(file);
@@ -282,11 +299,11 @@ class BITMAP_BUILDER{
 
     // Asks user for number, makes sure valid, updates grid and title
     setWidth(){
-        var newWidth = prompt("Enter a new bitmap width: ", 8);
+        var newWidth = prompt("Enter a new bitmap width (limit: "+ this.BITMAP_WIDTH_LIMIT +"): ", 8);
         if(newWidth != null){
             newWidth = parseInt(newWidth);
             if(newWidth != NaN){
-                if(newWidth >= 1 && newWidth <= 72){
+                if(newWidth >= 1 && newWidth <= this.BITMAP_WIDTH_LIMIT){
                     this.COLUMN_COUNT = newWidth;
                     this.updatePanelTitle();
                     this.renderGrid();
@@ -294,7 +311,7 @@ class BITMAP_BUILDER{
                     this.applyGridSize();
                     return true;
                 }else{
-                    alert("That width is too large or small (min: 1, max: 72)");
+                    alert("That width is too large or small (min: 1, max: " + this.BITMAP_WIDTH_LIMIT + ")");
                     return false;
                 }
             }
@@ -305,11 +322,11 @@ class BITMAP_BUILDER{
 
      // Asks user for number, makes sure valid, updates grid and title
      setHeight(){
-        var newHeight = prompt("Enter a new bitmap height: ", 8);
+        var newHeight = prompt("Enter a new bitmap height (limit: " + this.BITMAP_HEIGHT_LIMIT + "): ", 8);
         if(newHeight != null){
             newHeight = parseInt(newHeight);
             if(newHeight != NaN){
-                if(newHeight >= 1 && newHeight <= 40){
+                if(newHeight >= 1 && newHeight <= this.BITMAP_HEIGHT_LIMIT){
                     this.ROW_COUNT = newHeight;
                     this.updatePanelTitle();
                     this.renderGrid();
@@ -317,7 +334,7 @@ class BITMAP_BUILDER{
                     this.applyGridSize();
                     return true;
                 }else{
-                    alert("That height is too large (min: 1, max: 40)")
+                    alert("That height is too large (min: 1, max: " + this.BITMAP_HEIGHT_LIMIT + ")")
                     return false;
                 }
             }
@@ -339,24 +356,30 @@ class BITMAP_BUILDER{
 
 
     cellLeftClickCallback(cell){
-        cell.style.backgroundColor = "black";
-        this.saveLocally();
+        if(this.dragging == false){
+            cell.style.backgroundColor = "black";
+            this.saveLocally();
+        }
     }
 
     cellRightClickCallback(cell){
-        cell.style.backgroundColor = "white";
-        this.saveLocally();
+        if(this.dragging == false){
+            cell.style.backgroundColor = "white";
+            this.saveLocally();
+        }
     }
 
 
     cellHoverCallback(cell, event){
         event.preventDefault();
-        if(event.buttons == 1){
-            cell.style.backgroundColor = "black";
-            this.saveLocally();
-        }else if(event.buttons == 2){
-            cell.style.backgroundColor = "white";
-            this.saveLocally();
+        if(this.dragging == false){
+            if(event.buttons == 1){
+                cell.style.backgroundColor = "black";
+                this.saveLocally();
+            }else if(event.buttons == 2){
+                cell.style.backgroundColor = "white";
+                this.saveLocally();
+            }
         }
     }
 
@@ -468,10 +491,10 @@ class BITMAP_BUILDER{
         }
 
         // Start the actual array
-        str = str + varName + " = (";
+        str = str + varName + " = [";
 
         // Track number of spaces needed to offset (EX spaces needed = len('bitmap33 = (')))
-        var spaceIndentCount = (varName + " = (").length;
+        var spaceIndentCount = (varName + " = [").length;
 
         // Loop through grid data in pages COLUMN_COUNT long but 8 thick (each column of 8 is a byte for buffer)
         for(var scanRow=0; scanRow<this.ROW_COUNT; scanRow+=8){
@@ -513,7 +536,7 @@ class BITMAP_BUILDER{
         }
 
         // Finish up the array Python syntax and setup the framebuffer for the user to use
-        str = str + ")";
+        str = str + "]";
 
         // Only output framebuffer if name was NOT found (don't want to do it twice++)
         if(!foundName){
@@ -538,8 +561,13 @@ class BITMAP_BUILDER{
             var arrayEndIndex = selectedLines.indexOf(')');
 
             if(arrayStartIndex == -1 || arrayEndIndex == -1){
-                alert("Could not find array start or end, please select the array including '(' and ')'");
-                return 0;   // Could not find either start or end of an array in selected
+                arrayStartIndex = selectedLines.indexOf('[');
+                arrayEndIndex = selectedLines.indexOf(']');
+
+                if(arrayStartIndex == -1 || arrayEndIndex == -1){
+                    alert("Could not find array start or end, please select the array including '(' or '[' and ')' or ']");
+                    return 0;   // Could not find either start or end of an array in selected
+                }
             }
 
             // Get everything between the start and end off the array
@@ -585,8 +613,8 @@ class BITMAP_BUILDER{
             var tempColumnCount = bitmapWidth;
 
             // Make sure entered dimensions are not too big, if so let user know and stop
-            if(tempRowCount > 40 || tempColumnCount > 72){
-                alert("Entered dimensions are too large, try again (WIDTH limit <= 72, HEIGHT limit <= 40)");
+            if(tempRowCount > this.BITMAP_HEIGHT_LIMIT || tempColumnCount > this.BITMAP_WIDTH_LIMIT){
+                alert("Entered dimensions are too large, try again (WIDTH limit <= " + this.BITMAP_WIDTH_LIMIT + ", HEIGHT limit <=" + this.BITMAP_HEIGHT_LIMIT + ")");
                 return 0;
             }
 
