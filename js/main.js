@@ -19,7 +19,7 @@ if(localStorage.getItem(showChangelogVersion) == null){
     console.log("Updates to IDE! Showing changelog...");    // Show message in console
     localStorage.removeItem(showChangelogVersion-1);        // Remove flag from last version
 
-    await fetch("https://raw.githubusercontent.com/TinyCircuits/tinycircuits.github.io/master/testing/CHANGELOG.txt").then(async (response) => {
+    await fetch("https://raw.githubusercontent.com/TinyCircuits/tinycircuits.github.io/master/CHANGELOG.txt").then(async (response) => {
         await response.text().then((text) => {
             var listener = window.addEventListener("keydown", (event) => {
                 document.getElementById("IDChangelog").style.display = "none";
