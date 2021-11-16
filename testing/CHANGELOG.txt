@@ -5,7 +5,7 @@ Thumby IDE changelog!
 November 15, 2021
 
 General
-* Added this changelog popup that will show every time the IDE is updated
+* Added this changelog popup that will appear every time the IDE is updated
 * Added an arcade for sharing games
 
 Emulator
