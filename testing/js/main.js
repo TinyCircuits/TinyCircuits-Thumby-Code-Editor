@@ -19,7 +19,7 @@ if(localStorage.getItem(showChangelogVersion) == null){
     console.log("Updates to IDE! Showing changelog...");    // Show message in console
     localStorage.removeItem(showChangelogVersion-1);        // Remove flag from last version
 
-    await fetch("https://raw.githubusercontent.com/TinyCircuits/tinycircuits.github.io/master/testing/CHANGELOG.txt").then(async (response) => {
+    await fetch("https://raw.githubusercontent.com/TinyCircuits/tinycircuits.github.io/master/CHANGELOG.txt").then(async (response) => {
         await response.text().then((text) => {
             var listener = window.addEventListener("keydown", (event) => {
                 document.getElementById("IDChangelog").style.display = "none";
@@ -92,24 +92,22 @@ var defaultConfig = {
             isClosable: false,
             id: 'rootrow',
             content:[{
-                type: 'column',
+                type: 'stack',
                 width: 20,
                 id: 'BitmapPlusFS',
                 content:[{
                     type: 'component',
+                    componentName: 'Filesystem',
+                    componentState: { label: 'Filesystem' },
+                    title: 'Filesystem',
+                    id: "aFilesystem"
+                },{
+                    type: 'component',
                     componentName: 'Bitmap Builder',
                     componentState: { label: 'Bitmap Builder' },
-                    // isClosable: false,
                     close: false,
                     title: 'Bitmap Builder',
                     id: "aBitmapBuilder"
-                },{
-                    type: 'component',
-                    componentName: 'Filesystem',
-                    componentState: { label: 'Filesystem' },
-                    // isClosable: false,
-                    title: 'Filesystem',
-                    id: "aFilesystem"
                 }]
             },{
                 type: 'column',
@@ -118,7 +116,6 @@ var defaultConfig = {
                     type: 'component',
                     componentName: 'Editor',
                     componentState: { label: 'Editor', editor: undefined},
-                    // isClosable: true,
                     title: 'Editor',
                     id: "aEditor"
                 }]
@@ -128,14 +125,12 @@ var defaultConfig = {
                     type: 'component',
                     componentName: 'Shell',
                     componentState: { label: 'Shell' },
-                    // isClosable: false,
                     title: 'Shell',
                     id: "aShell"
                 },{
                     type: 'component',
                     componentName: 'Emulator',
                     componentState: { label: 'Emulator' },
-                    // isClosable: false,
                     title: 'Emulator',
                     id: "aEmulator"
                 }]
@@ -580,7 +575,7 @@ function registerShell(_container, state){
 
 var EMU;
 function registerEmulator(_container, state){
-    EMU = new EMULATOR(_container, state);
+    EMU = new EMULATOR(_container, state, EDITORS);
     EMU.onData = (data) => ATERM.write(data);
 }
 
@@ -617,7 +612,7 @@ function registerEditor(_container, state){
             editor.updateTitleSaved();
             var busy = await REPL.uploadFile(editor.EDITOR_PATH, editor.getValue(), true, false);
             if(busy != true){
-                await REPL.getOnBoardFSTree();
+                REPL.getOnBoardFSTree();
                 window.setPercent(100);
                 window.resetPercentDelay();
             }
@@ -633,10 +628,10 @@ function registerEditor(_container, state){
             editor.onSaveToThumby();
         }
     }
-    editor.onFastExecute = async (lines) =>{
+    editor.onFastExecute = async (lines) => {
         REPL.executeLines(lines);
     }
-    editor.onEmulate = async (lines) =>{
+    editor.onEmulate = async (lines) => {
         await EMU.startEmulator(lines);
     }
     EDITORS[editor.ID] = editor;
@@ -725,7 +720,7 @@ myLayout.registerComponentConstructor("Emulator", registerEmulator);
 // Restore from previous layout if it exists, otherwise default
 var savedLayout = localStorage.getItem(layoutSaveKey);
 if(savedLayout != null){
-    console.log("Restored layout from previous state")
+    console.log("Restored layout from previous state");
     myLayout.loadLayout(LayoutConfig.fromResolved(JSON.parse( savedLayout )));
 }else{
     console.log("Restored layout to default state");

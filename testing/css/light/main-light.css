@@ -97,3 +97,11 @@ a:link {
   flex: 0.417;
   height: 100%;
 }
+
+.button_link{
+  cursor: pointer;
+}
+.button_link:hover{
+  background-color: lightgray;
+  transition: 0.15s;
+}

@@ -206,7 +206,20 @@ export class RP2040 {
         this.onBreak = (code) => {
             // TODO: raise HardFault exception
             // console.error('Breakpoint!', code);
-            this.stopped = true;
+            // console.log(code);
+
+            if(code == 27){
+                const flashAddr = this.registers[0];
+                const ramAddr = this.registers[1] - RAM_START_ADDRESS;
+                const count = this.registers[2];
+
+                this.flash.set(this.sram.slice(ramAddr, ramAddr+count), flashAddr);
+
+                // Copy LR to PC register
+                this.registers[15] = this.registers[14];
+            }else{
+                this.stopped = true;
+            }
         };
         this.SP = 0xfffffffc;
         this.bankedSP = 0xfffffffc;
@@ -1496,7 +1509,6 @@ export class RP2040 {
         const opcode2 = wideInstruction ? this.readUint16(opcodePC + 2) : 0;
         this.PC += 2;
         this.cycles++;
-
 
         switch(opcode >> 6){
             case 0b0100000101:  // ADCS

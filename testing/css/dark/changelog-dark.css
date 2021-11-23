@@ -14,7 +14,6 @@
     font-family: Roboto;
     font-size: 14px;
     flex-flow: column;
-    overflow: auto;
     justify-content: center;
 }
 
@@ -26,13 +25,15 @@
     margin: 30px;
     width: calc(100% - 60px);
     height: 100%;
+    overflow: auto;
+    border: gray solid 1px;
 }
 
 .changelog_exit_btn{
-    width: 30px;
+    position: absolute;
+    width: 25px;
     aspect-ratio: 1/1;
-    top: 5%;
-    right: 5%;
+    top: 0;
     background-color: black;
     border: transparent;
     border-right: green solid 1px;

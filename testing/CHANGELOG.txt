@@ -2,7 +2,9 @@ Thumby IDE changelog!
 
 ####################
 
-November 15, 2021
+November 16, 2021
+
+NOTE: it is recommended to use 'Utilities -> Reset Layout' or 'Utilities -> Hard Reset' (note, all data will be deleted from page) to see new panels
 
 General
 * Added this changelog popup that will appear every time the IDE is updated
@@ -23,3 +25,7 @@ Arcade
 * Download game files directly from the arcade to a connected Thumby
 * Open game files in IDE
 * Supports games with horizontal and vertical gameplay
+
+Filesystem
+* Upload batches of files quickly
+* Upload and download binary files

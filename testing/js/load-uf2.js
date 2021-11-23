@@ -1,14 +1,19 @@
 import { decodeBlock } from './uf2/dist/esm/uf2.js';
 import { RP2040 } from '../rp2040js/dist/esm/rp2040.js';
 
+// UF2 data, stored here after first fetch so not done often (as happens when debugging MP code)
+var fileData = undefined;
+
 export async function loadUF2(filename, rp2040) {
   console.log("UF2 loading");
-  // Get the uf2 and set its con
-  const res = await fetch(filename);
-  const buffer = await res.arrayBuffer();
-  const fileData = new Uint8Array(buffer);
-  let fileIndex = 0;
+  // Get the uf2 and set its contents, only fetch once, store the results
+  if(fileData == undefined){
+    const res = await fetch(filename);
+    const buffer = await res.arrayBuffer();
+    fileData = new Uint8Array(buffer);
+  }
 
+  let fileIndex = 0;
   var lastFlashAddress = 0;
 
   while (fileIndex < fileData.length) {
