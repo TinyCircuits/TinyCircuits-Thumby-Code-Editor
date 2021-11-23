@@ -5,6 +5,8 @@
     display: flex;
     overflow: none;
     flex-flow: column;
+    justify-content: center;
+    align-items: center;
 }
 
 .emulator_body{
@@ -188,4 +190,36 @@
     aspect-ratio: 1/1;
     bottom: 38px;
     left: 10px;
+}
+
+
+.emulator_multiplayer_parent{
+    position: absolute;
+    background-color: rgba(49, 49, 49, 0.975);
+    border: green solid 1px;
+    width: 60%;
+    height: 50%;
+    display: none;
+    flex-flow: column;
+    align-items: center;
+    justify-content: space-evenly;
+}
+
+.emulator_multiplayer_title{
+    width: 100%;
+    top: 0;
+    color: white;
+}
+
+.emulator_multiplayer_exit_btn{
+    position: absolute;
+    width: 25px;
+    aspect-ratio: 1/1;
+    top: 0;
+    left: 0;
+    background-color: black;
+    border: transparent;
+    border-right: green solid 1px;
+    border-bottom: green solid 1px;
+    color: white;
 }

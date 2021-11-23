@@ -79,6 +79,29 @@ class EditorWrapper{
         this.FILE_SAVEAS_BUTTON.onclick = () => {this.onSaveAsToThumby()};
         listElem.appendChild(this.FILE_SAVEAS_BUTTON);
         this.FILE_DROPDOWN_UL.appendChild(listElem);
+
+        listElem = document.createElement("li");
+        this.FILE_SET_PATH_BUTTON = document.createElement("button");
+        this.FILE_SET_PATH_BUTTON.classList = "uk-button uk-button-primary uk-width-1-1 uk-height-1-1 uk-text-nowrap";
+        this.FILE_SET_PATH_BUTTON.textContent = "Set Path";
+        this.FILE_SET_PATH_BUTTON.title = "Set file path of editor (for Thumby saving and emulation)";
+        this.FILE_SET_PATH_BUTTON.onclick = () => {
+            var path = prompt("Please enter path for editor in absolute form (e.g. /Games/MyGame/MyGame.py)", this.EDITOR_PATH);
+            if(path != null ** path != ""){
+                if(path[0] != '/'){
+                    path = "/" + path;
+                }
+
+                if(this.checkAllEditorsForPath(path) == false){
+                    this.setPath(path);
+                    this.setTitle("Editor" + this.ID + ' - ' + this.EDITOR_PATH);
+                }else{
+                    alert("Cannot use path, editor already open with path");
+                }
+            }
+        }
+        listElem.appendChild(this.FILE_SET_PATH_BUTTON);
+        this.FILE_DROPDOWN_UL.appendChild(listElem);
         
         listElem = document.createElement("li");
         listElem.classList = "uk-nav-divider";
@@ -101,46 +124,6 @@ class EditorWrapper{
         this.EXAMPLES_DROPDOWN_UL.classList = "uk-nav uk-dropdown-nav";
         this.EXAMPLES_DROPDOWN_DIV.appendChild(this.EXAMPLES_DROPDOWN_UL);
 
-
-        listElem = document.createElement("li");
-        this.ANNELID_EXAMPLE_BTN = document.createElement("button");
-        this.ANNELID_EXAMPLE_BTN.classList = "uk-button uk-button-primary uk-width-1-1 uk-height-1-1 uk-text-nowrap";
-        this.ANNELID_EXAMPLE_BTN.textContent = "Annelid";
-        this.ANNELID_EXAMPLE_BTN.onclick = async () => {this.openFileContents(await window.downloadFile("/ThumbyGames/Games/Annelid/Annelid.py"))};
-        listElem.appendChild(this.ANNELID_EXAMPLE_BTN);
-        this.EXAMPLES_DROPDOWN_UL.appendChild(listElem);
-
-        listElem = document.createElement("li");
-        this.THUMGEON_EXAMPLE_BTN = document.createElement("button");
-        this.THUMGEON_EXAMPLE_BTN.classList = "uk-button uk-button-primary uk-width-1-1 uk-height-1-1 uk-text-nowrap";
-        this.THUMGEON_EXAMPLE_BTN.textContent = "Thumgeon";
-        this.THUMGEON_EXAMPLE_BTN.onclick = async () => {this.openFileContents(await window.downloadFile("/ThumbyGames/Games/Thumgeon/Thumgeon.py"))};
-        listElem.appendChild(this.THUMGEON_EXAMPLE_BTN);
-        this.EXAMPLES_DROPDOWN_UL.appendChild(listElem);
-
-        listElem = document.createElement("li");
-        this.SAURRUN_EXAMPLE_BTN = document.createElement("button");
-        this.SAURRUN_EXAMPLE_BTN.classList = "uk-button uk-button-primary uk-width-1-1 uk-height-1-1 uk-text-nowrap";
-        this.SAURRUN_EXAMPLE_BTN.textContent = "SaurRun";
-        this.SAURRUN_EXAMPLE_BTN.onclick = async () => {this.openFileContents(await window.downloadFile("/ThumbyGames/Games/SaurRun/SaurRun.py"))};
-        listElem.appendChild(this.SAURRUN_EXAMPLE_BTN);
-        this.EXAMPLES_DROPDOWN_UL.appendChild(listElem);
-
-        listElem = document.createElement("li");
-        this.SPACEDEBRIS_EXAMPLE_BTN = document.createElement("button");
-        this.SPACEDEBRIS_EXAMPLE_BTN.classList = "uk-button uk-button-primary uk-width-1-1 uk-height-1-1 uk-text-nowrap";
-        this.SPACEDEBRIS_EXAMPLE_BTN.textContent = "SpaceDebris";
-        this.SPACEDEBRIS_EXAMPLE_BTN.onclick = async () => {this.openFileContents(await window.downloadFile("/ThumbyGames/Games/SpaceDebris/SpaceDebris.py"))};
-        listElem.appendChild(this.SPACEDEBRIS_EXAMPLE_BTN);
-        this.EXAMPLES_DROPDOWN_UL.appendChild(listElem);
-
-        listElem = document.createElement("li");
-        this.TINYBLOCKS_EXAMPLE_BTN = document.createElement("button");
-        this.TINYBLOCKS_EXAMPLE_BTN.classList = "uk-button uk-button-primary uk-width-1-1 uk-height-1-1 uk-text-nowrap";
-        this.TINYBLOCKS_EXAMPLE_BTN.textContent = "TinyBlocks";
-        this.TINYBLOCKS_EXAMPLE_BTN.onclick = async () => {this.openFileContents(await window.downloadFile("/ThumbyGames/Games/TinyBlocks/TinyBlocks.py"))};
-        listElem.appendChild(this.TINYBLOCKS_EXAMPLE_BTN);
-        this.EXAMPLES_DROPDOWN_UL.appendChild(listElem);
 
         listElem = document.createElement("li");
         this.THUMBYPY_EXAMPLE_BTN = document.createElement("button");
@@ -210,12 +193,97 @@ class EditorWrapper{
         this.HEADER_TOOLBAR_DIV.appendChild(this.FAST_EXECUTE_BUTTON);
 
 
-        this.EMULATE_BUTTON = document.createElement("button");
-        this.EMULATE_BUTTON.classList = "uk-button uk-button-primary uk-height-1-1 uk-text-small uk-text-nowrap";
-        this.EMULATE_BUTTON.textContent = "Emulate";
-        this.EMULATE_BUTTON.title = "Run editor contents in emulator";
-        this.EMULATE_BUTTON.onclick = () => {this.onEmulate(this.getValue())};
-        this.HEADER_TOOLBAR_DIV.appendChild(this.EMULATE_BUTTON);
+
+        this.EMULATION_ZONE = document.createElement("div");
+        this.EMULATION_ZONE.classList = "editor_emulation_zone";
+        this.HEADER_TOOLBAR_DIV.appendChild(this.EMULATION_ZONE);
+
+        this.EMULATION_ZONE_NAME = document.createElement("div");
+        this.EMULATION_ZONE_NAME.classList = "editor_emulation_zone_name";
+        this.EMULATION_ZONE_NAME.innerText = "EMULATION:"
+        this.EMULATION_ZONE.appendChild(this.EMULATION_ZONE_NAME);
+
+        this.EMULATION_ZONE_CHECKBOX_PARENT = document.createElement("div");
+        this.EMULATION_ZONE_CHECKBOX_PARENT.classList = "editor_emulation_zone_checkbox_parent";
+        this.EMULATION_ZONE.appendChild(this.EMULATION_ZONE_CHECKBOX_PARENT);
+
+        this.NORMAL_EMU_CHECKBOX = document.createElement("input");
+        this.NORMAL_EMU_CHECKBOX.classList = "uk-checkbox editor_emulate_checkbox";
+        this.NORMAL_EMU_CHECKBOX.type = "checkbox";
+        this.NORMAL_EMU_CHECKBOX.title = "Designate as file to be emulated";
+        this.NORMAL_EMU_CHECKBOX.onchange = (event) => {
+            //  Check that the editor has some kind of path set
+            if(this.EDITOR_PATH == undefined || this.EDITOR_PATH == ""){
+                alert("Please give this editor a path (FILE -> SET PATH)");
+                this.NORMAL_EMU_CHECKBOX.checked = false;
+                return;
+            }
+
+            if(this.NORMAL_EMU_CHECKBOX.checked){
+                this.MAIN_EMU_CHECKBOX.checked = false;
+                localStorage.setItem("EditorEMUCheck" + this.ID, 0);
+            }else{
+                this.MAIN_EMU_CHECKBOX.checked = false;
+                localStorage.removeItem("EditorEMUCheck" + this.ID)
+            }
+        }
+        this.EMULATION_ZONE_CHECKBOX_PARENT.appendChild(this.NORMAL_EMU_CHECKBOX);
+
+        this.MAIN_EMU_CHECKBOX = document.createElement("input");
+        this.MAIN_EMU_CHECKBOX.classList = "uk-checkbox editor_emulate_checkbox";
+        this.MAIN_EMU_CHECKBOX.style.borderColor = "red";
+        this.MAIN_EMU_CHECKBOX.type = "checkbox";
+        this.MAIN_EMU_CHECKBOX.title = "Designate as main file to be emulated (everything will start from this script)";
+        this.MAIN_EMU_CHECKBOX.onchange = (event) => {
+            //  Check that the editor has some kind of path set
+            if(this.EDITOR_PATH == undefined || this.EDITOR_PATH == ""){
+                alert("Please give this editor a path (FILE -> SET PATH)");
+                this.MAIN_EMU_CHECKBOX.checked = false;
+                return;
+            }
+
+            if(this.MAIN_EMU_CHECKBOX.checked){
+                this.NORMAL_EMU_CHECKBOX.checked = true;
+
+                // Go through all other editors and turn off their main check since this one is checked now, switch them to normal
+                for (const [editorID, editorWrapper] of Object.entries(this.EDITORS)) {
+                    if(editorID != this.ID){
+                        // If this editor was checked as main, switch to normal
+                        if(editorWrapper.MAIN_EMU_CHECKBOX.checked){
+                            editorWrapper.NORMAL_EMU_CHECKBOX.checked = true;
+                            localStorage.setItem("EditorEMUCheck" + editorWrapper.ID, 0);   // Check changed, set
+                        }else if(editorWrapper.NORMAL_EMU_CHECKBOX.checked == false){
+                            localStorage.removeItem("EditorEMUCheck" + editorWrapper.ID);   // Neither are checked now, remove
+                        }
+                        editorWrapper.MAIN_EMU_CHECKBOX.checked = false;
+                    }
+                }
+
+                localStorage.setItem("EditorEMUCheck" + this.ID, 1);
+            }else{
+                localStorage.removeItem("EditorEMUCheck" + this.ID)
+            }
+        }
+        this.EMULATION_ZONE_CHECKBOX_PARENT.appendChild(this.MAIN_EMU_CHECKBOX);
+
+        var check = localStorage.getItem("EditorEMUCheck" + this.ID);
+        if(check != null){
+            if(check == '1'){
+                this.MAIN_EMU_CHECKBOX.checked = true;
+                this.NORMAL_EMU_CHECKBOX.checked = true;
+            }else if(check == '0'){
+                this.NORMAL_EMU_CHECKBOX.checked = true;
+            }
+        }
+
+
+        // this.EMULATE_BUTTON = document.createElement("div");
+        // this.EMULATE_BUTTON.classList = "uk-button uk-height-1-1 uk-text-small uk-text-nowrap";
+        // this.EMULATE_BUTTON.textContent = "EMULATION";
+        // this.EMULATE_BUTTON.title = "Run editor contents in emulator";
+        // this.EMULATE_BUTTON.onclick = () => {this.onEmulate(this.getValue())};
+        // this.HEADER_TOOLBAR_DIV.appendChild(this.EMULATE_BUTTON);
+
 
 
         this.EDITOR_DIV = document.createElement("div");
@@ -268,6 +336,8 @@ class EditorWrapper{
         this.onSaveAsToThumby = undefined;
         this.onFastExecute = undefined;
         this.onEmulate = undefined;
+        this.onClose = undefined;
+        this.onOpen = undefined;
 
         // Make sure mouse click anywhere on panel focuses the panel
         this._container.element.addEventListener('click', (event) => {
@@ -351,6 +421,17 @@ class EditorWrapper{
             this.ACE_EDITOR.setValue(state['value'], 1);
         }else{
             this.ACE_EDITOR.setValue(defaultCode, 1);
+
+            // When adding default editors, give them a path but make each unique by looking at all other open editors
+            if(this.checkAllEditorsForPath("/Games/HelloWorld/HelloWorld.py") == true){
+                var helloWorldNum = 1;
+                while(this.checkAllEditorsForPath("/Games/HelloWorld/HelloWorld" + helloWorldNum + ".py")){
+                    helloWorldNum = helloWorldNum + 1;
+                }
+                this.setPath("/Games/HelloWorld/HelloWorld" + helloWorldNum + ".py");
+            }else{
+                this.setPath("/Games/HelloWorld/HelloWorld.py");
+            }
         }
 
         if(lastEditorTitle != null){
@@ -359,7 +440,7 @@ class EditorWrapper{
             this.setTitle('Editor' + this.ID + ' - ' + state['path']);
             this.SAVED_TO_THUMBY = true;         // Just opened from thumby, so saved to it
         }else{
-            this.setTitle('Editor' + this.ID);
+            this.setTitle("Editor" + this.ID + ' - ' + this.EDITOR_PATH);
             this.SAVED_TO_THUMBY = undefined;    // For sure not saved to Thumby but also new, keep undefined so can be closed without alert
         }
 
@@ -368,8 +449,6 @@ class EditorWrapper{
         }else if(state['path'] != undefined){
             this.EDITOR_PATH = state['path'];
             localStorage.setItem("EditorPath" + this.ID, this.EDITOR_PATH);
-        }else{
-            this.EDITOR_PATH = undefined;
         }
 
         this.FONT_SIZE = 10;
@@ -427,6 +506,22 @@ class EditorWrapper{
         if(window.theme == "light"){
             this.setThemeLight();
         }
+    }
+
+
+    checkAllEditorsForPath(path){
+        for(const [editorID, editorWrapper] of Object.entries(this.EDITORS)){
+            if(editorWrapper.EDITOR_PATH == path && editorWrapper.ID != this.ID){
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    // Need special function for this since constructor would come before onOpen def
+    useOnOpen(){
+        this.onOpen(this);
     }
 
     setAutocompleteButtonText(){
@@ -506,6 +601,8 @@ class EditorWrapper{
 
     // Needs to be called when editor closed otherwise edits that are spawned again will take on the stored data
     clearStorage(){
+        console.log("Removed editor local storage");
+        localStorage.removeItem("EditorEMUCheck" + this.ID);
         localStorage.removeItem("EditorValue" + this.ID);
         localStorage.removeItem("EditorTitle" + this.ID);
         localStorage.removeItem("EditorPath" + this.ID);
