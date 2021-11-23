@@ -1,5 +1,5 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
-const createLittleFS = require('../node_modules/littlefs/dist/littlefs');
+const createLittleFS = require('./node_modules/littlefs/dist/littlefs');
 
 
 // ##### USER CODE #####
@@ -8,21 +8,13 @@ const BLOCK_COUNT = 352;
 const BLOCK_SIZE = 4096;
 const FLASH_FS_OFFSET = 0xa0000;
 
-var flash = undefined;;
+var flash = new Uint8Array(BLOCK_COUNT * BLOCK_SIZE);
 var littlefs = undefined;
 var writeFile = undefined;
 var config = undefined;
 var lfs = undefined;
 
-
-async function startLittleFS(){
-  flash = undefined;;
-  littlefs = undefined;
-  writeFile = undefined;
-  config = undefined;
-  lfs = undefined;
-
-  flash = new Uint8Array(BLOCK_COUNT * BLOCK_SIZE);
+(async () => {
   console.log("FS setup started");
   littlefs = await createLittleFS();
   function flashRead(cfg, block, off, buffer, size) {
@@ -56,8 +48,7 @@ async function startLittleFS(){
   littlefs._lfs_format(lfs, config);
   littlefs._lfs_mount(lfs, config);
   console.log("FS setup ended");
-}
-window.startLittleFS = startLittleFS;
+})();
 
 
 async function loadFileData(fileData, fileName){
@@ -82,7 +73,7 @@ async function copyFSToFlash(rp2040){
 window.copyFSToFlash = copyFSToFlash;
 
 // ##### END USER CODE #####
-},{"../node_modules/littlefs/dist/littlefs":2}],2:[function(require,module,exports){
+},{"./node_modules/littlefs/dist/littlefs":2}],2:[function(require,module,exports){
 /*
  littlefs-wasm 0.0.1 
 

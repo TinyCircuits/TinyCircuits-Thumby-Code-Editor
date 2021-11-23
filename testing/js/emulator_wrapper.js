@@ -6,75 +6,8 @@ import { bootromB1 } from './bootrom.js';
 import { loadUF2 } from './load-uf2.js';
 
 
-
-class CheckboxRow{
-  constructor(editor, parentDiv, emulatorClass){
-    this.EDITOR = editor;
-    this.parentDiv = parentDiv;
-
-    // Dropdown div
-    this.EMULATOR_FILES_DROPDOWN_ROW = document.createElement("div");
-    this.EMULATOR_FILES_DROPDOWN_ROW.className = "emulator_files_dropdown_row";
-    parentDiv.appendChild(this.EMULATOR_FILES_DROPDOWN_ROW);
-
-    // Div for each row in dropdown
-    this.EMULATOR_FILES_DROPDOWN_ROW_CHECKBOX_DIV = document.createElement("div");
-    this.EMULATOR_FILES_DROPDOWN_ROW_CHECKBOX_DIV.className = "emulator_files_dropdown_row_checkbox_div";
-    this.EMULATOR_FILES_DROPDOWN_ROW.appendChild(this.EMULATOR_FILES_DROPDOWN_ROW_CHECKBOX_DIV);
-
-    // Setup checkbox for main files to start program
-    this.EMULATOR_FILES_DROPDOWN_ROW_CHECKBOX_EMU_MAIN = document.createElement("input");
-    this.EMULATOR_FILES_DROPDOWN_ROW_CHECKBOX_EMU_MAIN.className = "uk-checkbox emulator_files_dropdown_row_checkbox";
-    this.EMULATOR_FILES_DROPDOWN_ROW_CHECKBOX_EMU_MAIN.type = "checkbox";
-    this.EMULATOR_FILES_DROPDOWN_ROW_CHECKBOX_EMU_MAIN.onchange = (event) => {
-      // If this is now checked, uncheck the last main, set this as main, uncheck normal
-      if(this.EMULATOR_FILES_DROPDOWN_ROW_CHECKBOX_EMU_MAIN.checked){
-        if(emulatorClass.MAIN_ACTIVE != undefined && emulatorClass.MAIN_ACTIVE.EDITOR.ID != this.EDITOR.ID){
-          emulatorClass.MAIN_ACTIVE.EMULATOR_FILES_DROPDOWN_ROW_CHECKBOX_EMU_MAIN.checked = false;
-        }
-        emulatorClass.MAIN_ACTIVE = this;
-        this.EMULATOR_FILES_DROPDOWN_ROW_CHECKBOX_EMU.checked = false;
-      }
-      emulatorClass.saveChecked();
-    }
-    this.EMULATOR_FILES_DROPDOWN_ROW_CHECKBOX_EMU_MAIN.style.borderColor = "red";
-    this.EMULATOR_FILES_DROPDOWN_ROW_CHECKBOX_DIV.appendChild(this.EMULATOR_FILES_DROPDOWN_ROW_CHECKBOX_EMU_MAIN);
-
-    // Setup checkbox for emulating normal files
-    this.EMULATOR_FILES_DROPDOWN_ROW_CHECKBOX_EMU = document.createElement("input");
-    this.EMULATOR_FILES_DROPDOWN_ROW_CHECKBOX_EMU.className = "uk-checkbox emulator_files_dropdown_row_checkbox";
-    this.EMULATOR_FILES_DROPDOWN_ROW_CHECKBOX_EMU.type = "checkbox";
-    this.EMULATOR_FILES_DROPDOWN_ROW_CHECKBOX_EMU.onchange = (event) => {
-      if(this.EMULATOR_FILES_DROPDOWN_ROW_CHECKBOX_EMU.checked){
-        this.EMULATOR_FILES_DROPDOWN_ROW_CHECKBOX_EMU_MAIN.checked = false;
-      }
-      emulatorClass.saveChecked();
-    }
-    this.EMULATOR_FILES_DROPDOWN_ROW_CHECKBOX_DIV.appendChild(this.EMULATOR_FILES_DROPDOWN_ROW_CHECKBOX_EMU);
-
-    // Setup div that holds path to file
-    this.EMULATOR_FILES_DROPDOWN_ROW_NAME = document.createElement("div");
-    this.EMULATOR_FILES_DROPDOWN_ROW_NAME.className = "emulator_files_dropdown_row_name";
-    this.EMULATOR_FILES_DROPDOWN_ROW_NAME.innerHTML = "&nbsp;" + editor.EDITOR_TITLE;
-    this.EMULATOR_FILES_DROPDOWN_ROW_NAME.title = editor.EDITOR_TITLE;
-    this.EMULATOR_FILES_DROPDOWN_ROW.appendChild(this.EMULATOR_FILES_DROPDOWN_ROW_NAME);
-  }
-
-  // Remove divs when an editor is closed
-  remove(){
-    this.EMULATOR_FILES_DROPDOWN_ROW.removeChild(this.EMULATOR_FILES_DROPDOWN_ROW_NAME);
-    this.EMULATOR_FILES_DROPDOWN_ROW_CHECKBOX_DIV.removeChild(this.EMULATOR_FILES_DROPDOWN_ROW_CHECKBOX_EMU);
-    this.EMULATOR_FILES_DROPDOWN_ROW_CHECKBOX_DIV.removeChild(this.EMULATOR_FILES_DROPDOWN_ROW_CHECKBOX_EMU_MAIN);
-    this.EMULATOR_FILES_DROPDOWN_ROW.removeChild(this.EMULATOR_FILES_DROPDOWN_ROW_CHECKBOX_DIV);
-    this.parentDiv.removeChild(this.EMULATOR_FILES_DROPDOWN_ROW);
-  }
-}
-
-
-
 export class EMULATOR{
-  constructor(_container, state, _EDITORS){
-    this.EDITORS = _EDITORS;
+  constructor(_container, state){
     this._container = _container;
     this._container.setState(state);
 
@@ -91,10 +24,7 @@ export class EMULATOR{
     this.mcu = undefined;                                       // Main emulator object
     this.cdc = undefined;                                       // Main usb emulator object
     this.decoder = new TextDecoder('utf-8');                    // Main emulator serial output utf8 text decoder
-    this.uf2Name = "rp2-pico-freq-custom-faster.uf2";           // File name of emulator uf2 (custom compiled version)
-    this.bootromName = "bootrom.bin";
-    this.bootromData = undefined;                               // Store bootrom data so only need to fetch once
-
+    this.uf2Name = "rp2-pico-20210902-v1.17-freq-custom.uf2";   // File name of emulator uf2 (custom compiled version)
     this.collectedData = "";
 
     this.WIDTH = 72;
@@ -174,6 +104,14 @@ export class EMULATOR{
     this.EMULATOR_FOOTER_DIV.classList = "emulator_footer uk-button-group";
     this.EMULATOR_PANEL_DIV.appendChild(this.EMULATOR_FOOTER_DIV);
 
+    this.EMULATOR_RESTART_BTN = document.createElement("button");
+    this.EMULATOR_RESTART_BTN.classList = "uk-button uk-button-default";
+    this.EMULATOR_RESTART_BTN.className = "uk-button uk-button-primary uk-button-small uk-width-1-1 uk-text-small";
+    this.EMULATOR_RESTART_BTN.title = "Restarts the emulator using the file it was started with";
+    this.EMULATOR_RESTART_BTN.textContent = "RESTART";
+    this.EMULATOR_RESTART_BTN.onclick = () => {this.startEmulator(this.LAST_FILE_CONTENTS)};
+    this.EMULATOR_FOOTER_DIV.appendChild(this.EMULATOR_RESTART_BTN);
+
     this.EMULATOR_STOP_BTN = document.createElement("button");
     this.EMULATOR_STOP_BTN.classList = "uk-button uk-button-default";
     this.EMULATOR_STOP_BTN.className = "uk-button uk-button-primary uk-button-small uk-width-1-1 uk-text-small";
@@ -182,20 +120,12 @@ export class EMULATOR{
     this.EMULATOR_STOP_BTN.onclick = () => {this.stopEmulator()};
     this.EMULATOR_FOOTER_DIV.appendChild(this.EMULATOR_STOP_BTN);
 
-    this.EMULATOR_START_BTN = document.createElement("button");
-    this.EMULATOR_START_BTN.classList = "uk-button uk-button-default";
-    this.EMULATOR_START_BTN.className = "uk-button uk-button-primary uk-button-small uk-width-1-1 uk-text-small";
-    this.EMULATOR_START_BTN.title = "Start the emulator using code from checked editors";
-    this.EMULATOR_START_BTN.textContent = "Start";
-    this.EMULATOR_START_BTN.onclick = () => {
-      this.adjustCanvas();
-      this.startEmulator();
-    };
-    this.EMULATOR_FOOTER_DIV.appendChild(this.EMULATOR_START_BTN);
-
 
     // Resize events happen when page is zoomed in, always try to keep the same Thumby image and canvas size
     window.addEventListener('resize', (event) => {
+      this.adjustSize();
+    });
+    document.addEventListener("DOMContentLoaded", () => {
       this.adjustSize();
     });
 
@@ -277,141 +207,6 @@ export class EMULATOR{
       localStorage.setItem("EmulatorRotation", this.EMULATOR_ROTATION);
     };
     this.EMULATOR_FOOTER_DIV.appendChild(this.EMULATOR_ROTATE_BTN);
-
-
-
-    // https://stackoverflow.com/questions/54980799/webrtc-datachannel-with-manual-signaling-example-please/54985729#54985729
-    this.MULTIPLAYER_CONFIG = {iceServers: [{urls: "stun:stun.1.google.com:19302"}]};
-    this.MULTIPLAYER_PEER_CONNECTION = undefined;
-    this.MULTIPLAYER_DATA_CHANNEL = undefined;
-
-    this.EMULATOR_MULTIPLAYER_PARENT_DIV = document.createElement("div");
-    this.EMULATOR_MULTIPLAYER_PARENT_DIV.classList = "emulator_multiplayer_parent";
-    this.EMULATOR_PANEL_DIV.appendChild(this.EMULATOR_MULTIPLAYER_PARENT_DIV);
-
-    this.EMULATOR_MULTIPLAYER_TITLE_DIV = document.createElement("div");
-    this.EMULATOR_MULTIPLAYER_TITLE_DIV.classList = "emulator_multiplayer_title uk-text-center uk-text-large";
-    this.EMULATOR_MULTIPLAYER_TITLE_DIV.innerText = "MULTIPLAYER SETUP";
-    this.EMULATOR_MULTIPLAYER_PARENT_DIV.appendChild(this.EMULATOR_MULTIPLAYER_TITLE_DIV);
-
-    this.EMULATOR_MULTIPLAYER_COMM_DIV = document.createElement("div");
-    this.EMULATOR_MULTIPLAYER_COMM_DIV.classList = "emulator_multiplayer_title uk-text-center uk-text-large";
-    this.EMULATOR_MULTIPLAYER_COMM_DIV.innerText = "STOP CODE COPIED!";
-    this.EMULATOR_MULTIPLAYER_COMM_DIV.style.display = "none";
-    this.EMULATOR_MULTIPLAYER_PARENT_DIV.appendChild(this.EMULATOR_MULTIPLAYER_COMM_DIV);
-
-    this.EMULATOR_MULTIPLAYER_START_CODE_INPUT = document.createElement("input");
-    this.EMULATOR_MULTIPLAYER_START_CODE_INPUT.classList = "uk-input";
-    this.EMULATOR_MULTIPLAYER_START_CODE_INPUT.type = "text";
-    this.EMULATOR_MULTIPLAYER_START_CODE_INPUT.placeholder = "SETUP CODE";
-    this.EMULATOR_MULTIPLAYER_START_CODE_INPUT.style.width = "80%";
-    this.EMULATOR_MULTIPLAYER_START_CODE_INPUT.onkeydown = async (event) => {
-      if(event.key == "Enter"){
-        await this.MULTIPLAYER_PEER_CONNECTION.setRemoteDescription({type: "offer", sdp: atob(this.EMULATOR_MULTIPLAYER_START_CODE_INPUT.value)});
-        await this.MULTIPLAYER_PEER_CONNECTION.setLocalDescription(await this.MULTIPLAYER_PEER_CONNECTION.createAnswer());
-        this.MULTIPLAYER_PEER_CONNECTION.onicecandidate = ({candidate}) => {
-          if (candidate) return;
-          navigator.clipboard.writeText(btoa(this.MULTIPLAYER_PEER_CONNECTION.localDescription.sdp));
-          console.log("Copied stop code to clipboard");
-          this.EMULATOR_MULTIPLAYER_START_CODE_INPUT.style.display = "none";
-          this.EMULATOR_MULTIPLAYER_COPY_CODE_BTN.style.display = "none";
-          this.EMULATOR_MULTIPLAYER_COMM_DIV.innerText = "STOP CODE COPIED!";
-          this.EMULATOR_MULTIPLAYER_COMM_DIV.style.display = "block";
-        };
-      }
-    }
-    this.EMULATOR_MULTIPLAYER_PARENT_DIV.appendChild(this.EMULATOR_MULTIPLAYER_START_CODE_INPUT);
-
-    this.EMULATOR_MULTIPLAYER_STOP_CODE_INPUT = document.createElement("input");
-    this.EMULATOR_MULTIPLAYER_STOP_CODE_INPUT.classList = "uk-input";
-    this.EMULATOR_MULTIPLAYER_STOP_CODE_INPUT.type = "text";
-    this.EMULATOR_MULTIPLAYER_STOP_CODE_INPUT.placeholder = "STOP CODE";
-    this.EMULATOR_MULTIPLAYER_STOP_CODE_INPUT.style.width = "80%";
-    this.EMULATOR_MULTIPLAYER_STOP_CODE_INPUT.style.display = "none";
-    this.EMULATOR_MULTIPLAYER_STOP_CODE_INPUT.onkeydown = async (event) => {
-      if(event.key == "Enter"){
-        this.MULTIPLAYER_PEER_CONNECTION.setRemoteDescription({type: "answer", sdp: atob(this.EMULATOR_MULTIPLAYER_STOP_CODE_INPUT.value)});
-      }
-    }
-    this.EMULATOR_MULTIPLAYER_PARENT_DIV.appendChild(this.EMULATOR_MULTIPLAYER_STOP_CODE_INPUT);
-
-    this.EMULATOR_MULTIPLAYER_COPY_CODE_BTN = document.createElement("button");
-    this.EMULATOR_MULTIPLAYER_COPY_CODE_BTN.classList = "uk-button uk-button-primary uk-text-medium uk-text-nowrap uk-text-truncate";
-    this.EMULATOR_MULTIPLAYER_COPY_CODE_BTN.textContent = "COPY SETUP CODE";
-    this.EMULATOR_MULTIPLAYER_COPY_CODE_BTN.style.width = "40%";
-    this.EMULATOR_MULTIPLAYER_COPY_CODE_BTN.onclick = (event) => {
-      navigator.clipboard.writeText(btoa(this.MULTIPLAYER_PEER_CONNECTION.localDescription.sdp));
-      console.log("Copied code to clipboard");
-      this.EMULATOR_MULTIPLAYER_START_CODE_INPUT.style.display = "none";
-      this.EMULATOR_MULTIPLAYER_STOP_CODE_INPUT.style.display = "flex";
-      this.EMULATOR_MULTIPLAYER_COPY_CODE_BTN.style.display = "none";
-    }
-    this.EMULATOR_MULTIPLAYER_PARENT_DIV.appendChild(this.EMULATOR_MULTIPLAYER_COPY_CODE_BTN);
-
-    this.EMULATOR_MULTIPLAYER_EXIT_BTN = document.createElement("button");
-    this.EMULATOR_MULTIPLAYER_EXIT_BTN.className = "emulator_multiplayer_exit_btn";
-    this.EMULATOR_MULTIPLAYER_EXIT_BTN.setAttribute("uk-icon", "icon: close");
-    this.EMULATOR_MULTIPLAYER_EXIT_BTN.onclick = async () => {
-      this.EMULATOR_MULTIPLAYER_PARENT_DIV.style.display = "none";
-    };
-    this.EMULATOR_MULTIPLAYER_PARENT_DIV.appendChild(this.EMULATOR_MULTIPLAYER_EXIT_BTN);
-
-    this.EMULATOR_MULTIPLAYER_BTN = document.createElement("button");
-    this.EMULATOR_MULTIPLAYER_BTN.className = "uk-button uk-button-primary uk-button-small uk-width-1-1 uk-text-small";
-    this.EMULATOR_MULTIPLAYER_BTN.title = "Connect two emulators in separate web browsers";
-    this.EMULATOR_MULTIPLAYER_BTN.textContent = "MultiPlayer";
-    this.EMULATOR_MULTIPLAYER_BTN.onclick = async () => {
-      this.EMULATOR_MULTIPLAYER_START_CODE_INPUT.style.display = "block";
-      this.EMULATOR_MULTIPLAYER_COPY_CODE_BTN.style.display = "block";
-      this.EMULATOR_MULTIPLAYER_PARENT_DIV.style.display = "flex";
-
-      this.EMULATOR_MULTIPLAYER_COMM_DIV.style.color = "white";
-
-      if(this.MULTIPLAYER_PEER_CONNECTION != undefined && this.MULTIPLAYER_DATA_CHANNEL != undefined){
-        await this.MULTIPLAYER_PEER_CONNECTION.close();
-        await this.MULTIPLAYER_DATA_CHANNEL.close();
-      }
-
-      this.MULTIPLAYER_PEER_CONNECTION = new RTCPeerConnection(this.MULTIPLAYER_CONFIG);
-      this.MULTIPLAYER_DATA_CHANNEL = this.MULTIPLAYER_PEER_CONNECTION.createDataChannel("chat", {negotiated: true, id: 0});
-
-      this.MULTIPLAYER_DATA_CHANNEL.onopen = async () => {
-        this.EMULATOR_MULTIPLAYER_START_CODE_INPUT.style.display = "none";
-        this.EMULATOR_MULTIPLAYER_STOP_CODE_INPUT.style.display = "none";
-        this.EMULATOR_MULTIPLAYER_COPY_CODE_BTN.style.display = "none";
-
-        this.EMULATOR_MULTIPLAYER_START_CODE_INPUT.value = "";
-        this.EMULATOR_MULTIPLAYER_STOP_CODE_INPUT.value = "";
-  
-        this.EMULATOR_MULTIPLAYER_COMM_DIV.style.display = "block";
-        this.EMULATOR_MULTIPLAYER_COMM_DIV.style.color = "yellowgreen";
-        this.EMULATOR_MULTIPLAYER_COMM_DIV.innerText = "CONNECTED!";
-  
-        await setTimeout(() => {
-          this.EMULATOR_MULTIPLAYER_COMM_DIV.style.display = "none";
-          this.EMULATOR_MULTIPLAYER_PARENT_DIV.style.display = "none";
-        }, 1000);
-
-        this.MULTIPLAYER_DATA_CHANNEL.onmessage = (event) => {
-          console.log(event.data);
-          if(parseInt(event.data) > 0){
-            this.mcu.gpio[1].setInputValue(true);
-          }else if(parseInt(event.data) == 0){
-            this.mcu.gpio[1].setInputValue(false);
-          }
-        }
-
-        this.mcu.gpio[1].addListener(() => {
-          this.MULTIPLAYER_DATA_CHANNEL.send(this.mcu.gpio[1].value);
-        });
-      }
-
-      await this.MULTIPLAYER_PEER_CONNECTION.setLocalDescription(await this.MULTIPLAYER_PEER_CONNECTION.createOffer());
-      this.MULTIPLAYER_PEER_CONNECTION.onicecandidate = ({candidate}) => {
-        if (candidate) return;
-      };
-    };
-    this.EMULATOR_FOOTER_DIV.appendChild(this.EMULATOR_MULTIPLAYER_BTN)
 
 
     this.EMULATOR_SCREENSHOT_BTN = document.createElement("button");
@@ -528,6 +323,8 @@ export class EMULATOR{
     
     // Adjust the size and rotation of the canvas after everything loads on the page, start the media recorder
     document.addEventListener("DOMContentLoaded", () => {
+      this.adjustCanvas();
+
       this.EMULATOR_RECORD_STREAM = this.EMULATOR_CANVAS.captureStream();
       this.EMULATOR_RECORDED_CHUNKS = [];
       var options = {};
@@ -553,9 +350,6 @@ export class EMULATOR{
         window.URL.revokeObjectURL(url);
       }
     });
-
-    // Main file to start emulation, set in startEmulate() and used in cdc start
-    this.MAIN_FILE = "";
   }
 
 
@@ -837,7 +631,9 @@ export class EMULATOR{
 
 
   // Use this to start emulator and to restart it (just call it again)
-  async startEmulator(){
+  async startEmulator(fileContents){
+    this.LAST_FILE_CONTENTS = fileContents;
+
     // These all need reset or subsequent runs will start at the wrong places
     this.collectedData = "";
     this.displayBufferAdr = undefined;
@@ -854,14 +650,7 @@ export class EMULATOR{
 
     // I guess reassigning everything works, idk, JS
     this.mcu = new RP2040();
-
-    // Only fetch bootrom data once
-    if(this.bootromData == undefined){
-      const res = await fetch(this.bootromName);
-      const buffer = await res.arrayBuffer();
-      this.bootromData = new Uint32Array(buffer);
-    }
-    this.mcu.loadBootrom(this.bootromData);
+    this.mcu.loadBootrom(bootromB1);
     this.mcu.logger = new ConsoleLogger(LogLevel.Error);
 
 
@@ -887,9 +676,8 @@ export class EMULATOR{
       this.mcu.gpio[6].setInputValue(true);
       this.mcu.gpio[5].setInputValue(true);
       
-      // Start the program the user chose to emulate
-      // this.sendStringToNormal("\r\x01" + "import " + this.MAIN_FILE + "\x04");
-      this.sendStringToNormal("__import__('" + this.MAIN_FILE + "')");
+      // Start the program the user choose to emulate
+      this.sendStringToNormal("import main");
     };
     this.cdc.onSerialData = (value) => {
       this.collectedData += this.decoder.decode(value);
@@ -913,25 +701,7 @@ export class EMULATOR{
 
     // Load UF2 then custom emulator MP library files + the user file(s)
     loadUF2(this.uf2Name, this.mcu).then(async () => {
-
-      // Loop through all editors and get file names + content
-      this.MAIN_FILE = undefined;
-      for (const [editorID, editorWrapper] of Object.entries(this.EDITORS)) {
-        if(editorWrapper.NORMAL_EMU_CHECKBOX.checked || editorWrapper.MAIN_EMU_CHECKBOX.checked){
-          var currentName = editorWrapper.EDITOR_PATH.substring(editorWrapper.EDITOR_PATH.lastIndexOf('/')+1);
-          await window.loadFileData(editorWrapper.getValue(), currentName);
-
-          if(editorWrapper.MAIN_EMU_CHECKBOX.checked){
-            this.MAIN_FILE = currentName.substring(0, currentName.lastIndexOf('.'));
-          }
-        }
-      }
-      if(this.MAIN_FILE == undefined){
-        console.log("No main file found...");
-        alert("No editor designated as main (red checkbox), stopping");
-        return;
-      }
-
+      await window.loadFileData(fileContents, 'main.py');
       await this.loadServerFile("ThumbyGames/lib-emulator/thumby.py", 'thumby.py');
       await this.loadServerFile("ThumbyGames/lib-emulator/ssd1306.py", 'ssd1306.py');
       await window.copyFSToFlash(this.mcu);
