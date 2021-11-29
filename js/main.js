@@ -14,7 +14,7 @@ var ARCADE = new Arcade();
 
 
 // Show pop-up containing IDE changelog every time showChangelogVersion is increased
-const showChangelogVersion = 0;
+const showChangelogVersion = 1;
 if(localStorage.getItem(showChangelogVersion) == null){
     console.log("Updates to IDE! Showing changelog...");    // Show message in console
     localStorage.removeItem(showChangelogVersion-1);        // Remove flag from last version

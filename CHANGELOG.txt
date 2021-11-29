@@ -2,6 +2,13 @@ Thumby IDE changelog!
 
 ####################
 
+November 29, 2021
+
+Arcade
+* Allow image, video, and description files to have any name, only require file extension
+
+####################
+
 November 16, 2021
 
 NOTE: it is recommended to use 'Utilities -> Reset Layout' or 'Utilities -> Hard Reset' (note, all data will be deleted from page) to see new panels

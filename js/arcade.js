@@ -237,11 +237,11 @@ class Arcade{
             var currentURLContainer = new GameURLContainer();
 
             for(var i=0; i < txtFileLines.length; i++){
-                if(txtFileLines[i].indexOf("arcade_title_image.png") != -1){
+                if(txtFileLines[i].indexOf(".png") != -1){
                     currentURLContainer.GAME_IMAGE_URL = txtFileLines[i];
-                }else if(txtFileLines[i].indexOf("arcade_title_video.webm") != -1){
+                }else if(txtFileLines[i].indexOf(".webm") != -1){
                     currentURLContainer.GAME_VIDEO_URL = txtFileLines[i];
-                }else if(txtFileLines[i].indexOf("arcade_description.txt") != -1){
+                }else if(txtFileLines[i].indexOf(".txt") != -1){
                     currentURLContainer.GAME_DESCRIPTION_URL = txtFileLines[i];
                 }else if(txtFileLines[i].indexOf("NAME=") != -1){
                     currentURLContainer.GAME_NAME = txtFileLines[i].substring(txtFileLines[i].indexOf('=')+1);
