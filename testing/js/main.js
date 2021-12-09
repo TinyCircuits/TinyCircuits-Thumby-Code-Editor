@@ -209,6 +209,12 @@ function invertPageTheme(){
                 link.href = "css/dark/editor-dark.css";
             }
 
+            if(href == "importer-dark.css"){
+                link.href = "css/light/importer-light.css";
+            }else if(href == "importer-light.css"){
+                link.href = "css/dark/importer-dark.css";
+            }
+
             if(href == "uikit-dark.css"){
                 link.href = "uikit-3.7.3/css/uikit-light.css";
             }else if(href == "uikit-light.css"){
@@ -627,6 +633,7 @@ function registerEmulator(_container, state){
 var EDITORS = {};
 var LAST_ACTIVE_EDITOR = undefined; // Each editor will set this to themselves on focus, bitmap builder uses this
 function registerEditor(_container, state){
+    console.log(state);
     var editor = new EditorWrapper(_container, state, EDITORS);
     editor.onFocus = () => {LAST_ACTIVE_EDITOR = editor};
     editor.onSaveToThumby = async () => {
@@ -716,19 +723,6 @@ ARCADE.onDownload = async (thumbyURL, binaryFileContents) => {
 }
 
 ARCADE.onOpen = async (thumbyURL, binaryFileContents) => {
-    if(thumbyURL.indexOf(".py") == -1 && thumbyURL.indexOf(".txt") == -1 && thumbyURL.indexOf(".text") == -1 && thumbyURL.indexOf(".cfg") == -1){
-        if(!confirm("Unrecognized file extension, are you sure you want to open this?\n\nClick 'cancel to download'")){
-            var blob = new Blob(binaryFileContents, {type: "text/txt" });
-            var url = URL.createObjectURL(blob);
-            var link = document.createElement('a');
-            link.download = thumbyURL.substring(thumbyURL.lastIndexOf('/')+1);
-            link.href = url;
-            link.click();
-            window.URL.revokeObjectURL(url);
-            return;
-        }
-    }
-
     // Make sure no editors with this file path already exist
     for (const [id, editor] of Object.entries(EDITORS)) {
         if(editor.EDITOR_PATH == thumbyURL){
@@ -736,11 +730,6 @@ ARCADE.onOpen = async (thumbyURL, binaryFileContents) => {
             alert("This file is already open in Editor" + id + "! Please close it first");
             return;
         }
-    }
-
-    var fileContents = new TextDecoder().decode(binaryFileContents);
-    if(fileContents == undefined){
-        return; // RP2040 was busy
     }
 
     // Find editor with smallest ID, focus it, then add new editor with file contents
@@ -756,8 +745,9 @@ ARCADE.onOpen = async (thumbyURL, binaryFileContents) => {
 
     // Pass the file contents to the new editor using the state
     var state = {};
-    state.value = fileContents;
+    state.value = Array.from(new Uint8Array(binaryFileContents));
     state.path = thumbyURL;
+    console.log(state);
     myLayout.addComponent('Editor', state, 'Editor');
 }
 

@@ -1,5 +1,5 @@
 .emulator_panel{
-    background-color: rgb(58, 58, 58);
+    background-color: rgb(167, 167, 167);
     width: 100%;
     height: 100%;
     display: flex;
@@ -10,7 +10,7 @@
 }
 
 .emulator_body{
-    background-color: rgb(122, 122, 122);
+    background-color: rgb(167, 167, 167);
     display: grid;
     height: calc(100% - 25px);
     width: 100%;
@@ -40,7 +40,7 @@
     margin-bottom: 25px;
     width: 225px;
     aspect-ratio: 1/1;
-    background-color: rgb(58, 58, 58);
+    background-color: rgb(24, 24, 24);
     background: url(../../css/svgs/emulator/Emulator-THUMBY-NOOUTLINE.svg) no-repeat center;
     background-size: contain;
     display: flex;
@@ -54,6 +54,7 @@
     width: 72px;
     height: 40px;
     margin-top: 16.5%;
+    display: none;
     image-rendering: optimizeQuality;
     image-rendering: -moz-crisp-edges;
     image-rendering: -webkit-optimize-contrast;
@@ -67,6 +68,7 @@
 .emulator_dpad_up_btn{
     display: block;
     position: absolute;
+    background-size: contain;
     width: 10%;
     aspect-ratio: 1 / 0.8;
     background-color: transparent;
@@ -79,6 +81,7 @@
 .emulator_dpad_left_btn{
     display: block;
     position: absolute;
+    background-size: contain;
     width: 10%;
     aspect-ratio: 1 / 1;
     background-color: transparent;
@@ -91,6 +94,7 @@
 .emulator_dpad_down_btn{
     display: block;
     position: absolute;
+    background-size: contain;
     width: 10%;
     aspect-ratio: 1 / 0.8;
     background-color: transparent;
@@ -103,6 +107,7 @@
 .emulator_dpad_right_btn{
     display: block;
     position: absolute;
+    background-size: contain;
     width: 10%;
     aspect-ratio: 1 / 1;
     background-color: transparent;
@@ -116,6 +121,7 @@
     border-radius: 50%;
     display: block;
     position: absolute;
+    background-size: contain;
     width: 10%;
     aspect-ratio: 1 / 1;
     background-color: transparent;
@@ -129,6 +135,7 @@
     border-radius: 50%;
     display: block;
     position: absolute;
+    background-size: contain;
     width: 10%;
     aspect-ratio: 1 / 1;
     background-color: transparent;
@@ -140,6 +147,7 @@
 
 .emulator_dpad_img{
     position: absolute;
+    background-size: contain;
     aspect-ratio: 1 / 1;
     width: 22.25%;
     top: 52.6%;
@@ -149,6 +157,7 @@
 
 .emulator_b_img{
     position: absolute;
+    background-size: contain;
     aspect-ratio: 1 / 1;
     width: 10.25%;
     top: 61.0%;
@@ -158,6 +167,7 @@
 
 .emulator_a_img{
     position: absolute;
+    background-size: contain;
     aspect-ratio: 1 / 1;
     width: 10.25%;
     top: 54.325%;
@@ -167,6 +177,7 @@
 
 .emulator_screenshot_btn{
     position: absolute;
+    background-size: contain;
     width: 50px;
     border-radius: 50%;
     aspect-ratio: 1/1;
@@ -176,6 +187,7 @@
 
 .emulator_record_toggle_btn{
     position: absolute;
+    background-size: contain;
     width: 50px;
     border-radius: 50%;
     aspect-ratio: 1/1;
@@ -185,13 +197,13 @@
 
 .emulator_resolution_display{
     position: absolute;
+    background-size: contain;
     width: 50px;
     border-radius: 50%;
     aspect-ratio: 1/1;
     bottom: 38px;
     left: 10px;
 }
-
 
 .emulator_multiplayer_parent{
     position: absolute;
@@ -224,48 +236,24 @@
     color: white;
 }
 
-.emulator_fs_slide_toggle_div{
-    display: flex;
-    position: absolute;
-    right: 0;
-    top: 0;
-    width: 25px;
-    height: calc(100% - 27px);
-    z-index: 1010;
-    background-color: rgb(65, 65, 65);
-    border-left: rgb(133, 133, 133) 1px solid;
-}
-
-.emulator_fs_slide_toggle_text{
-    color: white;
-    font-family: Roboto;
-    white-space: nowrap;
-    word-spacing: 5px;
-    top: 50%;
-    right: 50%;
-    position: absolute;
-    transform: scale(-1) translate(-50%, 50%);
-    writing-mode: vertical-lr;
-}
-
 .emulator_fs_slide_div{
     position: absolute;
-    display: flex;
+    display: none;
     flex-flow: column;
-    right: 0;
+    right: 8px;
     width: 250px;
-    height: 100%;
+    height: calc(100% - 27px);
     z-index: 1010;
-    background-color: rgb(37, 37, 37);
+    background-color: rgb(138, 138, 138);
     border-left: rgb(133, 133, 133) 1px solid;
     overflow: auto;
 }
 
 .emulator_file_row{
-    background-color: rgb(37, 37, 37);
+    background-color: rgb(138, 138, 138);
     width: auto;
     height: 25px;
-    border-bottom: rgb(133, 133, 133) 1px solid;
+    border-bottom: rgb(58, 58, 58) 1px solid;
     color: white;
     font-family: Roboto;
     font-size: 14px;

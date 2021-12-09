@@ -72,10 +72,7 @@ class EditorWrapper{
                             "    thumby.display.drawSprite(thumbySprite)\n" +
                             "    thumby.display.update()\n";
 
-
         this.initEditorPanelUI(state["value"]);
-
-
 
         // Listen for layout changes and re-fit the editor, also override the default exit button
         this._container._layoutManager.on('stateChanged', () => {
@@ -101,7 +98,7 @@ class EditorWrapper{
                     this.clearStorage();
 
                     // Clear the binary file from database that this editor had a reference to
-                    this.deleteDBFile();
+                    if(this.isEditorBinary()) this.deleteDBFile();
 
                     console.log("Cleared info for Editor: " + this._container.title);
                     this._container.close();

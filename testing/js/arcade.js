@@ -47,7 +47,7 @@ class GameURLContainer{
                 window.setPercent((i/this.GAME_FILE_URLS.length) * 100, "Opening: " + thumbyURL);
                 
                 await fetch(this.GAME_FILE_URLS[i]).then(async (response) => {
-                    await this.openFunc(thumbyURL, new Uint8Array(await response.arrayBuffer()));
+                    await this.openFunc(thumbyURL, await response.arrayBuffer());
                 });
             }
             window.setPercent(100, "Opened arcade game...");
