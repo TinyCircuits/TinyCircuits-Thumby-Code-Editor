@@ -654,31 +654,31 @@ class ReplJS{
         await this.deleteAllFiles();
         await this.getOnBoardFSTree();
 
-        await this.uploadFile("Games/SpaceDebris/SpaceDebris.py", await window.downloadFile("/ThumbyGames/Games/SpaceDebris/SpaceDebris.py"), false);
+        await this.uploadFile("Games/SpaceDebris/SpaceDebris.py", await window.downloadFile("/ThumbyGamesTesting/Games/SpaceDebris/SpaceDebris.py"), false);
         window.setPercent(7.7);
-        await this.uploadFile("Games/Annelid/Annelid.py", await window.downloadFile("/ThumbyGames/Games/Annelid/Annelid.py"), false);
+        await this.uploadFile("Games/Annelid/Annelid.py", await window.downloadFile("/ThumbyGamesTesting/Games/Annelid/Annelid.py"), false);
         window.setPercent(15.4);
         // await this.uploadFile("Games/Thumgeon/Thumgeon.py", await window.downloadFile("/ThumbyGames/Games/Thumgeon/Thumgeon.py"), false);
         window.setPercent(23.1);
-        await this.uploadFile("Games/SaurRun/SaurRun.py", await window.downloadFile("/ThumbyGames/Games/SaurRun/SaurRun.py"), false);
+        await this.uploadFile("Games/SaurRun/SaurRun.py", await window.downloadFile("/ThumbyGamesTesting/Games/SaurRun/SaurRun.py"), false);
         window.setPercent(30.8);
-        await this.uploadFile("Games/TinyBlocks/TinyBlocks.py", await window.downloadFile("/ThumbyGames/Games/TinyBlocks/TinyBlocks.py"), false);
+        await this.uploadFile("Games/TinyBlocks/TinyBlocks.py", await window.downloadFile("/ThumbyGamesTesting/Games/TinyBlocks/TinyBlocks.py"), false);
         window.setPercent(38.5);
-        await this.uploadFile("lib/ssd1306.py", await window.downloadFile("/ThumbyGames/lib/ssd1306.py"), false);
+        await this.uploadFile("lib/ssd1306.py", await window.downloadFile("/ThumbyGamesTesting/lib/ssd1306.py"), false);
         window.setPercent(46.2);
-        await this.uploadFile("lib/thumby.py", await window.downloadFile("/ThumbyGames/lib/thumby.py"), false);
+        await this.uploadFile("lib/thumby.py", await window.downloadFile("/ThumbyGamesTesting/lib/thumby.py"), false);
         window.setPercent(53.9);
-        await this.uploadFile("lib/font5x7.bin", await window.downloadFile("/ThumbyGames/lib/font5x7.bin", true), false, true);
+        await this.uploadFile("lib/font5x7.bin", await window.downloadFile("/ThumbyGamesTesting/lib/font5x7.bin", true), false, true);
         window.setPercent(61.6);
-        await this.uploadFile("lib/TClogo.bin", await window.downloadFile("/ThumbyGames/lib/TClogo.bin", true), false, true);
+        await this.uploadFile("lib/TClogo.bin", await window.downloadFile("/ThumbyGamesTesting/lib/TClogo.bin", true), false, true);
         window.setPercent(69.3);
-        await this.uploadFile("lib/thumbyLogo.bin", await window.downloadFile("/ThumbyGames/lib/thumbyLogo.bin", true), false, true);
+        await this.uploadFile("lib/thumbyLogo.bin", await window.downloadFile("/ThumbyGamesTesting/lib/thumbyLogo.bin", true), false, true);
         window.setPercent(77);
-        await this.uploadFile("main.py", await window.downloadFile("/ThumbyGames/main.py"), false);
+        await this.uploadFile("main.py", await window.downloadFile("/ThumbyGamesTesting/main.py"), false);
         window.setPercent(84.7);
-        await this.uploadFile("menu.py", await window.downloadFile("/ThumbyGames/menu.py"), false);
+        await this.uploadFile("menu.py", await window.downloadFile("/ThumbyGamesTesting/menu.py"), false);
         window.setPercent(92.4);
-        await this.uploadFile("thumby.cfg", await window.downloadFile("/ThumbyGames/thumby.cfg"), false);
+        await this.uploadFile("thumby.cfg", await window.downloadFile("/ThumbyGamesTesting/thumby.cfg"), false);
         window.setPercent(99.9);
 
         // Make sure to update the filesystem after modifying it
