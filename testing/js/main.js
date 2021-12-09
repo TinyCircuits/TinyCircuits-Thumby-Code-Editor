@@ -13,8 +13,45 @@ var DIR = new DIRCHOOSER();
 var ARCADE = new Arcade();
 
 
+var onExportToEditor = (bytes) => {
+    var editorSpriteID = 0;
+    var filePath = undefined;
+    while(true){
+        var increased = false;
+        filePath = "sprite" + editorSpriteID + ".raw";
+
+        for (const [id, editor] of Object.entries(EDITORS)) {
+            if(editor.EDITOR_PATH == filePath){
+                editorSpriteID = editorSpriteID + 1;
+                increased = true;
+            }
+        }
+        if(increased == false){
+            break;
+        }
+    }
+
+    // Find editor with smallest ID, focus it, then add new editor with file contents
+    var currentId = Infinity;
+    for (const [id, editor] of Object.entries(EDITORS)) {
+        currentId = id;
+    }
+    if(currentId != Infinity){
+        EDITORS[currentId]._container.parent.focus();
+    }
+
+    // Pass the file contents to the new editor using the state
+    var state = {};
+    state.value = bytes;
+    state.path = filePath;
+    myLayout.addComponent('Editor', state, 'Editor');
+}
+var IMPORTER = new Importer(document.getElementById("IDImportSpriteBTN"), onExportToEditor);
+
+
+
 // Show pop-up containing IDE changelog every time showChangelogVersion is increased
-const showChangelogVersion = 0;
+const showChangelogVersion = 2;
 if(localStorage.getItem(showChangelogVersion) == null){
     console.log("Updates to IDE! Showing changelog...");    // Show message in console
     localStorage.removeItem(showChangelogVersion-1);        // Remove flag from last version
@@ -296,6 +333,11 @@ document.getElementById("IDHardResetBTN").onclick = (event) =>{
     }
     console.log("PAGE: Hard reset page");
     localStorage.clear();
+
+    // Delete database containing all editor binary files
+    indexedDB.deleteDatabase("BINARY_FILES");
+
+    // Refresh the page
     location.reload();
 }
 
@@ -476,12 +518,6 @@ function registerFilesystem(_container, state){
         }
     }
     FS.onOpen = async (filePath) => {
-        if(filePath.indexOf(".py") == -1 && filePath.indexOf(".txt") == -1 && filePath.indexOf(".text") == -1 && filePath.indexOf(".cfg") == -1){
-            if(!confirm("Unrecognized file extension, are you sure you want to open this?\n\nTry right-clicking and choosing 'Download' and use it on your computer")){
-                return;
-            }
-        }
-
         // Make sure no editors with this file path already exist
         for (const [id, editor] of Object.entries(EDITORS)) {
             if(editor.EDITOR_PATH == filePath){
@@ -491,8 +527,8 @@ function registerFilesystem(_container, state){
             }
         }
 
-        var fileContents = new TextDecoder().decode(new Uint8Array(await REPL.getFileContents(filePath)));
-        if(fileContents == undefined){
+        var rawFileBytes = await REPL.getFileContents(filePath);
+        if(rawFileBytes == undefined){
             return; // RP2040 was busy
         }
 
@@ -509,7 +545,7 @@ function registerFilesystem(_container, state){
 
         // Pass the file contents to the new editor using the state
         var state = {};
-        state.value = fileContents;
+        state.value = rawFileBytes;
         state.path = filePath;
         myLayout.addComponent('Editor', state, 'Editor');
     }
@@ -569,6 +605,12 @@ function registerShell(_container, state){
         FS.updateTree(jsonStrData);
         DIR.updateTree(jsonStrData);
     };
+    REPL.doPrintSeparator = () => {
+        ATERM.doPrintSeparator();
+    }
+    REPL.forceTermNewline = () => {
+        ATERM.write("\r\n");
+    }
 }
 
 
@@ -610,11 +652,23 @@ function registerEditor(_container, state){
             console.log('Saved');
             editor.SAVED_TO_THUMBY = true;
             editor.updateTitleSaved();
-            var busy = await REPL.uploadFile(editor.EDITOR_PATH, editor.getValue(), true, false);
-            if(busy != true){
-                REPL.getOnBoardFSTree();
-                window.setPercent(100);
-                window.resetPercentDelay();
+
+            if(editor.isEditorBinary()){
+                editor.getDBFile(async (fileData) => {
+                    var busy = await REPL.uploadFile(editor.EDITOR_PATH, fileData, true, false);
+                    if(busy != true){
+                        REPL.getOnBoardFSTree();
+                        window.setPercent(100);
+                        window.resetPercentDelay();
+                    }
+                })
+            }else{
+                var busy = await REPL.uploadFile(editor.EDITOR_PATH, editor.getValue(), true, false);
+                if(busy != true){
+                    REPL.getOnBoardFSTree();
+                    window.setPercent(100);
+                    window.resetPercentDelay();
+                }
             }
         }
     }
@@ -765,7 +819,7 @@ String.prototype.convertToHex = function (delim) {
 };
 
 
-async function downloadFile(filePath) {
+async function downloadFile(filePath, binary) {
     let response = await fetch(filePath);
         
     if(response.status != 200) {
@@ -773,9 +827,11 @@ async function downloadFile(filePath) {
     }
         
     // read response stream as text
-    let text_data = await response.text();
-
-    return text_data;
+    if(binary == undefined || binary == false){
+        return await response.text();
+    }else if(binary != undefined && binary == true){
+        return new Uint8Array(await response.arrayBuffer());
+    }
 }
 window.downloadFile = downloadFile;
 

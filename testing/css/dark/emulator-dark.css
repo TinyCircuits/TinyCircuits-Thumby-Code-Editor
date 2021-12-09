@@ -40,7 +40,7 @@
     margin-bottom: 25px;
     width: 225px;
     aspect-ratio: 1/1;
-    background-color: rgb(58, 58, 58);
+    background-color: rgb(24, 24, 24);
     background: url(../../css/svgs/emulator/Emulator-THUMBY-NOOUTLINE.svg) no-repeat center;
     background-size: contain;
     display: flex;
@@ -54,6 +54,7 @@
     width: 72px;
     height: 40px;
     margin-top: 16.5%;
+    display: none;
     image-rendering: optimizeQuality;
     image-rendering: -moz-crisp-edges;
     image-rendering: -webkit-optimize-contrast;
@@ -235,11 +236,27 @@
     color: white;
 }
 
-.emulator_files_btn{
+.emulator_fs_slide_div{
     position: absolute;
-    background-size: contain;
-    width: 40px;
+    display: none;
+    flex-flow: column;
+    right: 8px;
+    width: 250px;
+    height: calc(100% - 27px);
+    z-index: 1010;
+    background-color: rgb(37, 37, 37);
+    border-left: rgb(133, 133, 133) 1px solid;
+    overflow: auto;
+}
+
+.emulator_file_row{
+    background-color: rgb(37, 37, 37);
+    width: auto;
     height: 25px;
-    top: 10px;
-    right: 10px;
+    border-bottom: rgb(133, 133, 133) 1px solid;
+    color: white;
+    font-family: Roboto;
+    font-size: 14px;
+    white-space: nowrap;
+    margin: 2.5px;
 }

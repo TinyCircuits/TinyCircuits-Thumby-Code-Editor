@@ -223,3 +223,52 @@
     border-bottom: green solid 1px;
     color: white;
 }
+
+.emulator_fs_slide_toggle_div{
+    display: flex;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 25px;
+    height: calc(100% - 27px);
+    z-index: 1010;
+    background-color: rgb(65, 65, 65);
+    border-left: rgb(133, 133, 133) 1px solid;
+}
+
+.emulator_fs_slide_toggle_text{
+    color: white;
+    font-family: Roboto;
+    white-space: nowrap;
+    word-spacing: 5px;
+    top: 50%;
+    right: 50%;
+    position: absolute;
+    transform: scale(-1) translate(-50%, 50%);
+    writing-mode: vertical-lr;
+}
+
+.emulator_fs_slide_div{
+    position: absolute;
+    display: flex;
+    flex-flow: column;
+    right: 0;
+    width: 250px;
+    height: 100%;
+    z-index: 1010;
+    background-color: rgb(37, 37, 37);
+    border-left: rgb(133, 133, 133) 1px solid;
+    overflow: auto;
+}
+
+.emulator_file_row{
+    background-color: rgb(37, 37, 37);
+    width: auto;
+    height: 25px;
+    border-bottom: rgb(133, 133, 133) 1px solid;
+    color: white;
+    font-family: Roboto;
+    font-size: 14px;
+    white-space: nowrap;
+    margin: 2.5px;
+}

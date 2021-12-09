@@ -1,4 +1,4 @@
-const createLittleFS = require('../node_modules/littlefs/dist/littlefs');
+const createLittleFS = require('../js/littlefs');
 
 
 // ##### USER CODE #####
@@ -12,6 +12,7 @@ var littlefs = undefined;
 var writeFile = undefined;
 var config = undefined;
 var lfs = undefined;
+var mkDir = undefined;
 
 
 async function startLittleFS(){
@@ -20,6 +21,7 @@ async function startLittleFS(){
   writeFile = undefined;
   config = undefined;
   lfs = undefined;
+  mkDir = undefined;
 
   flash = new Uint8Array(BLOCK_COUNT * BLOCK_SIZE);
   console.log("FS setup started");
@@ -47,7 +49,13 @@ async function startLittleFS(){
   writeFile = littlefs.cwrap(
     'lfs_write_file',
     ['number'],
-    ['number', 'string', 'string', 'number']
+    ['number', 'string', 'number', 'number']
+  );
+
+  mkDir = littlefs.cwrap(
+    'lfs_mkdir',
+    ['number'],
+    ['number', 'string']
   );
 
   config = littlefs._new_lfs_config(read, prog, erase, sync, BLOCK_COUNT, BLOCK_SIZE);
@@ -59,9 +67,20 @@ async function startLittleFS(){
 window.startLittleFS = startLittleFS;
 
 
-async function loadFileData(fileData, fileName){
+async function loadFileData(fileData, filePath){
   console.log("File loading");
-  writeFile(lfs, fileName, fileData, fileData.length);  
+  var dirs = filePath.split('/').slice(1);
+  var path = "";
+
+  for(var i=0; i<dirs.length-1; i++){
+    path = path + "/" + dirs[i];
+    makeDir(path)
+  }
+
+  var buf = littlefs._malloc(fileData.length*fileData.BYTES_PER_ELEMENT);
+  littlefs.HEAPU8.set(fileData, buf);
+  writeFile(lfs, filePath, buf, fileData.length);
+  littlefs._free(buf);
   console.log("File loaded");
 }
 window.loadFileData = loadFileData;
@@ -79,5 +98,12 @@ async function copyFSToFlash(rp2040){
   console.log("Flash FS copy ended");
 }
 window.copyFSToFlash = copyFSToFlash;
+
+
+async function makeDir(path){
+  // littlefs._lfs_mkdir(lfs, path);
+  mkDir(lfs, path);
+}
+window.makeDir = makeDir;
 
 // ##### END USER CODE #####

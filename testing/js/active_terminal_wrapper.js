@@ -69,6 +69,11 @@ class ActiveTerminal{
     }
 
 
+    doPrintSeparator(){
+        this.write("\r\n------------------------------------------------------");
+    }
+
+
     stopAutoResizing(){
         this.AUTO_RESIZING = false;
     }

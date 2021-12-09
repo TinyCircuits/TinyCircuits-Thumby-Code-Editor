@@ -2,6 +2,51 @@ Thumby IDE changelog!
 
 ####################
 
+December 9, 2021
+
+* Access beta IDE page at https://tinycircuits.github.io/testing/
+
+API
+-GRAPHICS
+* Added `thumby.display.brightness(...)` to set Thumby screen brightness (does not affect emulator)
+* Added `thumby.display.getPixel(...)` get getting pixel values
+* Added `thumby.display.setFPS(...)` to limit frame rate, handled by `thumby.display.update()`
+* Added `thumby.display.setFont(...)` to set font from bytearray character sheet or binary font file
+* Added `thumby.display.blitWithMask(...)` and thumby.display.drawSpriteWithMask(...) to provide per-pixel transparency
+* Added `thumby.Sprite` for handling/drawing sprites
+* Added `thumby.display.width` representing the number of pixels in the screens horizontal direction
+* Added `thumby.display.height` representing the number of pixels in the screens vertical direction
+* Added `thumby.__version__` that represents the version of the library as a string (e.g. '1.0')
+* Removed `thumby.DISPLAY_W`
+* Removed `thumby.DISPLAY_H`
+* Removed Thumby file API in favor of Python file API (e.g. `open(...)`)
+* Changed name of `thumby.display.rect(...)` to `thumby.display.drawRectangle(...)`
+* Changed name of `thumby.display.drawFilledRect(...)` to `thumby.display.drawFilledRectangle(...)`
+* Changed `thumby.display.drawSprite(...)` to take a `thumby.Sprite` object as the only parameter
+* Change pin mapping of A and B buttons (pins were reversed)
+* Require all parameters for `thumby.display.fill(...)`
+* Require all parameters for `thumby.display.setPixel()`
+* Require all parameters for `thumby.display.getPixel(...)`
+* Require all parameters for `thumby.display.drawLine(...)`
+* Require all parameters for `thumby.display.drawRectangle(...)`
+* Require all parameters for `thumby.display.drawFilledRectangle(...)`
+* Require all parameters for `thumby.display.drawText(...)`
+* Require all parameters for `thumby.display.blit(...)`
+* Require all parameters for `thumby.display.drawSprite(...)`
+* Require all parameters for `thumby.display.blitWithMask(...)`
+* Require all parameters for `thumby.display.drawSpriteWithMask(...)`
+
+General
+* Added asset importer accessible through the 'SPRITE IMPORTER' button in the IDE top panel. Images and sprite animation sheets can be imported and exported to a binary file editor (recommended) or bytearray in code
+* Added support for multiple files to be emulated. Click the white box in an editor to include that file in the emulation at its set path (File -> Set Path), or click the red box to make it the main file to start in the emulation at its set path. use 'START' button in emulator panel
+* Added support for file creation and writing in MicroPython during emulation (however, emulated flash does not persist across refresh or pressing the start button)
+* Added support for storing binary files in editor to used in emulation
+* Add quick view of files included in emulator (emulator panel -> files)
+* Changed default layout of IDE to hide bitmap builder
+* New files included by default during emulation at '/lib' (updated thumby.py, updated ssd1306.py, TClogo.bin, font5x7.bin, thumbyLogo.bin)
+
+####################
+
 November 29, 2021
 
 Arcade

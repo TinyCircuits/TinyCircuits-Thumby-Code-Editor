@@ -28,6 +28,8 @@ class ReplJS{
         this.onConnect = undefined;
         this.onDisconnect = undefined;
         this.onFSData = undefined;
+        this.doPrintSeparator = undefined;
+        this.forceTermNewline = undefined;
 
         // ### MicroPython Control Commands ###
         // DOCS: https://docs.micropython.org/en/latest/esp8266/tutorial/repl.html#other-control-commands
@@ -340,6 +342,7 @@ class ReplJS{
         // Not really needed for hiding output to terminal since raw does not echo
         // but is needed to only grab the FS lines/data
         this.startReaduntil(">");
+        this.forceTermNewline();
         await this.writeToDevice(lines + "\x04");
         await this.waitUntilOK();
         this.SPECIAL_FORCE_OUTPUT_FLAG = true;
@@ -350,6 +353,8 @@ class ReplJS{
         this.SPECIAL_FORCE_OUTPUT_FLAG = false;
         await this.getToRaw();
         this.SPECIAL_FORCE_OUTPUT_FLAG = true;
+
+        this.doPrintSeparator();
 
         this.startReaduntil("Raspberry Pi Pico with RP2040");
         await this.writeToDevice("\r" + this.CTRL_CMD_NORMALMODE);
@@ -650,21 +655,29 @@ class ReplJS{
         await this.getOnBoardFSTree();
 
         await this.uploadFile("Games/SpaceDebris/SpaceDebris.py", await window.downloadFile("/ThumbyGames/Games/SpaceDebris/SpaceDebris.py"), false);
-        window.setPercent(11.1);
+        window.setPercent(7.7);
         await this.uploadFile("Games/Annelid/Annelid.py", await window.downloadFile("/ThumbyGames/Games/Annelid/Annelid.py"), false);
-        window.setPercent(22.2);
-        await this.uploadFile("Games/Thumgeon/Thumgeon.py", await window.downloadFile("/ThumbyGames/Games/Thumgeon/Thumgeon.py"), false);
-        window.setPercent(33.3);
+        window.setPercent(15.4);
+        // await this.uploadFile("Games/Thumgeon/Thumgeon.py", await window.downloadFile("/ThumbyGames/Games/Thumgeon/Thumgeon.py"), false);
+        window.setPercent(23.1);
         await this.uploadFile("Games/SaurRun/SaurRun.py", await window.downloadFile("/ThumbyGames/Games/SaurRun/SaurRun.py"), false);
-        window.setPercent(44.4);
+        window.setPercent(30.8);
         await this.uploadFile("Games/TinyBlocks/TinyBlocks.py", await window.downloadFile("/ThumbyGames/Games/TinyBlocks/TinyBlocks.py"), false);
-        window.setPercent(55.5);
+        window.setPercent(38.5);
         await this.uploadFile("lib/ssd1306.py", await window.downloadFile("/ThumbyGames/lib/ssd1306.py"), false);
-        window.setPercent(66.6);
+        window.setPercent(46.2);
         await this.uploadFile("lib/thumby.py", await window.downloadFile("/ThumbyGames/lib/thumby.py"), false);
-        window.setPercent(77.7);
+        window.setPercent(53.9);
+        await this.uploadFile("lib/font5x7.bin", await window.downloadFile("/ThumbyGames/lib/font5x7.bin", true), false, true);
+        window.setPercent(61.6);
+        await this.uploadFile("lib/TClogo.bin", await window.downloadFile("/ThumbyGames/lib/TClogo.bin", true), false, true);
+        window.setPercent(69.3);
+        await this.uploadFile("lib/thumbyLogo.bin", await window.downloadFile("/ThumbyGames/lib/thumbyLogo.bin", true), false, true);
+        window.setPercent(77);
         await this.uploadFile("main.py", await window.downloadFile("/ThumbyGames/main.py"), false);
-        window.setPercent(88.8);
+        window.setPercent(84.7);
+        await this.uploadFile("menu.py", await window.downloadFile("/ThumbyGames/menu.py"), false);
+        window.setPercent(92.4);
         await this.uploadFile("thumby.cfg", await window.downloadFile("/ThumbyGames/thumby.cfg"), false);
         window.setPercent(99.9);
 
@@ -681,6 +694,9 @@ class ReplJS{
 
         for(var i=0; i<fileHandles.length; i++){
             const file = await fileHandles[i].getFile();
+
+            const bytes = new Uint8Array(await file.arrayBuffer());
+
             if(file.name.indexOf(".py") != -1 || file.name.indexOf(".txt") != -1 || file.name.indexOf(".text") != -1 || file.name.indexOf(".cfg") != -1){
                 await this.uploadFile(path + file.name, await file.text(), false, false);
             }else{

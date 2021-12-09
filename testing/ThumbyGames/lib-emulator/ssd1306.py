@@ -1,12 +1,10 @@
-# MicroPython SSD1306 OLED driver, I2C and SPI interfaces
+# MicroPython SSD1306 OLED driver, I2C and SPI interfaces- modified for Thumby
 
+from time import ticks_ms, ticks_us
 from micropython import const
-import framebuf
-import ubinascii
-import sys
-import time
 import machine
 
+# Need by emulator quickly set pin state
 SIO_BASE     = 0xD0000000
 
 GPIO_OUT     = SIO_BASE + 0x010
@@ -23,18 +21,17 @@ handshakePin = 2
 handshakePinToggle = 1 << handshakePin
 machine.Pin(handshakePin, machine.Pin.OUT)
 
-# Subclassing FrameBuffer provides support for graphics primitives
-# http://docs.micropython.org/en/latest/pyboard/library/framebuf.html
-class SSD1306(framebuf.FrameBuffer):
+
+class SSD1306():
     def __init__(self, width, height, external_vcc):
         self.width = width
         self.height = height
+        self.external_vcc = external_vcc
         self.pages = self.height // 8
         self.buffer = bytearray(self.pages * self.width)
-        super().__init__(self.buffer, self.width, self.height, framebuf.MONO_VLSB)
         self.printBufferAdr()
-        self.init_display()
-
+        #self.init_display()
+    
     @micropython.viper
     def printBufferAdr(self):
         print("###ADDRESS###")
@@ -55,25 +52,48 @@ class SSD1306(framebuf.FrameBuffer):
     def invert(self, invert):
         pass
 
-    @micropython.viper
+    @micropython.native
     def show(self):
         machine.mem32[GPIO_OUT_XOR] = handshakePinToggle
 
+
 class SSD1306_I2C(SSD1306):
-    def __init__(self, width, height, i2c, res, addr=0x3C, external_vcc=False):        
-        res.init(res.OUT, value=0)
-        import time
-        res(1)
-        time.sleep_ms(1)
-        res(0)
-        time.sleep_ms(10)
-        res(1)        
-        time.sleep_ms(10)
-        
+    def __init__(self, width, height, i2c, res, addr=0x3C, external_vcc=False):
         super().__init__(width, height, external_vcc)
+        pass
+
+    def reset(self):
+        pass
+        
+
+    def write_window_cmd1(self):
+        pass
+        
+    def write_window_cmd2(self):
+        pass
 
     def write_cmd(self, cmd):
         pass
 
+    @micropython.native
     def write_data(self, buf):
         pass
+
+
+class SSD1306_SPI(SSD1306):
+    def __init__(self, width, height, spi, dc, res, cs, external_vcc=False):
+        super().__init__(width, height, external_vcc)
+        pass
+
+    def reset(self):
+        pass
+
+    @micropython.native
+    def write_cmd(self, cmd):
+        pass
+
+    @micropython.native
+    def write_data(self, buf):
+        pass
+
+

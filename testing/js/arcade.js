@@ -23,11 +23,15 @@ class GameURLContainer{
             for(var i=0; i<this.GAME_FILE_URLS.length; i++){
                 // Make URL from root of Thumby (start at '/')
                 var thumbyURL = "/Games/" + this.GAME_FILE_URLS[i].split('/').slice(6).join('/');
+
+                window.setPercent((i/this.GAME_FILE_URLS.length) * 100, "Downloading: " + thumbyURL);
                 
                 await fetch(this.GAME_FILE_URLS[i]).then(async (response) => {
                     await this.downloadFunc(thumbyURL, new Uint8Array(await response.arrayBuffer()));
                 });
             }
+            window.setPercent(100, "Downloaded arcade game...");
+            window.resetPercentDelay();
         }
     }
 
@@ -39,11 +43,15 @@ class GameURLContainer{
             for(var i=0; i<this.GAME_FILE_URLS.length; i++){
                 // Make URL from root of Thumby (start at '/')
                 var thumbyURL = "/Games/" + this.GAME_FILE_URLS[i].split('/').slice(6).join('/');
+
+                window.setPercent((i/this.GAME_FILE_URLS.length) * 100, "Opening: " + thumbyURL);
                 
                 await fetch(this.GAME_FILE_URLS[i]).then(async (response) => {
                     await this.openFunc(thumbyURL, new Uint8Array(await response.arrayBuffer()));
                 });
             }
+            window.setPercent(100, "Opened arcade game...");
+            window.resetPercentDelay();
         }
     }
 }
@@ -237,11 +245,11 @@ class Arcade{
             var currentURLContainer = new GameURLContainer();
 
             for(var i=0; i < txtFileLines.length; i++){
-                if(txtFileLines[i].indexOf("arcade_title_image.png") != -1){
+                if(txtFileLines[i].indexOf(".png") != -1){
                     currentURLContainer.GAME_IMAGE_URL = txtFileLines[i];
-                }else if(txtFileLines[i].indexOf("arcade_title_video.webm") != -1){
+                }else if(txtFileLines[i].indexOf(".webm") != -1){
                     currentURLContainer.GAME_VIDEO_URL = txtFileLines[i];
-                }else if(txtFileLines[i].indexOf("arcade_description.txt") != -1){
+                }else if(txtFileLines[i].indexOf(".txt") != -1){
                     currentURLContainer.GAME_DESCRIPTION_URL = txtFileLines[i];
                 }else if(txtFileLines[i].indexOf("NAME=") != -1){
                     currentURLContainer.GAME_NAME = txtFileLines[i].substring(txtFileLines[i].indexOf('=')+1);

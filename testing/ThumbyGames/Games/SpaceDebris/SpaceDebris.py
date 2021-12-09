@@ -30,7 +30,8 @@ import math
 import thumby
 import machine
 
-#machine.freq(125000000) 
+#machine.freq(48000000) 
+machine.freq(125000000) 
 
 gc.enable() # This line helps make sure we don't run out of memory
 
@@ -134,9 +135,9 @@ class ShipBullet:
 
 @micropython.viper
 def qrandom(qrseed: int) -> int:
-    qrseed ^= (qrseed << 10)
+    #qrseed ^= (qrseed << 10)
     # qrseed ^= (qrseed >> 17)
-    qrseed ^= (qrseed << 2)
+    #qrseed ^= (qrseed << 2)
     return qrseed
     
 
@@ -146,10 +147,22 @@ def DrawStars():
     xp:int = int(round(XPos)) | 0x1
     ptr = ptr8(thumby.display.display.buffer)
     y:int = 0
+    seed:int = 0
+    yOffset:int = 0
     while(y < int(thumby.DISPLAY_H)):
         x:int = 0
         while(x < int(thumby.DISPLAY_W)):
-            if(int(qrandom((xp+x)*(yp+y))) & 0xFFFFFF < 192000):
+            seed = (int(((xp+x)*(yp+y))) << 10)
+            seed ^= (seed << 10)
+            seed ^= (seed << 2)
+            if(seed & 0xFFFFFF < 192000//3):
+                ptr[(y >> 3) * int(thumby.DISPLAY_W) + x] |= 1 << (y & 0x07)
+                #display.pixel(x, y, 1)
+                #pass
+            seed = (int(((xp+x//2)*(yp+y//2))) << 10)
+            seed ^= (seed << 10)
+            seed ^= (seed << 2)
+            if(seed & 0xFFFFFF < 192000//2):
                 ptr[(y >> 3) * int(thumby.DISPLAY_W) + x] |= 1 << (y & 0x07)
                 #display.pixel(x, y, 1)
                 #pass
@@ -446,6 +459,7 @@ while(GameRunning == True):
     thumby.display.update()
     if(len(asteroids) == 0):
         GameRunning = False
+    print(utime.ticks_us() - t0)
     while(utime.ticks_us() - t0 < 1000000 / MaxFps):
         pass
     
@@ -468,5 +482,6 @@ time.sleep_ms(3000)
 
 machine.reset()
 #exec(open("/main.py").read())
+
 
 
