@@ -48,6 +48,12 @@ class EditorWrapper{
                             "                     0,0,0,0,0,0,0,0,0,255,0,12,12,63,63,12,12,0,0,24,24,3,3,0,255,0,0,0,0,0,0,0,0,0,\n" +
                             "                     0,0,0,0,0,0,0,31,16,16,16,16,20,18,16,20,18,16,16,16,16,16,31,0,0,0,0,0,0,0,0])\n\n" +
                             
+                            "# Make a sprite object using bytearray (a path to binary file from 'IMPORT SPRITE' is also valid)\n" +
+                            "thumbySprite = thumby.Sprite(32, 32, bitmap0)\n\n" +
+
+                            "# Set the FPS (without this call, the default fps is 30)\n" +
+                            "thumby.display.setFPS(60)\n\n" +
+
                             "while(1):\n" +
                             "    t0 = time.ticks_ms()   # Get time (ms)\n" +
                             "    thumby.display.fill(0) # Fill canvas to black\n\n" +
@@ -59,11 +65,11 @@ class EditorWrapper{
                             "    bobOffset = math.sin(t0 / bobRate) * bobRange\n\n" +
                             
                             "    # Center the sprite using screen and bitmap dimensions and apply bob offset\n" +
-                            "    spriteX = int((thumby.display.width/2) - (32/2))\n" +
-                            "    spriteY = int(round((thumby.display.height/2) - (32/2) + bobOffset))\n\n" +
+                            "    thumbySprite.x = int((thumby.display.width/2) - (32/2))\n" +
+                            "    thumbySprite.y = int(round((thumby.display.height/2) - (32/2) + bobOffset))\n\n" +
                             
                             "    # Display the bitmap using bitmap data, position, and bitmap dimensions\n" +
-                            "    thumby.display.blit(bitmap0, spriteX, spriteY, 32, 32, 0, 0, 0)\n" +
+                            "    thumby.display.drawSprite(thumbySprite)\n" +
                             "    thumby.display.update()\n";
 
 
