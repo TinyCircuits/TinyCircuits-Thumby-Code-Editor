@@ -149,21 +149,21 @@ def DrawStars():
     y:int = 0
     seed:int = 0
     yOffset:int = 0
-    while(y < int(thumby.DISPLAY_H)):
+    while(y < int(40)):
         x:int = 0
-        while(x < int(thumby.DISPLAY_W)):
+        while(x < int(72)):
             seed = (int(((xp+x)*(yp+y))) << 10)
             seed ^= (seed << 10)
             seed ^= (seed << 2)
             if(seed & 0xFFFFFF < 192000//3):
-                ptr[(y >> 3) * int(thumby.DISPLAY_W) + x] |= 1 << (y & 0x07)
+                ptr[(y >> 3) * int(72) + x] |= 1 << (y & 0x07)
                 #display.pixel(x, y, 1)
                 #pass
             seed = (int(((xp+x//2)*(yp+y//2))) << 10)
             seed ^= (seed << 10)
             seed ^= (seed << 2)
             if(seed & 0xFFFFFF < 192000//2):
-                ptr[(y >> 3) * int(thumby.DISPLAY_W) + x] |= 1 << (y & 0x07)
+                ptr[(y >> 3) * int(72) + x] |= 1 << (y & 0x07)
                 #display.pixel(x, y, 1)
                 #pass
             x += 2
@@ -180,7 +180,7 @@ bullets = []
 def UpdateBullets():
     # Bullet dynamics and drawing
     for bullet in bullets:
-        thumby.display.fillRect(round(bullet.XPos-XPos+thumby.DISPLAY_W*0.5), round(bullet.YPos-YPos+thumby.DISPLAY_H*0.5), 2, 2, 1)
+        thumby.display.drawFilledRectangle(round(bullet.XPos-XPos+72*0.5), round(bullet.YPos-YPos+40*0.5), 2, 2, 1)
         bullet.XPos += bullet.XVel
         bullet.YPos += bullet.YVel
         for asteroid in asteroids:
@@ -220,46 +220,46 @@ def UpdateAsteroids():
             nx = dx / l
             ny = dy / l
             if(asteroid.size == 2):
-                thumby.display.drawLine(int(round(thumby.DISPLAY_W/2+nx*12)), int(round(thumby.DISPLAY_H/2+ny*12)), int(round(thumby.DISPLAY_W/2+nx*18)), int(round(thumby.DISPLAY_H/2+ny*18)), 1)
+                thumby.display.drawLine(int(round(72/2+nx*12)), int(round(40/2+ny*12)), int(round(72/2+nx*18)), int(round(40/2+ny*18)), 1)
             else:
-                thumby.display.drawLine(int(round(thumby.DISPLAY_W/2+nx*15)), int(round(thumby.DISPLAY_H/2+ny*15)), int(round(thumby.DISPLAY_W/2+nx*18)), int(round(thumby.DISPLAY_H/2+ny*18)), 1)
+                thumby.display.drawLine(int(round(72/2+nx*15)), int(round(40/2+ny*15)), int(round(72/2+nx*18)), int(round(40/2+ny*18)), 1)
         if(asteroid.size == 2):
-            thumby.display.drawSprite(asteroid.sprite, int(asteroid.x - XPos + thumby.DISPLAY_W * 0.5), int(asteroid.y - YPos + thumby.DISPLAY_H * 0.5), 16, 16, asteroid.xm, asteroid.ym, 2)
+            thumby.display.blit(bytearray(asteroid.sprite), int(asteroid.x - XPos + 72 * 0.5), int(asteroid.y - YPos + 40 * 0.5), 16, 16, 2, asteroid.xm, asteroid.ym)
         elif(asteroid.size == 1):
-            thumby.display.drawSprite(asteroid.sprite, int(asteroid.x - XPos + thumby.DISPLAY_W * 0.5), int(asteroid.y - YPos + thumby.DISPLAY_H * 0.5), 8, 8, asteroid.xm, asteroid.ym, 2)
+            thumby.display.blit(bytearray(asteroid.sprite), int(asteroid.x - XPos + 72 * 0.5), int(asteroid.y - YPos + 40 * 0.5), 8, 8, 2, asteroid.xm, asteroid.ym)
         asteroid.x += asteroid.xv
         asteroid.y += asteroid.yv
 
 thrusterFreq = 150
 bulletNoiseDuration = 0
 thumby.audio.stop()
-thumby.display.blit(splash, 0, 0, 72, 40)
+thumby.display.blit(bytearray(splash), 0, 0, 72, 40, 0, 0, 0)
 thumby.display.update()
 
 while(thumby.buttonA.pressed() == True or thumby.buttonB.pressed() == True):
     if(time.ticks_ms() % 1000 < 500):
-        thumby.display.fillRect(0, 32, 72, 8, 0)
+        thumby.display.drawFilledRectangle(0, 32, 72, 8, 0)
         thumby.display.drawText("Press A/B", 0, 32, 1)
     else:
-        thumby.display.fillRect(0, 32, 72, 8, 1)
+        thumby.display.drawFilledRectangle(0, 32, 72, 8, 1)
         thumby.display.drawText("Press A/B", 0, 32, 0)
     thumby.display.update()
     pass
 while(thumby.buttonA.pressed() == False and thumby.buttonB.pressed() == False):
     if(time.ticks_ms() % 1000 < 500):
-        thumby.display.fillRect(0, 32, 72, 8, 0)
+        thumby.display.drawFilledRectangle(0, 32, 72, 8, 0)
         thumby.display.drawText("Press A/B", 0, 32, 1)
     else:
-        thumby.display.fillRect(0, 32, 72, 8, 1)
+        thumby.display.drawFilledRectangle(0, 32, 72, 8, 1)
         thumby.display.drawText("Press A/B", 0, 32, 0)
     thumby.display.update()
     pass
 while(thumby.buttonA.pressed() == True or thumby.buttonB.pressed() == True):
     if(time.ticks_ms() % 1000 < 500):
-        thumby.display.fillRect(0, 32, 72, 8, 0)
+        thumby.display.drawFilledRectangle(0, 32, 72, 8, 0)
         thumby.display.drawText("Press A/B", 0, 32, 1)
     else:
-        thumby.display.fillRect(0, 32, 72, 8, 1)
+        thumby.display.drawFilledRectangle(0, 32, 72, 8, 1)
         thumby.display.drawText("Press A/B", 0, 32, 0)
     thumby.display.update()
     pass
@@ -454,12 +454,12 @@ while(GameRunning == True):
     UpdateAsteroids()
         
     # Draw the ship
-    thumby.display.drawSprite(CurSpr, round(thumby.DISPLAY_W/2-8), round(thumby.DISPLAY_H/2-8), 16, 16, XMirror, YMirror, 0)
+    thumby.display.blit(bytearray(CurSpr), round(72/2-8), round(40/2-8), 16, 16, 0, XMirror, YMirror)
     #display.text(str(1000000/(utime.ticks_us()-t0)), 0, 0, 1)
     thumby.display.update()
     if(len(asteroids) == 0):
         GameRunning = False
-    print(utime.ticks_us() - t0)
+    #print(utime.ticks_us() - t0)
     while(utime.ticks_us() - t0 < 1000000 / MaxFps):
         pass
     

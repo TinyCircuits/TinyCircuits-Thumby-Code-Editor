@@ -31,9 +31,9 @@ import machine
 
 # Draw the game splash
 thumby.display.fill(0)
-thumby.display.drawText("Tiny", 16, 0, 1)
-thumby.display.drawText("Annelid", 8, 8, 1)
-thumby.display.drawText("Press A/B", 0, 32, 1)
+thumby.display.drawText("Tiny", 24, 0, 1)
+thumby.display.drawText("Annelid", 15, 9, 1)
+thumby.display.drawText("Press A/B", 9, 32, 1)
 thumby.display.update()
 
 # Wait for the user to start
@@ -113,10 +113,9 @@ while(gameRunning == True):
     updateWorm()
     if(gameRunning == False):
         thumby.display.fill(0)
-        thumby.display.drawText("Game", 16, 0, 1)
-        thumby.display.drawText("over!", 16, 8, 1)
-        thumby.display.drawText("Again?", 16, 16, 1)
-        thumby.display.drawText("A:N B:Y", 8, 32, 1)
+        thumby.display.drawText("Game over!", 7, 1, 1)
+        thumby.display.drawText("Again?", 18, 22, 1)
+        thumby.display.drawText("A:N B:Y", 15, 32, 1)
         thumby.display.update()
         while(thumby.actionPressed() == False):
             pass # Wait for the user to give us something

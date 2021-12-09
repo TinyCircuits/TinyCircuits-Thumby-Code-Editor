@@ -635,9 +635,11 @@ class Importer{
 
     // Hide importer UI (usually attached to button click event)
     hide(){
-        this.OVERLAY_DIV.style.display = "none";
-        this.PAGE_OVERLAY_DIV.style.display = "none";
-        window.removeEventListener("keydown", this.closeListener);
-        this.SHEET_PARENT_DIV.removeEventListener("wheel", this.scrollListener);
+        if(this.OVERLAY_DIV != undefined){
+            this.OVERLAY_DIV.style.display = "none";
+            this.PAGE_OVERLAY_DIV.style.display = "none";
+            window.removeEventListener("keydown", this.closeListener);
+            this.SHEET_PARENT_DIV.removeEventListener("wheel", this.scrollListener);
+        }
     }
 }

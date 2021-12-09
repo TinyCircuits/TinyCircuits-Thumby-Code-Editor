@@ -658,7 +658,7 @@ class ReplJS{
         window.setPercent(7.7);
         await this.uploadFile("Games/Annelid/Annelid.py", await window.downloadFile("/ThumbyGamesTesting/Games/Annelid/Annelid.py"), false);
         window.setPercent(15.4);
-        // await this.uploadFile("Games/Thumgeon/Thumgeon.py", await window.downloadFile("/ThumbyGames/Games/Thumgeon/Thumgeon.py"), false);
+        await this.uploadFile("Games/Thumgeon/Thumgeon.py", await window.downloadFile("/ThumbyGamesTesting/Games/Thumgeon/Thumgeon.py"), false);
         window.setPercent(23.1);
         await this.uploadFile("Games/SaurRun/SaurRun.py", await window.downloadFile("/ThumbyGamesTesting/Games/SaurRun/SaurRun.py"), false);
         window.setPercent(30.8);

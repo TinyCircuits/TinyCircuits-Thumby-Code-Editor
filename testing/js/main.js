@@ -92,7 +92,7 @@ window.setPercent = (percent, message) => {
         progressBarElem.innerText = lastMessage + " " + Math.round(percent) + "%";
     }
 }
-window.resetPercentDelay = () =>{
+window.resetPercentDelay = () => {
     setTimeout(() => {
         progressBarElem.style.width = "0%";
         progressBarElem.innerText = "";
