@@ -916,11 +916,11 @@ export class EMULATOR{
         return;
       }
 
-      await this.loadServerFile("ThumbyGames/lib-emulator/thumby.py", '/lib/thumby.py');
-      await this.loadServerFile("ThumbyGames/lib-emulator/ssd1306.py", '/lib/ssd1306.py');
-      await this.loadServerFile("ThumbyGames/lib-emulator/font5x7.bin", '/lib/font5x7.bin');
-      await this.loadServerFile("ThumbyGames/lib-emulator/TClogo.bin", '/lib/TClogo.bin');
-      await this.loadServerFile("ThumbyGames/lib-emulator/thumbyLogo.bin", '/lib/thumbyLogo.bin');
+      await this.loadServerFile("ThumbyGamesTesting/lib-emulator/thumby.py", '/lib/thumby.py');
+      await this.loadServerFile("ThumbyGamesTesting/lib-emulator/ssd1306.py", '/lib/ssd1306.py');
+      await this.loadServerFile("ThumbyGamesTesting/lib-emulator/font5x7.bin", '/lib/font5x7.bin');
+      await this.loadServerFile("ThumbyGamesTesting/lib-emulator/TClogo.bin", '/lib/TClogo.bin');
+      await this.loadServerFile("ThumbyGamesTesting/lib-emulator/thumbyLogo.bin", '/lib/thumbyLogo.bin');
 
       await window.copyFSToFlash(this.mcu);
       

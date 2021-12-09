@@ -542,7 +542,7 @@ class EditorWrapper{
         this.THUMBYPY_EXAMPLE_BTN = document.createElement("button");
         this.THUMBYPY_EXAMPLE_BTN.classList = "uk-button uk-button-primary uk-width-1-1 uk-height-1-1 uk-text-nowrap";
         this.THUMBYPY_EXAMPLE_BTN.textContent = "thumby.py";
-        this.THUMBYPY_EXAMPLE_BTN.onclick = async () => {this.openFileContents(await window.downloadFile("/ThumbyGames/lib/thumby.py"))};
+        this.THUMBYPY_EXAMPLE_BTN.onclick = async () => {this.openFileContents(await window.downloadFile("/ThumbyGamesTesting/lib/thumby.py"))};
         listElem.appendChild(this.THUMBYPY_EXAMPLE_BTN);
         this.EXAMPLES_DROPDOWN_UL.appendChild(listElem);
 

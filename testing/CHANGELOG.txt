@@ -7,7 +7,6 @@ December 9, 2021
 * Access beta IDE page at https://tinycircuits.github.io/testing/
 
 API
--GRAPHICS
 * Added `thumby.display.brightness(...)` to set Thumby screen brightness (does not affect emulator)
 * Added `thumby.display.getPixel(...)` get getting pixel values
 * Added `thumby.display.setFPS(...)` to limit frame rate, handled by `thumby.display.update()`
@@ -45,12 +44,14 @@ General
 * Changed default layout of IDE to hide bitmap builder
 * New files included by default during emulation at '/lib' (updated thumby.py, updated ssd1306.py, TClogo.bin, font5x7.bin, thumbyLogo.bin)
 
+
 ####################
 
 November 29, 2021
 
 Arcade
 * Allow image, video, and description files to have any name, only require file extension
+
 
 ####################
 
