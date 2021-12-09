@@ -633,7 +633,6 @@ function registerEmulator(_container, state){
 var EDITORS = {};
 var LAST_ACTIVE_EDITOR = undefined; // Each editor will set this to themselves on focus, bitmap builder uses this
 function registerEditor(_container, state){
-    console.log(state);
     var editor = new EditorWrapper(_container, state, EDITORS);
     editor.onFocus = () => {LAST_ACTIVE_EDITOR = editor};
     editor.onSaveToThumby = async () => {
@@ -747,7 +746,6 @@ ARCADE.onOpen = async (thumbyURL, binaryFileContents) => {
     var state = {};
     state.value = Array.from(new Uint8Array(binaryFileContents));
     state.path = thumbyURL;
-    console.log(state);
     myLayout.addComponent('Editor', state, 'Editor');
 }
 
