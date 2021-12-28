@@ -2,6 +2,19 @@ Thumby IDE changelog!
 
 ####################
 
+December 28, 2021
+
+* Access beta IDE page at https://tinycircuits.github.io/testing/
+
+API
+* Small changes to how some common functions work to provide a small performance boost
+
+General
+* Import modules into emulator without .py in path to get rid of error
+* Update main.py and menu.py to use less ram and to render credits screen
+
+####################
+
 December 9, 2021
 
 * Access beta IDE page at https://tinycircuits.github.io/testing/

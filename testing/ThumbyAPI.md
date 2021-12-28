@@ -17,11 +17,11 @@
         * type: int
         * value: 40
 * ### Functions
-    * `thumby.display.update()` | updates screen at frames-per-second (FPS) specified by `thumby.display.setFPS(...)`. Default framerate is 30. Returns `None`
-    * `thumby.display.setFPS(fps)` | sets the max frames-per-second (`fps`) used by `thumyby.display.update()` to update the screen. If period of time between `thumby.display.update()` calls longer than `1/fps`, screen updates as soon as `thumby.display.update()` is called again. Returns None, all parameters required.
-        * `fps`
+    * `thumby.display.update()` | updates screen at frames-per-second (FPS) specified by `thumby.display.setFPS(...)`. Will block to not exceed fps setting. Default framerate 0 (non-limited). Returns `None`
+    * `thumby.display.setFPS(FPS)` | sets the max `FPS` used by `thumyby.display.update()`. Returns None, all parameters required.
+        * `FPS`
             * type: float
-            * values: 0 ~ overflow
+            * values: 0 ~ integer max
     * `thumby.display.fill(color)` | fills entire screen with `color`. Returns None
         * `color`
             * type: int
@@ -110,13 +110,13 @@
             * values: 128 ASCII character string up to 256 characters long ('/' separated)
         * `width`:
             * type: int
-            * values: 0 ~ overflow
+            * values: 0 ~ integer max
         * `height`:
             * type: int
-            * values: 0 ~ overflow
+            * values: 0 ~ integer max
         * `space`:
             * type: int
-            * values: 0 ~ overflow
+            * values: 0 ~ integer max
     * `thumby.display.blit(bitmapData, x, y, width, height, key, mirrorX, mirrorY)` | draws pixels defined in `bitmapData` (VLSB) array at `x` and `y` provided the bitmap's `width` and `height` with transparent pixels defined by `key` (e.g. `key = 0` means black pixels are not drawn/are transparent) with possibility of mirroring using `mirrorX` (across x-axis) and `mirrorY` (across y-axis). Returns None, all parameters required.
         * `bitmapData`
             * type: bytearray
@@ -188,10 +188,10 @@
     * `thumby.Sprite(width, height, bitmapData, x, y, mirrorX, mirrorY)` | initialize sprite object with fixed frame `width` and `height` for frames in or at `bitmapData`, positioned at `x` and `y`, and rendered to screen mirrored depending on `mirrorX` and `mirrorY`. Returns None.
         * `width`
             * type: int
-            * values: 0 ~ overflow
+            * values: 0 ~ integer max
         * `height`
             * type: int
-            * values: 0 ~ overflow
+            * values: 0 ~ integer max
         * `bitmapData`
             * type: list or string
             * values: bytearray of VLSB data or string (128 ASCII character at max 256 characters long) pointing to binary file location of pixel data

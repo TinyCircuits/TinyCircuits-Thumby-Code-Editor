@@ -51,7 +51,7 @@ var IMPORTER = new Importer(document.getElementById("IDImportSpriteBTN"), onExpo
 
 
 // Show pop-up containing IDE changelog every time showChangelogVersion is increased
-const showChangelogVersion = 2;
+const showChangelogVersion = 3;
 if(localStorage.getItem(showChangelogVersion) == null){
     console.log("Updates to IDE! Showing changelog...");    // Show message in console
     localStorage.removeItem(showChangelogVersion-1);        // Remove flag from last version

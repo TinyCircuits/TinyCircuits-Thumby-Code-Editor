@@ -864,7 +864,12 @@ export class EMULATOR{
       this.mcu.gpio[5].setInputValue(true);
       
       // Start the program the user chose to emulate
-      this.sendStringToNormal("__import__('" + this.MAIN_FILE + "')");
+      // this.sendStringToNormal("exec(open('" + this.MAIN_FILE + "').read())");
+      if(this.MAIN_FILE.indexOf(".py") != -1){
+        this.sendStringToNormal("__import__('" + this.MAIN_FILE.split('.')[0] + "')");
+      }else{
+        this.sendStringToNormal("__import__('" + this.MAIN_FILE + "')");
+      }
     };
 
 
@@ -889,7 +894,7 @@ export class EMULATOR{
     };
 
     // Load UF2 then custom emulator MP library files + the user file(s)
-    loadUF2(this.uf2Name, this.mcu).then(async () => {
+    await loadUF2(this.uf2Name, this.mcu).then(async () => {
 
       // Loop through all editors and get file names + content
       this.MAIN_FILE = undefined;
@@ -898,7 +903,7 @@ export class EMULATOR{
 
           // Make sure not to re-encode binary data retrieved from editor, also, get it the right way
           if(editorWrapper.isEditorBinary()){
-            editorWrapper.getDBFile(async (typedFileData) => {
+            await editorWrapper.getDBFile(async (typedFileData) => {
               await window.loadFileData(typedFileData, editorWrapper.EDITOR_PATH);
             })
           }else{

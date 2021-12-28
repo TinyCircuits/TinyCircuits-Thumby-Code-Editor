@@ -419,7 +419,7 @@ class EditorWrapper{
 
             // Check if the decoded data contains binary replacement letters (could also check that most characters only equal ascii chars)
             var decodedData = new TextDecoder().decode(new Uint8Array(data));
-            if(decodedData.indexOf("�") == -1 && decodedData.indexOf("") == -1){
+            if(decodedData.indexOf("�") == -1 && decodedData.indexOf("") == -1 && decodedData.indexOf("") == -1 && decodedData.indexOf("") == -1){
                 console.log("INIT CODE VIEWER");
                 localStorage.setItem("isBinary" + this.ID, false);
                 this.turnIntoCodeViewer(decodedData);

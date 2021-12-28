@@ -1,7 +1,7 @@
 // ##### ACTIVE_TERMINAL_WRAPPER.js #####
 // Wraps the Xterm.js class into a class that handles making
 // the terminal look active. Only implements functions of
-// Xterm.js that are relevent to the Thumby Manager project
+// Xterm.js that are relevant to the Thumby Manager project
 
 
 class ActiveTerminal{
@@ -12,10 +12,31 @@ class ActiveTerminal{
         // Related to golden-layout
         this._container = _container;
 
-        // Contains all bitmap builder elements
         this.SHELL_DIV = document.createElement("div");
-        this.SHELL_DIV.classList.add("shell");
+        this.SHELL_DIV.classList = "shell";
         this._container.element.appendChild(this.SHELL_DIV);
+
+
+        // Contains all bitmap builder elements
+        // this.SHELL_DIV = document.createElement("ul");
+        // this.SHELL_DIV.classList = "shell uk-child-width-expand";
+        // this.SHELL_DIV.setAttribute("uk-tab", "");
+        // this._container.element.appendChild(this.SHELL_DIV);
+
+        // var li = document.createElement("li");
+        // this.SHELL_HARDWARE = document.createElement("a");
+        // this.SHELL_HARDWARE.classList = "shell-tab";
+        // this.SHELL_HARDWARE.textContent = "Hardware Shell";
+        // li.appendChild(this.SHELL_HARDWARE);
+        // this.SHELL_DIV.appendChild(li);
+
+        // li = document.createElement("li");
+        // this.SHELL_EMULATOR = document.createElement("a");
+        // this.SHELL_EMULATOR.classList = "shell-tab";
+        // this.SHELL_EMULATOR.textContent = "Emulator Shell";
+        // li.appendChild(this.SHELL_EMULATOR);
+        // this.SHELL_DIV.appendChild(li);
+
 
         this.TERM = new Terminal();                 // The Xterm.js object
         this.TERM.open(this.SHELL_DIV);             // Hook Xterm.js onto HTML object 'terminal'
@@ -115,11 +136,11 @@ class ActiveTerminal{
         if (this.TERM._initialized) {
             return;
         }
-    
+        
         this.TERM._initialized = true;
-    
+
         // Setup special character callback
-        this.TERM.onData(e => {            
+        this.TERM.onData(e => {
             switch (e) {
                 case '':   // Ctrl-V (paste)
                     throw "Paste (uncaught on purpose)";

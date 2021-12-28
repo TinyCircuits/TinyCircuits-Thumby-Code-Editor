@@ -7,44 +7,52 @@ import gc
 import thumby
 freq(48000000)
 
-conf =''
 try:
-    os.chdir("/")
-    conf = open("thumby.cfg", "r").read().split()
+    conf = open("thumby.cfg", "r").read().split(',')
     if(len(conf)<6):
-        conf.append('brightness')
-        conf.append('2')
+        conf.append(',brightness,2')
 except OSError:
     conf = open("thumby.cfg", "w")
-    conf.write("audioenabled 1 lastgame /Games/TinyTris/TinyTris.py brightness 0 ")
+    conf.write("audioenabled,1,lastgame,/Games/TinyBlocks/TinyBlocks.py,brightness,1")
     conf.close()
-    conf = open("thumby.cfg", "r").read().split()
 
 def getConfigSetting(key):
-    for k in range(len(conf)):
-        if(conf[k] == key):
-            return conf[k+1]
+    cfgfile = open("thumby.cfg", "r")
+    cfg = cfgfile.read().split(',')
+    cfgfile.close()
+    for k in range(len(cfg)):
+        if(cfg[k] == key):
+            return cfg[k+1]
+    return False
 
 def saveConfigSetting(key, setting):
     cfgfile = open("thumby.cfg", "r")
-    cfg = cfgfile.read().split()
+    cfg = cfgfile.read().split(',')
     cfgfile.close()
     for k in range(len(cfg)):
         if(cfg[k] == key):
             cfg[k+1] = setting
     cfgfile = open("thumby.cfg", "w")
-    for k in range(len(cfg)):
-        cfgfile.write(cfg[k]+" ")
+    cfgfile.write(cfg[0])
+    for k in range(1, len(cfg)):
+        cfgfile.write(","+cfg[k])
     cfgfile.close()
 
 audioSetting=int(getConfigSetting("audioenabled"))
 brightnessSetting=int(getConfigSetting("brightness"))
-audioSettings=['Audio: Off', 'Audio: Low', 'Audio:  Hi']
+audioSettings=['Audio: Off', 'Audio:  On']
 brightnessSettings=['Brite: Low', 'Brite: Mid', 'Brite:  Hi']
-brightnessVals=[0,32,127]
+brightnessVals=[0,28,127]
 settings=[audioSettings[audioSetting], brightnessSettings[brightnessSetting]]
 
 
+lines = []
+lineCount = 0
+lineLengths=[0,0,0,0, 0,0,0,0]
+creditsScrollPosition = -1
+width=(6*16 + 10)
+firstLine = 0
+creditsScrollOffset=-1
     
 
 TCSplash=thumby.Sprite(72, 24, 'lib/TClogo.bin',0,0,-1)
@@ -71,9 +79,11 @@ while thumbySplash.y < 5:
     thumby.display.drawSprite(TCSplash)
     thumby.display.update()
     
-thumby.display.setFPS(35)
+thumby.display.setFPS(50)
 
 thumbyLogoHeight=thumbySplash.y
+
+
 
 startTime=ticks_ms()
 frameCounter=0
@@ -88,7 +98,6 @@ yScrollTarget=0;
 xScrollPos=0
 xScrollTarget=0
 
-os.chdir("/")
 selpos = -1
 files = os.listdir("/Games")
 selected = False
@@ -182,21 +191,16 @@ def printList(nameList, position, x, y, longNames=None):
         writeCenteredText(nameList[position+3], x, y+40,1)
 
 def launchGame():
-    gamePath=' '
     if(selpos>=0):
         gamePath="/Games/"+files[selpos]+"/"+files[selpos]+".py"
         saveConfigSetting("lastgame", gamePath)
-    else:
-        gamePath=getConfigSetting("lastgame")
-    print(gamePath)
-    #os.chdir("/Games")
-    freq(125000000)
-    try:
-        gc.collect()
-        __import__(gamePath)
-    except ImportError:
-        print("Thumby error: Couldn't load "+gamePath)
-    freq(48000000)
+    import machine
+    #Address of watchdog timer scratch register
+    WATCHDOG_BASE=0x40058000
+    SCRATCH0_ADDR=WATCHDOG_BASE+0x0C
+    machine.mem32[SCRATCH0_ADDR]=1
+    machine.soft_reset()
+
 
 while True:
     thumbySplash.setFrame(thumbySplash.currentFrame+1)
@@ -250,9 +254,9 @@ while True:
             thumby.display.drawLine(x,y,x+2,y-2,1)
     
     
-    #thumby.display.blit(rectbg, xScrollPos-xScrollPos, max(0,yScrollPos+40), 72, 7,0,0,0)
-    thumby.display.drawFilledRectangle(xScrollPos-xScrollPos, max(0,yScrollPos+40), 72, 7,1)
-    if(xScrollPos!=72):
+
+    if(72>xScrollPos>-72):
+        thumby.display.drawFilledRectangle(xScrollPos, max(0,yScrollPos+40), 72, 7,1)
         scrollDisplayed=scroll
         if(selpos<1 or (selpos==1 and scroll>0)):
             scrollDisplayed=0
@@ -268,12 +272,13 @@ while True:
         thumby.display.drawSprite(gamesHeader)
         
         if(ticks_ms() % 1000 < 500 and selpos<0 and yScrollTarget == -40 and xScrollTarget == 0):
-            thumby.display.blit(rightArrowBAinv, xScrollPos + 60, yScrollPos+40 +1, 3, 5,1,0,0)
+            thumby.display.blit(rightArrowBAinv, xScrollPos + 65, yScrollPos+40 +1, 3, 5,1,0,0)
         if(ticks_ms() % 1000 < 500 and selpos>=0):
             drawBracketsAround(files[selpos], xScrollPos + thumby.display.width//2, yScrollPos+40+selectOffset+scrollDisplayed, 1)
         
 
-    if(xScrollPos!=0):
+    if(0>xScrollPos>-144):
+        thumby.display.drawFilledRectangle(xScrollPos+72, max(0,yScrollPos+40), 72, 7,1)
         scrollDisplayed=scroll
         if(settingsSelpos<1 or (settingsSelpos==1 and scroll>0)):
             scrollDisplayed=0
@@ -291,6 +296,7 @@ while True:
         
         if(ticks_ms() % 1000 < 500 and settingsSelpos<0 and yScrollTarget == -40 and xScrollTarget == -72):
             thumby.display.blit(leftArrowBAinv, 72+xScrollPos + 6, yScrollPos+40 +1, 3, 5,1,0,0)
+            thumby.display.blit(rightArrowBAinv, 72+xScrollPos + 65, yScrollPos+40 +1, 3, 5,1,0,0)
 
     if(scroll < 0):
         scroll += 1
@@ -300,6 +306,63 @@ while True:
         scroll -= 1
         if(scroll > 4):
             scroll -= 1
+    
+    
+    if(-72>xScrollPos>-216 and xScrollTarget!=-72):
+        thumby.display.drawText("Special", xScrollPos+144 + 72//2 - ( 7 * 6) // 2, 0 ,1)
+        thumby.display.drawText("Thanks From", xScrollPos+144 + 72//2 - ( 11 * 6) // 2, 10 ,1)
+        thumby.display.drawText("TinyCircuits", xScrollPos+144 + 72//2 - ( 12 * 6) // 2, 20 ,1)
+        thumby.display.drawText("To...", xScrollPos+144 + 72//2 - ( 5 * 6) // 2, 30 ,1)
+        if(xScrollPos==xScrollTarget):
+            thumby.display.update()
+            file = open('/lib/credits.txt','r')
+            lines = file.readlines()
+            lineCount = len(lines)
+            for i in range(12):
+                lines.append(" ")
+
+            for i in range(len(lines)):
+                if(len(lines[i])>16):
+                    lines[i] = lines[i][0:17]
+
+            lineLengths=[0,0,0,0, 0,0,0,0]
+
+            creditsScrollPosition = -2
+            width=(6*16 + 10)
+            firstLine = (abs(creditsScrollPosition+1)//width*1) * 4
+            for i in range(8):
+                lineLengths[i]=len(lines[firstLine+i])
+            creditsScrollOffset = (creditsScrollPosition)%(width)
+            xScrollTarget = -216
+            noButtonPress = True
+            sleep_ms(100)
+                    
+    if(xScrollPos<-144 or (xScrollTarget==-72 and xScrollPos<-72)):
+        if(xScrollPos==-216):
+            if(thumby.buttonL.pressed()):
+                if(creditsScrollPosition <-2):
+                    creditsScrollPosition+=5
+                else:
+                    xScrollTarget=-72
+            if(thumby.buttonR.pressed()):
+                if(creditsScrollPosition > -((lineCount*width)//4)-100):
+                    creditsScrollPosition-=5
+            if(noButtonPress):
+                if(creditsScrollPosition > -((lineCount*width)//4)-100):
+                    creditsScrollPosition-=1
+        if(thumby.buttonL.pressed() or thumby.buttonR.pressed() or noButtonPress):
+            firstLine = (abs(creditsScrollPosition+1)//width*1) * 4
+            for i in range(8):
+                lineLengths[i]=len(lines[firstLine+i])
+            creditsScrollOffset = (creditsScrollPosition)%(width)
+        for i in range(4):
+            thumby.display.drawText(lines[firstLine+i], xScrollPos+216 + creditsScrollOffset - 72//2 - ( lineLengths[i] * 6) // 2 -5, 0+(i)*10,1)
+            thumby.display.drawText(lines[firstLine+i+4], xScrollPos+216 + creditsScrollOffset - 72//2 - ( lineLengths[i+4] * 6) // 2 -5 +width, 0+(i)*10,1)
+        if(thumby.buttonB.pressed()):
+            xScrollTarget=-72
+        thumby.display.setPixel((creditsScrollPosition *71 // -((lineCount*width)//4))-1, 39, 1)
+        thumby.display.setPixel((creditsScrollPosition *71 // -((lineCount*width)//4)), 39, 1)
+        thumby.display.setPixel((creditsScrollPosition *71 // -((lineCount*width)//4))+1, 39, 1)
     
     
     thumby.display.update()
@@ -350,6 +413,10 @@ while True:
             if(yScrollPos == -40 and yScrollPos == yScrollTarget):
                 if(xScrollTarget == 0 and xScrollPos == xScrollTarget and selpos==-1 and settingsSelpos==-1):
                     xScrollTarget = -72
+                if(xScrollTarget == -72 and xScrollPos == xScrollTarget and selpos==-1 and settingsSelpos==-1):
+                    xScrollTarget = -144
+                if(xScrollTarget == -144 and xScrollPos == xScrollTarget and selpos==-1 and settingsSelpos==-1):
+                    xScrollTarget = -216
         if(thumby.buttonL.pressed()):
             if(yScrollPos == -40 and yScrollPos == yScrollTarget):
                 if(xScrollTarget == -72 and xScrollPos == xScrollTarget and selpos==-1 and settingsSelpos==-1):
@@ -358,22 +425,23 @@ while True:
             if(yScrollTarget == 0 and xScrollTarget == 0):
                 launchGame() #start selection
             if(yScrollTarget <= -40):
-                if(xScrollTarget == 0):
+                if(xScrollTarget == 0 and selpos>=0):
                     launchGame()
                 if(xScrollTarget == -72):
                     if(settingsSelpos==0):
-                        audioSetting= (audioSetting+1) % 3
-                        thumby.audio.enabled = audioSetting
+                        audioSetting= (audioSetting+1) % 2
+                        thumby.audio.setEnabled(audioSetting)
+                        print(audioSetting)
                         saveConfigSetting("audioenabled", str(audioSetting))
+                        thumby.audio.play(500,20)
                     if(settingsSelpos==1):
                         brightnessSetting= (brightnessSetting+1) % 3
                         thumby.display.brightness(brightnessVals[brightnessSetting])
                         saveConfigSetting("brightness", str(brightnessSetting))
                     settings=[audioSettings[audioSetting], brightnessSettings[brightnessSetting]]
-        print(ticks_us() - start)
+        #print(ticks_us() - start)
 
 
 
 
 machine.reset()
-

@@ -99,14 +99,24 @@ class AudioClass:
     def __init__(self, pwm):
         self.timer = Timer()
         self.pwm = pwm
-        self.enabled = True
+        self.enabled = 1
+        self.dutyCycle = 0xFFFF//2
         try:
-            conf = open("thumby.cfg", "r").read().split()
+            conf = open("/thumby.cfg", "r").read().split(',')
             for k in range(len(conf)):
                 if(conf[k] == "audioenabled"):
-                    self.enabled = True if(conf[k+1] == "1") else False
+                    self.enabled = int(conf[k+1])
         except:
             pass
+
+    # Set the audio to disabled, mid, or high output
+    @micropython.native
+    def setEnabled(self, setting = 1):
+        self.enabled = setting
+        if(self.enabled<0):
+            self.enabled=0
+        if(self.enabled>1):
+            self.enabled=1
 
     # Stop audio.
     @micropython.native
@@ -115,30 +125,25 @@ class AudioClass:
 
     # Set the frequency and duty of the PWM audio if currently enabled.
     @micropython.native
-    def set(self, freq, duty = 32768):
-        if(self.enabled == True):
+    def set(self, freq):
+        if(self.enabled):
             self.pwm.freq(freq)
-            self.pwm.duty_u16(duty)
-
-    # Set the audio as enabled or disabled.
-    @micropython.native
-    def setEnabled(self, setting = True):
-        self.enabled = setting
+            self.pwm.duty_u16(self.dutyCycle)
 
     # Play a given frequency for the duration with a given duty cycle for PWM audio. Returns before audio is done playing.
     @micropython.native
-    def play(self, freq, duration, duty = 32768):
-        if(self.enabled == True):
+    def play(self, freq, duration):
+        if(self.enabled):
             self.pwm.freq(freq)
-            self.pwm.duty_u16(duty)
+            self.pwm.duty_u16(self.dutyCycle)
             self.timer.init(period = duration, mode = Timer.ONE_SHOT, callback = self.stop)
 
     # Play a given frequency for the duration with a given duty cycle for PWM audio. Returns after audio is done playing.
     @micropython.native
-    def playBlocking(self, freq, duration, duty = 32768):
-        if(self.enabled == True):
+    def playBlocking(self, freq, duration):
+        if(self.enabled):
             self.pwm.freq(freq)
-            self.pwm.duty_u16(duty)
+            self.pwm.duty_u16(self.dutyCycle)
             t0 =ticks_ms()
             while(ticks_ms() - t0 <= duration):
                 pass
@@ -162,9 +167,8 @@ class Sprite:
         self.currentFrame = 0
         if type(self.bitmapSource)==str:
             self.bitmap = bytearray(self.bitmapByteCount)
-            f = open(self.bitmapSource,'rb')
-            f.readinto(self.bitmap)
-            f.close()
+            self.file = open(self.bitmapSource,'rb')
+            self.file.readinto(self.bitmap)
             self.frameCount = os.stat(self.bitmapSource)[6] // self.bitmapByteCount
         elif type(self.bitmapSource)==bytearray:
             self.bitmap = memoryview(self.bitmapSource)[0:self.bitmapByteCount]
@@ -185,10 +189,9 @@ class Sprite:
             self.currentFrame = frame % (self.frameCount)
             offset=self.bitmapByteCount*self.currentFrame
             if type(self.bitmapSource)==str:
-                f = open(self.bitmapSource,'rb')
-                f.seek(offset)
-                f.readinto(self.bitmap)
-                f.close()
+                self.file.seek(offset)
+                self.file.readinto(self.bitmap)
+                #f.close()
             elif type(self.bitmapSource)==bytearray:
                 self.bitmap = memoryview(self.bitmapSource)[offset:offset+self.bitmapByteCount]
 
@@ -201,10 +204,11 @@ class GraphicsClass:
         self.height = height
         self.max_x = width-1
         self.max_y = height-1
-        self.frameRate = 30
-        self.lastUpdateStart = 0
+        self.frameRate = 0
+        self.lastUpdateEnd = 0
         self.setFont('lib/font5x7.bin', 5, 7, 1)
         #self.setFont('lib/font8x8.bin', 8, 8, 0)
+        self.fill(0)
 
     @micropython.native
     def setFont(self, fontFile, width, height, space):
@@ -219,14 +223,14 @@ class GraphicsClass:
     @micropython.native
     def setFPS(self, newFrameRate):
         self.frameRate = newFrameRate
-
+    
     # Push the buffer to the hardware display.
     @micropython.native
     def update(self):
         self.display.show()
         if self.frameRate>0:
-            frameTimeRemaining = round(1000/self.frameRate) - (ticks_ms()-self.lastUpdateStart)
-            while(frameTimeRemaining>0):
+            frameTimeRemaining = round(1000/self.frameRate) - (ticks_ms()-self.lastUpdateEnd)
+            while(frameTimeRemaining>1):
                 buttonA.update()
                 buttonB.update()
                 buttonU.update()
@@ -234,8 +238,10 @@ class GraphicsClass:
                 buttonL.update()
                 buttonR.update()
                 sleep_ms(1)
-                frameTimeRemaining = round(1000/self.frameRate) - (ticks_ms()-self.lastUpdateStart)
-        self.lastUpdateStart=ticks_ms()
+                frameTimeRemaining = round(1000/self.frameRate) - (ticks_ms()-self.lastUpdateEnd)
+            while(frameTimeRemaining>0):
+                frameTimeRemaining = round(1000/self.frameRate) - (ticks_ms()-self.lastUpdateEnd)
+        self.lastUpdateEnd=ticks_ms()
 
     # Set display brightness, valid values 0 to 127
     @micropython.native
@@ -259,25 +265,29 @@ class GraphicsClass:
 
     @micropython.viper
     def setPixel(self, x:int, y:int, color:int):
-        if not 0<=x<int(self.width):
+        screenWidth = int(self.width)
+        screenHeight = int(self.height)
+        if not 0<=x<screenWidth:
             return
-        if not 0<=y<int(self.height):
+        if not 0<=y<screenHeight:
             return
         buf = ptr8(self.display.buffer)
         if(color==int(1)):
-            buf[(y >> 3) * int(self.width) + x] |= 1 << (y & 0x07)
-        if(color==int(0)):
-            buf[(y >> 3) * int(self.width) + x] &= 0xff ^ (1 << (y & 0x07))
+            buf[(y >> 3) * screenWidth + x] |= 1 << (y & 0x07)
+        elif(color==int(0)):
+            buf[(y >> 3) * screenHeight + x] &= 0xff ^ (1 << (y & 0x07))
 
     
     @micropython.viper
     def getPixel(self, x:int, y:int) -> int:
-        if not 0<=x<int(self.width):
+        screenWidth = int(self.width)
+        screenHeight = int(self.height)
+        if not 0<=x<int(screenWidth):
             return 0
-        if not 0<=y<int(self.height):
+        if not 0<=y<int(screenHeight):
             return 0
         buf = ptr8(self.display.buffer)
-        if(buf[(y >> 3) * int(self.width) + x] & 1 << (y & 0x07)):
+        if(buf[(y >> 3) * int(screenWidth) + x] & 1 << (y & 0x07)):
             return 1
         return 0
 
@@ -310,31 +320,34 @@ class GraphicsClass:
             sy = temp
             steep = True
         
+        screenWidth = int(self.width)
+        screenHeight = int(self.height)
+        
         e = 2 * dy - dx
         for i in range(dx):
             if (steep):
-                if (0 <= y1 and y1 < int(self.width) and 0 <= x1 and x1 < int(self.height)):
+                if (0 <= y1 and y1 < screenWidth and 0 <= x1 and x1 < screenHeight):
                     if(color==int(1)):
-                        buf[(x1 >> 3) * int(self.width) + y1] |= 1 << (x1 & 0x07)
-                    if(color==int(0)):
-                        buf[(x1 >> 3) * int(self.width) + y1] &= 0xff ^ (1 << (x1 & 0x07))
+                        buf[(x1 >> 3) * screenWidth + y1] |= 1 << (x1 & 0x07)
+                    elif(color==int(0)):
+                        buf[(x1 >> 3) * screenWidth + y1] &= 0xff ^ (1 << (x1 & 0x07))
             else:
-                if (0 <= x1 and x1 < int(self.width) and 0 <= y1 and y1 < int(self.height)):
+                if (0 <= x1 and x1 < screenWidth and 0 <= y1 and y1 < screenHeight):
                     if(color==int(1)):
-                        buf[(y1 >> 3) * int(self.width) + x1] |= 1 << (y1 & 0x07)
-                    if(color==int(0)):
-                        buf[(y1 >> 3) * int(self.width) + x1] &= 0xff ^ (1 << (y1 & 0x07))
+                        buf[(y1 >> 3) * screenWidth + x1] |= 1 << (y1 & 0x07)
+                    elif(color==int(0)):
+                        buf[(y1 >> 3) * screenWidth + x1] &= 0xff ^ (1 << (y1 & 0x07))
             while (e >= 0) :
                 y1 += sy
                 e -= 2 * dx
             x1 += sx
             e += 2 * dy
 
-        if (0 <= x2 and x2 < int(self.width) and 0 <= y2 and y2 < int(self.height)):
+        if (0 <= x2 and x2 < screenWidth and 0 <= y2 and y2 < screenHeight):
             if(color==int(1)):
-                buf[(y2 >> 3) * int(self.width) + x2] |= 1 << (y2 & 0x07)
-            if(color==int(0)):
-                buf[(y2 >> 3) * int(self.width) + x2] &= 0xff ^ (1 << (y2 & 0x07))
+                buf[(y2 >> 3) * screenWidth + x2] |= 1 << (y2 & 0x07)
+            elif(color==int(0)):
+                buf[(y2 >> 3) * screenWidth + x2] &= 0xff ^ (1 << (y2 & 0x07))
 
     @micropython.viper
     def drawRectangle(self, x:int, y:int, width:int, height:int, color:int):
@@ -364,18 +377,19 @@ class GraphicsClass:
             height=int(self.max_y)-y
         buf = ptr8(self.display.buffer)
         yMax=y+height+1
-        if(color==int(0)):
+        screenWidth=int(self.width)
+        if(color==int(1)):
             while y < yMax:
                 px=x
                 while px < x+width+1:
-                    buf[(y >> 3) * int(self.width) + px] &= 0xff ^ (1 << (y & 0x07))
+                    buf[(y >> 3) * screenWidth + px] |= 1 << (y & 0x07)
                     px+=1
                 y+=1
-        else:
+        elif(color==int(0)):
             while y < yMax:
                 px=x
                 while px < x+width+1:
-                    buf[(y >> 3) * int(self.width) + px] |= 1 << (y & 0x07)
+                    buf[(y >> 3) * screenWidth + px] &= 0xff ^ (1 << (y & 0x07))
                     px+=1
                 y+=1
 
@@ -383,51 +397,55 @@ class GraphicsClass:
     @micropython.viper
     def drawText(self, stringToPrint:ptr8, x:int, y:int, color:int):
         xPos=int(x)
-        charNum=uint(0)
-        charBitMap=uint(0)
+        charNum=int(0)
+        charBitMap=int(0)
         ptr = ptr8(self.display.buffer)
         sprtptr = ptr8(self.textBitmap)
         screenWidth=int(self.width)
+        screenHeight=int(self.height)
+        textHeight=int(self.textHeight)
+        textWidth=int(self.textWidth)
+        maxChar=int(self.textCharCount)
+        textSpaceWidth=int(self.textSpaceWidth)
         while(stringToPrint[charNum]):
-            charBitMap=uint(stringToPrint[charNum] - 0x20)
-            if uint(0) <= charBitMap <= uint(self.textCharCount):
-                if xPos+int(self.textWidth)>0 and xPos<int(self.width) and y+int(self.textHeight)>0 and y<int(self.height):
-                    self.textBitmapFile.seek(uint(self.textWidth)*uint(charBitMap))
+            charBitMap=int(stringToPrint[charNum] - 0x20)
+            if int(0) <= charBitMap <= maxChar:
+                if xPos+textWidth>0 and xPos<screenWidth and y+textHeight>0 and y<screenHeight:
+                    self.textBitmapFile.seek(textWidth*charBitMap)
                     self.textBitmapFile.readinto(self.textBitmap)
                     xStart=int(xPos)
                     yStart=int(y)
-                    width=int(self.textWidth)
-                    height=int(self.textHeight)
+                    blitHeight=textHeight
                     yFirst=0-yStart
                     if yFirst<0:
                         yFirst=0
-                    if yStart+height>39:
-                        height = 39-yStart
+                    if yStart+textHeight>40:
+                        blitHeight = 40-yStart
                     yb=int(yFirst)
                     xFirst=0-xStart
-                    blitWidth=width
+                    blitWidth=textWidth
                     if xFirst<0:
                         xFirst=0
-                    if xStart+width>72:
+                    if xStart+textWidth>72:
                         blitWidth = 72-xStart
                     if(int(color)==int(0)):
-                        while yb < height:
+                        while yb < blitHeight:
                             x=xFirst
                             while x < blitWidth:
-                                if(sprtptr[(yb >> 3) * width + x] & (1 << (yb & 0x07))):
+                                if(sprtptr[(yb >> 3) * textWidth + x] & (1 << (yb & 0x07))):
                                     ptr[((yStart+yb) >> 3) * screenWidth + xStart+x] &= 0xff ^ (1 << (yStart+yb & 0x07))
                                 x+=1
                             yb+=1
                     else:
-                        while yb < height:
+                        while yb < blitHeight:
                             x=xFirst
                             while x < blitWidth:
-                                if(sprtptr[(yb >> 3) * width + x] & (1 << (yb & 0x07))):
+                                if(sprtptr[(yb >> 3) * textWidth + x] & (1 << (yb & 0x07))):
                                     ptr[((yStart+yb) >> 3) * screenWidth + xStart+x] |= 1 << ((yStart+yb) & 0x07)
                                 x+=1
                             yb+=1
             charNum+=1
-            xPos+=(uint(self.textWidth)+uint(self.textSpaceWidth))
+            xPos+=(textWidth+textSpaceWidth)
 
     @micropython.viper
     def blit(self, sprtptr:ptr8, x:int, y:int, width:int, height:int, key:int, mirrorX:int, mirrorY:int):
@@ -438,28 +456,30 @@ class GraphicsClass:
         xStart=int(x)
         yStart=int(y)
         ptr = ptr8(self.display.buffer)
+        screenWidth = int(self.width)
+        screenHeight = int(self.height)
         
         yFirst=0-yStart
         blitHeight=height
         if yFirst<0:
             yFirst=0
-        if yStart+height>40:
-            blitHeight = 40-yStart
+        if yStart+height>screenHeight:
+            blitHeight = screenHeight-yStart
         
         xFirst=0-xStart
         blitWidth=width
         if xFirst<0:
             xFirst=0
-        if xStart+width>72:
-            blitWidth = 72-xStart
-        #print(y, yFirst, blitHeight, height)
+        if xStart+width>screenWidth:
+            blitWidth = screenWidth-xStart
+        
         y=yFirst
         if(key==0):
             while y < blitHeight:
                 x=xFirst
                 while x < blitWidth:
                     if(sprtptr[((height-1-y if mirrorY==1 else y) >> 3) * width + (width-1-x if mirrorX==1 else x)] & (1 << ((height-1-y if mirrorY==1 else y) & 0x07))):
-                        ptr[((yStart+y) >> 3) * int(72) + xStart+x] |= 1 << ((yStart+y) & 0x07)
+                        ptr[((yStart+y) >> 3) * screenWidth + xStart+x] |= 1 << ((yStart+y) & 0x07)
                     x+=1
                 y+=1
         elif(key==1):
@@ -467,7 +487,7 @@ class GraphicsClass:
                 x=xFirst
                 while x < blitWidth:
                     if(sprtptr[((height-1-y if mirrorY==1 else y) >> 3) * width + (width-1-x if mirrorX==1 else x)] & (1 << ((height-1-y if mirrorY==1 else y) & 0x07))==0):
-                        ptr[((yStart+y) >> 3) * int(72) + xStart+x] &= 0xff ^ (1 << ((yStart+y) & 0x07))
+                        ptr[((yStart+y) >> 3) * screenWidth + xStart+x] &= 0xff ^ (1 << ((yStart+y) & 0x07))
                     x+=1
                 y+=1
         else:
@@ -475,16 +495,16 @@ class GraphicsClass:
                 x=xFirst
                 while x < blitWidth:
                     if(sprtptr[((height-1-y if mirrorY==1 else y) >> 3) * width + (width-1-x if mirrorX==1 else x)] & (1 << ((height-1-y if mirrorY==1 else y) & 0x07))):
-                        ptr[((yStart+y) >> 3) * int(72) + xStart+x] |= 1 << ((yStart+y) & 0x07)
+                        ptr[((yStart+y) >> 3) * screenWidth + xStart+x] |= 1 << ((yStart+y) & 0x07)
                     else:
-                        ptr[((yStart+y) >> 3) * int(72) + xStart+x] &= 0xff ^ (1 << ((yStart+y) & 0x07))
+                        ptr[((yStart+y) >> 3) * screenWidth + xStart+x] &= 0xff ^ (1 << ((yStart+y) & 0x07))
                     x+=1
                 y+=1
 
     # Draw a sprite to the screen
     @micropython.native
     def drawSprite(self, s):
-        self.blit(s.bitmap, s.x, s.y, s.width, s.height, s.key, s.mirrorX, s.mirrorY)
+        self.blit(s.bitmap, int(s.x), int(s.y), s.width, s.height, s.key, s.mirrorX, s.mirrorY)
 
     @micropython.viper
     def blitWithMask(self, sprtptr:ptr8, x:int, y:int, width:int, height:int, key:int, mirrorX:int, mirrorY:int, maskptr:ptr8):
@@ -525,7 +545,7 @@ class GraphicsClass:
 
     @micropython.native
     def drawSpriteWithMask(self, s, m):
-        self.blitWithMask(s.bitmap, s.x, s.y, s.width, s.height, s.key, s.mirrorX, s.mirrorY, m.bitmap)
+        self.blitWithMask(s.bitmap, int(s.x), int(s.y), s.width, s.height, s.key, s.mirrorX, s.mirrorY, m.bitmap)
 
 # Button instantiation
 buttonA = ButtonClass(swA) # Left (A) button
@@ -570,4 +590,3 @@ def actionPressed():
 @micropython.native
 def actionJustPressed():
     return (buttonA.justPressed() or buttonB.justPressed())
-
