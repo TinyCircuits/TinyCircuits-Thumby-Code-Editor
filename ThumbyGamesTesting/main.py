@@ -1,19 +1,41 @@
 # Thumby main.py- quick initialization to display the TinyCircuits logo before menu.py is called
 
-from machine import Pin, Timer, I2C, PWM, SPI
+from machine import mem32, freq
+#Address of watchdog timer scratch register
+WATCHDOG_BASE=0x40058000
+SCRATCH0_ADDR=WATCHDOG_BASE+0x0C
+
+if(mem32[SCRATCH0_ADDR]==1):
+    mem32[SCRATCH0_ADDR]=0
+    gamePath=''
+    conf = open("thumby.cfg", "r").read().split(',')
+    for k in range(len(conf)):
+        if(conf[k] == "lastgame"):
+            gamePath = conf[k+1]
+    freq(125000000)
+    try:
+        __import__(gamePath)
+    except ImportError:
+        print("Thumby error: Couldn't load "+gamePath)
+
+
+
+from machine import Pin, Timer, I2C, PWM, SPI, freq, WDT
 from time import sleep_ms, ticks_ms, sleep_us, ticks_us
 import ssd1306
 
+
 brightnessSetting=2
 try:
-    conf = open("thumby.cfg", "r").read().split()
+    conf = open("thumby.cfg", "r").read().split(',')
+    print(conf)
     for k in range(len(conf)):
         if(conf[k] == "brightness"):
             brightnessSetting = int(conf[k+1])
 except OSError:
     pass
 
-brightnessVals=[0,32,127]
+brightnessVals=[0,28,127]
 
 HWID = 0
 IDPin = Pin(15, Pin.IN, Pin.PULL_UP)
@@ -52,4 +74,8 @@ f.readinto(display.buffer)
 f.close()
 display.show()
 
+
+
 import menu
+
+machine.reset()

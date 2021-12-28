@@ -37,13 +37,13 @@ class SSD1306():
 
     @micropython.native
     def show(self):
-        start = ticks_us()
-        self.write_cmd(0x21)
-        self.write_cmd(28)
-        self.write_cmd(99)
-        self.write_cmd(0x22)
-        self.write_cmd(0)
-        self.write_cmd(4)
+        self.write_window_cmd()
+#         self.write_cmd(0x21)
+#         self.write_cmd(28)
+#         self.write_cmd(99)
+#         self.write_cmd(0x22)
+#         self.write_cmd(0)
+#         self.write_cmd(4)
 #        self.write_window_cmd1()
 #        self.write_window_cmd2()
 #        start2 = ticks_us()
@@ -113,6 +113,7 @@ class SSD1306_SPI(SSD1306):
         self.dc = dc
         self.res = res
         self.cs = cs
+        self.cmdWindow = bytearray([0x21, 28, 99, 0x22, 0 ,4])
         
         super().__init__(width, height, external_vcc)
 
@@ -134,6 +135,16 @@ class SSD1306_SPI(SSD1306):
         self.cs(0)
         self.spi.write(bytearray([cmd]))
         self.cs(1)
+        
+    @micropython.native
+    def write_window_cmd(self):
+        self.spi.init(baudrate=self.rate, polarity=0, phase=0)
+        self.cs(1)
+        self.dc(0)
+        self.cs(0)
+        self.spi.write(self.cmdWindow)
+        self.cs(1)
+
 
     @micropython.native
     def write_data(self, buf):
