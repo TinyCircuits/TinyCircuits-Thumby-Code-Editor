@@ -11,7 +11,7 @@ try:
     conf = open("thumby.cfg", "r").read().split()
 except OSError:
     conf = open("thumby.cfg", "w")
-    conf.write("audioenabled 1 lastgame /Games/TinyTris/TinyTris.py")
+    conf.write("audioenabled 1 lastgame /Games/TinyBlocks/TinyBlocks.py")
     conf.close()
     conf = open("thumby.cfg", "r").read().split()
 
