@@ -185,7 +185,7 @@
 
 ## Sprite
 * ### Functions
-    * `thumby.Sprite(width, height, bitmapData, x, y, mirrorX, mirrorY)` | initialize sprite object with fixed frame `width` and `height` for frames in or at `bitmapData`, positioned at `x` and `y`, and rendered to screen mirrored depending on `mirrorX` and `mirrorY`. Returns None.
+    * `thumby.Sprite(width, height, bitmapData, x, y, key, mirrorX, mirrorY)` | initialize sprite object with fixed frame `width` and `height` for frames in `bitmapData`, positioned at `x` and `y`, and rendered to screen mirrored depending on, `mirrorX` and `mirrorY`. Transparent pixels are defined by `key` (e.g. `key = 0` means black pixels are not drawn/are transparent). Returns Sprite.
         * `width`
             * type: int
             * values: 0 ~ integer max
@@ -201,6 +201,9 @@
         * `y`
             * type: int
             * values: 0 (top) ~ 39 (bottom) (default: 0)
+        * `key`
+            * type: int
+            * values: 0 or 1 (default: -1, both black and white pixels drawn)
         * `mirrorX`
             * type: int
             * values: 0 (do not mirror) or 1 (do mirror) (default: 0)

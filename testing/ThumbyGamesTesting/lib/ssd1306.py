@@ -38,19 +38,7 @@ class SSD1306():
     @micropython.native
     def show(self):
         self.write_window_cmd()
-#         self.write_cmd(0x21)
-#         self.write_cmd(28)
-#         self.write_cmd(99)
-#         self.write_cmd(0x22)
-#         self.write_cmd(0)
-#         self.write_cmd(4)
-#        self.write_window_cmd1()
-#        self.write_window_cmd2()
-#        start2 = ticks_us()
         self.write_data(self.buffer)
-#        start3 = ticks_us()
-#        print(start2 - start, start3 - start2)
-#         print(self.buffer) 
 
 
 class SSD1306_I2C(SSD1306):
@@ -59,20 +47,8 @@ class SSD1306_I2C(SSD1306):
         self.addr = addr
         self.res = res
         self.temp = bytearray(2)
-        self.window1 = bytearray(4)
-        self.window2 = bytearray(4)
-        self.window1[0]=0x80
-        self.window1[1]=0x21
-        self.window1[2]=28
-        self.window1[3]=99
-        
-        self.window2[0]=0x80
-        self.window2[1]=0x22
-        self.window2[2]=0
-        self.window2[3]=4
         
         self.write_list = [b"\x40", None]  # Co=0, D/C#=1
-        
         
         super().__init__(width, height, external_vcc)
 
@@ -83,16 +59,19 @@ class SSD1306_I2C(SSD1306):
         sleep_ms(1)
         self.res(0)
         sleep_ms(10)
-        self.res(1)        
+        self.res(1)
         sleep_ms(10)
-        
 
-    def write_window_cmd1(self):
-        self.i2c.writeto(self.addr, self.window1)
-        
-    def write_window_cmd2(self):
-        self.i2c.writeto(self.addr, self.window2)
+    @micropython.native
+    def write_window_cmd(self):
+        self.write_cmd(0x21)
+        self.write_cmd(28)
+        self.write_cmd(99)
+        self.write_cmd(0x22)
+        self.write_cmd(0)
+        self.write_cmd(4)
 
+    @micropython.native
     def write_cmd(self, cmd):
         self.temp[0] = 0x80  # Co=1, D/C#=0
         self.temp[1] = cmd
