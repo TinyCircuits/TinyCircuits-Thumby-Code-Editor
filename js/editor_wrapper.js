@@ -6,6 +6,10 @@
 class EditorWrapper{
     constructor(_container, state, EDITORS){
 
+        // indexDB used for storing binary data of binary files for persistance
+        this.BINARY_DATABASE_VERSION = 1;
+        this.DB = undefined;
+
         this.EDITORS = EDITORS;
         this._container = _container;
 
@@ -20,16 +24,311 @@ class EditorWrapper{
         }else{
             this.ID = state.id;
         }
+        this.state = state;
 
         this.EDITORS[this.ID] = this;
 
-
+        // Toolbar and editor div always exist, child elements are added or removed from them
         this.HEADER_TOOLBAR_DIV = document.createElement("div");
         this.HEADER_TOOLBAR_DIV.classList.add("editor_header_toolbar");
         this._container.element.appendChild(this.HEADER_TOOLBAR_DIV);
 
+        this.EDITOR_DIV = document.createElement("div");
+        this.EDITOR_DIV.id = "IDEditorDiv" + this.ID;
+        this.EDITOR_DIV.classList.add("editor");
+        this._container.element.appendChild(this.EDITOR_DIV);
+
+        this.defaultCode =   "import time\n" +
+                            "import thumby\n" +
+                            "import math\n\n" +
+                            
+                            "# BITMAP: width: 32, height: 32\n" +
+                            "bitmap0 = bytearray([0,0,0,0,0,0,0,0,248,8,232,40,40,40,40,40,40,40,40,40,40,232,8,248,0,0,0,0,0,0,0,\n" +
+                            "                     0,0,0,0,0,0,0,0,0,255,0,63,32,32,32,32,32,32,32,32,32,32,63,0,255,0,0,0,0,0,0,0,\n" +
+                            "                     0,0,0,0,0,0,0,0,0,255,0,12,12,63,63,12,12,0,0,24,24,3,3,0,255,0,0,0,0,0,0,0,0,0,\n" +
+                            "                     0,0,0,0,0,0,0,31,16,16,16,16,20,18,16,20,18,16,16,16,16,16,31,0,0,0,0,0,0,0,0])\n\n" +
+                            
+                            "# Make a sprite object using bytearray (a path to binary file from 'IMPORT SPRITE' is also valid)\n" +
+                            "thumbySprite = thumby.Sprite(32, 32, bitmap0)\n\n" +
+
+                            "# Set the FPS (without this call, the default fps is 30)\n" +
+                            "thumby.display.setFPS(60)\n\n" +
+
+                            "while(1):\n" +
+                            "    t0 = time.ticks_ms()   # Get time (ms)\n" +
+                            "    thumby.display.fill(0) # Fill canvas to black\n\n" +
+                            
+                            "    bobRate = 250 # Set arbitrary bob rate (higher is slower)\n" +
+                            "    bobRange = 5  # How many pixels to move the sprite up/down (-5px ~ 5px)\n\n" +
+                            
+                            "    # Calculate number of pixels to offset sprite for bob animation\n" +
+                            "    bobOffset = math.sin(t0 / bobRate) * bobRange\n\n" +
+                            
+                            "    # Center the sprite using screen and bitmap dimensions and apply bob offset\n" +
+                            "    thumbySprite.x = int((thumby.display.width/2) - (32/2))\n" +
+                            "    thumbySprite.y = int(round((thumby.display.height/2) - (32/2) + bobOffset))\n\n" +
+                            
+                            "    # Display the bitmap using bitmap data, position, and bitmap dimensions\n" +
+                            "    thumby.display.drawSprite(thumbySprite)\n" +
+                            "    thumby.display.update()\n";
+
+        this.initEditorPanelUI(state["value"]);
+
+        // Listen for layout changes and re-fit the editor, also override the default exit button
+        this._container._layoutManager.on('stateChanged', () => {
+            this.resize();
+
+            // https://github.com/golden-layout/golden-layout/issues/324
+            // Remove editor close button functionality and override it
+            var oldElem = this._container._tab._closeElement;
+            if(oldElem != null && oldElem.parentNode != null){
+                var newElem = oldElem.cloneNode(true);
+                oldElem.parentNode.replaceChild(newElem, oldElem);
+
+                newElem.onclick = () => {
+
+                    if(this.SAVED_TO_THUMBY == false && !confirm('You have unsaved changes, are you sure you want to close this editor?')) {
+                        return;
+                    }
+
+                    // Remove this since only needed for editor
+                    window.removeEventListener("resize", this.windowResizeListener);
+
+                    delete EDITORS[this.ID];
+                    this.clearStorage();
+
+                    // Clear the binary file from database that this editor had a reference to
+                    if(this.isEditorBinary()) this.deleteDBFile();
+
+                    console.log("Cleared info for Editor: " + this._container.title);
+                    this._container.close();
+                }
+            }
+        });
+
+        // Used for setting the active editor outside this module, typically for bit map builder
+        this.onFocus = undefined;
+        this.onSaveToThumby = undefined;
+        this.onSaveAsToThumby = undefined;
+        this.onFastExecute = undefined;
+        this.onEmulate = undefined;
+        this.onOpen = undefined;
+
+        // Make sure mouse click anywhere on panel focuses the panel
+        this._container.element.addEventListener('click', (event) => {
+            this._container.focus();
+            this.onFocus();
+        });
+        this._container.element.addEventListener('focusin', (event) => {
+            this._container.focus();
+            this.onFocus();
+        });
+
+        // Used to suggest a name for certain operations
+        this.FILE_OPTIONS = {
+            suggestedName: ".py",
+        };
 
 
+        // Figure out if editor should take on the last saved title, passed title, or default title
+        var lastEditorTitle = localStorage.getItem("EditorTitle" + this.ID);
+        if(lastEditorTitle != null){
+            this.setTitle(lastEditorTitle);
+        }else if(state['path'] != undefined){
+            this.setTitle('Editor' + this.ID + ' - ' + state['path']);
+            this.SAVED_TO_THUMBY = true;         // Just opened from thumby, so saved to it
+        }else{
+            this.setTitle("Editor" + this.ID + ' - ' + this.EDITOR_PATH);
+            this.SAVED_TO_THUMBY = undefined;    // For sure not saved to Thumby but also new, keep undefined so can be closed without alert
+        }
+
+
+        // Figure out editor should set the path from last saved, or passed
+        var lastEditorPath = localStorage.getItem("EditorPath" + this.ID);
+        if(lastEditorPath != null){
+            this.EDITOR_PATH = lastEditorPath;
+        }else if(state['path'] != undefined){
+            this.EDITOR_PATH = state['path'];
+            localStorage.setItem("EditorPath" + this.ID, this.EDITOR_PATH);
+        }
+
+
+        // Figure out if editor was saved last time or not
+        var lastEditorSavedToThumby = localStorage.getItem("EditorSavedToThumby" + this.ID);
+        if(lastEditorSavedToThumby != null){
+            this.SAVED_TO_THUMBY = (lastEditorSavedToThumby === 'true');
+        }
+
+        this.state = {};
+        this.state.id = this.ID;
+        this._container.setState(this.state);
+
+        // Database used for getting files
+        this.DB = undefined;
+    }
+
+
+    isEditorBinary(){
+        var isBinary = localStorage.getItem("isBinary" + this.ID);
+        if(isBinary != null){
+            if(isBinary == "true"){
+                return true;
+            }else{
+                return false;
+            }
+        }else{
+            return false;
+        }
+    }
+
+
+    initDB(successCallback){
+        // Open database for files and handle any errors
+        const request = indexedDB.open('BINARY_FILES', this.BINARY_DATABASE_VERSION);
+        request.onerror = (event) => {
+            console.error(`Database error: ${event.target.errorCode}`);
+        };
+
+        // Can only create object stores (buckets) and search terms (index) when new DB opened or version changes
+        request.onupgradeneeded = (event) => {
+            this.DB = event.target.result;
+            let store = this.DB.createObjectStore('BINARY_FILES_STORE', {
+                autoIncrement: true
+            });
+       
+            // Create an index (search term)
+            let index = store.createIndex('editorID', 'editorID', {
+                unique: false
+            });
+        };
+
+        request.onsuccess = (event) => {
+            this.DB = event.target.result;
+            console.log("Database accessed");
+            successCallback();
+        };
+    }
+
+    addDBFile(dataBuffer){
+        this.initDB(() => {
+            // Create a transaction with binary store in read only mode
+            const txn = this.DB.transaction('BINARY_FILES_STORE', 'readwrite');
+
+            // Get the store/bucket
+            const store = txn.objectStore('BINARY_FILES_STORE');
+
+            // Get the index/search term from the store/bucket
+            const index = store.index('editorID');
+
+            let query = index.getKey(this.ID);
+
+            var fileEntry = {editorID: this.ID,
+                             fileData: dataBuffer};
+
+            // Return the result object on success
+            query.onsuccess = (event) => {
+                console.log("Added file to DB");
+                store.put(fileEntry, query.result);
+            };
+
+            // Handle the error case
+            query.onerror = (event) => {
+                console.log("Added file to DB");
+                store.put(fileEntry);
+            }
+
+            // Close the database connection
+            txn.oncomplete = () => {
+                this.DB.close();
+            };
+        });
+    }
+
+
+
+    getDBFile(successCallback){
+        this.initDB(() => {
+            // Create a transaction with binary store in read only mode
+            const txn = this.DB.transaction('BINARY_FILES_STORE', 'readonly');
+
+            // Get the store/bucket
+            const store = txn.objectStore('BINARY_FILES_STORE');
+
+            // Get the index/search term from the store/bucket
+            const index = store.index('editorID');
+
+            // Use store to start a search/query for the entry with the current editor ID
+            let query = index.get(this.ID);
+
+            // Return the result object on success
+            query.onsuccess = (event) => {
+                console.log("File data retrieved from DB");
+                successCallback(new Uint8Array(query.result.fileData));
+            };
+
+            // Handle the error case
+            query.onerror = (event) => {
+                console.log(event.target.error);
+            }
+
+            // Close the database connection
+            txn.oncomplete = () => {
+                this.DB.close();
+            };
+        });
+    }
+
+
+
+    deleteDBFile(successCallback){
+        this.initDB(() => {
+            // Create a transaction with binary store in read only mode
+            const txn = this.DB.transaction('BINARY_FILES_STORE', 'readwrite');
+
+            // Get the store/bucket
+            const store = txn.objectStore('BINARY_FILES_STORE');
+
+            // Get the index/search term from the store/bucket
+            const index = store.index('editorID');
+
+            let query = index.getKey(this.ID);
+
+            // Return the result object on success
+            query.onsuccess = (event) => {
+                store.delete(query.result);
+                console.log("File deleted from DB");
+                if(successCallback != undefined) successCallback();
+            };
+
+            // Handle the error case
+            query.onerror = (event) => {
+                console.log(event.target.error);
+            }
+
+            // Close the database connection
+            txn.oncomplete = () => {
+                this.DB.close();
+            };
+        });
+    }
+
+
+
+    initEditorPanelUI(data){
+        // Remove all buttons from header toolbar, if they exist
+        while(this.HEADER_TOOLBAR_DIV.children.length > 0){
+            this.HEADER_TOOLBAR_DIV.removeChild(this.HEADER_TOOLBAR_DIV.children[0]);
+        }
+
+        // Remove all buttons from editor div, if they exist
+        while(this.EDITOR_DIV.children.length > 0){
+            this.EDITOR_DIV.removeChild(this.EDITOR_DIV.children[0]);
+        }
+
+        // Remove the editor now since it will need to be reassigned a new parent div
+        if(this.ACE_EDITOR) this.ACE_EDITOR.destroy();
+
+        // Binary and code viewer always have file button and dropdown (except the examples button)
         this.FILE_BUTTON = document.createElement("button");
         this.FILE_BUTTON.classList = "uk-button uk-button-primary uk-height-1-1 uk-text-small uk-text-nowrap";
         this.FILE_BUTTON.textContent = "File\u25BE";
@@ -39,6 +338,9 @@ class EditorWrapper{
         this.FILE_DROPDOWN = document.createElement("div");
         this.FILE_DROPDOWN.setAttribute("uk-dropdown", "mode: click; offset: 0; delay-hide: 200");
         this.HEADER_TOOLBAR_DIV.appendChild(this.FILE_DROPDOWN);
+        this.FILE_DROPDOWN.addEventListener("mouseleave", () => {
+            UIkit.dropdown(this.FILE_DROPDOWN).hide();
+        })
 
         this.FILE_DROPDOWN_UL = document.createElement("div");
         this.FILE_DROPDOWN_UL.classList = "uk-nav uk-dropdown-nav";
@@ -79,8 +381,145 @@ class EditorWrapper{
         this.FILE_SAVEAS_BUTTON.onclick = () => {this.onSaveAsToThumby()};
         listElem.appendChild(this.FILE_SAVEAS_BUTTON);
         this.FILE_DROPDOWN_UL.appendChild(listElem);
-        
+
         listElem = document.createElement("li");
+        this.FILE_SET_PATH_BUTTON = document.createElement("button");
+        this.FILE_SET_PATH_BUTTON.classList = "uk-button uk-button-primary uk-width-1-1 uk-height-1-1 uk-text-nowrap";
+        this.FILE_SET_PATH_BUTTON.textContent = "Set Path";
+        this.FILE_SET_PATH_BUTTON.title = "Set file path of editor (for Thumby saving and emulation)";
+        this.FILE_SET_PATH_BUTTON.onclick = () => {
+            var path = prompt("Please enter path for editor in absolute form (e.g. /Games/MyGame/MyGame.py)", this.EDITOR_PATH);
+            if(path != null && path != ""){
+                if(path[0] != '/'){
+                    path = "/" + path;
+                }
+
+                if(this.checkAllEditorsForPath(path) == false){
+                    this.setPath(path);
+                    this.setTitle("Editor" + this.ID + ' - ' + this.EDITOR_PATH);
+                }else{
+                    alert("Cannot use path, editor already open with path");
+                }
+            }
+        }
+        listElem.appendChild(this.FILE_SET_PATH_BUTTON);
+        this.FILE_DROPDOWN_UL.appendChild(listElem);
+
+        var isBinary = localStorage.getItem("isBinary" + this.ID);
+
+        if(data == undefined && isBinary != null && isBinary == "true"){                                                        // If was binary viewer last time, should still be
+            console.log("INIT BINARY VIEWER");
+            localStorage.setItem("isBinary" + this.ID, true);
+            this.turnIntoBinaryViewer();
+        }else if((data == undefined && isBinary == null) || (data == undefined && isBinary != null && isBinary == "false")){    // No data and not binary, new editor with default code
+            console.log("INIT CODE VIEWER");
+            localStorage.setItem("isBinary" + this.ID, false);
+            this.turnIntoCodeViewer(data);
+        }else if(data != undefined){
+
+            // Check if the decoded data contains binary replacement letters (could also check that most characters only equal ascii chars)
+            var decodedData = new TextDecoder().decode(new Uint8Array(data));
+            if(decodedData.indexOf("�") == -1 && decodedData.indexOf("") == -1 && decodedData.indexOf("") == -1 && decodedData.indexOf("") == -1){
+                console.log("INIT CODE VIEWER");
+                localStorage.setItem("isBinary" + this.ID, false);
+                this.turnIntoCodeViewer(decodedData);
+            }else{
+                console.log("INIT BINARY VIEWER");
+                localStorage.setItem("isBinary" + this.ID, true);
+                this.turnIntoBinaryViewer(data);
+            }
+        }
+
+
+
+        // Every editor has an emulation zone for emulate checkboxes
+        this.EMULATION_ZONE = document.createElement("div");
+        this.EMULATION_ZONE.classList = "editor_emulation_zone";
+        this.HEADER_TOOLBAR_DIV.appendChild(this.EMULATION_ZONE);
+
+        this.EMULATION_ZONE_NAME = document.createElement("div");
+        this.EMULATION_ZONE_NAME.classList = "editor_emulation_zone_name";
+        this.EMULATION_ZONE_NAME.innerText = "EMULATION:"
+        this.EMULATION_ZONE.appendChild(this.EMULATION_ZONE_NAME);
+
+        this.EMULATION_ZONE_CHECKBOX_PARENT = document.createElement("div");
+        this.EMULATION_ZONE_CHECKBOX_PARENT.classList = "editor_emulation_zone_checkbox_parent";
+        this.EMULATION_ZONE.appendChild(this.EMULATION_ZONE_CHECKBOX_PARENT);
+
+        this.NORMAL_EMU_CHECKBOX = document.createElement("input");
+        this.NORMAL_EMU_CHECKBOX.classList = "uk-checkbox editor_emulate_checkbox";
+        this.NORMAL_EMU_CHECKBOX.type = "checkbox";
+        this.NORMAL_EMU_CHECKBOX.title = "Designate as file to be emulated";
+        this.NORMAL_EMU_CHECKBOX.onchange = (event) => {
+            //  Check that the editor has some kind of path set
+            if(this.EDITOR_PATH == undefined || this.EDITOR_PATH == ""){
+                alert("Please give this editor a path (FILE -> SET PATH)");
+                this.NORMAL_EMU_CHECKBOX.checked = false;
+                return;
+            }
+
+            if(this.NORMAL_EMU_CHECKBOX.checked){
+                this.MAIN_EMU_CHECKBOX.checked = false;
+                localStorage.setItem("EditorEMUCheck" + this.ID, 0);
+            }else{
+                this.MAIN_EMU_CHECKBOX.checked = false;
+                localStorage.removeItem("EditorEMUCheck" + this.ID)
+            }
+        }
+        this.EMULATION_ZONE_CHECKBOX_PARENT.appendChild(this.NORMAL_EMU_CHECKBOX);
+
+        this.MAIN_EMU_CHECKBOX = document.createElement("input");
+        this.MAIN_EMU_CHECKBOX.classList = "uk-checkbox editor_emulate_checkbox";
+        this.MAIN_EMU_CHECKBOX.style.borderColor = "red";
+        this.MAIN_EMU_CHECKBOX.type = "checkbox";
+        this.MAIN_EMU_CHECKBOX.title = "Designate as main file to be emulated (everything will start from this script)";
+        this.MAIN_EMU_CHECKBOX.onchange = (event) => {
+            //  Check that the editor has some kind of path set
+            if(this.EDITOR_PATH == undefined || this.EDITOR_PATH == ""){
+                alert("Please give this editor a path (FILE -> SET PATH)");
+                this.MAIN_EMU_CHECKBOX.checked = false;
+                return;
+            }
+
+            if(this.MAIN_EMU_CHECKBOX.checked){
+                this.NORMAL_EMU_CHECKBOX.checked = true;
+
+                // Go through all other editors and turn off their main check since this one is checked now, switch them to normal
+                for (const [editorID, editorWrapper] of Object.entries(this.EDITORS)) {
+                    if(editorID != this.ID){
+                        // If this editor was checked as main, switch to normal
+                        if(editorWrapper.MAIN_EMU_CHECKBOX.checked){
+                            editorWrapper.NORMAL_EMU_CHECKBOX.checked = true;
+                            localStorage.setItem("EditorEMUCheck" + editorWrapper.ID, 0);   // Check changed, set
+                        }else if(editorWrapper.NORMAL_EMU_CHECKBOX.checked == false){
+                            localStorage.removeItem("EditorEMUCheck" + editorWrapper.ID);   // Neither are checked now, remove
+                        }
+                        editorWrapper.MAIN_EMU_CHECKBOX.checked = false;
+                    }
+                }
+
+                localStorage.setItem("EditorEMUCheck" + this.ID, 1);
+            }else{
+                localStorage.removeItem("EditorEMUCheck" + this.ID)
+            }
+        }
+        this.EMULATION_ZONE_CHECKBOX_PARENT.appendChild(this.MAIN_EMU_CHECKBOX);
+
+        var check = localStorage.getItem("EditorEMUCheck" + this.ID);
+        if(check != null){
+            if(check == '1'){
+                this.MAIN_EMU_CHECKBOX.checked = true;
+                this.NORMAL_EMU_CHECKBOX.checked = true;
+            }else if(check == '0'){
+                this.NORMAL_EMU_CHECKBOX.checked = true;
+            }
+        }
+    }
+
+
+
+    turnIntoCodeViewer(data){
+        var listElem = document.createElement("li");
         listElem.classList = "uk-nav-divider";
         this.FILE_DROPDOWN_UL.appendChild(listElem);
 
@@ -103,50 +542,10 @@ class EditorWrapper{
 
 
         listElem = document.createElement("li");
-        this.ANNELID_EXAMPLE_BTN = document.createElement("button");
-        this.ANNELID_EXAMPLE_BTN.classList = "uk-button uk-button-primary uk-width-1-1 uk-height-1-1 uk-text-nowrap";
-        this.ANNELID_EXAMPLE_BTN.textContent = "Annelid";
-        this.ANNELID_EXAMPLE_BTN.onclick = async () => {this.openFileContents(await window.downloadFile("/ThumbyGames/Games/Annelid/Annelid.py"))};
-        listElem.appendChild(this.ANNELID_EXAMPLE_BTN);
-        this.EXAMPLES_DROPDOWN_UL.appendChild(listElem);
-
-        listElem = document.createElement("li");
-        this.THUMGEON_EXAMPLE_BTN = document.createElement("button");
-        this.THUMGEON_EXAMPLE_BTN.classList = "uk-button uk-button-primary uk-width-1-1 uk-height-1-1 uk-text-nowrap";
-        this.THUMGEON_EXAMPLE_BTN.textContent = "Thumgeon";
-        this.THUMGEON_EXAMPLE_BTN.onclick = async () => {this.openFileContents(await window.downloadFile("/ThumbyGames/Games/Thumgeon/Thumgeon.py"))};
-        listElem.appendChild(this.THUMGEON_EXAMPLE_BTN);
-        this.EXAMPLES_DROPDOWN_UL.appendChild(listElem);
-
-        listElem = document.createElement("li");
-        this.SAURRUN_EXAMPLE_BTN = document.createElement("button");
-        this.SAURRUN_EXAMPLE_BTN.classList = "uk-button uk-button-primary uk-width-1-1 uk-height-1-1 uk-text-nowrap";
-        this.SAURRUN_EXAMPLE_BTN.textContent = "SaurRun";
-        this.SAURRUN_EXAMPLE_BTN.onclick = async () => {this.openFileContents(await window.downloadFile("/ThumbyGames/Games/SaurRun/SaurRun.py"))};
-        listElem.appendChild(this.SAURRUN_EXAMPLE_BTN);
-        this.EXAMPLES_DROPDOWN_UL.appendChild(listElem);
-
-        listElem = document.createElement("li");
-        this.SPACEDEBRIS_EXAMPLE_BTN = document.createElement("button");
-        this.SPACEDEBRIS_EXAMPLE_BTN.classList = "uk-button uk-button-primary uk-width-1-1 uk-height-1-1 uk-text-nowrap";
-        this.SPACEDEBRIS_EXAMPLE_BTN.textContent = "SpaceDebris";
-        this.SPACEDEBRIS_EXAMPLE_BTN.onclick = async () => {this.openFileContents(await window.downloadFile("/ThumbyGames/Games/SpaceDebris/SpaceDebris.py"))};
-        listElem.appendChild(this.SPACEDEBRIS_EXAMPLE_BTN);
-        this.EXAMPLES_DROPDOWN_UL.appendChild(listElem);
-
-        listElem = document.createElement("li");
-        this.TINYBLOCKS_EXAMPLE_BTN = document.createElement("button");
-        this.TINYBLOCKS_EXAMPLE_BTN.classList = "uk-button uk-button-primary uk-width-1-1 uk-height-1-1 uk-text-nowrap";
-        this.TINYBLOCKS_EXAMPLE_BTN.textContent = "TinyBlocks";
-        this.TINYBLOCKS_EXAMPLE_BTN.onclick = async () => {this.openFileContents(await window.downloadFile("/ThumbyGames/Games/TinyBlocks/TinyBlocks.py"))};
-        listElem.appendChild(this.TINYBLOCKS_EXAMPLE_BTN);
-        this.EXAMPLES_DROPDOWN_UL.appendChild(listElem);
-
-        listElem = document.createElement("li");
         this.THUMBYPY_EXAMPLE_BTN = document.createElement("button");
         this.THUMBYPY_EXAMPLE_BTN.classList = "uk-button uk-button-primary uk-width-1-1 uk-height-1-1 uk-text-nowrap";
         this.THUMBYPY_EXAMPLE_BTN.textContent = "thumby.py";
-        this.THUMBYPY_EXAMPLE_BTN.onclick = async () => {this.openFileContents(await window.downloadFile("/ThumbyGames/lib/thumby.py"))};
+        this.THUMBYPY_EXAMPLE_BTN.onclick = async () => {this.openFileContents(await window.downloadFile("/ThumbyGamesTesting/lib/thumby.py"))};
         listElem.appendChild(this.THUMBYPY_EXAMPLE_BTN);
         this.EXAMPLES_DROPDOWN_UL.appendChild(listElem);
 
@@ -160,6 +559,9 @@ class EditorWrapper{
         this.VIEW_DROPDOWN = document.createElement("div");
         this.VIEW_DROPDOWN.setAttribute("uk-dropdown", "mode: click; offset: 0; delay-hide: 200");
         this.HEADER_TOOLBAR_DIV.appendChild(this.VIEW_DROPDOWN);
+        this.VIEW_DROPDOWN.addEventListener("mouseleave", () => {
+            UIkit.dropdown(this.VIEW_DROPDOWN).hide();
+        })
 
         this.VIEW_DROPDOWN_UL = document.createElement("div");
         this.VIEW_DROPDOWN_UL.classList = "uk-nav uk-dropdown-nav";
@@ -209,114 +611,20 @@ class EditorWrapper{
         this.FAST_EXECUTE_BUTTON.onclick = () => {this.onFastExecute(this.getValue())};
         this.HEADER_TOOLBAR_DIV.appendChild(this.FAST_EXECUTE_BUTTON);
 
-
-        this.EMULATE_BUTTON = document.createElement("button");
-        this.EMULATE_BUTTON.classList = "uk-button uk-button-primary uk-height-1-1 uk-text-small uk-text-nowrap";
-        this.EMULATE_BUTTON.textContent = "Emulate";
-        this.EMULATE_BUTTON.title = "Run editor contents in emulator";
-        this.EMULATE_BUTTON.onclick = () => {this.onEmulate(this.getValue())};
-        this.HEADER_TOOLBAR_DIV.appendChild(this.EMULATE_BUTTON);
-
-
-        this.EDITOR_DIV = document.createElement("div");
-        this.EDITOR_DIV.id = "IDEditorDiv" + this.ID;
-        this.EDITOR_DIV.classList.add("editor");
-        this._container.element.appendChild(this.EDITOR_DIV);
-
-
-        // Make the dropdowns disappear if the mouse leaves (mode click doesn't do that)
-        this.FILE_DROPDOWN.addEventListener("mouseleave", () => {
-            UIkit.dropdown(this.FILE_DROPDOWN).hide();
-        })
-
-        this.VIEW_DROPDOWN.addEventListener("mouseleave", () => {
-            UIkit.dropdown(this.VIEW_DROPDOWN).hide();
-        })
-
-
         // Listen for window resize event and re-fit terminal
-        window.addEventListener('resize', this.resize.bind(this));
-
-        // Listen for layout resize event and re-fit terminal
-        this._container._layoutManager.on('stateChanged', () => {
-            this.resize();
-
-            // https://github.com/golden-layout/golden-layout/issues/324
-            // Remove editor close button functionality and override it
-            var oldElem = this._container._tab._closeElement;
-            if(oldElem != null && oldElem.parentNode != null){
-                var newElem = oldElem.cloneNode(true);
-                oldElem.parentNode.replaceChild(newElem, oldElem);
-
-                newElem.onclick = () => {
-
-                    if(this.SAVED_TO_THUMBY == false && !confirm('You have unsaved changes, are you sure you want to close this editor?')) {
-                        return;
-                    }
-
-                    delete EDITORS[this.ID];
-                    this.clearStorage();
-                    console.log("Cleared info for Editor: " + this._container.title);
-                    this._container.close();
-                }
-            }
-        });
-
-        // Used for setting the active editor outside this module, typically for bit map builder
-        this.onFocus = undefined;
-        this.onSaveToThumby = undefined;
-        this.onSaveAsToThumby = undefined;
-        this.onFastExecute = undefined;
-        this.onEmulate = undefined;
-
-        // Make sure mouse click anywhere on panel focuses the panel
-        this._container.element.addEventListener('click', (event) => {
-            this._container.focus();
-            this.onFocus();
-        });
-        this._container.element.addEventListener('focusin', (event) => {
-            this._container.focus();
-            this.onFocus();
-        });
+        this.windowResizeListener = window.addEventListener('resize', this.resize.bind(this));
 
 
-        var defaultCode =   "import time\n" +
-                            "import thumby\n" +
-                            "import math\n\n" +
-                            
-                            "# BITMAP: width: 32, height: 32\n" +
-                            "bitmap0 = (0,0,0,0,0,0,0,0,248,8,232,40,40,40,40,40,40,40,40,40,40,232,8,248,0,0,0,0,0,0,0,0,\n" +
-                            "           0,0,0,0,0,0,0,0,255,0,63,32,32,32,32,32,32,32,32,32,32,63,0,255,0,0,0,0,0,0,0,0,\n" +
-                            "           0,0,0,0,0,0,0,0,255,0,12,12,63,63,12,12,0,0,24,24,3,3,0,255,0,0,0,0,0,0,0,0,\n" +
-                            "           0,0,0,0,0,0,0,0,31,16,16,16,16,20,18,16,20,18,16,16,16,16,16,31,0,0,0,0,0,0,0,0)\n\n" +
-                            
-                            "while(1):\n" +
-                            "    t0 = time.ticks_ms()   # Get time (ms)\n" +
-                            "    thumby.display.fill(0) # Fill canvas to black\n\n" +
-                            
-                            "    bobRate = 250 # Set arbitrary bob rate (higher is slower)\n" +
-                            "    bobRange = 5  # How many pixels to move the sprite up/down (-5px ~ 5px)\n\n" +
-                            
-                            "    # Calculate number of pixels to offset sprite for bob animation\n" +
-                            "    bobOffset = math.sin(t0 / bobRate) * bobRange\n\n" +
-                            
-                            "    # Center the sprite using screen and bitmap dimensions and apply bob offset\n" +
-                            "    spriteX = int((thumby.DISPLAY_W/2) - (32/2))\n" +
-                            "    spriteY = int(round((thumby.DISPLAY_H/2) - (32/2) + bobOffset))\n\n" +
-                            
-                            "    # Display the bitmap using bitmap data, position, and bitmap dimensions\n" +
-                            "    thumby.display.blit(bitmap0, spriteX, spriteY, 32, 32)\n" +
-                            "    thumby.display.update()\n";
-
-
+        // Init the ace editor
         this.ACE_EDITOR = ace.edit(this.EDITOR_DIV);
         this.ACE_EDITOR.session.setMode("ace/mode/python");
         this.ACE_EDITOR.setTheme("ace/theme/terminal");
         this.resize();
 
+
         this.INSERT_RESTORE = false;
 
-        // Save value when changes made
+        // Save value when changes made and edit the title
         this.ACE_EDITOR.session.on('change', (event) => {
             localStorage.setItem("EditorValue" + this.ID, this.ACE_EDITOR.getValue());
             
@@ -337,41 +645,30 @@ class EditorWrapper{
         });
 
 
-        // Restore editor value, panel title, and font size
+        // Figure out if the editor should take on stored code, passed, code, or use default code
         var lastEditorValue = localStorage.getItem("EditorValue" + this.ID);
-        var lastEditorTitle = localStorage.getItem("EditorTitle" + this.ID);
-        var lastEditorPath = localStorage.getItem("EditorPath" + this.ID);
-        var lastEditorFontSize = localStorage.getItem("EditorFontSize" + this.ID);
-        var lastEditorSavedToThumby = localStorage.getItem("EditorSavedToThumby" + this.ID);
-
-
-        if(lastEditorValue != null){
+        if(data != undefined){
+            this.ACE_EDITOR.setValue(data, 1);
+        }else if(lastEditorValue != null){
             this.ACE_EDITOR.setValue(lastEditorValue, 1);
-        }else if(state['value'] != undefined){
-            this.ACE_EDITOR.setValue(state['value'], 1);
         }else{
-            this.ACE_EDITOR.setValue(defaultCode, 1);
+            this.ACE_EDITOR.setValue(this.defaultCode, 1);
+
+            // When adding default editors, give them a path but make each unique by looking at all other open editors
+            if(this.checkAllEditorsForPath("/Games/HelloWorld/HelloWorld.py") == true){
+                var helloWorldNum = 1;
+                while(this.checkAllEditorsForPath("/Games/HelloWorld/HelloWorld" + helloWorldNum + ".py")){
+                    helloWorldNum = helloWorldNum + 1;
+                }
+                this.setPath("/Games/HelloWorld/HelloWorld" + helloWorldNum + ".py");
+            }else{
+                this.setPath("/Games/HelloWorld/HelloWorld.py");
+            }
         }
 
-        if(lastEditorTitle != null){
-            this.setTitle(lastEditorTitle);
-        }else if(state['path'] != undefined){
-            this.setTitle('Editor' + this.ID + ' - ' + state['path']);
-            this.SAVED_TO_THUMBY = true;         // Just opened from thumby, so saved to it
-        }else{
-            this.setTitle('Editor' + this.ID);
-            this.SAVED_TO_THUMBY = undefined;    // For sure not saved to Thumby but also new, keep undefined so can be closed without alert
-        }
 
-        if(lastEditorPath != null){
-            this.EDITOR_PATH = lastEditorPath;
-        }else if(state['path'] != undefined){
-            this.EDITOR_PATH = state['path'];
-            localStorage.setItem("EditorPath" + this.ID, this.EDITOR_PATH);
-        }else{
-            this.EDITOR_PATH = undefined;
-        }
-
+        // Set the font size based on what's saved, if it exists
+        var lastEditorFontSize = localStorage.getItem("EditorFontSize" + this.ID);
         this.FONT_SIZE = 10;
         if(lastEditorFontSize != null){
             this.FONT_SIZE = lastEditorFontSize;
@@ -382,36 +679,12 @@ class EditorWrapper{
         this.AUTOCOMPLETE_STATE = (localStorage.getItem("EditorAutocompleteState") === 'true' || localStorage.getItem("EditorAutocompleteState") == undefined);
         this.setAutocompleteButtonText();
 
+        // Set the options that were restored
         this.ACE_EDITOR.setOptions({
             fontSize: this.FONT_SIZE.toString() + "pt",
             enableBasicAutocompletion: true,
             enableLiveAutocompletion: this.AUTOCOMPLETE_STATE
         });
-
-        if(lastEditorSavedToThumby != null){
-            this.SAVED_TO_THUMBY = (lastEditorSavedToThumby === 'true');
-        }
-
-
-        this.state = {};
-        this.state.id = this.ID;
-        this._container.setState(this.state);
-
-
-        // File picker options for saving and opening python & text files
-        // https://wicg.github.io/file-system-access/#api-filepickeroptions
-        this.FILE_OPTIONS = {
-            types: [
-            {
-                description: 'Text Files',
-                accept: {
-                    'text/python': ['.py'],
-                    'text/plain': ['.txt', '.text', '.cfg']
-                }
-            }
-            ],
-            suggestedName: ".py",
-        };
 
         // When the editor has focus capture ctrl-s and do save file function
         this.ACE_EDITOR.commands.addCommand({
@@ -422,11 +695,50 @@ class EditorWrapper{
             },
             readOnly: true
         });
+    }
 
-        // Set to light theme if window is set to light because theme was toggled
-        if(window.theme == "light"){
-            this.setThemeLight();
+
+
+    turnIntoBinaryViewer(data){
+        if(this.ACE_EDITOR) this.ACE_EDITOR.destroy();
+
+        // Set some persistent values for this editor
+        localStorage.removeItem("EditorValue" + this.ID);
+
+        // Remove this since only needed for editor
+        window.removeEventListener("resize", this.windowResizeListener);
+
+        // Make the editor look different
+        this.EDITOR_DIV.innerHTML = "Binary File";
+        this.EDITOR_DIV.style.display = "flex";
+        this.EDITOR_DIV.style.justifyContent = "center";
+        this.EDITOR_DIV.style.alignItems = "center";
+        this.EDITOR_DIV.style.backgroundColor = "black";
+        this.EDITOR_DIV.style.color = "white";
+        this.EDITOR_DIV.style.fontFamily = "Monaco, Menlo, \"Ubuntu Mono\", Consolas, source-code-pro, monospace";
+        this.EDITOR_DIV.style.fontSize = "15px";
+
+        // Save any passed data to DB (if undefined, then this.ID correlates to data saved in DB already)
+        if(data != undefined){
+            this.addDBFile(data);
         }
+    }
+
+
+
+    checkAllEditorsForPath(path){
+        for(const [editorID, editorWrapper] of Object.entries(this.EDITORS)){
+            if(editorWrapper.EDITOR_PATH == path && editorWrapper.ID != this.ID){
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    // Need special function for this since constructor would come before onOpen def
+    useOnOpen(){
+        this.onOpen(this);
     }
 
     setAutocompleteButtonText(){
@@ -488,12 +800,10 @@ class EditorWrapper{
 
     setThemeLight(){
         this.ACE_EDITOR.setTheme("ace/theme/chrome");
-        localStorage.setItem(this.ELEM_ID + "Theme", "light");
     }
 
     setThemeDark(){
         this.ACE_EDITOR.setTheme("ace/theme/terminal");
-        localStorage.setItem(this.ELEM_ID + "Theme", "dark");
     }
 
 
@@ -506,21 +816,19 @@ class EditorWrapper{
 
     // Needs to be called when editor closed otherwise edits that are spawned again will take on the stored data
     clearStorage(){
+        console.log("Removed editor local storage");
+        localStorage.removeItem("EditorEMUCheck" + this.ID);
         localStorage.removeItem("EditorValue" + this.ID);
         localStorage.removeItem("EditorTitle" + this.ID);
         localStorage.removeItem("EditorPath" + this.ID);
         localStorage.removeItem("EditorFontSize" + this.ID);
         localStorage.removeItem("EditorSavedToThumby" + this.ID);
-    }
-
-
-    getElemID(){
-        return this.ELEM_ID;
+        localStorage.removeItem("isBinary" + this.ID);
     }
 
 
     resize(){
-        this.ACE_EDITOR.resize();
+        if(this.ACE_EDITOR != undefined) this.ACE_EDITOR.resize();
     }
 
 
@@ -571,23 +879,82 @@ class EditorWrapper{
         }
 
         const file = await fileHandle.getFile();
-        var code = await file.text();
+        var data = await file.arrayBuffer();
 
         this.CURRENT_FILE_NAME = file.name;
+        this.initEditorPanelUI(data);
+        
 
-        // See this.FILE_OPTIONS 'text/python': ['.py'], 'text/plain': ['.txt', '.text', '.cfg']
-        if(file.name.indexOf(".py") == -1 && file.name.indexOf(".txt") == -1 && file.name.indexOf(".text") == -1 && file.name.indexOf(".cfg") == -1){
-            if(!confirm("Unrecognized file extension, are you sure you want to import this?\n\nTry using the filesystem upload button instead")){
-                return;
-            }
-        }
-
-        this.ACE_EDITOR.setValue(code, 1);
-
-        console.log(this.ELEM_ID + "Name");
-        localStorage.setItem(this.ELEM_ID + "Name", this.CURRENT_FILE_NAME);
+        // Make the editor take on the name of the file but use root since no other context for full path
+        this.setPath("/" + this.CURRENT_FILE_NAME);
+        this.setTitle("Editor" + this.ID + ' - ' + this.EDITOR_PATH);
 
         return file.name;
+    }
+
+
+    addFileToDB(data){
+        // Need to save the binary data, if defined
+        if(data != undefined){
+            // const request = indexedDB.open('BINARY_FILES', this.BINARY_DATABASE_VERSION);
+
+            // // Print error to console if it happens
+            // request.onerror = (event) => {
+            //     console.error(`Database error: ${event.target.errorCode}`);
+            // };
+
+            // // Print success to console if it happens
+            // request.onsuccess = (event) => {
+            //     console.log("DB successfully accessed");
+            //     this.DB = event.target.result
+
+            //     // Create a new transaction based on the files database
+            //     const transaction = this.DB.transaction('BINARY_FILES_DB', 'readwrite');
+
+            //     // Get the binary files object store
+            //     const store = transaction.objectStore('BINARY_FILES_DB');
+
+            //     var fileEntry = {editorID: this.ID,
+            //                      fileData: data};
+
+            //     let query = store.put(fileEntry);
+
+            //     // Handle success case
+            //     query.onsuccess = function (event) {
+            //         console.log("File saved to database");
+            //     };
+
+            //     // Handle the error case
+            //     query.onerror = function (event) {
+            //         console.log(event.target.errorCode);
+            //     }
+
+            //     // close the database once the transaction completes
+            //     transaction.oncomplete = () => {
+            //         this.DB.close();
+            //     };
+
+
+
+
+
+            // };
+
+            // // Create the object store (bucket) and indexes (search term/key) on first database creation or higher version
+            // request.onupgradeneeded = (event) => {
+            //     this.DB = event.target.result;
+
+            //     // Create the object store (bucket) with auto-increment id (key)
+            //     let store = this.DB.createObjectStore('BINARY_FILES_DB', {
+            //         autoIncrement: true
+            //     });
+
+            //     // Create an index (search term) based on the editor ID property (unique str)
+            //     let index = store.createIndex('editorID', 'editorID', {
+            //         unique: true
+            //     });
+            // };
+        }
     }
 
 
@@ -615,9 +982,18 @@ class EditorWrapper{
         }
 
         var file = fileHandle.getFile();                                                // Get file from promise so that the name can be retrieved
-        var data = await this.ACE_EDITOR.getValue();                                    // Get tab contents
-        await writeStream.write(data);                                                  // Write dataif using an HTTPS connection
-        writeStream.close();                                                            // Save the data to the file now
+        var data = undefined;
+        if(!this.isEditorBinary()){
+            data = await this.ACE_EDITOR.getValue();
+            await writeStream.write(data);                                              // Write data if using an HTTPS connection
+            writeStream.close();                                                        // Save the data to the file now
+        }else{
+            this.getDBFile(async (fileDataBuffer) => {
+                await writeStream.write(fileDataBuffer);                                // Write data if using an HTTPS connection
+                writeStream.close();                                                    // Save the data to the file now
+            })
+        }
+
     }
 
 

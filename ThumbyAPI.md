@@ -2,21 +2,31 @@
 
 * API reference expects thumby imported as `import thumby`
 
+## General
+* ### Constants
+    * `__version__`
+        * type: string
+        * values: 1.0 ~ limitless (increased for changes to library)
+
 ## Graphics
 * ### Constants
-    * `thumby.DISPLAY_W` | number of pixels that define the screen width
+    * `thumby.display.width` | number of pixels that define the screen width
         * type: int
         * value: 72
-    * `thumby.DISPLAY_H` | number of pixels that define the screen height
+    * `thumby.display.height` | number of pixels that define the screen height
         * type: int
         * value: 40
 * ### Functions
-    * `thumby.display.update()` | draws result of the below drawing functions to the screen. Call this as little as possible and after any drawing functions (e.g. `thumby.display.rect(...)`, `thumby.display.drawText(...)`, etc.). Returns None
+    * `thumby.display.update()` | updates screen at frames-per-second (FPS) specified by `thumby.display.setFPS(...)`. Will block to not exceed fps setting. Default framerate 0 (non-limited). Returns `None`
+    * `thumby.display.setFPS(FPS)` | sets the max `FPS` used by `thumyby.display.update()`. Returns None, all parameters required.
+        * `FPS`
+            * type: float
+            * values: 0 ~ integer max
     * `thumby.display.fill(color)` | fills entire screen with `color`. Returns None
         * `color`
             * type: int
-            * values: 0 or 1 (default: 0)
-    * `thumby.display.setPixel(x, y, color)` | sets pixel to `color` at `x` and `y`. Returns None
+            * values: 0 or 1
+    * `thumby.display.setPixel(x, y, color)` | sets pixel to `color` at `x` and `y`. Returns None, all parameters required.
         * `x`
             * type: int
             * values: 0 (left) ~ 71 (right)
@@ -25,8 +35,15 @@
             * values: 0 (top) ~ 39 (bottom)
         * `color`
             * type: int
-            * values: 0 or 1 (default: 1)
-    * `thumby.display.drawLine(x1, y1, x2, y2, color)` | draws 1px thick line in `color` from `x1` and `y1` to `x2` and `y2` (thickness not variable). Returns None
+            * values: 0 or 1
+    * `thumby.display.getPixel(x, y)` | gets value of pixel at `x` and `y`. Returns int (0 or 1), all parameters required.
+        * `x`
+            * type: int
+            * values: 0 (left) ~ 71 (right)
+        * `y`
+            * type: int
+            * values: 0 (top) ~ 39 (bottom)
+    * `thumby.display.drawLine(x1, y1, x2, y2, color)` | draws 1px thick line in `color` from `x1` and `y1` to `x2` and `y2` (thickness not variable). Returns None, all parameters required.
         * `x1`
             * type: int
             * values: 0 (left) ~ 71 (right)
@@ -41,8 +58,8 @@
             * values: 0 (top) ~ 39 (bottom)
         * `color`
             * type: int
-            * values: 0 or 1 (default: 1)
-    * `thumby.display.fillRect(x, y, w, h, color)` | creates filled rectangle with `color` at `x` and `y` with dimensions `w` (width) and `h` (height). Returns None
+            * values: 0 or 1
+    * `thumby.display.drawFilledRectangle(x, y, w, h, color)` | creates filled rectangle with `color` at `x` and `y` with dimensions `w` (width) and `h` (height). Returns None, all parameters required.
         * `x`
             * type: int
             * values: 0 (left) ~ 71 (right)
@@ -57,8 +74,8 @@
             * values: 0 ~ 39
         * `color`
             * type: int
-            * values: 0 or 1 (default: 1)
-    * `thumby.display.rect(x, y, w, h, color)` | creates 1px thick outline rectangle with `color` at `x` and `y` with dimensions `w` (width) and `h` (height) (thickness not variable). Returns None
+            * values: 0 or 1
+    * `thumby.display.drawRectangle(x, y, w, h, color)` | creates 1px thick outline rectangle with `color` at `x` and `y` with dimensions `w` (width) and `h` (height) (thickness not variable). Returns None, all parameters required.
         * `x`
             * type: int
             * values: 0 (left) ~ 71 (right)
@@ -73,8 +90,8 @@
             * values: 0 ~ 39
         * `color`
             * type: int
-            * values: 0 or 1 (default: 1)
-    * `thumby.display.drawText(string, x, y, color)` | draws `string` in `color` at `x` and `y` in MicroPython's default 8px x 8px font. Returns None
+            * values: 0 or 1
+    * `thumby.display.drawText(string, x, y, color)` | draws `string` in `color` at `x` and `y` with font specified by `thumby.display.setFont(...)`. Default font is 8x7px MicroPython font. Returns None, all parameters required.
         * `string`
             * type: str
             * values: 128 ASCII characters
@@ -86,8 +103,24 @@
             * values: 0 (top) ~ 39 (bottom)
         * `color`
             * type: int
-            * values: 0 or 1 (default: 1)
-    * `thumby.display.blit(inspr, x, y, width, height, key)` | draws pixels defined in bitmap `inspr` array at `x` and `y` provided the bitmap's `width` and `height` with transparent pixels defined by `key` (e.g. `key = 0` means black pixels are not drawn/are transparent). Returns None
+            * values: 0 or 1
+    * `thumby.display.setFont(fontFilePath, width, height, space)` | sets the `fontFilePath` pointing to binary font file with character `width`, `height`, and `space` between characters for use by `thumby.display.drawText(...)`. Returns None, all parameters required.
+        * `fontFilePath`
+            * type: string
+            * values: 128 ASCII character string up to 256 characters long ('/' separated)
+        * `width`:
+            * type: int
+            * values: 0 ~ integer max
+        * `height`:
+            * type: int
+            * values: 0 ~ integer max
+        * `space`:
+            * type: int
+            * values: 0 ~ integer max
+    * `thumby.display.blit(bitmapData, x, y, width, height, key, mirrorX, mirrorY)` | draws pixels defined in `bitmapData` (VLSB) array at `x` and `y` provided the bitmap's `width` and `height` with transparent pixels defined by `key` (e.g. `key = 0` means black pixels are not drawn/are transparent) with possibility of mirroring using `mirrorX` (across x-axis) and `mirrorY` (across y-axis). Returns None, all parameters required.
+        * `bitmapData`
+            * type: bytearray
+            * values: each byte consisting of VLSB aligned data where each bit being 1 (white) or 0 (black)
         * `x`
             * type: int
             * values: 0 (left) ~ 71 (right)
@@ -103,28 +136,85 @@
         * `key`
             * type: int
             * values: 0 or 1 (default: -1, both black and white pixels drawn)
-    * `thumby.display.drawSprite(inspr, x, y, width, height, mirrorX, mirrorY, key)` | draws pixels defined in bitmap `inspr` array at `x` and `y` provided the bitmap's `width` and `height` but with bitmap mirrorable about x and y axes using `mirrorX` and `mirrorY` flags with transparent pixels defined by `key` (e.g. `key = 0` means black pixels are not drawn/are transparent). Returns None
-        * `x`
-            * type: int
-            * values: 0 (left) ~ 71 (right)
-        * `y`
-            * type: int
-            * values: 0 (top) ~ 39 (bottom)
-        * `width`
-            * type: int
-            * values: 0 ~ 71
-        * `height`
-            * type: int
-            * values: 0 ~ 39
         * `mirrorX`
-            * type: bool
-            * values: 1/True (do mirror) or 0/False (do not mirror)
+            * type: int
+            * values: 0 (do not mirror) or 1 (do mirror)
         * `mirrorY`
-            * type: bool
-            * values: 1/True (do mirror) or 0/False (do not mirror)
+            * type: int
+            * values: 0 (do not mirror) or 1 (do mirror)
+    * `thumby.display.blitWithMask(bitmapData, x, y, width, height, key, mirrorX, mirrorY, maskBitmapData)` | draws pixels defined in `bitmapData` array at `x` and `y` provided the bitmap's `width` and `height` with transparent pixels defined by `key` (e.g. `key = 0` means black pixels are not drawn/are transparent) with possibility of mirroring using `mirrorX` (across x-axis) and `mirrorY` (across y-axis). On conjunction with `key`, use `maskBitmapData` to specify pixels to be transparent (provides per-pixel transparency). Returns None, all parameters required.
+        * `bitmapData`
+            * type: bytearray
+            * values: each byte consisting of VLSB aligned data where each bit being 1 (white) or 0 (black)
+        * `x`
+            * type: int
+            * values: 0 (left) ~ 71 (right)
+        * `y`
+            * type: int
+            * values: 0 (top) ~ 39 (bottom)
+        * `width`
+            * type: int
+            * values: 0 ~ 71
+        * `height`
+            * type: int
+            * values: 0 ~ 39
         * `key`
             * type: int
             * values: 0 or 1 (default: -1, both black and white pixels drawn)
+        * `mirrorX`
+            * type: int
+            * values: 0 (do not mirror) or 1 (do mirror)
+        * `mirrorY`
+            * type: int
+            * values: 0 (do not mirror) or 1 (do mirror)
+        * `maskBitmapData`
+            * type: bytearray
+            * values: each byte consisting of VLSB aligned data where each bit being 1 (transparent) or 0 (not-drawn)
+    * `thumby.display.drawSprite(sprite)` | draw `sprite` to screen using its internal properties (position, dimensions, etc). Returns none, all parameters required.
+        * `sprite`
+            * type: Sprite (`thumby.Sprite`)
+    * `thumby.display.drawSpriteWithMask(sprite, maskSprite)` | draws `sprite` to screen using internal properties for position and size with per-pixel transparency provided by `maskSprite`. Returns none, all parameters required.
+        * `sprite`
+            * type: Sprite (`thumby.Sprite`)
+        * `maskSprite`
+            * type: Sprite (`thumby.Sprite`) (pixels set to 1 are transparent, while 0 pixels are not drawn)
+    * `thumby.display.brightness(bightness)` | sets screen to `brightness` value. Returns None, all parameters required.
+        * `brightness`
+            * type: int
+            * values: 0 (off) ~ 127 (max brightness)
+
+## Sprite
+* ### Functions
+    * `thumby.Sprite(width, height, bitmapData, x, y, key, mirrorX, mirrorY)` | initialize sprite object with fixed frame `width` and `height` for frames in `bitmapData`, positioned at `x` and `y`, and rendered to screen mirrored depending on, `mirrorX` and `mirrorY`. Transparent pixels are defined by `key` (e.g. `key = 0` means black pixels are not drawn/are transparent). Returns Sprite.
+        * `width`
+            * type: int
+            * values: 0 ~ integer max
+        * `height`
+            * type: int
+            * values: 0 ~ integer max
+        * `bitmapData`
+            * type: list or string
+            * values: bytearray of VLSB data or string (128 ASCII character at max 256 characters long) pointing to binary file location of pixel data
+        * `x`
+            * type: int
+            * values: 0 (left) ~ 71 (right) (default: 0)
+        * `y`
+            * type: int
+            * values: 0 (top) ~ 39 (bottom) (default: 0)
+        * `key`
+            * type: int
+            * values: 0 or 1 (default: -1, both black and white pixels drawn)
+        * `mirrorX`
+            * type: int
+            * values: 0 (do not mirror) or 1 (do mirror) (default: 0)
+        * `mirrorY`
+            * type: int
+            * values: 0 (do not mirror) or 1 (do mirror) (default: 0)
+    * `Sprite.getFrame()` | gets the current frame index of the sprite animation. Return int, automatically returns wrapped index if index greater than max number of frames.
+    * `Sprite.setFrame(frame)` | sets the current `frame` index of the sprite animation. Needs to be used manually to progress animation, framerate handled by `thumby.display.update()`. Returns none, all parameters required.
+        * `frame`
+            * type: int
+            * values: 0 ~ overflow (values larger than the number of frames get wrapped)
 
 ## Buttons
 * ### Objects
@@ -168,28 +258,4 @@
             * values: 1/True (audio enabled) or 0/False (audio disabled)
 
 ## Files
-* Caution: file creation and writing does not work on the web IDE emulator and may cause exceptions
-* ### Functions
-    * `thumby.files.openFile(filename, options)` | Opens a file provided a file path in `filename` (e.g. /Games/MyGame/config.txt) with provided Python file opening `options` (https://docs.micropython.org/en/latest/esp8266/tutorial/filesystem.html). Returns None
-        * `filename`
-            * type: str
-            * values: ASCII path with directories separated by '/'
-        * `options`
-            * type: str
-            * values: 'w', 'r', 'wb', 'rb'
-    * `thumby.files.closeFile()` | closes last file opened with `thumby.files.openFile(...)`. Returns None
-    * `thumby.files.setFile(f)` | sets internally tracked file to Python file object `f` obtained from outside `thumby.files` (e.g. `f = open(..., ...)`). Returns None
-    * `thumby.files.readFile(l)` | read `l` number of bytes from file opened with `thumby.files.openFile(...)`. Returns file contents or "" if no file has been opened
-        * `l`
-            * type: int
-            * values: 0 ~ 2147483647 (default: -1, read whole file)
-    * `thumby.files.writeFile(data)` | writes `data` to file opened with `thumby.files.openFile(...)`. Returns True if successful, False if not, and -1 if no file has been opened
-        * `data`
-            * type: str, bytes(...), bytearray(...), etc.
-            * values: string or binary data depending on what options the file was opened with
-    * `thumby.files.changeDirectory(path)` | change directory to `path` (e.g. currently in '/Games' pass `path` as '/Games/MyGame' now can do `f = open("MyGameConfig.txt")`). Returns None
-    * `thumby.files.getDirectory()` | returns the path to the current directory as a str
-    * `thumby.files.makeDirectory(path)` | makes a directory at `path`. Returns None
-        * `path`
-            * type: str
-            * values: ASCII path with directories separated by '/'
+* This API was removed in favor of typical Python file access (e.g. `open(...)`)

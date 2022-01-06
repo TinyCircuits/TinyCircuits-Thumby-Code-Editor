@@ -4,6 +4,7 @@ from time import ticks_ms, ticks_us
 from micropython import const
 import machine
 
+
 # Needed by emulator quickly set pin state
 SIO_BASE     = 0xD0000000
 
@@ -20,6 +21,7 @@ GPIO_OE_XOR  = SIO_BASE + 0x02C
 handshakePin = 2
 handshakePinToggle = 1 << handshakePin
 machine.Pin(handshakePin, machine.Pin.OUT)
+
 
 class SSD1306():
     def __init__(self, width, height, external_vcc):
@@ -64,6 +66,7 @@ class SSD1306_I2C(SSD1306):
     def reset(self):
         pass
         
+
     def write_window_cmd1(self):
         pass
         
@@ -88,10 +91,6 @@ class SSD1306_SPI(SSD1306):
 
     @micropython.native
     def write_cmd(self, cmd):
-        pass
-        
-    @micropython.native
-    def write_window_cmd(self):
         pass
 
     @micropython.native

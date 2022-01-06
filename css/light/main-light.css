@@ -50,8 +50,8 @@ html, body{
 
 /* Scrollbar style */
 ::-webkit-scrollbar{
-  height: 8px;
-  width: 8px;
+  height: 10px;
+  width: 10px;
 }
 ::-webkit-scrollbar-thumb:horizontal{
   background: gray;
@@ -96,4 +96,12 @@ a:link {
   background-color: rgb(129, 129, 129);
   flex: 0.417;
   height: 100%;
+}
+
+.button_link{
+  cursor: pointer;
+}
+.button_link:hover{
+  background-color: lightgray;
+  transition: 0.15s;
 }

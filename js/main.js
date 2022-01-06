@@ -13,8 +13,45 @@ var DIR = new DIRCHOOSER();
 var ARCADE = new Arcade();
 
 
+var onExportToEditor = (bytes) => {
+    var editorSpriteID = 0;
+    var filePath = undefined;
+    while(true){
+        var increased = false;
+        filePath = "/sprite" + editorSpriteID + ".raw";
+
+        for (const [id, editor] of Object.entries(EDITORS)) {
+            if(editor.EDITOR_PATH == filePath){
+                editorSpriteID = editorSpriteID + 1;
+                increased = true;
+            }
+        }
+        if(increased == false){
+            break;
+        }
+    }
+
+    // Find editor with smallest ID, focus it, then add new editor with file contents
+    var currentId = Infinity;
+    for (const [id, editor] of Object.entries(EDITORS)) {
+        currentId = id;
+    }
+    if(currentId != Infinity){
+        EDITORS[currentId]._container.parent.focus();
+    }
+
+    // Pass the file contents to the new editor using the state
+    var state = {};
+    state.value = bytes;
+    state.path = filePath;
+    myLayout.addComponent('Editor', state, 'Editor');
+}
+var IMPORTER = new Importer(document.getElementById("IDImportSpriteBTN"), onExportToEditor);
+
+
+
 // Show pop-up containing IDE changelog every time showChangelogVersion is increased
-const showChangelogVersion = 1;
+const showChangelogVersion = 3;
 if(localStorage.getItem(showChangelogVersion) == null){
     console.log("Updates to IDE! Showing changelog...");    // Show message in console
     localStorage.removeItem(showChangelogVersion-1);        // Remove flag from last version
@@ -55,7 +92,7 @@ window.setPercent = (percent, message) => {
         progressBarElem.innerText = lastMessage + " " + Math.round(percent) + "%";
     }
 }
-window.resetPercentDelay = () =>{
+window.resetPercentDelay = () => {
     setTimeout(() => {
         progressBarElem.style.width = "0%";
         progressBarElem.innerText = "";
@@ -92,24 +129,22 @@ var defaultConfig = {
             isClosable: false,
             id: 'rootrow',
             content:[{
-                type: 'column',
+                type: 'stack',
                 width: 20,
                 id: 'BitmapPlusFS',
                 content:[{
                     type: 'component',
+                    componentName: 'Filesystem',
+                    componentState: { label: 'Filesystem' },
+                    title: 'Filesystem',
+                    id: "aFilesystem"
+                },{
+                    type: 'component',
                     componentName: 'Bitmap Builder',
                     componentState: { label: 'Bitmap Builder' },
-                    // isClosable: false,
                     close: false,
                     title: 'Bitmap Builder',
                     id: "aBitmapBuilder"
-                },{
-                    type: 'component',
-                    componentName: 'Filesystem',
-                    componentState: { label: 'Filesystem' },
-                    // isClosable: false,
-                    title: 'Filesystem',
-                    id: "aFilesystem"
                 }]
             },{
                 type: 'column',
@@ -118,7 +153,6 @@ var defaultConfig = {
                     type: 'component',
                     componentName: 'Editor',
                     componentState: { label: 'Editor', editor: undefined},
-                    // isClosable: true,
                     title: 'Editor',
                     id: "aEditor"
                 }]
@@ -128,14 +162,12 @@ var defaultConfig = {
                     type: 'component',
                     componentName: 'Shell',
                     componentState: { label: 'Shell' },
-                    // isClosable: false,
                     title: 'Shell',
                     id: "aShell"
                 },{
                     type: 'component',
                     componentName: 'Emulator',
                     componentState: { label: 'Emulator' },
-                    // isClosable: false,
                     title: 'Emulator',
                     id: "aEmulator"
                 }]
@@ -175,6 +207,12 @@ function invertPageTheme(){
                 link.href = "css/light/editor-light.css";
             }else if(href == "editor-light.css"){
                 link.href = "css/dark/editor-dark.css";
+            }
+
+            if(href == "importer-dark.css"){
+                link.href = "css/light/importer-light.css";
+            }else if(href == "importer-light.css"){
+                link.href = "css/dark/importer-dark.css";
             }
 
             if(href == "uikit-dark.css"){
@@ -301,6 +339,11 @@ document.getElementById("IDHardResetBTN").onclick = (event) =>{
     }
     console.log("PAGE: Hard reset page");
     localStorage.clear();
+
+    // Delete database containing all editor binary files
+    indexedDB.deleteDatabase("BINARY_FILES");
+
+    // Refresh the page
     location.reload();
 }
 
@@ -481,12 +524,6 @@ function registerFilesystem(_container, state){
         }
     }
     FS.onOpen = async (filePath) => {
-        if(filePath.indexOf(".py") == -1 && filePath.indexOf(".txt") == -1 && filePath.indexOf(".text") == -1 && filePath.indexOf(".cfg") == -1){
-            if(!confirm("Unrecognized file extension, are you sure you want to open this?\n\nTry right-clicking and choosing 'Download' and use it on your computer")){
-                return;
-            }
-        }
-
         // Make sure no editors with this file path already exist
         for (const [id, editor] of Object.entries(EDITORS)) {
             if(editor.EDITOR_PATH == filePath){
@@ -496,8 +533,8 @@ function registerFilesystem(_container, state){
             }
         }
 
-        var fileContents = new TextDecoder().decode(new Uint8Array(await REPL.getFileContents(filePath)));
-        if(fileContents == undefined){
+        var rawFileBytes = await REPL.getFileContents(filePath);
+        if(rawFileBytes == undefined){
             return; // RP2040 was busy
         }
 
@@ -514,7 +551,7 @@ function registerFilesystem(_container, state){
 
         // Pass the file contents to the new editor using the state
         var state = {};
-        state.value = fileContents;
+        state.value = rawFileBytes;
         state.path = filePath;
         myLayout.addComponent('Editor', state, 'Editor');
     }
@@ -574,13 +611,19 @@ function registerShell(_container, state){
         FS.updateTree(jsonStrData);
         DIR.updateTree(jsonStrData);
     };
+    REPL.doPrintSeparator = () => {
+        ATERM.doPrintSeparator();
+    }
+    REPL.forceTermNewline = () => {
+        ATERM.write("\r\n");
+    }
 }
 
 
 
 var EMU;
 function registerEmulator(_container, state){
-    EMU = new EMULATOR(_container, state);
+    EMU = new EMULATOR(_container, state, EDITORS);
     EMU.onData = (data) => ATERM.write(data);
 }
 
@@ -615,11 +658,23 @@ function registerEditor(_container, state){
             console.log('Saved');
             editor.SAVED_TO_THUMBY = true;
             editor.updateTitleSaved();
-            var busy = await REPL.uploadFile(editor.EDITOR_PATH, editor.getValue(), true, false);
-            if(busy != true){
-                await REPL.getOnBoardFSTree();
-                window.setPercent(100);
-                window.resetPercentDelay();
+
+            if(editor.isEditorBinary()){
+                editor.getDBFile(async (fileData) => {
+                    var busy = await REPL.uploadFile(editor.EDITOR_PATH, fileData, true, false);
+                    if(busy != true){
+                        REPL.getOnBoardFSTree();
+                        window.setPercent(100);
+                        window.resetPercentDelay();
+                    }
+                })
+            }else{
+                var busy = await REPL.uploadFile(editor.EDITOR_PATH, editor.getValue(), true, false);
+                if(busy != true){
+                    REPL.getOnBoardFSTree();
+                    window.setPercent(100);
+                    window.resetPercentDelay();
+                }
             }
         }
     }
@@ -633,10 +688,10 @@ function registerEditor(_container, state){
             editor.onSaveToThumby();
         }
     }
-    editor.onFastExecute = async (lines) =>{
+    editor.onFastExecute = async (lines) => {
         REPL.executeLines(lines);
     }
-    editor.onEmulate = async (lines) =>{
+    editor.onEmulate = async (lines) => {
         await EMU.startEmulator(lines);
     }
     EDITORS[editor.ID] = editor;
@@ -667,19 +722,6 @@ ARCADE.onDownload = async (thumbyURL, binaryFileContents) => {
 }
 
 ARCADE.onOpen = async (thumbyURL, binaryFileContents) => {
-    if(thumbyURL.indexOf(".py") == -1 && thumbyURL.indexOf(".txt") == -1 && thumbyURL.indexOf(".text") == -1 && thumbyURL.indexOf(".cfg") == -1){
-        if(!confirm("Unrecognized file extension, are you sure you want to open this?\n\nClick 'cancel to download'")){
-            var blob = new Blob(binaryFileContents, {type: "text/txt" });
-            var url = URL.createObjectURL(blob);
-            var link = document.createElement('a');
-            link.download = thumbyURL.substring(thumbyURL.lastIndexOf('/')+1);
-            link.href = url;
-            link.click();
-            window.URL.revokeObjectURL(url);
-            return;
-        }
-    }
-
     // Make sure no editors with this file path already exist
     for (const [id, editor] of Object.entries(EDITORS)) {
         if(editor.EDITOR_PATH == thumbyURL){
@@ -687,11 +729,6 @@ ARCADE.onOpen = async (thumbyURL, binaryFileContents) => {
             alert("This file is already open in Editor" + id + "! Please close it first");
             return;
         }
-    }
-
-    var fileContents = new TextDecoder().decode(binaryFileContents);
-    if(fileContents == undefined){
-        return; // RP2040 was busy
     }
 
     // Find editor with smallest ID, focus it, then add new editor with file contents
@@ -707,7 +744,7 @@ ARCADE.onOpen = async (thumbyURL, binaryFileContents) => {
 
     // Pass the file contents to the new editor using the state
     var state = {};
-    state.value = fileContents;
+    state.value = Array.from(new Uint8Array(binaryFileContents));
     state.path = thumbyURL;
     myLayout.addComponent('Editor', state, 'Editor');
 }
@@ -725,7 +762,7 @@ myLayout.registerComponentConstructor("Emulator", registerEmulator);
 // Restore from previous layout if it exists, otherwise default
 var savedLayout = localStorage.getItem(layoutSaveKey);
 if(savedLayout != null){
-    console.log("Restored layout from previous state")
+    console.log("Restored layout from previous state");
     myLayout.loadLayout(LayoutConfig.fromResolved(JSON.parse( savedLayout )));
 }else{
     console.log("Restored layout to default state");
@@ -770,7 +807,7 @@ String.prototype.convertToHex = function (delim) {
 };
 
 
-async function downloadFile(filePath) {
+async function downloadFile(filePath, binary) {
     let response = await fetch(filePath);
         
     if(response.status != 200) {
@@ -778,9 +815,11 @@ async function downloadFile(filePath) {
     }
         
     // read response stream as text
-    let text_data = await response.text();
-
-    return text_data;
+    if(binary == undefined || binary == false){
+        return await response.text();
+    }else if(binary != undefined && binary == true){
+        return new Uint8Array(await response.arrayBuffer());
+    }
 }
 window.downloadFile = downloadFile;
 

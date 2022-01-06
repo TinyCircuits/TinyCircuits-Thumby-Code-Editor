@@ -2,6 +2,12 @@ Thumby IDE changelog!
 
 ####################
 
+January 1, 2022
+
+* Warning: https://tinycircuits.github.io/testing/ will be taken down on January 13th, 2022. Please save all work to your computer and move to the main IDE page https://tinycircuits.github.io/
+
+####################
+
 December 28, 2021
 
 * Access beta IDE page at https://tinycircuits.github.io/testing/

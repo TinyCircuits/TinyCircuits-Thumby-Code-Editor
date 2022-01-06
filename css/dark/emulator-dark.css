@@ -5,6 +5,8 @@
     display: flex;
     overflow: none;
     flex-flow: column;
+    justify-content: center;
+    align-items: center;
 }
 
 .emulator_body{
@@ -38,7 +40,7 @@
     margin-bottom: 25px;
     width: 225px;
     aspect-ratio: 1/1;
-    background-color: rgb(58, 58, 58);
+    background-color: rgb(24, 24, 24);
     background: url(../../css/svgs/emulator/Emulator-THUMBY-NOOUTLINE.svg) no-repeat center;
     background-size: contain;
     display: flex;
@@ -52,6 +54,7 @@
     width: 72px;
     height: 40px;
     margin-top: 16.5%;
+    display: none;
     image-rendering: optimizeQuality;
     image-rendering: -moz-crisp-edges;
     image-rendering: -webkit-optimize-contrast;
@@ -200,4 +203,60 @@
     aspect-ratio: 1/1;
     bottom: 38px;
     left: 10px;
+}
+
+.emulator_multiplayer_parent{
+    position: absolute;
+    background-color: rgba(49, 49, 49, 0.975);
+    border: green solid 1px;
+    width: 60%;
+    height: 50%;
+    display: none;
+    flex-flow: column;
+    align-items: center;
+    justify-content: space-evenly;
+}
+
+.emulator_multiplayer_title{
+    width: 100%;
+    top: 0;
+    color: white;
+}
+
+.emulator_multiplayer_exit_btn{
+    position: absolute;
+    width: 25px;
+    aspect-ratio: 1/1;
+    top: 0;
+    left: 0;
+    background-color: black;
+    border: transparent;
+    border-right: green solid 1px;
+    border-bottom: green solid 1px;
+    color: white;
+}
+
+.emulator_fs_slide_div{
+    position: absolute;
+    display: none;
+    flex-flow: column;
+    right: 8px;
+    width: 250px;
+    height: calc(100% - 27px);
+    z-index: 1010;
+    background-color: rgb(37, 37, 37);
+    border-left: rgb(133, 133, 133) 1px solid;
+    overflow: auto;
+}
+
+.emulator_file_row{
+    background-color: rgb(37, 37, 37);
+    width: auto;
+    height: 25px;
+    border-bottom: rgb(133, 133, 133) 1px solid;
+    color: white;
+    font-family: Roboto;
+    font-size: 14px;
+    white-space: nowrap;
+    margin: 2.5px;
 }

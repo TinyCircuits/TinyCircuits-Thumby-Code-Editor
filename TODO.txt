@@ -149,3 +149,15 @@
 [ ] Allow multiple files to be uploaded to the emulator at once
 
 [ ] Look into why files can't be created in emulator in MP
+
+
+[x] Add loading bar when game downloaded or opened from arcade
+[x] Add other more apparent feedback when user downloads or opens game from arcade
+[ ] Add feedback/loading bar when downloading/opening game
+[ ] VSCode extension
+[ ] Emulator on phone
+[ ] Allow binary files to be stored in an editor but not as text!
+[.] Multi file emulation UI
+    [.] Allow designating files as main or normal files to emulate using editor path and checkboxes (checkboxes should be more clear/words)
+    [ ] Add slider from right div that shows the current emulation file structure (not click, just hover)
+[ ] Recompile littlefs to WASM to expose directory make and normal file functions

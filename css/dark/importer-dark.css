@@ -1,0 +1,252 @@
+.page_sprite_overlay{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(51, 51, 51, 0.7);
+    z-index: 1000;
+    display: none;
+}
+
+.sprite_overlay{
+    background-color: rgb(63, 63, 63);
+    border: white solid 1px;
+    display: none;
+    z-index: 1005;
+    width: 65%;
+    height: 90%;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    grid-template-columns: repeat(72, 1fr);
+    grid-template-rows: repeat(72, 1fr);
+    gap: 5px;
+    overflow: hidden;
+}
+
+.sprite_exit_button{
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    /* width: 25px; */
+    height: 25px;
+}
+
+.sprite_image_size{
+    position: sticky;
+    background-color: rgba(128, 128, 128, 0.438);
+    top: 0;
+    left: 0;
+    width: fit-content;
+    height: 20px;
+    color: white;
+    font-family: Roboto;
+    font-size: 13px;
+    display: flex;
+    justify-content: center;
+    z-index: 1011;
+}
+
+
+.sheet_parent{
+    background-color: rgb(94, 94, 94);
+    grid-column: 1 / 56;
+    grid-row: 1 / 56;
+    border: gray dashed 1px;
+    margin-top: 35px;
+    margin-left: 5px;
+    overflow: auto;
+    display: grid;
+}
+
+
+.sprite_sheet_canvas_parent{
+    position: relative;
+    width: 72px;
+    height: 40px;
+    border: 1px gray solid;
+    margin-left: auto;
+    margin-right: auto;
+    image-rendering: optimizeQuality;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: -o-crisp-edges;
+    image-rendering: pixelated;
+    -ms-interpolation-mode: nearest-neighbor;
+}
+
+.sprite_sheet_canvas{
+    width: 100%;
+    height: 100%;
+    image-rendering: optimizeQuality;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: -o-crisp-edges;
+    image-rendering: pixelated;
+    -ms-interpolation-mode: nearest-neighbor;
+}
+
+.sheet_scroll_offscreen_canvas{
+    image-rendering: optimizeQuality;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: -o-crisp-edges;
+    image-rendering: pixelated;
+    -ms-interpolation-mode: nearest-neighbor;
+}
+
+.sheet_scroll_parent{
+    background-color: rgb(38, 38, 38);
+    grid-column: 56 / 73;
+    grid-row: 1 / 73;
+    border: gray dashed 1px;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    margin-top: 35px;
+    display: grid;
+    overflow-x: none;
+    overflow-y: auto;
+    grid-template-columns: repeat(1, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+}
+
+
+.sheet_scroll_item{
+    position: relative;
+    background-color: rgba(199, 53, 53);
+    border: gray;
+    /* width: calc(100% - 40px); */
+    /* aspect-ratio: 1/1; */
+    margin: auto;
+    margin-top: 20px;
+    /* display: flex;
+    align-items: center;
+    justify-content: center; */
+    display: block;
+    width: calc(100% - 40px);
+    height: auto;
+}
+
+
+.button_overall_parent{
+    background-color: rgb(38, 38, 38);
+    grid-column: 1 / 56;
+    grid-row: 56 / 73;
+    border: gray dashed 1px;
+    margin-bottom: 5px;
+    margin-left: 5px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(1, 1fr);
+    overflow: hidden;
+}
+
+.input_group_common{
+    background-color: rgb(38, 38, 38);
+    border: solid 1px gray;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-flow: column;
+}
+
+.sheet_input_row{
+    background-color: rgb(38, 38, 38);
+    outline: solid 1px gray;
+    width: 100%;
+    flex: 0.25;
+    display: flex;
+    flex-flow: row;
+    font-family: Roboto;
+    font-size: 14px;
+    justify-content: center;
+    align-items: center;
+}
+
+.sheet_input_column{
+    background-color: rgb(38, 38, 38);
+    outline: solid 1px gray;
+    width: 100%;
+    flex: 0.25;
+    display: flex;
+    flex-flow: row;
+    font-family: Roboto;
+    font-size: 14px;
+    justify-content: center;
+    align-items: center;
+}
+
+.sheet_label{
+    flex: 0.65;
+    font-family: Roboto;
+    font-size: 14px;
+    color: white;
+    display: flex;
+    justify-content: center;
+}
+
+.sheet_input{
+    height: 85%;
+    flex: 0.3;
+}
+
+.sheet_button{
+    flex: 0.5;
+}
+
+
+.sheet_input_range_row_column{
+    background-color: rgb(38, 38, 38);
+    outline: solid 1px gray;
+    width: 100%;
+    flex: 0.33333333;
+    display: flex;
+    flex-flow: column;
+    font-family: Roboto;
+    font-size: 14px;
+    justify-content: center;
+    align-items: center;
+}
+
+.sheet_range_label{
+    flex: 0.5;
+    font-family: Roboto;
+    font-size: 14px;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.sheet_input_range_row{
+    background-color: rgb(38, 38, 38);
+    width: 100%;
+    flex: 0.5;
+    display: flex;
+    flex-flow: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.sheet_range_input{
+    height: 100%;
+    flex: 0.75;
+    margin-left: 10px;
+}
+
+.sheet_range_input_bubble{
+    height: 100%;
+    flex: 0.25;
+    color: white;
+    font-family: Roboto;
+    font-size: 14px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* line-height: 30px; */
+}
+
+.sprite_export_btn{
+    background-color: rgb(94, 94, 94);
+}
