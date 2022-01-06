@@ -463,14 +463,14 @@ export class EMULATOR{
             animateDepressed: () => {this.EMULATOR_DPAD_SVG.src = "/css/svgs/emulator/Emulator-DPAD_NORMAL.svg";}},
 
       ',': {pressed: false,
-            pin: 27,
+            pin: 24,
             press: () => {this.mcu.gpio[this.BUTTONS[','].pin].setInputValue(false)},
             depress: () => {this.mcu.gpio[this.BUTTONS[','].pin].setInputValue(true)},
             animatePressed: () => {this.EMULATOR_B_SVG.src = "/css/svgs/emulator/Emulator-BTN_PRESSED.svg";},
             animateDepressed: () => {this.EMULATOR_B_SVG.src = "/css/svgs/emulator/Emulator-BTN_NORMAL.svg";}},
 
       '.': {pressed: false,
-            pin: 24,
+            pin: 27,
             press: () => {this.mcu.gpio[this.BUTTONS['.'].pin].setInputValue(false)},
             depress: () => {this.mcu.gpio[this.BUTTONS['.'].pin].setInputValue(true)},
             animatePressed: () => {this.EMULATOR_A_SVG.src = "/css/svgs/emulator/Emulator-BTN_PRESSED.svg";},
