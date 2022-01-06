@@ -26,7 +26,8 @@ from machine import Pin, Timer, I2C, PWM, SPI
 import ssd1306
 import os
 
-__version__ = '1.0'
+# Last updated 12/28/2021
+__version__ = '1.1'
 
 # Pin definitions for button inputs & buzzer.
 swL = Pin(3, Pin.IN, Pin.PULL_UP) # D-pad left

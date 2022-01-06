@@ -672,6 +672,7 @@ class ReplJS{
         await this.uploadFile("lib/thumby.py", await window.downloadFile("/ThumbyGamesTesting/lib/thumby.py"), false);
         window.setPercent(53.9);
         await this.uploadFile("lib/font5x7.bin", await window.downloadFile("/ThumbyGamesTesting/lib/font5x7.bin", true), false, true);
+        await this.uploadFile("lib/font8x8.bin", await window.downloadFile("/ThumbyGamesTesting/lib/font8x8.bin", true), false, true);
         window.setPercent(61.6);
         await this.uploadFile("lib/TClogo.bin", await window.downloadFile("/ThumbyGamesTesting/lib/TClogo.bin", true), false, true);
         window.setPercent(69.3);
