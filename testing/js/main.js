@@ -13,6 +13,9 @@ var DIR = new DIRCHOOSER();
 var ARCADE = new Arcade();
 
 
+alert("WARNING! This page will be removed on January 13th, 2022. Please move all files off page and to https://tinycircuits.github.io/");
+
+
 var onExportToEditor = (bytes) => {
     var editorSpriteID = 0;
     var filePath = undefined;
