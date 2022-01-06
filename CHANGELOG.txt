@@ -2,13 +2,13 @@ Thumby IDE changelog!
 
 ####################
 
-January 1, 2022
+January 6th, 2022
 
 * Warning: https://tinycircuits.github.io/testing/ will be taken down on January 13th, 2022. Please save all work to your computer and move to the main IDE page https://tinycircuits.github.io/
 
 ####################
 
-December 28, 2021
+December 28th, 2021
 
 * Access beta IDE page at https://tinycircuits.github.io/testing/
 
@@ -21,7 +21,7 @@ General
 
 ####################
 
-December 9, 2021
+December 9th, 2021
 
 * Access beta IDE page at https://tinycircuits.github.io/testing/
 
@@ -66,7 +66,7 @@ General
 
 ####################
 
-November 29, 2021
+November 29th, 2021
 
 Arcade
 * Allow image, video, and description files to have any name, only require file extension
@@ -74,7 +74,7 @@ Arcade
 
 ####################
 
-November 16, 2021
+November 16th, 2021
 
 NOTE: it is recommended to use 'Utilities -> Reset Layout' or 'Utilities -> Hard Reset' (note, all data will be deleted from page) to see new panels
 
