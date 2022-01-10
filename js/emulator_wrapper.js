@@ -486,32 +486,30 @@ export class EMULATOR{
 
     
     // Adjust the size and rotation of the canvas after everything loads on the page, start the media recorder
-    document.addEventListener("DOMContentLoaded", () => {
-      this.EMULATOR_RECORD_STREAM = this.EMULATOR_CANVAS.captureStream();
-      this.EMULATOR_RECORDED_CHUNKS = [];
-      var options = {};
-      this.EMULATOR_MEDIA_RECORDER = new MediaRecorder(this.EMULATOR_RECORD_STREAM, options);
+    this.EMULATOR_RECORD_STREAM = this.EMULATOR_CANVAS.captureStream();
+    this.EMULATOR_RECORDED_CHUNKS = [];
+    var options = {};
+    this.EMULATOR_MEDIA_RECORDER = new MediaRecorder(this.EMULATOR_RECORD_STREAM, options);
 
-      this.EMULATOR_MEDIA_RECORDER.ondataavailable = (event) => {
-        console.log(event.data);
-        this.EMULATOR_RECORDED_CHUNKS.push(event.data);
-  
-        // after stop `dataavilable` event run one more time to push last chunk
-        if (this.EMULATOR_MEDIA_RECORDER.state === 'recording') {
-          this.EMULATOR_MEDIA_RECORDER.stop();
-        }
+    this.EMULATOR_MEDIA_RECORDER.ondataavailable = (event) => {
+
+      this.EMULATOR_RECORDED_CHUNKS.push(event.data);
+
+      // after stop `dataavilable` event run one more time to push last chunk
+      if (this.EMULATOR_MEDIA_RECORDER.state === 'recording') {
+        this.EMULATOR_MEDIA_RECORDER.stop();
       }
-  
-      this.EMULATOR_MEDIA_RECORDER.onstop = (event) => {
-        var blob = new Blob(this.EMULATOR_RECORDED_CHUNKS, {type: "video/webm" });
-        var url = URL.createObjectURL(blob);
-        var link = document.createElement('a');
-        link.download = 'emulator_video.webm';
-        link.href = url;
-        link.click();
-        window.URL.revokeObjectURL(url);
-      }
-    });
+    }
+
+    this.EMULATOR_MEDIA_RECORDER.onstop = (event) => {
+      var blob = new Blob(this.EMULATOR_RECORDED_CHUNKS, {type: "video/webm" });
+      var url = URL.createObjectURL(blob);
+      var link = document.createElement('a');
+      link.download = 'emulator_video.webm';
+      link.href = url;
+      link.click();
+      window.URL.revokeObjectURL(url);
+    }
 
     // Main file to start emulation, set in startEmulate() and used in cdc start
     this.MAIN_FILE = "";
