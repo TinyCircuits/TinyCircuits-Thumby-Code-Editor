@@ -137,6 +137,18 @@ class Arcade{
         for(var i=0; i<count; i++){
             if(this.NEXT_GAME_INDEX < this.GAME_URL_CONTAINERS.length-1){
 
+                var descText = "";
+
+                await fetch(this.GAME_URL_CONTAINERS[this.NEXT_GAME_INDEX].GAME_DESCRIPTION_URL).then(async (response) => {
+                    await response.text().then((text) => {
+                        descText = text;
+                    });
+                });
+
+                if(descText == "404: Not Found"){
+                    continue;
+                }
+
                 var arcadeGameDiv = document.createElement("div");
                 arcadeGameDiv.classList = "arcade_game uk-transition-toggle";
                 this.ARCADE_SCROLL_AREA_DIV.appendChild(arcadeGameDiv);
@@ -176,13 +188,6 @@ class Arcade{
                     arcadeGameBannerElem.style.width = "100%";
                 }
                 arcadeGameBannerParentDiv.appendChild(arcadeGameBannerElem);
-
-                var descText = "";
-                await fetch(this.GAME_URL_CONTAINERS[this.NEXT_GAME_INDEX].GAME_DESCRIPTION_URL).then(async (response) => {
-                    await response.text().then((text) => {
-                        descText = text;
-                    });
-                });
 
 
                 var transitionDiv = document.createElement("div");
