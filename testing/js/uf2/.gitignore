@@ -1,6 +1,0 @@
-.cache
-.history
-.idea
-node_modules
-*.log
-package-lock.json
