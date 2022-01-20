@@ -254,7 +254,7 @@ class Arcade{
                     currentURLContainer.GAME_IMAGE_URL = txtFileLines[i];
                 }else if(txtFileLines[i].indexOf(".webm") != -1){
                     currentURLContainer.GAME_VIDEO_URL = txtFileLines[i];
-                }else if(txtFileLines[i].indexOf(".txt") != -1){
+                }else if(txtFileLines[i].indexOf("arcade_description.txt") != -1){
                     currentURLContainer.GAME_DESCRIPTION_URL = txtFileLines[i];
                 }else if(txtFileLines[i].indexOf("NAME=") != -1){
                     currentURLContainer.GAME_NAME = txtFileLines[i].substring(txtFileLines[i].indexOf('=')+1);
