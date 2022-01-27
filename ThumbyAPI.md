@@ -231,20 +231,20 @@
 ## Audio
 * Note: audio not implemented on web IDE emulator but is unlikely to cause exceptions
 * ### Functions
-    * `thumby.audio.play(freq, duration, duty)` | plays audio at sound frequency `freq` and duty cycle `duty` for `duration` in milliseconds without blocking code execution. For now, try searching 'music notes to frequency chart' to relate these parameters to musical notes. Returns None
+    * `thumby.audio.play(freq, duration, duty)` | plays audio at sound frequency `freq` and duty cycle `duty` for `duration` in milliseconds without blocking code execution. For now, try searching 'music notes to frequency chart' to relate these parameters to musical notes. `freq` can technically range from 7Hz ~ 125MHz, but human hearing is in the 20 ~ 20000Hz range. Returns None
         * `freq`
             * type: int
-            * values: 7 ~ 125000000 (Hz)
+            * values: 20 ~ 20000 (Hz)
         * `duration`
             * type: int
             * values: 0 ~ 2147483647 (ms)
         * `duty`
             * type: uint_16
             * values: 0 (0%) ~ 65535 (100%) (default: 32768 or 50%)
-    * `thumby.audio.playBlocking(freq, duration, duty)` | plays audio at sound frequency `freq` and duty cycle `duty` for `duration` in milliseconds while blocking code execution. For now, try searching 'music notes to frequency chart' to relate these parameters to musical notes. Returns None
+    * `thumby.audio.playBlocking(freq, duration, duty)` | plays audio at sound frequency `freq` and duty cycle `duty` for `duration` in milliseconds while blocking code execution. For now, try searching 'music notes to frequency chart' to relate these parameters to musical notes. `freq` can technically range from 7Hz ~ 125MHz, but human hearing is in the 20 ~ 20000Hz range. Returns None
         * `freq`
             * type: int
-            * values: 7 ~ 125000000 (Hz)
+            * values: 20 ~ 20000 (Hz)
         * `duration`
             * type: int
             * values: 0 ~ 2147483647 (ms)
