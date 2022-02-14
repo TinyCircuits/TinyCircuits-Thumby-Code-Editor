@@ -282,7 +282,7 @@ class Arcade{
 
             // Start arcade with some number of items loaded (should be enough so that the scroll bar
             // is active (if enough games) and more games can be loaded on all screen sizes)
-            this.loadNewGames(12);
+            this.loadNewGames(50);
         }
     }
 
