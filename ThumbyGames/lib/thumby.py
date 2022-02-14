@@ -668,6 +668,10 @@ class LinkClass:
     
                 if checksum == receivedChecksum:
                     return receivedData
+                else:
+                    uart.read()
+            else:
+                uart.read()
         elif self.sent == True and ticks_ms() - self.timeAtLastSend > self.timeout:
             self.sent = False
 

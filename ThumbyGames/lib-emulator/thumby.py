@@ -668,6 +668,10 @@ class LinkClass:
     
                 if checksum == receivedChecksum:
                     return receivedData
+                else:
+                    uart.read()
+            else:
+                uart.read()
         elif self.sent == True and ticks_ms() - self.timeAtLastSend > self.timeout:
             self.sent = False
 
@@ -691,6 +695,7 @@ def reset():
     machineReset()
 
 # Graphics instantiation
+display=None
 display = GraphicsClass(ssd1306.SSD1306_SPI(72, 40, spi, dc=Pin(17), res=Pin(20), cs=Pin(16)), 72, 40)
 
 # Returns true if any buttons are currently pressed on the thumby.
