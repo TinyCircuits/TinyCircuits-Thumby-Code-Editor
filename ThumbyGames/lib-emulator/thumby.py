@@ -2,8 +2,8 @@
 
 # Contains helpful abstractions between hardware features of Thumby and the uPython REPL.
 
-# Written by Mason Watmough and Ben Rose for TinyCircuits.
-# Last edited 12/01/2021
+# Written by Mason Watmough, Jason Marcum, and Ben Rose for TinyCircuits.
+# Last edited 2/04/2022
 
 '''
     This program is free software: you can redistribute it and/or modify
@@ -22,12 +22,13 @@
 
 # Necessary things.
 from time import ticks_ms, ticks_us, sleep_ms
-from machine import Pin, Timer, I2C, PWM, SPI
+from machine import Pin, Timer, I2C, PWM, SPI, UART
+from machine import reset as machineReset
 import ssd1306
 import os
 
-# Last updated 12/28/2021
-__version__ = '1.1'
+# Last updated 1/28/2022 for link API
+__version__ = '1.2'
 
 # Pin definitions for button inputs & buzzer.
 swL = Pin(3, Pin.IN, Pin.PULL_UP) # D-pad left
@@ -142,10 +143,10 @@ class AudioClass:
     # Play a given frequency for the duration with a given duty cycle for PWM audio. Returns after audio is done playing.
     @micropython.native
     def playBlocking(self, freq, duration):
+        t0 = ticks_ms()
         if(self.enabled):
             self.pwm.freq(freq)
             self.pwm.duty_u16(self.dutyCycle)
-            t0 =ticks_ms()
             while(ticks_ms() - t0 <= duration):
                 pass
             self.stop()
@@ -548,6 +549,129 @@ class GraphicsClass:
     def drawSpriteWithMask(self, s, m):
         self.blitWithMask(s.bitmap, int(s.x), int(s.y), s.width, s.height, s.key, s.mirrorX, s.mirrorY, m.bitmap)
 
+
+
+class LinkClass:
+    def __init__(self):
+        self.initialized = False
+    
+    
+    @micropython.native
+    def init(self):
+        self.rxPin = Pin(1, Pin.IN)
+        self.uart = UART(0, baudrate=115200, rx=self.rxPin, tx=Pin(0, Pin.OUT), timeout=0, txbuf=515, rxbuf=515)
+        Pin(2, Pin.OUT).value(1)
+        
+        self.uart.read()
+        self.initialized = True
+        
+        self.sent = False
+        self.timeAtLastSend = 0
+        
+        self.timeout = 100
+    
+    
+    @micropython.native
+    def send(self, data):
+        if self.initialized != True:
+            self.init()
+        
+        uart = self.uart
+        if self.sent == False and self.rxPin.value() == 1:
+            
+            dataLength = len(data)
+            
+            if dataLength <= 0 or dataLength > 512:
+                raise Excpetion("Link message size out of bounds" + str(dataLength))
+            
+            packetLength = dataLength + 3
+            checksum = 0
+            
+            for b in data:
+                checksum ^= b
+            
+            anyAfter = uart.any() + packetLength
+            uart.write(bytearray([(dataLength >> 8) & 0xff, dataLength & 0xff, checksum]))
+            uart.write(data)
+            
+            # Wait to receive echo data, make sure to timeout in case of some collision
+            t0 = ticks_ms()
+            curAny = 0
+            lastAny = 0
+            while True:
+                curAny = uart.any()
+                
+                if curAny >= anyAfter:
+                    break
+                elif curAny != lastAny:
+                    # Reset timeout to accommodate longer strings of data
+                    t0 = ticks_ms()
+            
+                if ticks_ms() - t0 >= self.timeout:
+                    break
+                
+                lastAny = curAny
+            
+            uart.read(anyAfter)
+            
+            self.timeAtLastSend = ticks_ms()
+            self.sent = True
+            return True
+        
+        elif self.sent == True and ticks_ms() - self.timeAtLastSend > self.timeout:
+            self.sent = False
+        
+        return False
+        
+    
+    @micropython.native
+    def receive(self):
+        if self.initialized != True:
+            self.init()
+        
+        uart = self.uart
+        
+        if uart.any() >= 4:
+            headerBytes = uart.read(3)
+            
+            receivedDataLength = (headerBytes[0] << 8) + headerBytes[1]
+            
+            # Wait for all data or timeout
+            t0 = ticks_ms()
+            curAny = 0
+            lastAny = 0
+            while True:
+                curAny = uart.any()
+                
+                if curAny >= receivedDataLength:
+                    break
+                elif curAny != lastAny:
+                    # Reset timeout to accommodate longer strings of data
+                    t0 = ticks_ms()
+            
+                if ticks_ms() - t0 >= self.timeout:
+                    self.sent = False
+                    return None
+                
+                lastAny = curAny
+
+            receivedData = uart.read(receivedDataLength)
+            receivedChecksum = headerBytes[2]
+            
+            if uart.any() == 0:
+                self.sent = False
+            
+            if len(receivedData) == receivedDataLength:
+                checksum = 0
+                for b in receivedData:
+                    checksum ^= b
+    
+                if checksum == receivedChecksum:
+                    return receivedData
+        elif self.sent == True and ticks_ms() - self.timeAtLastSend > self.timeout:
+            self.sent = False
+
+
 # Button instantiation
 buttonA = ButtonClass(swA) # Left (A) button
 buttonB = ButtonClass(swB) # Right (B) button
@@ -558,6 +682,13 @@ buttonR = ButtonClass(swR) # D-pad right
 
 # Audio instantiation
 audio = AudioClass(swBuzzer)
+
+# Link instantiation
+link = LinkClass()
+
+# Wrap machine.reset() to be accessible as thumby.reset()
+def reset():
+    machineReset()
 
 # Graphics instantiation
 display = GraphicsClass(ssd1306.SSD1306_SPI(72, 40, spi, dc=Pin(17), res=Pin(20), cs=Pin(16)), 72, 40)

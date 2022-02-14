@@ -3,6 +3,17 @@ Thumby IDE changelog!
 
 ####################
 
+February 14th, 2022
+
+* Add new game, Tennis, that uploads on format (it's also in the arcade!)
+* Update Thumby API with link functions (see the Thumby API)
+* Add new update library files button (it overwrites standard default Thumby library files)
+
+* NOTE: Press ctrl+F5 if you do not see the new button
+
+
+####################
+
 January 10th, 2022
 
 * Attempted to make emulator recording more reliable. Use ctrl+F5 to ensure the new page is fetched.

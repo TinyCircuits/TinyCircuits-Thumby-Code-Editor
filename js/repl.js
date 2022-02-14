@@ -30,6 +30,7 @@ class ReplJS{
         this.onFSData = undefined;
         this.doPrintSeparator = undefined;
         this.forceTermNewline = undefined;
+        this.onShowUpdate = undefined;
 
         // ### MicroPython Control Commands ###
         // DOCS: https://docs.micropython.org/en/latest/esp8266/tutorial/repl.html#other-control-commands
@@ -663,10 +664,10 @@ class ReplJS{
         await this.uploadFile("Games/SaurRun/SaurRun.py", await window.downloadFile("/ThumbyGames/Games/SaurRun/SaurRun.py"), false);
         window.setPercent(30.8);
         await this.uploadFile("Games/TinyBlocks/TinyBlocks.py", await window.downloadFile("/ThumbyGames/Games/TinyBlocks/TinyBlocks.py"), false);
-        // window.setPercent(38.5);
-        // await this.uploadFile("Games/TinyHeli/TinyHeli.py", await window.downloadFile("/ThumbyGamesTesting/Games/TinyHeli/TinyHeli.py"), false);
-        // await this.uploadFile("Games/TinyHeli/missileSpr.bin", await window.downloadFile("/ThumbyGamesTesting/Games/TinyHeli/missileSpr.bin"), false);
-        // await this.uploadFile("Games/TinyHeli/heliSpr.bin", await window.downloadFile("/ThumbyGamesTesting/Games/TinyHeli/heliSpr.bin"), false);
+        window.setPercent(38.5);
+        await this.uploadFile("Games/Tennis/Tennis.py", await window.downloadFile("/ThumbyGames/Games/Tennis/Tennis.py"), false);
+        await this.uploadFile("Games/Tennis/TennisCourt.bin", await window.downloadFile("/ThumbyGames/Games/Tennis/TennisCourt.bin", true), false, true);
+        await this.uploadFile("Games/Tennis/TennisLogoFrames.bin", await window.downloadFile("/ThumbyGames/Games/Tennis/TennisLogoFrames.bin", true), false, true);
         window.setPercent(46.2);
         await this.uploadFile("lib/ssd1306.py", await window.downloadFile("/ThumbyGames/lib/ssd1306.py"), false);
         await this.uploadFile("lib/thumby.py", await window.downloadFile("/ThumbyGames/lib/thumby.py"), false);
@@ -683,6 +684,53 @@ class ReplJS{
         await this.uploadFile("main.py", await window.downloadFile("/ThumbyGames/main.py"), false);
         window.setPercent(92.4);
         await this.uploadFile("menu.py", await window.downloadFile("/ThumbyGames/menu.py"), false);
+        window.setPercent(99.8);
+
+        // Make sure to update the filesystem after modifying it
+        await this.getOnBoardFSTree();
+        window.resetPercentDelay();
+    }
+
+
+    async getLibraryVersion(){
+        if(this.BUSY == true){
+            return;
+        }
+        this.BUSY = true;
+
+        var cmd =   "import os\n" +
+
+                    "try:\n" +
+                    "    f = open(\"/lib/thumby.py\", \"r\")\n" +
+                    "    while True:\n" +
+                    "        line = f.readline()\n" +
+                    "        if \"__version__ = \" in line:\n" +
+                    "            print(line.split('\\\'')[1])\n" +
+                    "            break\n" +
+                    "except:\n" +
+                    "    print(\"ERROR\")\n";
+
+        var hiddenLines = await this.writeUtilityCmdRaw(cmd, true, 1);
+
+        await this.getToNormal(3);
+        this.BUSY = false;
+
+        if(hiddenLines != undefined){
+            let message = hiddenLines[0].substring(2);
+            if(message != "ERROR"){
+                return parseFloat(hiddenLines[0].substring(2));
+            }else{
+                return -1
+            }
+        }
+    }
+
+
+    async update(){
+        window.setPercent(1, "Updating Thumby...");
+        await this.uploadFile("lib/credits.txt", await window.downloadFile("/ThumbyGames/lib/credits.txt", true), false, true);
+        window.setPercent(50);
+        await this.uploadFile("lib/thumby.py", await window.downloadFile("/ThumbyGames/lib/thumby.py"), false);
         window.setPercent(99.8);
 
         // Make sure to update the filesystem after modifying it
@@ -753,6 +801,15 @@ class ReplJS{
     }
 
 
+    async checkIfNeedUpdate(){
+        if(await this.getLibraryVersion() < window.latestThumbyLibraryVersion){
+            this.onShowUpdate();
+        }else{
+            console.log("Thumby does not need updated!");
+        }
+    }
+
+
     async openPort(){
         if(this.PORT != undefined){
             this.DISCONNECT = false;
@@ -765,6 +822,7 @@ class ReplJS{
                 await this.getToNormal();
                 this.BUSY = false;  // Was true from connect()
                 await this.getOnBoardFSTree();
+                await this.checkIfNeedUpdate();
                 // await this.writeConnectedMessage();
 
             }catch(err){
@@ -775,6 +833,7 @@ class ReplJS{
                     await this.getToNormal();
                     this.BUSY = false;  // Was true from connect()
                     await this.getOnBoardFSTree();
+                    await this.checkIfNeedUpdate();
                     // await this.writeConnectedMessage();
                     
                 }else if(err.name == "NetworkError"){

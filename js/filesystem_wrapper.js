@@ -29,6 +29,14 @@ class FILESYSTEM{
         this.FS_REFORMAT_BTN.title = "Erases all files on Thumby then reloads default library and game files";
         this.FS_FOOTER_DIV.appendChild(this.FS_REFORMAT_BTN);
 
+        this.FS_UPDATE_LIBS_BTN = document.createElement("button");
+        this.FS_UPDATE_LIBS_BTN.classList = "uk-button uk-button-secondary uk-button-small uk-width-1-1";
+        this.FS_UPDATE_LIBS_BTN.onclick = () => {this.removeUpdate(); this.onUpdate()}
+        this.FS_UPDATE_LIBS_BTN.innerText = "UPDATE LIBRARIES";
+        this.FS_UPDATE_LIBS_BTN.title = "Overwrites files /lib/thumby.py and /lib/credits.txt";
+        this.FS_FOOTER_DIV.appendChild(this.FS_UPDATE_LIBS_BTN);
+
+
         this.FS_UPLOAD_BTN = document.createElement("button");
         this.FS_UPLOAD_BTN.classList.add("uk-button");
         this.FS_UPLOAD_BTN.classList.add("uk-button-secondary");
@@ -106,6 +114,7 @@ class FILESYSTEM{
         this.onDelete = undefined;
         this.onRename = undefined;
         this.onFormat = undefined;
+        this.onUpdate = undefined;
         this.onOpen = undefined;
         this.onNewFolder = undefined;
         this.onUploadFiles = undefined;
@@ -145,6 +154,17 @@ class FILESYSTEM{
             }
         }
     }
+
+
+    removeUpdate(){
+        this.FS_UPDATE_LIBS_BTN.classList = "uk-button uk-button-primary uk-button-small uk-width-1-1";
+    }
+
+
+    showUpdate(){
+        this.FS_UPDATE_LIBS_BTN.classList = "uk-button uk-button-danger uk-button-small uk-width-1-1";
+    }
+
 
     async downloadSelected(selectedNode, isDir, fullPath){
         // If directory, find all child nodes and download them, otherwise download single file

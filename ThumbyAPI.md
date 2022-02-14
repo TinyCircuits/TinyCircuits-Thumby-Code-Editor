@@ -216,6 +216,15 @@
             * type: int
             * values: 0 ~ overflow (values larger than the number of frames get wrapped)
 
+## Link
+* NOTE: Communication is half-duplex serial, meaning only one Thumby can talk at a time. The `.send(...)` function only succeeds if first time calling it, just received data through calling `.receive()`, or a timeout occurred.
+* ### Functions
+    * `thumby.link.send(data)` | tries to send `data` over link cable. Returns False if have not received data before timeout or True if succeeds. All parameters required.
+        * `data`
+            * type: bytes or bytearray
+            * value: bytes or bytearray filled with integers scaled 0 to 255 (max array length is 512)
+    * `thumby.link.receive()` | retrieves data sent over link cable. Returns bytearray containing integers scaled 0 to 255 (max array length is 512), None otherwise
+
 ## Buttons
 * ### Objects
     * `thumby.buttonA` | for accessing A button (right red button)

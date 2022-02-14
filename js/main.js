@@ -51,7 +51,11 @@ var IMPORTER = new Importer(document.getElementById("IDImportSpriteBTN"), onExpo
 
 
 // Show pop-up containing IDE changelog every time showChangelogVersion is increased
-const showChangelogVersion = 4;
+const showChangelogVersion = 5;
+
+// This should match what is in /ThumbyGames/lib/thumby.py as '__version__'
+window.latestThumbyLibraryVersion = 1.2
+
 if(localStorage.getItem(showChangelogVersion) == null){
     console.log("Updates to IDE! Showing changelog...");    // Show message in console
     localStorage.removeItem(showChangelogVersion-1);        // Remove flag from last version
@@ -509,6 +513,7 @@ function registerFilesystem(_container, state){
     FS.onDelete = (path) => REPL.deleteFileOrDir(path);
     FS.onRename = (path) => REPL.renameFile(path, prompt("Type a new name:", path.substring(path.lastIndexOf("/")+1)));
     FS.onFormat = () => REPL.format();
+    FS.onUpdate = () => REPL.update();
     FS.onUploadFiles = async () => {
         if(REPL.PORT != undefined){
             console.log("Pick files to upload");
@@ -603,6 +608,7 @@ function registerShell(_container, state){
         ATERM.writeln('\n\r\x1b[1;31m' + "Disconnected" + '\x1b[1;0m');
         ATERM.writeln("Waiting for connection... (click 'Connect Thumby')");
         FS.clearToWaiting();
+        FS.removeUpdate();
     }
     REPL.onConnect = () => {
         ATERM.writeln('\x1b[1;32m' + "\n\rConnected" + '\x1b[1;0m');
@@ -617,6 +623,7 @@ function registerShell(_container, state){
     REPL.forceTermNewline = () => {
         ATERM.write("\r\n");
     }
+    REPL.onShowUpdate = () => {FS.showUpdate()};
 }
 
 
