@@ -582,7 +582,7 @@ class LinkClass:
             dataLength = len(data)
             
             if dataLength <= 0 or dataLength > 512:
-                raise Excpetion("Link message size out of bounds" + str(dataLength))
+                raise Exception("Link message size out of bounds" + str(dataLength))
             
             packetLength = dataLength + 3
             checksum = 0
