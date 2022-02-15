@@ -581,8 +581,8 @@ class LinkClass:
             
             dataLength = len(data)
             
-            if dataLength <= 0 or dataLength > 512:
-                raise Exception("Link message size out of bounds" + str(dataLength))
+            if dataLength < 0 or dataLength > 512:
+                raise Exception("Link message size out of bounds: " + str(dataLength))
             
             packetLength = dataLength + 3
             checksum = 0
@@ -631,7 +631,7 @@ class LinkClass:
         
         uart = self.uart
         
-        if uart.any() >= 4:
+        if uart.any() >= 3:
             headerBytes = uart.read(3)
             
             receivedDataLength = (headerBytes[0] << 8) + headerBytes[1]
