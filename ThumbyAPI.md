@@ -178,7 +178,7 @@
             * type: Sprite (`thumby.Sprite`)
         * `maskSprite`
             * type: Sprite (`thumby.Sprite`) (pixels set to 1 are transparent, while 0 pixels are not drawn)
-    * `thumby.display.brightness(bightness)` | sets screen to `brightness` value. Returns None, all parameters required.
+    * `thumby.display.brightness(brightness)` | sets screen to `brightness` value. Returns None, all parameters required. *Note: does not emulate*
         * `brightness`
             * type: int
             * values: 0 (off) ~ 127 (max brightness)
