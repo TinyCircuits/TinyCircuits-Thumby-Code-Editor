@@ -5,7 +5,7 @@ Thumby IDE changelog!
 February 16th, 2022
 
 * Make editor tab names shorter (hover to see full path)
-* Auto check emulation boxes when opening files from an arcade
+* Auto check emulation boxes when opening files from the arcade
 * Always require that one editor be open (the last editor cannot be closed)
 * Change "DOWNLOAD" to "ADD TO THUMBY" in arcade
 
