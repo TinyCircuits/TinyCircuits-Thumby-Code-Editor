@@ -40,16 +40,17 @@ class GameURLContainer{
 
         // On click, split URL, forget about the first 5 elements, combine the last elements to path, fetch file from URL, open in editors
         this.openButton.onclick = async () => {
-            for(var i=0; i<this.GAME_FILE_URLS.length; i++){
-                // Make URL from root of Thumby (start at '/')
-                var thumbyURL = "/Games/" + this.GAME_FILE_URLS[i].split('/').slice(6).join('/');
+            // for(var i=0; i<this.GAME_FILE_URLS.length; i++){
+            //     // Make URL from root of Thumby (start at '/')
+            //     var thumbyURL = "/Games/" + this.GAME_FILE_URLS[i].split('/').slice(6).join('/');
 
-                window.setPercent((i/this.GAME_FILE_URLS.length) * 100, "Opening: " + thumbyURL);
+            //     window.setPercent((i/this.GAME_FILE_URLS.length) * 100, "Opening: " + thumbyURL);
                 
-                await fetch(this.GAME_FILE_URLS[i]).then(async (response) => {
-                    await this.openFunc(thumbyURL, await response.arrayBuffer());
-                });
-            }
+            //     await fetch(this.GAME_FILE_URLS[i]).then(async (response) => {
+            //         await this.openFunc(thumbyURL, await response.arrayBuffer(), this.GAME_FILE_URLS);
+            //     });
+            // }
+            await this.openFunc(this.GAME_FILE_URLS);
             window.setPercent(100, "Opened arcade game...");
             window.resetPercentDelay();
         }
@@ -209,8 +210,8 @@ class Arcade{
                 transitionDiv.appendChild(buttonAreaDiv);
 
                 this.GAME_URL_CONTAINERS[this.NEXT_GAME_INDEX].downloadButton = document.createElement("button");
-                this.GAME_URL_CONTAINERS[this.NEXT_GAME_INDEX].downloadButton.classList = "uk-button uk-button-primary uk-text-small uk-width-1-1";
-                this.GAME_URL_CONTAINERS[this.NEXT_GAME_INDEX].downloadButton.textContent = "DOWNLOAD";
+                this.GAME_URL_CONTAINERS[this.NEXT_GAME_INDEX].downloadButton.classList = "uk-button uk-button-primary uk-text-small uk-width-1-1 uk-text-nowrap";
+                this.GAME_URL_CONTAINERS[this.NEXT_GAME_INDEX].downloadButton.textContent = "ADD TO THUMBY";
                 this.GAME_URL_CONTAINERS[this.NEXT_GAME_INDEX].downloadButton.title = "Downloads all game content to connected Thumby";
                 buttonAreaDiv.appendChild(this.GAME_URL_CONTAINERS[this.NEXT_GAME_INDEX].downloadButton);
                 this.GAME_URL_CONTAINERS[this.NEXT_GAME_INDEX].initDownloadButton(this.onDownload);

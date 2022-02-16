@@ -81,27 +81,31 @@ class EditorWrapper{
             // https://github.com/golden-layout/golden-layout/issues/324
             // Remove editor close button functionality and override it
             var oldElem = this._container._tab._closeElement;
+            
+            this._container._tab._element.title = this.EDITOR_TITLE.split(" - ")[1];
+
             if(oldElem != null && oldElem.parentNode != null){
                 var newElem = oldElem.cloneNode(true);
                 oldElem.parentNode.replaceChild(newElem, oldElem);
 
                 newElem.onclick = () => {
+                    if(Object.keys(this.EDITORS).length > 1){
+                        if(this.SAVED_TO_THUMBY == false && !confirm('You have unsaved changes, are you sure you want to close this editor?')) {
+                            return;
+                        }
 
-                    if(this.SAVED_TO_THUMBY == false && !confirm('You have unsaved changes, are you sure you want to close this editor?')) {
-                        return;
+                        // Remove this since only needed for editor
+                        window.removeEventListener("resize", this.windowResizeListener);
+
+                        delete EDITORS[this.ID];
+                        this.clearStorage();
+
+                        // Clear the binary file from database that this editor had a reference to
+                        if(this.isEditorBinary()) this.deleteDBFile();
+
+                        console.log("Cleared info for Editor: " + this._container.title);
+                        this._container.close();
                     }
-
-                    // Remove this since only needed for editor
-                    window.removeEventListener("resize", this.windowResizeListener);
-
-                    delete EDITORS[this.ID];
-                    this.clearStorage();
-
-                    // Clear the binary file from database that this editor had a reference to
-                    if(this.isEditorBinary()) this.deleteDBFile();
-
-                    console.log("Cleared info for Editor: " + this._container.title);
-                    this._container.close();
                 }
             }
         });
@@ -505,6 +509,19 @@ class EditorWrapper{
         }
         this.EMULATION_ZONE_CHECKBOX_PARENT.appendChild(this.MAIN_EMU_CHECKBOX);
 
+
+        // Games opened from the arcade get pre-checked for emulation
+        if(this.state.mainChecked != undefined && this.state.mainChecked == true){
+            this.MAIN_EMU_CHECKBOX.checked = true;
+            this.NORMAL_EMU_CHECKBOX.checked = true;
+            localStorage.setItem("EditorEMUCheck" + this.ID, 1);
+        }else if(this.state.normalChecked != undefined && this.state.normalChecked == true){
+            this.MAIN_EMU_CHECKBOX.checked = false;
+            this.NORMAL_EMU_CHECKBOX.checked = true;
+            localStorage.setItem("EditorEMUCheck" + this.ID, 0);
+        }
+
+
         var check = localStorage.getItem("EditorEMUCheck" + this.ID);
         if(check != null){
             if(check == '1'){
@@ -808,7 +825,13 @@ class EditorWrapper{
 
 
     setTitle(title){
-        this._container.setTitle(title);
+        this._container.setTitle(title.split('/').at(-1));
+
+        // Make the tab title show the full path
+        if(this._container._tab != undefined){
+            this._container._tab._element.title = this.EDITOR_TITLE.split(" - ")[1];
+        }
+
         this.EDITOR_TITLE = title;
         localStorage.setItem("EditorTitle" + this.ID, title);
     }

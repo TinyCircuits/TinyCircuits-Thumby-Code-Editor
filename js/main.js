@@ -51,7 +51,7 @@ var IMPORTER = new Importer(document.getElementById("IDImportSpriteBTN"), onExpo
 
 
 // Show pop-up containing IDE changelog every time showChangelogVersion is increased
-const showChangelogVersion = 5;
+const showChangelogVersion = 6;
 
 // This should match what is in /ThumbyGames/lib/thumby.py as '__version__'
 window.latestThumbyLibraryVersion = 1.2
@@ -728,32 +728,66 @@ ARCADE.onDownload = async (thumbyURL, binaryFileContents) => {
     await REPL.getOnBoardFSTree();
 }
 
-ARCADE.onOpen = async (thumbyURL, binaryFileContents) => {
-    // Make sure no editors with this file path already exist
+
+
+ARCADE.onOpen = async (arcadeGameFileURLS) => {
+
+    // Uncheck all emulation boxes in all editors
     for (const [id, editor] of Object.entries(EDITORS)) {
-        if(editor.EDITOR_PATH == thumbyURL){
-            editor._container.parent.focus();
-            alert("This file is already open in Editor" + id + "! Please close it first");
-            return;
-        }
+        editor.NORMAL_EMU_CHECKBOX.checked = false;
+        editor.MAIN_EMU_CHECKBOX.checked = false;
     }
 
-    // Find editor with smallest ID, focus it, then add new editor with file contents
-    var currentId = Infinity;
-    for (const [id, editor] of Object.entries(EDITORS)) {
-        if(id < currentId){
-            currentId = id;
+
+    // Loop through each URL for this open
+    for(let i=0; i<arcadeGameFileURLS.length; i++){
+        // Make URL and path from root
+        var thumbyPathAndURL = "/Games/" + arcadeGameFileURLS[i].split('/').slice(6).join('/');
+
+        // Make sure no editors with this file path already exist
+        let alreadyOpen = false;
+        for (const [id, editor] of Object.entries(EDITORS)) {
+
+            if(editor.EDITOR_PATH == thumbyPathAndURL){
+                editor._container.parent.focus();
+                alert("This file is already open in Editor" + id + "! Please close it first");
+                alreadyOpen = true;
+            }
+        }
+
+        // If not already open, update percent and get file data
+        if(alreadyOpen == false){
+            window.setPercent((i/arcadeGameFileURLS.length) * 100, "Opening: " + thumbyPathAndURL);
+
+            // Find editor with smallest ID, focus it, then add new editor with file contents
+            var currentId = Infinity;
+            for (const [id, editor] of Object.entries(EDITORS)) {
+                if(id < currentId){
+                    currentId = id;
+                }
+            }
+            if(currentId != Infinity){
+                EDITORS[currentId]._container.parent.focus();
+            }
+
+            // Get the file contents
+            await fetch(arcadeGameFileURLS[i]).then(async (response) => {
+                // Pass the file contents to the new editor using the state
+                var state = {};
+                state.value = Array.from(new Uint8Array(await response.arrayBuffer()));
+                state.path = thumbyPathAndURL;
+
+                // When games are opened, check the boxes so emulation can happen right away
+                if(thumbyPathAndURL.indexOf(".py") != -1){
+                    state.mainChecked = true;
+                }else{
+                    state.normalChecked = true;
+                }
+
+                myLayout.addComponent('Editor', state, 'Editor');
+            });
         }
     }
-    if(currentId != Infinity){
-        EDITORS[currentId]._container.parent.focus();
-    }
-
-    // Pass the file contents to the new editor using the state
-    var state = {};
-    state.value = Array.from(new Uint8Array(binaryFileContents));
-    state.path = thumbyURL;
-    myLayout.addComponent('Editor', state, 'Editor');
 }
 
 
