@@ -28,7 +28,7 @@
 .editor_emulation_zone_name{
     width: 85px;
     height: 100%;
-    background-color: rgb(0, 0, 0);
+    background-color: #121212;
     font-family: Roboto;
     font-size: 14px;
     color: white;
@@ -40,7 +40,7 @@
 .editor_emulation_zone_checkbox_parent{
     width: 50px;
     height: 100%;
-    background-color: rgb(0, 0, 0);
+    background-color: #121212;
     display: flex;
     justify-content: space-around;
     align-items: center;

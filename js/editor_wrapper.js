@@ -730,7 +730,7 @@ class EditorWrapper{
         this.EDITOR_DIV.style.display = "flex";
         this.EDITOR_DIV.style.justifyContent = "center";
         this.EDITOR_DIV.style.alignItems = "center";
-        this.EDITOR_DIV.style.backgroundColor = "black";
+        this.EDITOR_DIV.style.backgroundColor = "#121212";
         this.EDITOR_DIV.style.color = "white";
         this.EDITOR_DIV.style.fontFamily = "Monaco, Menlo, \"Ubuntu Mono\", Consolas, source-code-pro, monospace";
         this.EDITOR_DIV.style.fontSize = "15px";
