@@ -820,7 +820,7 @@ class EditorWrapper{
     }
 
     setThemeDark(){
-        this.ACE_EDITOR.setTheme("ace/theme/terminal");
+        this.ACE_EDITOR.setTheme("ace/theme/tomorrow_night_bright");
     }
 
 
