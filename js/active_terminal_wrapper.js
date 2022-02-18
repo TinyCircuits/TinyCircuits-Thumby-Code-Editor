@@ -16,7 +16,6 @@ class ActiveTerminal{
         this.SHELL_DIV.classList = "shell";
         this._container.element.appendChild(this.SHELL_DIV);
 
-
         // Contains all bitmap builder elements
         // this.SHELL_DIV = document.createElement("ul");
         // this.SHELL_DIV.classList = "shell uk-child-width-expand";
@@ -43,6 +42,8 @@ class ActiveTerminal{
         this.FITADDON = new FitAddon.FitAddon();    // The Xterm fit addon object
         this.TERM.loadAddon(this.FITADDON);         // Load fit addon in Xterm.js
         
+        this.setDarkTheme();
+
         // Wait until all components have divs before fitting
         setTimeout(() => {
             this.autoFit();
@@ -119,7 +120,7 @@ class ActiveTerminal{
 
     setDarkTheme(){
         this.TERM.setOption('theme', {
-            background: 'black',
+            background: '#121212',
             cursor: "white",
             foreground: "white"
         });

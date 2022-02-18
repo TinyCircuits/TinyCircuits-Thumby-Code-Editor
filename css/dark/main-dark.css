@@ -79,7 +79,7 @@ a:link {
   flex-flow: row wrap;
 }
 .header_logo_space{
-  background-color: black;
+  background-color: #121212;
   flex: 0.1675;
   height: 100%;
   display: flex;

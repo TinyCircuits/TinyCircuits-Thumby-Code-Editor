@@ -2,6 +2,14 @@ Thumby IDE changelog!
 
 ####################
 
+February 18th, 2022
+
+* Change dark theme main color from black to #121212
+# Change editor theme from ace Terminal to Tomorrow Night Bright
+
+
+####################
+
 February 16th, 2022
 
 * Make editor tab names shorter (hover to see full path)

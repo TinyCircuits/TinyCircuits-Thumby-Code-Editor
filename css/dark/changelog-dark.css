@@ -4,7 +4,7 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background-color: black;
+    background-color: #121212;
     border: 1px solid green;
     width: 600px;
     height: 80%;
@@ -19,7 +19,7 @@
 
 .changelog_text{
     display: flex;
-    background-color: black;
+    background-color: #121212;
     margin-right: auto;
     margin-left: auto;
     margin: 30px;
@@ -34,7 +34,7 @@
     width: 25px;
     aspect-ratio: 1/1;
     top: 0;
-    background-color: black;
+    background-color: #121212;
     border: transparent;
     border-right: green solid 1px;
     border-bottom: green solid 1px;

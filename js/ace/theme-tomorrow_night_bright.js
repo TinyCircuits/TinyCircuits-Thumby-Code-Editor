@@ -11,7 +11,7 @@ width: 1px;\
 background: #1a1a1a\
 }\
 .ace-tomorrow-night-bright {\
-background-color: #000000;\
+background-color: #121212;\
 color: #DEDEDE\
 }\
 .ace-tomorrow-night-bright .ace_cursor {\
