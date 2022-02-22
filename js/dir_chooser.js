@@ -126,7 +126,7 @@ class DIRCHOOSER{
 
 
     updateFinalPath(){
-        this.DIR_CHOOSER_FOOTER_OUTPUT.value = "FINAL PATH: " + this.LAST_SELECTED_PATH + this.DIR_CHOOSER_FOOTER_INPUT.value;
+        this.DIR_CHOOSER_FOOTER_OUTPUT.value = "FINAL PATH: " + this.LAST_SELECTED_PATH + "/" + this.DIR_CHOOSER_FOOTER_INPUT.value;
     }
 
 
