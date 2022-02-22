@@ -897,6 +897,13 @@ export class EMULATOR{
       // Loop through all editors and get file names + content
       this.MAIN_FILE = undefined;
       for (const [editorID, editorWrapper] of Object.entries(this.EDITORS)) {
+
+        // Check that the first character is a forward slash, otherwise, add it
+        // (Emulator will not load file without it!)
+        if(editorWrapper.EDITOR_PATH[0] != "/"){
+          editorWrapper.EDITOR_PATH = "/" + editorWrapper.EDITOR_PATH;
+        }
+
         if(editorWrapper.NORMAL_EMU_CHECKBOX.checked || editorWrapper.MAIN_EMU_CHECKBOX.checked){
 
           // Make sure not to re-encode binary data retrieved from editor, also, get it the right way
