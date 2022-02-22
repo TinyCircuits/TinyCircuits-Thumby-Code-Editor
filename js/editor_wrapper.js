@@ -607,7 +607,13 @@ class EditorWrapper{
         // Init the ace editor
         this.ACE_EDITOR = ace.edit(this.EDITOR_DIV);
         this.ACE_EDITOR.session.setMode("ace/mode/python");
-        this.ACE_EDITOR.setTheme("ace/theme/tomorrow_night_bright");
+
+        var lastTheme = localStorage.getItem("lastTheme");
+        if(lastTheme != undefined && lastTheme != null && lastTheme == "light"){
+            this.setThemeLight()
+        }else{
+            this.setThemeDark();
+        }
         this.resize();
 
 
