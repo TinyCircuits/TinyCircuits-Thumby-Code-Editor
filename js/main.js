@@ -348,7 +348,7 @@ document.getElementById("IDHardResetBTN").onclick = (event) =>{
     indexedDB.deleteDatabase("BINARY_FILES");
 
     // Refresh the page
-    location.reload();
+    location.reload(true);
 }
 
 // Add editor panel to layout
