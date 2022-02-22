@@ -16,32 +16,13 @@ class ActiveTerminal{
         this.SHELL_DIV.classList = "shell";
         this._container.element.appendChild(this.SHELL_DIV);
 
-        // Contains all bitmap builder elements
-        // this.SHELL_DIV = document.createElement("ul");
-        // this.SHELL_DIV.classList = "shell uk-child-width-expand";
-        // this.SHELL_DIV.setAttribute("uk-tab", "");
-        // this._container.element.appendChild(this.SHELL_DIV);
-
-        // var li = document.createElement("li");
-        // this.SHELL_HARDWARE = document.createElement("a");
-        // this.SHELL_HARDWARE.classList = "shell-tab";
-        // this.SHELL_HARDWARE.textContent = "Hardware Shell";
-        // li.appendChild(this.SHELL_HARDWARE);
-        // this.SHELL_DIV.appendChild(li);
-
-        // li = document.createElement("li");
-        // this.SHELL_EMULATOR = document.createElement("a");
-        // this.SHELL_EMULATOR.classList = "shell-tab";
-        // this.SHELL_EMULATOR.textContent = "Emulator Shell";
-        // li.appendChild(this.SHELL_EMULATOR);
-        // this.SHELL_DIV.appendChild(li);
-
-
+        // The lib/xterm.js file rendererType was hard forced 
+        // to be 'dom' instead of canvas for compatibility reasons
         this.TERM = new Terminal();                 // The Xterm.js object
         this.TERM.open(this.SHELL_DIV);             // Hook Xterm.js onto HTML object 'terminal'
         this.FITADDON = new FitAddon.FitAddon();    // The Xterm fit addon object
         this.TERM.loadAddon(this.FITADDON);         // Load fit addon in Xterm.js
-        
+
         this.setDarkTheme();
 
         // Wait until all components have divs before fitting

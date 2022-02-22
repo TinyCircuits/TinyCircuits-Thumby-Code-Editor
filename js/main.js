@@ -594,7 +594,7 @@ var ATERM = undefined;
 function registerShell(_container, state){
     ATERM = new ActiveTerminal(_container, state);
     ATERM.onType = (data) => {
-        console.log(data);
+        // console.log(data);
         // When the RP2040 is busy with any utility operations where BUSY is set, only allow interrupt key through
         // Allow certain characters through so thumby can pick them up
         if(REPL.BUSY == true && data != '' && data != 'w' && data != 'a' && data != 's' && data != 'd' && data != ',' && data != '.'){
