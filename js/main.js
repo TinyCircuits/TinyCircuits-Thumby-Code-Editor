@@ -54,7 +54,7 @@ var IMPORTER = new Importer(document.getElementById("IDImportSpriteBTN"), onExpo
 const showChangelogVersion = 7;
 
 // This should match what is in /ThumbyGames/lib/thumby.py as '__version__'
-window.latestThumbyLibraryVersion = 1.2
+window.latestThumbyLibraryVersion = 1.3
 
 if(localStorage.getItem(showChangelogVersion) == null){
     console.log("Updates to IDE! Showing changelog...");    // Show message in console

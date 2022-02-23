@@ -27,8 +27,8 @@ from machine import reset as machineReset
 import ssd1306
 import os
 
-# Last updated 1/28/2022 for link API
-__version__ = '1.2'
+# Last updated 2/23/2022 for setPixel bug fix
+__version__ = '1.3'
 
 # Pin definitions for button inputs & buzzer.
 swL = Pin(3, Pin.IN, Pin.PULL_UP) # D-pad left
