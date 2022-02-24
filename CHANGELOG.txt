@@ -1,4 +1,4 @@
-Thumby IDE changelog!
+Thumby Code Editor changelog!
 
 ####################
 
