@@ -65,7 +65,7 @@ class ActiveTerminal{
         // Functions defined outside this module but used inside
         this.onType = undefined;
 
-        this.writeln("TinyCircuits Thumby Web IDE");
+        this.writeln("TinyCircuits Thumby Code Editor");
         this.writeln("Waiting for connection... (click 'Connect Thumby')");
 
         this.AUTO_RESIZING = true;
