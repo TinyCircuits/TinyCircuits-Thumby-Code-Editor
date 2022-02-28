@@ -26,6 +26,7 @@ from machine import Pin, Timer, I2C, PWM, SPI, UART
 from machine import reset as machineReset
 import ssd1306
 import os
+import emulator
 
 # Last updated 2/23/2022 for setPixel bug fix
 __version__ = '1.3'
@@ -123,6 +124,7 @@ class AudioClass:
     # Stop audio.
     @micropython.native
     def stop(self, dummy = None): # I have no idea why it needs the second dummy argument. The timer interrupt won't work without it. Shouldn't affect functionality whatsoever.
+        emulator.audio_breakpoint(0)
         self.pwm.duty_u16(0)
 
     # Set the frequency and duty of the PWM audio if currently enabled.
@@ -136,6 +138,7 @@ class AudioClass:
     @micropython.native
     def play(self, freq, duration):
         if(self.enabled):
+            emulator.audio_breakpoint(freq)
             self.pwm.freq(freq)
             self.pwm.duty_u16(self.dutyCycle)
             self.timer.init(period = duration, mode = Timer.ONE_SHOT, callback = self.stop)
@@ -145,6 +148,7 @@ class AudioClass:
     def playBlocking(self, freq, duration):
         t0 = ticks_ms()
         if(self.enabled):
+            emulator.audio_breakpoint(freq)
             self.pwm.freq(freq)
             self.pwm.duty_u16(self.dutyCycle)
             while(ticks_ms() - t0 <= duration):
@@ -202,6 +206,9 @@ class Sprite:
 class GraphicsClass:
     def __init__(self, display, width, height):
         self.display = display
+
+        self.initEmuScreen()
+
         self.width = width
         self.height = height
         self.max_x = width-1
@@ -211,6 +218,10 @@ class GraphicsClass:
         self.setFont('lib/font5x7.bin', 5, 7, 1)
         #self.setFont('lib/font8x8.bin', 8, 8, 0)
         self.fill(0)
+
+    @micropython.viper
+    def initEmuScreen(self):
+        emulator.screen_breakpoint(ptr16(self.display.buffer))
 
     @micropython.native
     def setFont(self, fontFile, width, height, space):

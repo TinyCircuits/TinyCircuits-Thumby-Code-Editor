@@ -769,9 +769,8 @@ export class EMULATOR{
 
 
   // Use address fed through serial from emulator to display the contents of MicroPython's Thumby framebuffer
-  async drawDisplayBuffer(address){
+  async drawDisplayBuffer(){
     const buffer = new Uint8Array(this.mcu.sramView.buffer.slice(this.displayBufferAdr, this.displayBufferAdr+360));
-    // if(this.RECORDING) this.RECORDED_BUFFER_FRAMES.push(buffer);
 
     // Maybe change this to putImage(): https://themadcreator.github.io/gifler/docs.html#animator::createBufferCanvas()
     // this.context.putImageData(this.bufferToImageData(buffer), 0, 0);
@@ -828,6 +827,16 @@ export class EMULATOR{
     // I guess reassigning everything works, idk, JS
     this.mcu = new RP2040();
 
+
+    this.mcu.onScreenAddr = (addr) => {
+      this.displayBufferAdr = addr - 0x20000000
+    }
+
+    this.mcu.onAudioFreq = (freq) => {
+      // console.log(freq);
+    }
+
+
     // Only fetch bootrom data once
     if(this.bootromData == undefined){
       const res = await fetch(this.bootromName);
@@ -848,10 +857,6 @@ export class EMULATOR{
       // We send a newline so the user sees the MicroPython prompt
       this.cdc.sendSerialByte('\r'.charCodeAt(0));
       this.cdc.sendSerialByte('\n'.charCodeAt(0));
-
-      // this.sendStringToNormal("import os");
-      // this.sendStringToNormal("print(os.listdir('/'))");
-      // this.sendStringToNormal("print(open('"+ "/lib/thumby.py" +"', 'r').read())");
       
       // Set default button gpio pin states
       this.mcu.gpio[24].setInputValue(true);
@@ -862,7 +867,6 @@ export class EMULATOR{
       this.mcu.gpio[5].setInputValue(true);
       
       // Start the program the user chose to emulate
-      // this.sendStringToNormal("exec(open('" + this.MAIN_FILE + "').read())");
       if(this.MAIN_FILE.indexOf(".py") != -1){
         this.sendStringToNormal("__import__('" + this.MAIN_FILE.split('.')[0] + "')");
       }else{
@@ -872,23 +876,7 @@ export class EMULATOR{
 
 
     this.cdc.onSerialData = (value) => {
-      this.collectedData += this.decoder.decode(value);
-      // if(this.displayBufferAdr != undefined) this.onData(this.decoder.decode(value));
       this.onData(this.decoder.decode(value));
-      var lines = this.collectedData.split("\n");
-      
-      while(lines.length > 1){
-          var line = lines.shift();
-      
-          // Check if this is a special line signifying the location of the display buffer address in emulated ram
-          if(this.nextLineIsAddr == true){
-              this.displayBufferAdr = parseInt(line.replace(/(\r\n|\n|\r)/gm, "")) - 0x20000000;
-              this.nextLineIsAddr = false;
-          }else if(line.replace(/(\r\n|\n|\r)/gm, "") == "###ADDRESS###"){
-              this.nextLineIsAddr = true;
-          }
-      }
-      this.collectedData = lines[0];
     };
 
     // Load UF2 then custom emulator MP library files + the user file(s)

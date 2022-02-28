@@ -203,6 +203,8 @@ export class RP2040 {
         };
         // Debugging
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        this.onScreenAddr = () => {};
+        this.onAudioFreq = () => {};
         this.onBreak = (code) => {
             // TODO: raise HardFault exception
             // console.error('Breakpoint!', code);
@@ -217,6 +219,10 @@ export class RP2040 {
 
                 // Copy LR to PC register
                 this.registers[15] = this.registers[14];
+            }else if(code == 28){
+                this.onScreenAddr(this.registers[0]);
+            }else if(code == 29){
+                this.onAudioFreq(this.registers[0]);
             }else{
                 this.stopped = true;
             }

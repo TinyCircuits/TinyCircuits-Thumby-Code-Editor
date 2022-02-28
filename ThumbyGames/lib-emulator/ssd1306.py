@@ -28,13 +28,17 @@ class SSD1306():
         self.external_vcc = external_vcc
         self.pages = self.height // 8
         self.buffer = bytearray(self.pages * self.width)
-        self.printBufferAdr()
+        # self.printBufferAdr()
         #self.init_display()
     
-    @micropython.viper
-    def printBufferAdr(self):
-        print("###ADDRESS###")
-        print(ptr32(self.buffer))
+    # @micropython.viper
+    # def printBufferAdr(self):
+    #     print("###ADDRESS###")
+    #     print(ptr16(self.buffer))
+    
+    # @micropython.asm_thumb
+    # def printBufferAdr():
+    #     movw(r0, ptr32(self.buffer))
 
     def init_display(self):
         pass

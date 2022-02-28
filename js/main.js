@@ -13,6 +13,15 @@ var DIR = new DIRCHOOSER();
 var ARCADE = new Arcade();
 
 
+// Open the arcade if the url/link indicates to do so
+window.addEventListener("load", (event) => {
+    if(window.location.href.indexOf("?arcade") != -1){
+        ARCADE.show();
+        window.history.pushState({}, "", "?");
+    }
+});
+
+
 var onExportToEditor = (bytes) => {
     var editorSpriteID = 0;
     var filePath = undefined;
