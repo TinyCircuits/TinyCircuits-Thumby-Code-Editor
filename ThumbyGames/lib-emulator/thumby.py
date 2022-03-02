@@ -131,6 +131,7 @@ class AudioClass:
     @micropython.native
     def set(self, freq):
         if(self.enabled):
+            emulator.audio_breakpoint(freq)
             self.pwm.freq(freq)
             self.pwm.duty_u16(self.dutyCycle)
 
@@ -263,6 +264,7 @@ class GraphicsClass:
             setting=127
         if(setting<0):
             setting=0
+        emulator.brightness_breakpoint(setting)
         self.display.contrast(setting)
 
     # Fill the buffer with a given color.

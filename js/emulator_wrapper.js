@@ -147,7 +147,6 @@ export class EMULATOR{
     }
 
     this.EMULATOR_ZOOM_IN_BTN = document.createElement("button");
-    this.EMULATOR_ZOOM_IN_BTN.classList = "uk-button uk-button-default";
     this.EMULATOR_ZOOM_IN_BTN.className = "uk-button uk-button-primary uk-button-small uk-width-1-1 uk-text-small";
     this.EMULATOR_ZOOM_IN_BTN.title = "Zoom emulator into next biggest size";
     this.EMULATOR_ZOOM_IN_BTN.setAttribute("uk-icon", "plus-circle");
@@ -163,7 +162,6 @@ export class EMULATOR{
 
 
     this.EMULATOR_ZOOM_OUT_BTN = document.createElement("button");
-    this.EMULATOR_ZOOM_OUT_BTN.classList = "uk-button uk-button-default";
     this.EMULATOR_ZOOM_OUT_BTN.className = "uk-button uk-button-primary uk-button-small uk-width-1-1 uk-text-small";
     this.EMULATOR_ZOOM_OUT_BTN.title = "Zoom emulator into next smallest size";
     this.EMULATOR_ZOOM_OUT_BTN.setAttribute("uk-icon", "minus-circle");
@@ -192,7 +190,6 @@ export class EMULATOR{
     }
 
     this.EMULATOR_ROTATE_BTN = document.createElement("button");
-    this.EMULATOR_ROTATE_BTN.classList = "uk-button uk-button-default";
     this.EMULATOR_ROTATE_BTN.className = "uk-button uk-button-primary uk-button-small uk-width-1-1 uk-text-small";
     this.EMULATOR_ROTATE_BTN.title = "Rotate Thumby 90 degrees clockwise";
     this.EMULATOR_ROTATE_BTN.textContent = "\u21bb";
@@ -211,6 +208,25 @@ export class EMULATOR{
       localStorage.setItem("EmulatorRotation", this.EMULATOR_ROTATION);
     };
     this.EMULATOR_FOOTER_DIV.appendChild(this.EMULATOR_ROTATE_BTN);
+
+
+    this.EMULATOR_MUTE_BTN = document.createElement("button");
+    this.EMULATOR_MUTE_BTN.className = "uk-button uk-button-primary uk-button-small uk-width-1-1 uk-text-small";
+    this.EMULATOR_MUTE_BTN.innerText= "Mute";
+    this.EMULATOR_MUTE_BTN.title = "Mute or unmute emulator audio";
+    this.EMULATOR_MUTE_BTN.onclick = () => {
+      if(this.EMULATOR_MUTED == undefined || this.EMULATOR_MUTED == false){
+        this.EMULATOR_MUTED = true;
+        this.EMULATOR_MUTE_BTN.innerHTML = "UNMUTE";
+        if (this.AUDIO_VOLUME != undefined) this.AUDIO_VOLUME.gain.value = 0.0;
+      }else{
+        this.EMULATOR_MUTED = false;
+        this.EMULATOR_MUTE_BTN.innerHTML = "MUTE";
+        if (this.AUDIO_VOLUME != undefined) this.AUDIO_VOLUME.gain.value = 0.5;
+      }
+    };
+    this.EMULATOR_FOOTER_DIV.appendChild(this.EMULATOR_MUTE_BTN);
+
 
     this.EMULATOR_FS_DIV = document.createElement("div");
     this.EMULATOR_FS_DIV.classList = "emulator_fs_slide_div";
@@ -237,140 +253,6 @@ export class EMULATOR{
       this.EMULATOR_FS_DIV.style.display = "none";
     }
     this.EMULATOR_FOOTER_DIV.appendChild(this.EMULATOR_FS_TOGGLE_BTN);
-
-
-    // // https://stackoverflow.com/questions/54980799/webrtc-datachannel-with-manual-signaling-example-please/54985729#54985729
-    // this.MULTIPLAYER_CONFIG = {iceServers: [{urls: "stun:stun.1.google.com:19302"}]};
-    // this.MULTIPLAYER_PEER_CONNECTION = undefined;
-    // this.MULTIPLAYER_DATA_CHANNEL = undefined;
-
-    // this.EMULATOR_MULTIPLAYER_PARENT_DIV = document.createElement("div");
-    // this.EMULATOR_MULTIPLAYER_PARENT_DIV.classList = "emulator_multiplayer_parent";
-    // this.EMULATOR_PANEL_DIV.appendChild(this.EMULATOR_MULTIPLAYER_PARENT_DIV);
-
-    // this.EMULATOR_MULTIPLAYER_TITLE_DIV = document.createElement("div");
-    // this.EMULATOR_MULTIPLAYER_TITLE_DIV.classList = "emulator_multiplayer_title uk-text-center uk-text-large";
-    // this.EMULATOR_MULTIPLAYER_TITLE_DIV.innerText = "MULTIPLAYER SETUP";
-    // this.EMULATOR_MULTIPLAYER_PARENT_DIV.appendChild(this.EMULATOR_MULTIPLAYER_TITLE_DIV);
-
-    // this.EMULATOR_MULTIPLAYER_COMM_DIV = document.createElement("div");
-    // this.EMULATOR_MULTIPLAYER_COMM_DIV.classList = "emulator_multiplayer_title uk-text-center uk-text-large";
-    // this.EMULATOR_MULTIPLAYER_COMM_DIV.innerText = "STOP CODE COPIED!";
-    // this.EMULATOR_MULTIPLAYER_COMM_DIV.style.display = "none";
-    // this.EMULATOR_MULTIPLAYER_PARENT_DIV.appendChild(this.EMULATOR_MULTIPLAYER_COMM_DIV);
-
-    // this.EMULATOR_MULTIPLAYER_START_CODE_INPUT = document.createElement("input");
-    // this.EMULATOR_MULTIPLAYER_START_CODE_INPUT.classList = "uk-input";
-    // this.EMULATOR_MULTIPLAYER_START_CODE_INPUT.type = "text";
-    // this.EMULATOR_MULTIPLAYER_START_CODE_INPUT.placeholder = "SETUP CODE";
-    // this.EMULATOR_MULTIPLAYER_START_CODE_INPUT.style.width = "80%";
-    // this.EMULATOR_MULTIPLAYER_START_CODE_INPUT.onkeydown = async (event) => {
-    //   if(event.key == "Enter"){
-    //     await this.MULTIPLAYER_PEER_CONNECTION.setRemoteDescription({type: "offer", sdp: atob(this.EMULATOR_MULTIPLAYER_START_CODE_INPUT.value)});
-    //     await this.MULTIPLAYER_PEER_CONNECTION.setLocalDescription(await this.MULTIPLAYER_PEER_CONNECTION.createAnswer());
-    //     this.MULTIPLAYER_PEER_CONNECTION.onicecandidate = ({candidate}) => {
-    //       if (candidate) return;
-    //       navigator.clipboard.writeText(btoa(this.MULTIPLAYER_PEER_CONNECTION.localDescription.sdp));
-    //       console.log("Copied stop code to clipboard");
-    //       this.EMULATOR_MULTIPLAYER_START_CODE_INPUT.style.display = "none";
-    //       this.EMULATOR_MULTIPLAYER_COPY_CODE_BTN.style.display = "none";
-    //       this.EMULATOR_MULTIPLAYER_COMM_DIV.innerText = "STOP CODE COPIED!";
-    //       this.EMULATOR_MULTIPLAYER_COMM_DIV.style.display = "block";
-    //     };
-    //   }
-    // }
-    // this.EMULATOR_MULTIPLAYER_PARENT_DIV.appendChild(this.EMULATOR_MULTIPLAYER_START_CODE_INPUT);
-
-    // this.EMULATOR_MULTIPLAYER_STOP_CODE_INPUT = document.createElement("input");
-    // this.EMULATOR_MULTIPLAYER_STOP_CODE_INPUT.classList = "uk-input";
-    // this.EMULATOR_MULTIPLAYER_STOP_CODE_INPUT.type = "text";
-    // this.EMULATOR_MULTIPLAYER_STOP_CODE_INPUT.placeholder = "STOP CODE";
-    // this.EMULATOR_MULTIPLAYER_STOP_CODE_INPUT.style.width = "80%";
-    // this.EMULATOR_MULTIPLAYER_STOP_CODE_INPUT.style.display = "none";
-    // this.EMULATOR_MULTIPLAYER_STOP_CODE_INPUT.onkeydown = async (event) => {
-    //   if(event.key == "Enter"){
-    //     this.MULTIPLAYER_PEER_CONNECTION.setRemoteDescription({type: "answer", sdp: atob(this.EMULATOR_MULTIPLAYER_STOP_CODE_INPUT.value)});
-    //   }
-    // }
-    // this.EMULATOR_MULTIPLAYER_PARENT_DIV.appendChild(this.EMULATOR_MULTIPLAYER_STOP_CODE_INPUT);
-
-    // this.EMULATOR_MULTIPLAYER_COPY_CODE_BTN = document.createElement("button");
-    // this.EMULATOR_MULTIPLAYER_COPY_CODE_BTN.classList = "uk-button uk-button-primary uk-text-medium uk-text-nowrap uk-text-truncate";
-    // this.EMULATOR_MULTIPLAYER_COPY_CODE_BTN.textContent = "COPY SETUP CODE";
-    // this.EMULATOR_MULTIPLAYER_COPY_CODE_BTN.style.width = "40%";
-    // this.EMULATOR_MULTIPLAYER_COPY_CODE_BTN.onclick = (event) => {
-    //   navigator.clipboard.writeText(btoa(this.MULTIPLAYER_PEER_CONNECTION.localDescription.sdp));
-    //   console.log("Copied code to clipboard");
-    //   this.EMULATOR_MULTIPLAYER_START_CODE_INPUT.style.display = "none";
-    //   this.EMULATOR_MULTIPLAYER_STOP_CODE_INPUT.style.display = "flex";
-    //   this.EMULATOR_MULTIPLAYER_COPY_CODE_BTN.style.display = "none";
-    // }
-    // this.EMULATOR_MULTIPLAYER_PARENT_DIV.appendChild(this.EMULATOR_MULTIPLAYER_COPY_CODE_BTN);
-
-    // this.EMULATOR_MULTIPLAYER_EXIT_BTN = document.createElement("button");
-    // this.EMULATOR_MULTIPLAYER_EXIT_BTN.className = "emulator_multiplayer_exit_btn";
-    // this.EMULATOR_MULTIPLAYER_EXIT_BTN.setAttribute("uk-icon", "icon: close");
-    // this.EMULATOR_MULTIPLAYER_EXIT_BTN.onclick = async () => {
-    //   this.EMULATOR_MULTIPLAYER_PARENT_DIV.style.display = "none";
-    // };
-    // this.EMULATOR_MULTIPLAYER_PARENT_DIV.appendChild(this.EMULATOR_MULTIPLAYER_EXIT_BTN);
-
-    // this.EMULATOR_MULTIPLAYER_BTN = document.createElement("button");
-    // this.EMULATOR_MULTIPLAYER_BTN.className = "uk-button uk-button-primary uk-button-small uk-width-1-1 uk-text-small";
-    // this.EMULATOR_MULTIPLAYER_BTN.title = "Connect two emulators in separate web browsers";
-    // this.EMULATOR_MULTIPLAYER_BTN.textContent = "MultiPlayer";
-    // this.EMULATOR_MULTIPLAYER_BTN.onclick = async () => {
-    //   this.EMULATOR_MULTIPLAYER_START_CODE_INPUT.style.display = "block";
-    //   this.EMULATOR_MULTIPLAYER_COPY_CODE_BTN.style.display = "block";
-    //   this.EMULATOR_MULTIPLAYER_PARENT_DIV.style.display = "flex";
-
-    //   this.EMULATOR_MULTIPLAYER_COMM_DIV.style.color = "white";
-
-    //   if(this.MULTIPLAYER_PEER_CONNECTION != undefined && this.MULTIPLAYER_DATA_CHANNEL != undefined){
-    //     await this.MULTIPLAYER_PEER_CONNECTION.close();
-    //     await this.MULTIPLAYER_DATA_CHANNEL.close();
-    //   }
-
-    //   this.MULTIPLAYER_PEER_CONNECTION = new RTCPeerConnection(this.MULTIPLAYER_CONFIG);
-    //   this.MULTIPLAYER_DATA_CHANNEL = this.MULTIPLAYER_PEER_CONNECTION.createDataChannel("chat", {negotiated: true, id: 0});
-
-    //   this.MULTIPLAYER_DATA_CHANNEL.onopen = async () => {
-    //     this.EMULATOR_MULTIPLAYER_START_CODE_INPUT.style.display = "none";
-    //     this.EMULATOR_MULTIPLAYER_STOP_CODE_INPUT.style.display = "none";
-    //     this.EMULATOR_MULTIPLAYER_COPY_CODE_BTN.style.display = "none";
-
-    //     this.EMULATOR_MULTIPLAYER_START_CODE_INPUT.value = "";
-    //     this.EMULATOR_MULTIPLAYER_STOP_CODE_INPUT.value = "";
-  
-    //     this.EMULATOR_MULTIPLAYER_COMM_DIV.style.display = "block";
-    //     this.EMULATOR_MULTIPLAYER_COMM_DIV.style.color = "yellowgreen";
-    //     this.EMULATOR_MULTIPLAYER_COMM_DIV.innerText = "CONNECTED!";
-  
-    //     await setTimeout(() => {
-    //       this.EMULATOR_MULTIPLAYER_COMM_DIV.style.display = "none";
-    //       this.EMULATOR_MULTIPLAYER_PARENT_DIV.style.display = "none";
-    //     }, 1000);
-
-    //     this.MULTIPLAYER_DATA_CHANNEL.onmessage = (event) => {
-    //       console.log(event.data);
-    //       if(parseInt(event.data) > 0){
-    //         this.mcu.gpio[1].setInputValue(true);
-    //       }else if(parseInt(event.data) == 0){
-    //         this.mcu.gpio[1].setInputValue(false);
-    //       }
-    //     }
-
-    //     this.mcu.gpio[1].addListener(() => {
-    //       this.MULTIPLAYER_DATA_CHANNEL.send(this.mcu.gpio[1].value);
-    //     });
-    //   }
-
-    //   await this.MULTIPLAYER_PEER_CONNECTION.setLocalDescription(await this.MULTIPLAYER_PEER_CONNECTION.createOffer());
-    //   this.MULTIPLAYER_PEER_CONNECTION.onicecandidate = ({candidate}) => {
-    //     if (candidate) return;
-    //   };
-    // };
-    // this.EMULATOR_FOOTER_DIV.appendChild(this.EMULATOR_MULTIPLAYER_BTN);
 
 
     this.EMULATOR_SCREENSHOT_BTN = document.createElement("button");
@@ -513,6 +395,15 @@ export class EMULATOR{
 
     // Main file to start emulation, set in startEmulate() and used in cdc start
     this.MAIN_FILE = "";
+
+    // "brightness" of emulator pixels as set by MicroPython (127 is max)
+    this.setBrightness(127);
+  }
+
+
+  // Takes value from 0 to 127 and scales this.BRIGHTNESS from 0 to 255
+  setBrightness(brightness){
+    this.BRIGHTNESS = Math.floor((brightness / 127) * 255);
   }
 
 
@@ -680,6 +571,8 @@ export class EMULATOR{
     this.mcu.stop();
     this.mcu.reset();
 
+    if (this.AUDIO_BUZZER != undefined) this.AUDIO_BUZZER.stop();
+
     this.EMULATOR_CANVAS.style.display = "none";
   }
 
@@ -752,7 +645,7 @@ export class EMULATOR{
         for(var i=0; i<8; i++){
           const x = col;
           const y = row + i;
-          const bit = ((curByte & (1 << i)) === 0 ? 0 : 1) * 255;
+          const bit = ((curByte & (1 << i)) === 0 ? 0 : 1) * this.BRIGHTNESS;
           const p = (y * this.WIDTH + x) * 4;
           this.PIXELS[p] = bit;
           this.PIXELS[p+1] = bit;
@@ -815,6 +708,20 @@ export class EMULATOR{
     this.displayBufferAdr = undefined;
     this.nextLineIsAddr = false;
 
+
+    this.AUDIO_CONTEXT = new(window.AudioContext || window.webkitAudioContext)();
+
+    this.AUDIO_VOLUME = this.AUDIO_CONTEXT.createGain();
+    this.AUDIO_VOLUME.connect(this.AUDIO_CONTEXT.destination);
+
+    this.AUDIO_BUZZER = this.AUDIO_CONTEXT.createOscillator();
+    this.AUDIO_BUZZER.type = "square";
+    this.AUDIO_BUZZER.start();
+    this.AUDIO_BUZZER.connect(this.AUDIO_VOLUME);
+
+    this.AUDIO_VOLUME.gain.value = 0.5;
+
+
     // Reset the littlefs module state (js/load-file.js)
     await window.startLittleFS();
 
@@ -833,7 +740,11 @@ export class EMULATOR{
     }
 
     this.mcu.onAudioFreq = (freq) => {
-      // console.log(freq);
+      this.AUDIO_BUZZER.frequency.value = freq;
+    }
+
+    this.mcu.onBrightness = (brightness) => {
+      this.setBrightness(brightness);
     }
 
 

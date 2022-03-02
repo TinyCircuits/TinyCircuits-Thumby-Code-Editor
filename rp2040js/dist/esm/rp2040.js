@@ -205,6 +205,7 @@ export class RP2040 {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         this.onScreenAddr = () => {};
         this.onAudioFreq = () => {};
+        this.onBrightness = () => {};
         this.onBreak = (code) => {
             // TODO: raise HardFault exception
             // console.error('Breakpoint!', code);
@@ -216,16 +217,18 @@ export class RP2040 {
                 const count = this.registers[2];
 
                 this.flash.set(this.sram.slice(ramAddr, ramAddr+count), flashAddr);
-
-                // Copy LR to PC register
-                this.registers[15] = this.registers[14];
             }else if(code == 28){
                 this.onScreenAddr(this.registers[0]);
             }else if(code == 29){
                 this.onAudioFreq(this.registers[0]);
+            }else if(code == 30){
+                this.onBrightness(this.registers[0]);
             }else{
                 this.stopped = true;
             }
+
+            // Copy LR to PC register
+            this.registers[15] = this.registers[14];
         };
         this.SP = 0xfffffffc;
         this.bankedSP = 0xfffffffc;

@@ -40,16 +40,6 @@ class GameURLContainer{
 
         // On click, split URL, forget about the first 5 elements, combine the last elements to path, fetch file from URL, open in editors
         this.openButton.onclick = async () => {
-            // for(var i=0; i<this.GAME_FILE_URLS.length; i++){
-            //     // Make URL from root of Thumby (start at '/')
-            //     var thumbyURL = "/Games/" + this.GAME_FILE_URLS[i].split('/').slice(6).join('/');
-
-            //     window.setPercent((i/this.GAME_FILE_URLS.length) * 100, "Opening: " + thumbyURL);
-                
-            //     await fetch(this.GAME_FILE_URLS[i]).then(async (response) => {
-            //         await this.openFunc(thumbyURL, await response.arrayBuffer(), this.GAME_FILE_URLS);
-            //     });
-            // }
             await this.openFunc(this.GAME_FILE_URLS);
             window.setPercent(100, "Opened arcade game...");
             window.resetPercentDelay();

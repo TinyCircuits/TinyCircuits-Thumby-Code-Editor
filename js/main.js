@@ -15,6 +15,7 @@ var ARCADE = new Arcade();
 
 // Open the arcade if the url/link indicates to do so
 window.addEventListener("load", (event) => {
+    // console.log(window.location);
     if(window.location.href.indexOf("?arcade") != -1){
         ARCADE.show();
         window.history.pushState({}, "", "?");
@@ -747,6 +748,7 @@ ARCADE.onOpen = async (arcadeGameFileURLS) => {
         editor.MAIN_EMU_CHECKBOX.checked = false;
     }
 
+    ARCADE.hide();
 
     // Loop through each URL for this open
     for(let i=0; i<arcadeGameFileURLS.length; i++){
