@@ -222,7 +222,7 @@ export class EMULATOR{
       }else{
         this.EMULATOR_MUTED = false;
         this.EMULATOR_MUTE_BTN.innerHTML = "MUTE";
-        if (this.AUDIO_VOLUME != undefined) this.AUDIO_VOLUME.gain.value = 0.5;
+        if (this.AUDIO_VOLUME != undefined) this.AUDIO_VOLUME.gain.value = 0.25;
       }
     };
     this.EMULATOR_FOOTER_DIV.appendChild(this.EMULATOR_MUTE_BTN);
@@ -715,11 +715,12 @@ export class EMULATOR{
     this.AUDIO_VOLUME.connect(this.AUDIO_CONTEXT.destination);
 
     this.AUDIO_BUZZER = this.AUDIO_CONTEXT.createOscillator();
-    this.AUDIO_BUZZER.type = "square";
+    this.AUDIO_BUZZER.frequency.value = 0;
+    this.AUDIO_BUZZER.type = "triangle";
     this.AUDIO_BUZZER.start();
     this.AUDIO_BUZZER.connect(this.AUDIO_VOLUME);
 
-    this.AUDIO_VOLUME.gain.value = 0.5;
+    this.AUDIO_VOLUME.gain.value = 0.25;
 
 
     // Reset the littlefs module state (js/load-file.js)
@@ -740,7 +741,8 @@ export class EMULATOR{
     }
 
     this.mcu.onAudioFreq = (freq) => {
-      this.AUDIO_BUZZER.frequency.value = freq;
+      freq = freq + 0.0001;
+      this.AUDIO_BUZZER.frequency.exponentialRampToValueAtTime(freq, this.AUDIO_CONTEXT.currentTime + 0.03);
     }
 
     this.mcu.onBrightness = (brightness) => {

@@ -15,10 +15,10 @@ var ARCADE = new Arcade();
 
 // Open the arcade if the url/link indicates to do so
 window.addEventListener("load", (event) => {
-    // console.log(window.location);
-    if(window.location.href.indexOf("?arcade") != -1){
+    if(window.location.origin.indexOf("arcade.thumby.us") != -1){
         ARCADE.show();
-        window.history.pushState({}, "", "?");
+    }else if(window.location.origin.indexOf("tinycircuits.github.io") != -1){
+        alert("WARNING!\n\nThe Thumby Code Editor location is changing!\n\nPlease start using https://code.thumby.us/\n\nhttps://tinycircuits.github.io/ and files stored on it will no longer be accessible starting March 16th, 2022")
     }
 });
 
@@ -61,7 +61,7 @@ var IMPORTER = new Importer(document.getElementById("IDImportSpriteBTN"), onExpo
 
 
 // Show pop-up containing IDE changelog every time showChangelogVersion is increased
-const showChangelogVersion = 7;
+const showChangelogVersion = 8;
 
 // This should match what is in /ThumbyGames/lib/thumby.py as '__version__'
 window.latestThumbyLibraryVersion = 1.3
