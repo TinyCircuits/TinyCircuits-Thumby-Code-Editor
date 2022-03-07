@@ -2,6 +2,14 @@ Thumby Code Editor changelog!
 
 ####################
 
+March 7th, 2022
+
+* Fix bitmap builder export not using bytearray
+* Fix bitmap builder incorrectly importing lines wrapped with bytearray
+
+
+####################
+
 March 3rd, 2022
 
 * WARNING: https://tinycircuits.github.io/ and files stored on it will not be accessible starting March 16th, 2022. Please move to https://code.thumby.us/

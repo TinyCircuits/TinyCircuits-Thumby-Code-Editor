@@ -491,7 +491,7 @@ class BITMAP_BUILDER{
         }
 
         // Start the actual array
-        str = str + varName + " = [";
+        str = str + varName + " = bytearray([";
 
         // Track number of spaces needed to offset (EX spaces needed = len('bitmap33 = (')))
         var spaceIndentCount = (varName + " = [").length;
@@ -536,7 +536,7 @@ class BITMAP_BUILDER{
         }
 
         // Finish up the array Python syntax and setup the framebuffer for the user to use
-        str = str + "]";
+        str = str + "])";
 
         // Only output framebuffer if name was NOT found (don't want to do it twice++)
         if(!foundName){
@@ -555,19 +555,13 @@ class BITMAP_BUILDER{
     // any point returns 0, else 1
     importBitmap(selectedLines){
         // Check that lines exist, are not completely empty of characters
-        if(selectedLines != undefined && selectedLines != "" && selectedLines.split("=").length == 2){
-            // Get what should be start and end of array
-            var arrayStartIndex = selectedLines.indexOf('(');
-            var arrayEndIndex = selectedLines.indexOf(')');
+        if(selectedLines != undefined && selectedLines != ""){
+            let arrayStartIndex = selectedLines.indexOf('[');
+            let arrayEndIndex = selectedLines.indexOf(']');
 
             if(arrayStartIndex == -1 || arrayEndIndex == -1){
-                arrayStartIndex = selectedLines.indexOf('[');
-                arrayEndIndex = selectedLines.indexOf(']');
-
-                if(arrayStartIndex == -1 || arrayEndIndex == -1){
-                    alert("Could not find array start or end, please select the array including '(' or '[' and ')' or ']");
-                    return 0;   // Could not find either start or end of an array in selected
-                }
+                alert("Could not find array start or end, please select the array including '(' or '[' and ')' or ']");
+                return 0;   // Could not find either start or end of an array in selected
             }
 
             // Get everything between the start and end off the array
