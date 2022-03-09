@@ -2,6 +2,15 @@ Thumby Code Editor changelog!
 
 ####################
 
+March 9th, 2022
+
+* Display "Thumby Code Editor" message on screen after connecting to code editor
+* Add help pop-up for when Thumby is not chosen/does not show up in ports list
+* Add help pop-up for when connecting port is busy
+
+
+####################
+
 March 7th, 2022
 
 * Fix bitmap builder export not using bytearray

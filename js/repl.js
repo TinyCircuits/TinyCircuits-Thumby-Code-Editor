@@ -7,14 +7,15 @@ class ReplJS{
         this.TEXT_ENCODER = new TextEncoder();  // Used to write text to MicroPython
         this.TEXT_DECODER = new TextDecoder();  // Used to read text from MicroPython
 
-        this.USB_VENDOR_ID = 11914; // For filtering ports during auto or manual selection
-        this.USB_PRODUCT_ID = 5;    // For filtering ports during auto or manual selection
+        this.USB_VENDOR_ID = 11914;     // For filtering ports during auto or manual selection
+        this.USB_PRODUCT_ID = 5;        // For filtering ports during auto or manual selection
+        this.USB_PRODUCT_MAC_ID = 10;   // For filtering ports during auto or manual selection
 
         // https://github.com/micropython/micropython/blob/master/tools/pyboard.py#L444 need to only send 256 bytes each time
         this.THUMBY_SEND_BLOCK_SIZE = 255;  // How many bytes to send to Thumby at a time when uploading a file to it
 
         // Set true so most terminal output gets passed to javascript terminal
-        this.DEBUG_CONSOLE_ON = false;
+        this.DEBUG_CONSOLE_ON = true;
 
         this.COLLECT_RAW_DATA = false;
         this.COLLECTED_RAW_DATA = [];
@@ -93,7 +94,7 @@ class ReplJS{
     // Returns tru if product and vendor ID match for MicroPython, otherwise false #
     checkPortMatching(port){
         var info = port.getInfo();
-        if(info.usbProductId == this.USB_PRODUCT_ID && info.usbVendorId == this.USB_VENDOR_ID){
+        if((info.usbProductId == this.USB_PRODUCT_ID || info.usbProductId == this.USB_PRODUCT_MAC_ID) && info.usbVendorId == this.USB_VENDOR_ID){
             return true;
         }
         return false;
@@ -292,7 +293,19 @@ class ReplJS{
         }
         this.BUSY = true;
 
-        var cmd = "import os\n" +
+
+        // No support for I2C Thumbys
+        var messageCmd = 
+        "try:\n" +
+        "    import ssd1306\n" +
+        "    from machine import Pin, SPI\n" +
+        "    ssd1306.SSD1306_SPI(72, 40, SPI(0, sck=Pin(18), mosi=Pin(19)), dc=Pin(17), res=Pin(20), cs=Pin(16)).write_data(bytearray([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 32, 32, 224, 32, 32, 0, 224, 0, 128, 128, 0, 0, 128, 0, 0, 0, 128, 0, 128, 128, 0, 128, 0, 0, 224, 0, 128, 128, 0, 0, 128, 0, 0, 0, 128, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 64, 64, 64, 128, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 192, 0, 0, 15, 1, 0, 0, 15, 0, 7, 8, 8, 4, 15, 192, 79, 64, 67, 64, 15, 0, 15, 9, 8, 200, 7, 0, 1, 74, 10, 10, 7, 0, 192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 16, 16, 16, 8, 0, 14, 17, 17, 17, 14, 0, 14, 17, 17, 18, 31, 0, 14, 21, 21, 21, 6, 0, 0, 0, 0, 0, 0, 0, 31, 18, 18, 18, 16, 0, 14, 17, 17, 18, 31, 0, 0, 17, 31, 16, 0, 0, 1, 15, 17, 16, 8, 0, 14, 17, 17, 17, 14, 0, 31, 2, 1, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]))\n" +
+        "except:\n" +
+        "    pass\n";
+
+
+        var getFilesystemCmd = 
+        "import os\n" +
         "import ujson\n" +
         
         "def walk(top, structure, dir):\n" +
@@ -317,7 +330,7 @@ class ReplJS{
         "struct = {}\n" +
         "print(ujson.dumps(walk(\"\", struct, \"\")))\n";
 
-        var hiddenLines = await this.writeUtilityCmdRaw(cmd, true, 1);
+        var hiddenLines = await this.writeUtilityCmdRaw(messageCmd + getFilesystemCmd, true, 1);
 
         // Make sure this wasn't executed when no Thumby was attached
         if(hiddenLines != undefined){
@@ -823,7 +836,6 @@ class ReplJS{
                 this.BUSY = false;  // Was true from connect()
                 await this.getOnBoardFSTree();
                 await this.checkIfNeedUpdate();
-                // await this.writeConnectedMessage();
 
             }catch(err){
                 if(err.name == "InvalidStateError"){
@@ -834,9 +846,9 @@ class ReplJS{
                     this.BUSY = false;  // Was true from connect()
                     await this.getOnBoardFSTree();
                     await this.checkIfNeedUpdate();
-                    // await this.writeConnectedMessage();
                     
                 }else if(err.name == "NetworkError"){
+                    alert("Opening port failed, is another application accessing this device/port?");
                     if(this.DEBUG_CONSOLE_ON) console.log("%cOpening port failed, is another application accessing this device/port?", "color: red");
                 }
             }
@@ -887,19 +899,22 @@ class ReplJS{
         
         const usbVendorId = this.USB_VENDOR_ID;
         const usbProductId = this.USB_PRODUCT_ID;
+        const usbProductMacId = this.USB_PRODUCT_MAC_ID;
 
         if(!autoConnected){
             this.BUSY = true;
             this.MANNUALLY_CONNECTING = true;
             if(this.DEBUG_CONSOLE_ON) console.log("%cTrying manual connect..", "color: yellow");
 
-            await navigator.serial.requestPort({filters: [{ usbVendorId, usbProductId }]}).then(async (port) => {
+            await navigator.serial.requestPort({filters: [{ usbVendorId, usbProductId }, { usbVendorId, usbProductMacId }]}).then(async (port) => {
                 this.PORT = port;
                 if(this.DEBUG_CONSOLE_ON) console.log("%cManually connected!", "color: lime");
                 await this.openPort();
 
             }).catch((err) => {
                 if(this.DEBUG_CONSOLE_ON) console.log("%cNot manually connected...", "color: yellow");
+
+                alert("Didn't see Thumby?\n\nCheck the following:\n* Thumby is on\n* MicroUSB cable is plugged into Thumby and computer\n* MicroUSB cable has data lines (some cables only transfer power)\n\nStill having trouble? Visit https://thumby.us/FAQ/");
             });
             this.MANNUALLY_CONNECTING = false;
             this.BUSY = false;
