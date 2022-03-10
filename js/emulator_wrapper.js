@@ -151,12 +151,14 @@ export class EMULATOR{
     this.EMULATOR_ZOOM_IN_BTN.title = "Zoom emulator into next biggest size";
     this.EMULATOR_ZOOM_IN_BTN.setAttribute("uk-icon", "plus-circle");
     this.EMULATOR_ZOOM_IN_BTN.onclick = () => {
-      this.EMULATOR_THUMBY.style.width = (this.EMULATOR_THUMBY.clientWidth * 2) + "px";
+      if(this.EMULATOR_SCALE * 2 <= 64){
+        this.EMULATOR_THUMBY.style.width = (this.EMULATOR_THUMBY.clientWidth * 2) + "px";
 
-      this.EMULATOR_SCALE = this.EMULATOR_SCALE * 2;
-      this.adjustCanvas();
+        this.EMULATOR_SCALE = this.EMULATOR_SCALE * 2;
+        this.adjustCanvas();
 
-      localStorage.setItem("EmulatorScale", this.EMULATOR_SCALE);
+        localStorage.setItem("EmulatorScale", this.EMULATOR_SCALE);
+      }
     };
     this.EMULATOR_FOOTER_DIV.appendChild(this.EMULATOR_ZOOM_IN_BTN);
 

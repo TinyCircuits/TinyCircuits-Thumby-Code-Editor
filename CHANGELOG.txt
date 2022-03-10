@@ -1,5 +1,15 @@
 Thumby Code Editor changelog!
 
+* WARNING: https://tinycircuits.github.io/ and files stored on it will not be accessible starting March 16th, 2022. Please move to https://code.thumby.us/
+
+####################
+
+March 10th, 2022
+
+* Disallow zooming the emulator past 64x
+* Redirect "Add Game to Arcade" button to documentation site
+* Add link to Discord server under "Other Links"
+
 ####################
 
 March 9th, 2022
@@ -21,7 +31,6 @@ March 7th, 2022
 
 March 3rd, 2022
 
-* WARNING: https://tinycircuits.github.io/ and files stored on it will not be accessible starting March 16th, 2022. Please move to https://code.thumby.us/
 * Add audio to emulator + mute button
 * Close arcade on game open (not download)
 * Add button to go to changelog (Other Links)
