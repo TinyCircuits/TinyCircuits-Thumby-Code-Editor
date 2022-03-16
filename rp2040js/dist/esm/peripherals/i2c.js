@@ -306,7 +306,6 @@ export class RPI2C extends BasePeripheral {
         this.abort(ARB_LOST);
     }
     readUint32(offset) {
-        // console.log(offset);
         switch (offset) {
             case IC_CON:
                 return this.control;
@@ -320,7 +319,6 @@ export class RPI2C extends BasePeripheral {
                     return 0;
                 }
                 this.clearInterrupts(R_RX_FULL);
-                var fifo = this.rxFIFO.pull();
                 return this.rxFIFO.pull();
             case IC_INTR_STAT:
                 return this.intStatus;

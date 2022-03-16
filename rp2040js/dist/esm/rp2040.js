@@ -23,7 +23,6 @@ import { ConsoleLogger, LogLevel } from './utils/logging.js';
 export const FLASH_START_ADDRESS = 0x10000000;
 export const FLASH_END_ADDRESS = 0x14000000;
 export const RAM_START_ADDRESS = 0x20000000;
-export const RAM_END_ADDRESS = 0x20000000 + 270336;
 export const DPRAM_START_ADDRESS = 0x50100000;
 export const SIO_START_ADDRESS = 0xd0000000;
 /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -201,32 +200,33 @@ export class RP2040 {
             0x50200: this.pio[0],
             0x50300: this.pio[1],
         };
+        this.onScreenAddr = (placeholder) => { };
+        this.onAudioFreq = (placeholder) => { };
+        this.onBrightness = (placeholder) => { };
         // Debugging
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        this.onScreenAddr = () => {};
-        this.onAudioFreq = () => {};
-        this.onBrightness = () => {};
         this.onBreak = (code) => {
             // TODO: raise HardFault exception
             // console.error('Breakpoint!', code);
             // console.log(code);
-
-            if(code == 27){
+            if (code == 27) {
                 const flashAddr = this.registers[0];
                 const ramAddr = this.registers[1] - RAM_START_ADDRESS;
                 const count = this.registers[2];
-
-                this.flash.set(this.sram.slice(ramAddr, ramAddr+count), flashAddr);
-            }else if(code == 28){
+                this.flash.set(this.sram.slice(ramAddr, ramAddr + count), flashAddr);
+            }
+            else if (code == 28) {
                 this.onScreenAddr(this.registers[0]);
-            }else if(code == 29){
+            }
+            else if (code == 29) {
                 this.onAudioFreq(this.registers[0]);
-            }else if(code == 30){
+            }
+            else if (code == 30) {
                 this.onBrightness(this.registers[0]);
-            }else{
+            }
+            else {
                 this.stopped = true;
             }
-
             // Copy LR to PC register
             this.registers[15] = this.registers[14];
         };
@@ -314,7 +314,7 @@ export class RP2040 {
     readUint32(address) {
         address = address >>> 0; // round to 32-bits, unsigned
         if (address & 0x3) {
-            // this.logger.error(LOG_NAME, `read from address ${address.toString(16)}, which is not 32 bit aligned`);
+            this.logger.error(LOG_NAME, `read from address ${address.toString(16)}, which is not 32 bit aligned`);
         }
         const { bootrom } = this;
         if (address < bootrom.length * 4) {
@@ -323,7 +323,7 @@ export class RP2040 {
         else if (address >= FLASH_START_ADDRESS && address < FLASH_END_ADDRESS) {
             return this.flashView.getUint32(address - FLASH_START_ADDRESS, true);
         }
-        else if (address >= RAM_START_ADDRESS && address < RAM_END_ADDRESS) {
+        else if (address >= RAM_START_ADDRESS && address < RAM_START_ADDRESS + this.sram.length) {
             return this.sramView.getUint32(address - RAM_START_ADDRESS, true);
         }
         else if (address >= DPRAM_START_ADDRESS &&
@@ -340,7 +340,7 @@ export class RP2040 {
         if (peripheral) {
             return peripheral.readUint32(address & 0x3fff);
         }
-        // this.logger.warn(LOG_NAME, `Read from invalid memory address: ${address.toString(16)}`);
+        this.logger.warn(LOG_NAME, `Read from invalid memory address: ${address.toString(16)}`);
         return 0xffffffff;
     }
     findPeripheral(address) {
@@ -351,7 +351,7 @@ export class RP2040 {
         if (address >= FLASH_START_ADDRESS && address < FLASH_END_ADDRESS) {
             return this.flashView.getUint16(address - FLASH_START_ADDRESS, true);
         }
-        else if (address >= RAM_START_ADDRESS && address < RAM_END_ADDRESS) {
+        else if (address >= RAM_START_ADDRESS && address < RAM_START_ADDRESS + this.sram.length) {
             return this.sramView.getUint16(address - RAM_START_ADDRESS, true);
         }
         const value = this.readUint32(address & 0xfffffffc);
@@ -361,7 +361,7 @@ export class RP2040 {
         if (address >= FLASH_START_ADDRESS && address < FLASH_END_ADDRESS) {
             return this.flash[address - FLASH_START_ADDRESS];
         }
-        else if (address >= RAM_START_ADDRESS && address < RAM_END_ADDRESS) {
+        else if (address >= RAM_START_ADDRESS && address < RAM_START_ADDRESS + this.sram.length) {
             return this.sram[address - RAM_START_ADDRESS];
         }
         const value = this.readUint16(address & 0xfffffffe);
@@ -382,7 +382,7 @@ export class RP2040 {
         else if (address >= FLASH_START_ADDRESS && address < FLASH_END_ADDRESS) {
             this.flashView.setUint32(address - FLASH_START_ADDRESS, value, true);
         }
-        else if (address >= RAM_START_ADDRESS && address < RAM_END_ADDRESS) {
+        else if (address >= RAM_START_ADDRESS && address < RAM_START_ADDRESS + this.sram.length) {
             this.sramView.setUint32(address - RAM_START_ADDRESS, value, true);
         }
         else if (address >= DPRAM_START_ADDRESS &&
@@ -398,11 +398,11 @@ export class RP2040 {
             this.ppb.writeUint32(address & 0xfff, value);
         }
         else {
-            // this.logger.warn(LOG_NAME, `Write to undefined address: ${address.toString(16)}`);
+            this.logger.warn(LOG_NAME, `Write to undefined address: ${address.toString(16)}`);
         }
     }
     writeUint8(address, value) {
-        if (address >= RAM_START_ADDRESS && address < RAM_END_ADDRESS) {
+        if (address >= RAM_START_ADDRESS && address < RAM_START_ADDRESS + this.sram.length) {
             this.sram[address - RAM_START_ADDRESS] = value;
             return;
         }
@@ -423,7 +423,7 @@ export class RP2040 {
     writeUint16(address, value) {
         // we assume that addess is 16-bit aligned.
         // Ideally we should generate a fault if not!
-        if (address >= RAM_START_ADDRESS && address < RAM_END_ADDRESS) {
+        if (address >= RAM_START_ADDRESS && address < RAM_START_ADDRESS + this.sram.length) {
             this.sramView.setUint16(address - RAM_START_ADDRESS, value, true);
             return;
         }
@@ -685,7 +685,7 @@ export class RP2040 {
             case SYSM_CONTROL:
                 return (this.SPSEL === StackPointerBank.SPprocess ? 2 : 0) | (this.nPRIV ? 1 : 0);
             default:
-                // this.logger.warn(LOG_NAME, `MRS with unimplemented SYSm value: ${sysm}`);
+                this.logger.warn(LOG_NAME, `MRS with unimplemented SYSm value: ${sysm}`);
                 return 0;
         }
     }
@@ -717,7 +717,7 @@ export class RP2040 {
                 }
                 break;
             default:
-                // this.logger.warn(LOG_NAME, `MRS with unimplemented SYSm value: ${sysm}`);
+                this.logger.warn(LOG_NAME, `MRS with unimplemented SYSm value: ${sysm}`);
                 return 0;
         }
     }
@@ -1309,7 +1309,7 @@ export class RP2040 {
         }
         // SEV
         else if (opcode === 0b1011111101000000) {
-            // this.logger.info(LOG_NAME, 'SEV');
+            this.logger.info(LOG_NAME, 'SEV');
         }
         // STMIA
         else if (opcode >> 11 === 0b11000) {
@@ -1498,958 +1498,33 @@ export class RP2040 {
         // YIELD
         else if (opcode === 0b1011111100010000) {
             // do nothing for now. Wait for event!
-            // this.logger.info(LOG_NAME, 'Yield');
+            this.logger.info(LOG_NAME, 'Yield');
         }
         else {
-            // this.logger.warn(LOG_NAME, `Warning: Instruction at ${opcodePC.toString(16)} is not implemented yet!`);
-            // this.logger.warn(LOG_NAME, `Opcode: 0x${opcode.toString(16)} (0x${opcode2.toString(16)})`);
-        }
-    }
-    executeInstructionOPED() {
-        if (this.interruptsUpdated) {
-            if (this.checkForInterrupts()) {
-                this.waiting = false;
-            }
-        }
-        // ARM Thumb instruction encoding - 16 bits / 2 bytes
-        const opcodePC = this.PC & ~1; //ensure no LSB set PC are executed
-        const opcode = this.readUint16(opcodePC);
-        const wideInstruction = opcode >> 12 === 0b1111 || opcode >> 13 === 0b11101;
-        const opcode2 = wideInstruction ? this.readUint16(opcodePC + 2) : 0;
-        this.PC += 2;
-        this.cycles++;
-
-        switch(opcode >> 6){
-            case 0b0100000101:  // ADCS
-                {
-                    const Rm = (opcode >> 3) & 0x7;
-                    const Rdn = opcode & 0x7;
-                    this.registers[Rdn] = this.addUpdateFlags(this.registers[Rm], this.registers[Rdn] + (this.C ? 1 : 0));
-                    return;
-                }
-            break;
-            case 0b0100000000:  // ANDS (Encoding T2)
-                {
-                    const Rm = (opcode >> 3) & 0x7;
-                    const Rdn = opcode & 0x7;
-                    const result = this.registers[Rdn] & this.registers[Rm];
-                    this.registers[Rdn] = result;
-                    this.N = !!(result & 0x80000000);
-                    this.Z = (result & 0xffffffff) === 0;
-                    return;
-                }
-            break;
-            case 0b0100000100:  // ASRS (register)
-                {
-                    const Rm = (opcode >> 3) & 0x7;
-                    const Rdn = opcode & 0x7;
-                    const input = this.registers[Rdn];
-                    const shiftN = (this.registers[Rm] & 0xff) < 32 ? this.registers[Rm] & 0xff : 32;
-                    const result = shiftN < 32 ? input >> shiftN : (input & 0x80000000) >> 31;
-                    this.registers[Rdn] = result;
-                    this.N = !!(result & 0x80000000);
-                    this.Z = (result & 0xffffffff) === 0;
-                    if (shiftN) {
-                        this.C = input & (1 << (shiftN - 1)) ? true : false;
-                    }
-                    return;
-                }
-            break;
-            case 0b0100001110:  // BICS
-                {
-                    const Rm = (opcode >> 3) & 0x7;
-                    const Rdn = opcode & 0x7;
-                    const result = (this.registers[Rdn] &= ~this.registers[Rm]);
-                    this.N = !!(result & 0x80000000);
-                    this.Z = result === 0;
-                    return;
-                }
-            break;
-            case 0b0100001011:  // CMN (register)
-                {
-                    const Rm = (opcode >> 3) & 0x7;
-                    const Rn = opcode & 0x7;
-                    this.addUpdateFlags(this.registers[Rn], this.registers[Rm]);
-                    return;
-                }
-            break;
-            case 0b0100001010:  // CMP (register)
-                {
-                    const Rm = (opcode >> 3) & 0x7;
-                    const Rn = opcode & 0x7;
-                    this.substractUpdateFlags(this.registers[Rn], this.registers[Rm]);
-                    return;
-                }
-            break;
-            case 0b0100000001:  // EORS
-                {
-                    const Rm = (opcode >> 3) & 0x7;
-                    const Rdn = opcode & 0x7;
-                    const result = this.registers[Rm] ^ this.registers[Rdn];
-                    this.registers[Rdn] = result;
-                    this.N = !!(result & 0x80000000);
-                    this.Z = result === 0;
-                    return;
-                }
-            break;
-            case 0b0100000010:  // LSLS (register)
-                {
-                    const Rm = (opcode >> 3) & 0x7;
-                    const Rdn = opcode & 0x7;
-                    const input = this.registers[Rdn];
-                    const shiftCount = this.registers[Rm] & 0xff;
-                    const result = shiftCount >= 32 ? 0 : input << shiftCount;
-                    this.registers[Rdn] = result;
-                    this.N = !!(result & 0x80000000);
-                    this.Z = result === 0;
-                    this.C = shiftCount ? !!(input & (1 << (32 - shiftCount))) : this.C;
-                    return;
-                }
-            break;
-            case 0b0100000011:  // LSRS (register)
-                {
-                    const Rm = (opcode >> 3) & 0x7;
-                    const Rdn = opcode & 0x7;
-                    const shiftAmount = this.registers[Rm] & 0xff;
-                    const input = this.registers[Rdn];
-                    const result = shiftAmount < 32 ? input >>> shiftAmount : 0;
-                    this.registers[Rdn] = result;
-                    this.N = !!(result & 0x80000000);
-                    this.Z = result === 0;
-                    this.C = shiftAmount <= 32 ? !!((input >>> (shiftAmount - 1)) & 0x1) : false;
-                    return;
-                }
-            break;
-            case 0b0100001101:  // MULS
-                {
-                    const Rn = (opcode >> 3) & 0x7;
-                    const Rdm = opcode & 0x7;
-                    const result = Math.imul(this.registers[Rn], this.registers[Rdm]);
-                    this.registers[Rdm] = result;
-                    this.N = !!(result & 0x80000000);
-                    this.Z = (result & 0xffffffff) === 0;
-                    return;
-                }
-            break;
-            case 0b0100001111:  // MVNS
-                {
-                    const Rm = (opcode >> 3) & 7;
-                    const Rd = opcode & 7;
-                    const result = ~this.registers[Rm];
-                    this.registers[Rd] = result;
-                    this.N = !!(result & 0x80000000);
-                    this.Z = result === 0;
-                    return;
-                }
-            break;
-            case 0b0100001100:  // ORRS (Encoding T2)
-                {
-                    const Rm = (opcode >> 3) & 0x7;
-                    const Rdn = opcode & 0x7;
-                    const result = this.registers[Rdn] | this.registers[Rm];
-                    this.registers[Rdn] = result;
-                    this.N = !!(result & 0x80000000);
-                    this.Z = (result & 0xffffffff) === 0;
-                    return;
-                }
-            break;
-            case 0b1011101000:  // REV
-                {
-                    const Rm = (opcode >> 3) & 0x7;
-                    const Rd = opcode & 0x7;
-                    const input = this.registers[Rm];
-                    this.registers[Rd] =
-                        ((input & 0xff) << 24) |
-                            (((input >> 8) & 0xff) << 16) |
-                            (((input >> 16) & 0xff) << 8) |
-                            ((input >> 24) & 0xff);
-                    return;
-                }
-            break;
-            case 0b1011101001:  // REV16
-                {
-                    const Rm = (opcode >> 3) & 0x7;
-                    const Rd = opcode & 0x7;
-                    const input = this.registers[Rm];
-                    this.registers[Rd] =
-                        (((input >> 16) & 0xff) << 24) |
-                            (((input >> 24) & 0xff) << 16) |
-                            ((input & 0xff) << 8) |
-                            ((input >> 8) & 0xff);
-                    return;
-                }
-            break;
-            case 0b1011101011:  // REVSH
-                {
-                    const Rm = (opcode >> 3) & 0x7;
-                    const Rd = opcode & 0x7;
-                    const input = this.registers[Rm];
-                    this.registers[Rd] = signExtend16(((input & 0xff) << 8) | ((input >> 8) & 0xff));
-                    return;
-                }
-            break;
-            case 0b0100000111:  // ROR
-                {
-                    const Rm = (opcode >> 3) & 0x7;
-                    const Rdn = opcode & 0x7;
-                    const input = this.registers[Rdn];
-                    const shift = (this.registers[Rm] & 0xff) % 32;
-                    const result = (input >>> shift) | (input << (32 - shift));
-                    this.registers[Rdn] = result;
-                    this.N = !!(result & 0x80000000);
-                    this.Z = result === 0;
-                    this.C = !!(result & 0x80000000);
-                    return;
-                }
-            break;
-            case 0b0100001001:  // NEGS / RSBS
-                {
-                    const Rn = (opcode >> 3) & 0x7;
-                    const Rd = opcode & 0x7;
-                    this.registers[Rd] = this.substractUpdateFlags(0, this.registers[Rn]);
-                    return;
-                }
-            break;
-            case 0b0100000110:  // SBCS (Encoding T1)
-                {
-                    const Rm = (opcode >> 3) & 0x7;
-                    const Rdn = opcode & 0x7;
-                    this.registers[Rdn] = this.substractUpdateFlags(this.registers[Rdn], this.registers[Rm] + (1 - (this.C ? 1 : 0)));
-                    return;
-                }
-            break;
-            case 0b1011001001:  // SXTB
-                {
-                    const Rm = (opcode >> 3) & 0x7;
-                    const Rd = opcode & 0x7;
-                    this.registers[Rd] = signExtend8(this.registers[Rm]);
-                    return;
-                }
-            break;
-            case 0b1011001000:  // SXTH
-                {
-                    const Rm = (opcode >> 3) & 0x7;
-                    const Rd = opcode & 0x7;
-                    this.registers[Rd] = signExtend16(this.registers[Rm]);
-                    return;
-                }
-            break;
-            case 0b0100001000:  // TST
-                {
-                    const Rm = (opcode >> 3) & 0x7;
-                    const Rn = opcode & 0x7;
-                    const result = this.registers[Rn] & this.registers[Rm];
-                    this.N = !!(result & 0x80000000);
-                    this.Z = result === 0;
-                    return;
-                }
-            break;
-            case 0b1011001011:  // UXTB
-                {
-                    const Rm = (opcode >> 3) & 0x7;
-                    const Rd = opcode & 0x7;
-                    this.registers[Rd] = this.registers[Rm] & 0xff;
-                    return;
-                }
-            break;
-            case 0b1011001010:  // UXTH
-                {
-                    const Rm = (opcode >> 3) & 0x7;
-                    const Rd = opcode & 0x7;
-                    this.registers[Rd] = this.registers[Rm] & 0xffff;
-                    return;
-                }
-            break;
-        }
-
-
-
-
-
-        switch(opcode >> 11){
-            case 0b10101:   // ADD (register = SP plus immediate)
-                {
-                    const imm8 = opcode & 0xff;
-                    const Rd = (opcode >> 8) & 0x7;
-                    this.registers[Rd] = this.SP + (imm8 << 2);
-                    return;
-                }
-            break;
-            case 0b00110:   // ADDS (Encoding T2)
-                {
-                    const imm8 = opcode & 0xff;
-                    const Rdn = (opcode >> 8) & 0x7;
-                    this.registers[Rdn] = this.addUpdateFlags(this.registers[Rdn], imm8);
-                    return;
-                }
-            break;
-            case 0b10100:   // ADR
-                {
-                    const imm8 = opcode & 0xff;
-                    const Rd = (opcode >> 8) & 0x7;
-                    this.registers[Rd] = (opcodePC & 0xfffffffc) + 4 + (imm8 << 2);
-                    return;
-                }
-            break;
-            case 0b00010:   // ASRS (immediate)
-                {
-                    const imm5 = (opcode >> 6) & 0x1f;
-                    const Rm = (opcode >> 3) & 0x7;
-                    const Rd = opcode & 0x7;
-                    const input = this.registers[Rm];
-                    const result = imm5 ? input >> imm5 : (input & 0x80000000) >> 31;
-                    this.registers[Rd] = result;
-                    this.N = !!(result & 0x80000000);
-                    this.Z = (result & 0xffffffff) === 0;
-                    if (imm5) {
-                        this.C = input & (1 << (imm5 - 1)) ? true : false;
-                    }
-                    return;
-                }
-            break;
-            case 0b11100:   // B
-                {
-                    let imm11 = (opcode & 0x7ff) << 1;
-                    if (imm11 & (1 << 11)) {
-                        imm11 = (imm11 & 0x7ff) - 0x800;
-                    }
-                    this.PC += imm11 + 2;
-                    this.cycles++;
-                    return;
-                }
-            break;
-            case 0b00101:   // CMP immediate
-                {
-                    const Rn = (opcode >> 8) & 0x7;
-                    const imm8 = opcode & 0xff;
-                    this.substractUpdateFlags(this.registers[Rn], imm8);
-                    return;
-                }
-            break;
-            case 0b11001:   // LDMIA
-                {
-                    const Rn = (opcode >> 8) & 0x7;
-                    const registers = opcode & 0xff;
-                    let address = this.registers[Rn];
-                    for (let i = 0; i < 8; i++) {
-                        if (registers & (1 << i)) {
-                            this.registers[i] = this.readUint32(address);
-                            address += 4;
-                            this.cycles++;
-                        }
-                    }
-                    // Write back
-                    if (!(registers & (1 << Rn))) {
-                        this.registers[Rn] = address;
-                    }
-                    return;
-                }
-            break;
-            case 0b01101:   // LDR (immediate)
-                {
-                    const imm5 = ((opcode >> 6) & 0x1f) << 2;
-                    const Rn = (opcode >> 3) & 0x7;
-                    const Rt = opcode & 0x7;
-                    const addr = this.registers[Rn] + imm5;
-                    this.registers[Rt] = this.readUint32(addr);
-                    return;
-                }
-            break;
-            case 0b10011:   // LDR (sp + immediate)
-                {
-                    const Rt = (opcode >> 8) & 0x7;
-                    const imm8 = opcode & 0xff;
-                    const addr = this.SP + (imm8 << 2);
-                    this.registers[Rt] = this.readUint32(addr);
-                    return;
-                }
-            break;
-            case 0b01001:   // LDR (literal)
-                {
-                    const imm8 = (opcode & 0xff) << 2;
-                    const Rt = (opcode >> 8) & 7;
-                    const nextPC = this.PC + 2;
-                    const addr = (nextPC & 0xfffffffc) + imm8;
-                    this.registers[Rt] = this.readUint32(addr);
-                    return;
-                }
-            break;
-            case 0b01111:   // LDRB (immediate)
-                {
-                    const imm5 = (opcode >> 6) & 0x1f;
-                    const Rn = (opcode >> 3) & 0x7;
-                    const Rt = opcode & 0x7;
-                    const addr = this.registers[Rn] + imm5;
-                    if (this.slowIO(addr)) {
-                        this.cycles++;
-                    }
-                    this.registers[Rt] = this.readUint8(addr);
-                    return;
-                }
-            break;
-            case 0b10001:   // LDRH (immediate)
-                {
-                    const imm5 = (opcode >> 6) & 0x1f;
-                    const Rn = (opcode >> 3) & 0x7;
-                    const Rt = opcode & 0x7;
-                    const addr = this.registers[Rn] + (imm5 << 1);
-                    if (this.slowIO(addr)) {
-                        this.cycles++;
-                    }
-                    this.registers[Rt] = this.readUint16(addr);
-                    return;
-                }
-            break;
-            case 0b00000:   // LSLS (immediate)
-                {
-                    const imm5 = (opcode >> 6) & 0x1f;
-                    const Rm = (opcode >> 3) & 0x7;
-                    const Rd = opcode & 0x7;
-                    const input = this.registers[Rm];
-                    const result = input << imm5;
-                    this.registers[Rd] = result;
-                    this.N = !!(result & 0x80000000);
-                    this.Z = result === 0;
-                    this.C = imm5 ? !!(input & (1 << (32 - imm5))) : this.C;
-                    return;
-                }
-            break;
-            case 0b00001:   // LSRS (immediate)
-                {
-                    const imm5 = (opcode >> 6) & 0x1f;
-                    const Rm = (opcode >> 3) & 0x7;
-                    const Rd = opcode & 0x7;
-                    const input = this.registers[Rm];
-                    const result = imm5 ? input >>> imm5 : 0;
-                    this.registers[Rd] = result;
-                    this.N = !!(result & 0x80000000);
-                    this.Z = result === 0;
-                    this.C = !!((input >>> (imm5 ? imm5 - 1 : 31)) & 0x1);
-                    return;
-                }
-            break;
-            case 0b00100:   // MOVS
-                const value = opcode & 0xff;
-                const Rd = (opcode >> 8) & 7;
-                this.registers[Rd] = value;
-                this.N = !!(value & 0x80000000);
-                this.Z = value === 0;
-                return;
-            break;
-            case 0b11000:   // STMIA
-                {
-                    const Rn = (opcode >> 8) & 0x7;
-                    const registers = opcode & 0xff;
-                    let address = this.registers[Rn];
-                    for (let i = 0; i < 8; i++) {
-                        if (registers & (1 << i)) {
-                            this.writeUint32(address, this.registers[i]);
-                            address += 4;
-                            this.cycles++;
-                        }
-                    }
-                    // Write back
-                    if (!(registers & (1 << Rn))) {
-                        this.registers[Rn] = address;
-                    }
-                    return;
-                }
-            break;
-            case 0b01100:   // STR (immediate)
-                {
-                    const imm5 = ((opcode >> 6) & 0x1f) << 2;
-                    const Rn = (opcode >> 3) & 0x7;
-                    const Rt = opcode & 0x7;
-                    const address = this.registers[Rn] + imm5;
-                    if (this.slowIO(address)) {
-                        this.cycles++;
-                    }
-                    this.writeUint32(address, this.registers[Rt]);
-                    return;
-                }
-            break;
-            case 0b10010:   // STR (sp + immediate)
-                {
-                    const Rt = (opcode >> 8) & 0x7;
-                    const imm8 = opcode & 0xff;
-                    const address = this.SP + (imm8 << 2);
-                    if (this.slowIO(address)) {
-                        this.cycles++;
-                    }
-                    this.writeUint32(address, this.registers[Rt]);
-                    return;
-                }
-            break;
-            case 0b01110:   // STRB (immediate)
-                {
-                    const imm5 = (opcode >> 6) & 0x1f;
-                    const Rn = (opcode >> 3) & 0x7;
-                    const Rt = opcode & 0x7;
-                    const address = this.registers[Rn] + imm5;
-                    if (this.slowIO(address)) {
-                        this.cycles++;
-                    }
-                    this.writeUint8(address, this.registers[Rt]);
-                    return;
-                }
-            break;
-            case 0b10000:   // STRH (immediate)
-                {
-                    const imm5 = ((opcode >> 6) & 0x1f) << 1;
-                    const Rn = (opcode >> 3) & 0x7;
-                    const Rt = opcode & 0x7;
-                    const address = this.registers[Rn] + imm5;
-                    if (this.slowIO(address)) {
-                        this.cycles++;
-                    }
-                    this.writeUint16(address, this.registers[Rt]);
-                    return;
-                }
-            break;
-            case 0b00111:   // SUBS (Encoding T2)
-                {
-                    const imm8 = opcode & 0xff;
-                    const Rdn = (opcode >> 8) & 0x7;
-                    this.registers[Rdn] = this.substractUpdateFlags(this.registers[Rdn], imm8);
-                    return;
-                }
-            break;
-        }
-        
-
-
-
-
-        switch(opcode >> 9){
-            case 0b0001110: // ADDS (Encoding T1)
-                {
-                    const imm3 = (opcode >> 6) & 0x7;
-                    const Rn = (opcode >> 3) & 0x7;
-                    const Rd = opcode & 0x7;
-                    this.registers[Rd] = this.addUpdateFlags(this.registers[Rn], imm3);
-                    return;
-                }
-            break;
-            case 0b0001100: // ADDS (register)
-                {
-                    const Rm = (opcode >> 6) & 0x7;
-                    const Rn = (opcode >> 3) & 0x7;
-                    const Rd = opcode & 0x7;
-                    this.registers[Rd] = this.addUpdateFlags(this.registers[Rn], this.registers[Rm]);
-                    return;
-                }
-            break;
-            case 0b0101100: // LDR (register)
-                {
-                    const Rm = (opcode >> 6) & 0x7;
-                    const Rn = (opcode >> 3) & 0x7;
-                    const Rt = opcode & 0x7;
-                    const addr = this.registers[Rm] + this.registers[Rn];
-                    if (this.slowIO(addr)) {
-                        this.cycles++;
-                    }
-                    this.registers[Rt] = this.readUint32(addr);
-                    return;
-                }
-            break;
-            case 0b0101110: // LDRB (register)
-                {
-                    const Rm = (opcode >> 6) & 0x7;
-                    const Rn = (opcode >> 3) & 0x7;
-                    const Rt = opcode & 0x7;
-                    const addr = this.registers[Rm] + this.registers[Rn];
-                    if (this.slowIO(addr)) {
-                        this.cycles++;
-                    }
-                    this.registers[Rt] = this.readUint8(addr);
-                    return;
-                }
-            break;
-            case 0b0101101: // LDRH (register)
-                {
-                    const Rm = (opcode >> 6) & 0x7;
-                    const Rn = (opcode >> 3) & 0x7;
-                    const Rt = opcode & 0x7;
-                    const addr = this.registers[Rm] + this.registers[Rn];
-                    if (this.slowIO(addr)) {
-                        this.cycles++;
-                    }
-                    this.registers[Rt] = this.readUint16(addr);
-                    return;
-                }
-            break;
-            case 0b0101011: // LDRSB
-                {
-                    const Rm = (opcode >> 6) & 0x7;
-                    const Rn = (opcode >> 3) & 0x7;
-                    const Rt = opcode & 0x7;
-                    const addr = this.registers[Rm] + this.registers[Rn];
-                    if (this.slowIO(addr)) {
-                        this.cycles++;
-                    }
-                    this.registers[Rt] = signExtend8(this.readUint8(addr));
-                    return;
-                }
-            break;
-            case 0b0101111: // LDRSH
-                {
-                    const Rm = (opcode >> 6) & 0x7;
-                    const Rn = (opcode >> 3) & 0x7;
-                    const Rt = opcode & 0x7;
-                    const addr = this.registers[Rm] + this.registers[Rn];
-                    if (this.slowIO(addr)) {
-                        this.cycles++;
-                    }
-                    this.registers[Rt] = signExtend16(this.readUint16(addr));
-                    return;
-                }
-            break;
-            case 0b1011110: // POP
-                {
-                    const P = (opcode >> 8) & 1;
-                    let address = this.SP;
-                    for (let i = 0; i <= 7; i++) {
-                        if (opcode & (1 << i)) {
-                            this.registers[i] = this.readUint32(address);
-                            address += 4;
-                            this.cycles++;
-                        }
-                    }
-                    if (P) {
-                        this.SP = address + 4;
-                        this.BXWritePC(this.readUint32(address));
-                        this.cycles += 2;
-                    }
-                    else {
-                        this.SP = address;
-                    }
-                    return;
-                }
-            break;
-            case 0b1011010: // PUSH
-                {
-                    let bitCount = 0;
-                    for (let i = 0; i <= 8; i++) {
-                        if (opcode & (1 << i)) {
-                            bitCount++;
-                        }
-                    }
-                    let address = this.SP - 4 * bitCount;
-                    for (let i = 0; i <= 7; i++) {
-                        if (opcode & (1 << i)) {
-                            this.writeUint32(address, this.registers[i]);
-                            this.cycles++;
-                            address += 4;
-                        }
-                    }
-                    if (opcode & (1 << 8)) {
-                        this.writeUint32(address, this.registers[14]);
-                    }
-                    this.SP -= 4 * bitCount;
-                    return;
-                }
-            break;
-            case 0b0101000: // STR (register)
-                {
-                    const Rm = (opcode >> 6) & 0x7;
-                    const Rn = (opcode >> 3) & 0x7;
-                    const Rt = opcode & 0x7;
-                    const address = this.registers[Rm] + this.registers[Rn];
-                    if (this.slowIO(address)) {
-                        this.cycles++;
-                    }
-                    this.writeUint32(address, this.registers[Rt]);
-                    return;
-                }
-            break;
-            case 0b0101010: // STRB (register)
-                {
-                    const Rm = (opcode >> 6) & 0x7;
-                    const Rn = (opcode >> 3) & 0x7;
-                    const Rt = opcode & 0x7;
-                    const address = this.registers[Rm] + this.registers[Rn];
-                    if (this.slowIO(address)) {
-                        this.cycles++;
-                    }
-                    this.writeUint8(address, this.registers[Rt]);
-                    return;
-                }
-            break;
-            case 0b0101001: // STRH (register)
-                {
-                    const Rm = (opcode >> 6) & 0x7;
-                    const Rn = (opcode >> 3) & 0x7;
-                    const Rt = opcode & 0x7;
-                    const address = this.registers[Rm] + this.registers[Rn];
-                    if (this.slowIO(address)) {
-                        this.cycles++;
-                    }
-                    this.writeUint16(address, this.registers[Rt]);
-                    return;
-                }
-            break;
-            case 0b0001111: // SUBS (Encoding T1)
-                {
-                    const imm3 = (opcode >> 6) & 0x7;
-                    const Rn = (opcode >> 3) & 0x7;
-                    const Rd = opcode & 0x7;
-                    this.registers[Rd] = this.substractUpdateFlags(this.registers[Rn], imm3);
-                    return;
-                }
-            break;
-            case 0b0001101: // SUBS (register)
-                {
-                    const Rm = (opcode >> 6) & 0x7;
-                    const Rn = (opcode >> 3) & 0x7;
-                    const Rd = opcode & 0x7;
-                    this.registers[Rd] = this.substractUpdateFlags(this.registers[Rn], this.registers[Rm]);
-                    return;
-                }
-            break;
-        }
-
-
-
-
-        switch(opcode >> 8){
-            case 0b01000100:    // ADD (register)
-                {
-                    const Rm = (opcode >> 3) & 0xf;
-                    const Rdn = ((opcode & 0x80) >> 4) | (opcode & 0x7);
-                    const leftValue = Rdn === pcRegister ? this.PC + 2 : this.registers[Rdn];
-                    const rightValue = this.registers[Rm];
-                    const result = leftValue + rightValue;
-                    if (Rdn !== spRegister && Rdn !== pcRegister) {
-                        this.registers[Rdn] = result;
-                    }
-                    else if (Rdn === pcRegister) {
-                        this.registers[Rdn] = result & ~0x1;
-                        this.cycles++;
-                    }
-                    else if (Rdn === spRegister) {
-                        this.registers[Rdn] = result & ~0x3;
-                    }
-                    return;
-                }
-            break;
-            case 0b10111110:    // BKPT
-                {
-                    const imm8 = opcode & 0xff;
-                    this.breakRewind = 2;
-                    this.onBreak(imm8);
-                    return;
-                }
-            break;
-            case 0b01000101:    // CMP (register) encoding T2
-                {
-                    const Rm = (opcode >> 3) & 0xf;
-                    const Rn = ((opcode >> 4) & 0x8) | (opcode & 0x7);
-                    this.substractUpdateFlags(this.registers[Rn], this.registers[Rm]);
-                    return;
-                }
-            break;
-            case 0b01000110:    // MOV
-                {
-                    const Rm = (opcode >> 3) & 0xf;
-                    const Rd = ((opcode >> 4) & 0x8) | (opcode & 0x7);
-                    let value = Rm === pcRegister ? this.PC + 2 : this.registers[Rm];
-                    if (Rd === pcRegister) {
-                        this.cycles++;
-                        value &= ~1;
-                    }
-                    else if (Rd === spRegister) {
-                        value &= ~3;
-                    }
-                    this.registers[Rd] = value;
-                    return;
-                }
-            break;
-            case 0b11011111:    // SVC
-                {
-                    this.pendingSVCall = true;
-                    this.interruptsUpdated = true;
-                    return;
-                }
-            break;
-            case 0b11011110:    // UDF
-                {
-                    const imm8 = opcode & 0xff;
-                    this.breakRewind = 2;
-                    this.onBreak(imm8);
-                    return;
-                }
-            break;
-        }
-
-
-
-
-
-        switch(opcode){
-            case 0xb672:    // CPSID i
-                {
-                    this.PM = true;
-                    return;
-                }
-            break;
-            case 0xb662:    // CPSIE i
-                {
-                    this.PM = false;
-                    this.interruptsUpdated = true;
-                    return;
-                }
-            break;
-            case 0b1011111100000000:    // NOP
-                // Do nothing!
-                return;
-            break;
-            case 0b1011111101000000:    // SEV
-                // this.logger.info(LOG_NAME, 'SEV');
-                return;
-            break;
-             // WFE
-            case 0b1011111100100000:
-                {
-                    this.cycles++;
-                    if (this.eventRegistered) {
-                        this.eventRegistered = false;
-                    }
-                    else {
-                        this.waiting = true;
-                    }
-                    return;
-                }
-            break;
-            case 0b1011111100110000:    // WFI
-                {
-                    this.cycles++;
-                    this.waiting = true;
-                    return;
-                }
-            break;
-            case 0b1011111100010000:    // YIELD
-                // do nothing for now. Wait for event!
-                // this.logger.info(LOG_NAME, 'Yield');
-                return;
-            break;
-        }
-
-
-
-        
-        // ADD (SP plus immediate)
-        if (opcode >> 7 === 0b101100000) {
-            const imm32 = (opcode & 0x7f) << 2;
-            this.SP += imm32;
-        }
-        
-        // B (with cond)
-        else if (opcode >> 12 === 0b1101 && ((opcode >> 9) & 0x7) !== 0b111) {
-            let imm8 = (opcode & 0xff) << 1;
-            const cond = (opcode >> 8) & 0xf;
-            if (imm8 & (1 << 8)) {
-                imm8 = (imm8 & 0x1ff) - 0x200;
-            }
-            if (this.checkCondition(cond)) {
-                this.PC += imm8 + 2;
-                this.cycles++;
-            }
-        }
-        // BL
-        else if (opcode >> 11 === 0b11110 && opcode2 >> 14 === 0b11 && ((opcode2 >> 12) & 0x1) == 1) {
-            const imm11 = opcode2 & 0x7ff;
-            const J2 = (opcode2 >> 11) & 0x1;
-            const J1 = (opcode2 >> 13) & 0x1;
-            const imm10 = opcode & 0x3ff;
-            const S = (opcode >> 10) & 0x1;
-            const I1 = 1 - (S ^ J1);
-            const I2 = 1 - (S ^ J2);
-            const imm32 = ((S ? 0b11111111 : 0) << 24) | ((I1 << 23) | (I2 << 22) | (imm10 << 12) | (imm11 << 1));
-            this.LR = (this.PC + 2) | 0x1;
-            this.PC += 2 + imm32;
-            this.cycles += 2;
-        }
-        // BLX
-        else if (opcode >> 7 === 0b010001111 && (opcode & 0x7) === 0) {
-            const Rm = (opcode >> 3) & 0xf;
-            this.LR = this.PC | 0x1;
-            this.PC = this.registers[Rm] & ~1;
-            this.cycles++;
-        }
-        // BX
-        else if (opcode >> 7 === 0b010001110 && (opcode & 0x7) === 0) {
-            const Rm = (opcode >> 3) & 0xf;
-            this.BXWritePC(this.registers[Rm]);
-            this.cycles++;
-        }
-        // DMB SY
-        else if (opcode === 0xf3bf && (opcode2 & 0xfff0) === 0x8f50) {
-            this.PC += 2;
-            this.cycles += 2;
-        }
-        // DSB SY
-        else if (opcode === 0xf3bf && (opcode2 & 0xfff0) === 0x8f40) {
-            this.PC += 2;
-            this.cycles += 2;
-        }
-        // ISB SY
-        else if (opcode === 0xf3bf && (opcode2 & 0xfff0) === 0x8f60) {
-            this.PC += 2;
-            this.cycles += 2;
-        }
-        // MRS
-        else if (opcode === 0b1111001111101111 && opcode2 >> 12 == 0b1000) {
-            const SYSm = opcode2 & 0xff;
-            const Rd = (opcode2 >> 8) & 0xf;
-            this.registers[Rd] = this.readSpecialRegister(SYSm);
-            this.PC += 2;
-            this.cycles += 2;
-        }
-        // MSR
-        else if (opcode >> 4 === 0b111100111000 && opcode2 >> 8 == 0b10001000) {
-            const SYSm = opcode2 & 0xff;
-            const Rn = opcode & 0xf;
-            this.writeSpecialRegister(SYSm, this.registers[Rn]);
-            this.PC += 2;
-            this.cycles += 2;
-        }
-        // SUB (SP minus immediate)
-        else if (opcode >> 7 === 0b101100001) {
-            const imm32 = (opcode & 0x7f) << 2;
-            this.SP -= imm32;
-        }
-        // UDF (Encoding T2)
-        else if (opcode >> 4 === 0b111101111111 && opcode2 >> 12 === 0b1010) {
-            const imm4 = opcode & 0xf;
-            const imm12 = opcode2 & 0xfff;
-            this.breakRewind = 4;
-            this.onBreak((imm4 << 12) | imm12);
-            this.PC += 2;
-        }
-        else {
-            // this.logger.warn(LOG_NAME, `Warning: Instruction at ${opcodePC.toString(16)} is not implemented yet!`);
-            // this.logger.warn(LOG_NAME, `Opcode: 0x${opcode.toString(16)} (0x${opcode2.toString(16)})`);
+            this.logger.warn(LOG_NAME, `Warning: Instruction at ${opcodePC.toString(16)} is not implemented yet!`);
+            this.logger.warn(LOG_NAME, `Opcode: 0x${opcode.toString(16)} (0x${opcode2.toString(16)})`);
         }
     }
     slowIO(addr) {
         addr = addr >>> 0;
         return addr < SIO_START_ADDRESS || addr > SIO_START_ADDRESS + 0x10000000;
     }
+    execute() {
+        this.clock.resume();
+        this.executeTimer = null;
+        this.stopped = false;
+        for (let i = 0; i < 100000 && !this.stopped && !this.waiting; i++) {
+            this.executeInstruction();
+        }
+        if (!this.stopped) {
+            this.executeTimer = window.setZeroTimeout(() => this.execute());
+        }
+    }
     start() {
         this.clock.resume();
         this.executeTimer = null;
         this.stopped = false;
         this.execute();
-    }
-    execute() {
-        for (let i = 0; i < 100000 && !this.stopped && !this.waiting; i++) {
-            // this.executeInstruction();
-            this.executeInstructionOPED();
-        }
-        if (!this.stopped) {
-            // this.executeTimer = window.setTimeout(() => this.execute(), 0);
-            this.executeTimer = window.setZeroTimeout(() => this.execute());
-        }
     }
     stop() {
         this.stopped = true;
@@ -2463,22 +1538,16 @@ export class RP2040 {
         return !this.stopped;
     }
 }
-
 // Only add setZeroTimeout to the window object, and hide everything
 // else in a closure.
 // https://dbaron.org/log/20100309-faster-timeouts
-(function() {
-    var timeouts = [];
-    var messageName = "zero-timeout-message";
-
-    // Like setTimeout, but only takes a function argument.  There's
-    // no time argument (always zero) and no arguments (you have to
-    // use a closure).
+(function () {
+    let timeouts = [];
+    let messageName = "zero-timeout-message";
     function setZeroTimeout(fn) {
         timeouts.push(fn);
         window.postMessage(messageName, "*");
     }
-
     function handleMessage(event) {
         if (event.source == window && event.data == messageName) {
             event.stopPropagation();
@@ -2488,9 +1557,6 @@ export class RP2040 {
             }
         }
     }
-
     window.addEventListener("message", handleMessage, true);
-
-    // Add the one thing we want added to the window object.
     window.setZeroTimeout = setZeroTimeout;
 })();

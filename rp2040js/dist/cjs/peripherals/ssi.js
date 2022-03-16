@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RPSSI = void 0;
-const peripheral_1 = require("./peripheral");
+const peripheral_js_1 = require("./peripheral.js");
 const SSI_TXFLR = 0x00000020;
 const SSI_RXFLR = 0x00000024;
 const SSI_SR = 0x00000028;
@@ -10,7 +10,7 @@ const SSI_SR_TFNF_BITS = 0x00000002;
 const SSI_SR_TFE_BITS = 0x00000004;
 const SSI_SR_RFNE_BITS = 0x00000008;
 const CMD_READ_STATUS = 0x05;
-class RPSSI extends peripheral_1.BasePeripheral {
+class RPSSI extends peripheral_js_1.BasePeripheral {
     constructor() {
         super(...arguments);
         this.dr0 = 0;

@@ -1,4 +1,4 @@
-import { BasePeripheral } from './peripheral';
+import { BasePeripheral } from './peripheral.js';
 export declare class RPUSBController extends BasePeripheral {
     private mainCtrl;
     private intRaw;

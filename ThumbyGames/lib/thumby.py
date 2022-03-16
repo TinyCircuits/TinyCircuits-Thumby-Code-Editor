@@ -27,8 +27,8 @@ from machine import reset as machineReset
 import ssd1306
 import os
 
-# Last updated 2/23/2022 for setPixel bug fix
-__version__ = '1.3'
+# Last updated 3/16/2022 for credits and HWID change
+__version__ = '1.4'
 
 # Pin definitions for button inputs & buzzer.
 swL = Pin(3, Pin.IN, Pin.PULL_UP) # D-pad left
@@ -61,7 +61,7 @@ i2c = None
 spi = None
 if(HWID==0):
     i2c = I2C(0, sda=Pin(16), scl=Pin(17), freq=1000000)
-if(HWID==1):
+if(HWID>=1):
     spi = SPI(0, sck=Pin(18), mosi=Pin(19))#possible assignment of miso to 4 or 16?
 
 class ButtonClass:

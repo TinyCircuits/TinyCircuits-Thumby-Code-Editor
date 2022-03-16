@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.GDBConnection = void 0;
-const gdb_server_1 = require("./gdb-server");
-const gdb_utils_1 = require("./gdb-utils");
+const gdb_server_js_1 = require("./gdb-server.js");
+const gdb_utils_js_1 = require("./gdb-utils.js");
 class GDBConnection {
     constructor(server, onResponse) {
         this.server = server;
@@ -17,7 +17,7 @@ class GDBConnection {
         if (data.charCodeAt(0) === 3) {
             this.server.info('BREAK');
             this.rp2040.stop();
-            onResponse(gdb_utils_1.gdbMessage(gdb_server_1.STOP_REPLY_SIGINT));
+            onResponse(gdb_utils_js_1.gdbMessage(gdb_server_js_1.STOP_REPLY_SIGINT));
             data = data.slice(1);
         }
         this.buf += data;
@@ -30,7 +30,7 @@ class GDBConnection {
             const cmd = this.buf.substring(dolla + 1, hash);
             const cksum = this.buf.substr(hash + 1, 2);
             this.buf = this.buf.substr(hash + 2);
-            if (gdb_utils_1.gdbChecksum(cmd) !== cksum) {
+            if (gdb_utils_js_1.gdbChecksum(cmd) !== cksum) {
                 this.server.warn(`GDB checksum error in message: ${cmd}`);
                 onResponse('-');
             }
@@ -47,7 +47,7 @@ class GDBConnection {
     }
     onBreakpoint() {
         try {
-            this.onResponse(gdb_utils_1.gdbMessage(gdb_server_1.STOP_REPLY_TRAP));
+            this.onResponse(gdb_utils_js_1.gdbMessage(gdb_server_js_1.STOP_REPLY_TRAP));
         }
         catch (e) {
             this.server.removeConnection(this);

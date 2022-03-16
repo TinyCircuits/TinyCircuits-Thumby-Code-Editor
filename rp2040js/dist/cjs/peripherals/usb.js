@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RPUSBController = void 0;
-const irq_1 = require("../irq");
-const peripheral_1 = require("./peripheral");
+const irq_js_1 = require("../irq.js");
+const peripheral_js_1 = require("./peripheral.js");
 // USB DPSRAM Registers
 const EP1_IN_CONTROL = 0x8;
 const EP0_IN_BUFFER_CONTROL = 0x80;
@@ -74,7 +74,7 @@ const SIE_WRITECLEAR_MASK = SIE_DATA_SEQ_ERROR |
     SIE_TRANS_COMPLETE |
     SIE_SETUP_REC |
     SIE_RESUME;
-class RPUSBController extends peripheral_1.BasePeripheral {
+class RPUSBController extends peripheral_js_1.BasePeripheral {
     constructor() {
         super(...arguments);
         this.mainCtrl = 0;
@@ -216,7 +216,7 @@ class RPUSBController extends peripheral_1.BasePeripheral {
     }
     checkInterrupts() {
         const { intStatus } = this;
-        this.rp2040.setInterrupt(irq_1.IRQ.USBCTRL, !!intStatus);
+        this.rp2040.setInterrupt(irq_js_1.IRQ.USBCTRL, !!intStatus);
     }
     resetDevice() {
         this.sieStatus |= SIE_BUS_RESET;

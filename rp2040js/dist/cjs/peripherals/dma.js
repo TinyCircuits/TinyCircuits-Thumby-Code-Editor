@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RPDMA = exports.RPDMAChannel = exports.DREQChannel = void 0;
-const irq_1 = require("../irq");
-const peripheral_1 = require("./peripheral");
+const irq_js_1 = require("../irq.js");
+const peripheral_js_1 = require("./peripheral.js");
 var DREQChannel;
 (function (DREQChannel) {
     DREQChannel[DREQChannel["DREQ_PIO0_TX0"] = 0] = "DREQ_PIO0_TX0";
@@ -340,7 +340,7 @@ class RPDMAChannel {
     }
 }
 exports.RPDMAChannel = RPDMAChannel;
-class RPDMA extends peripheral_1.BasePeripheral {
+class RPDMA extends peripheral_js_1.BasePeripheral {
     constructor() {
         super(...arguments);
         this.channels = [
@@ -513,8 +513,8 @@ class RPDMA extends peripheral_1.BasePeripheral {
         return ((dividend / divisor) * 1e6) / this.rp2040.clkSys;
     }
     checkInterrupts() {
-        this.rp2040.setInterrupt(irq_1.IRQ.DMA_IRQ0, !!this.intStatus0);
-        this.rp2040.setInterrupt(irq_1.IRQ.DMA_IRQ1, !!this.intStatus1);
+        this.rp2040.setInterrupt(irq_js_1.IRQ.DMA_IRQ0, !!this.intStatus0);
+        this.rp2040.setInterrupt(irq_js_1.IRQ.DMA_IRQ1, !!this.intStatus1);
     }
 }
 exports.RPDMA = RPDMA;

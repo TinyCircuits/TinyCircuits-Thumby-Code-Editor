@@ -1,7 +1,7 @@
 /// <reference types="node" />
 import { Socket } from 'net';
-import { GDBServer } from './gdb-server';
-import { RP2040 } from '../rp2040';
+import { GDBServer } from './gdb-server.js';
+import { RP2040 } from '../rp2040.js';
 export declare class GDBTCPServer extends GDBServer {
     readonly port: number;
     private socketServer;

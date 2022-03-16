@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.USBCDC = exports.extractEndpointNumbers = void 0;
-const fifo_1 = require("../utils/fifo");
-const interfaces_1 = require("./interfaces");
-const setup_1 = require("./setup");
+const fifo_js_1 = require("../utils/fifo.js");
+const interfaces_js_1 = require("./interfaces.js");
+const setup_js_1 = require("./setup.js");
 // CDC stuff
 const CDC_REQUEST_SET_CONTROL_LINE_STATE = 0x22;
 const CDC_DTR = 1 << 0;
@@ -26,12 +26,12 @@ function extractEndpointNumbers(descriptors) {
             break;
         }
         const type = descriptors[index + 1];
-        if (type === interfaces_1.DescriptorType.Interface && len === 9) {
+        if (type === interfaces_js_1.DescriptorType.Interface && len === 9) {
             const numEndpoints = descriptors[index + 4];
             const interfaceClass = descriptors[index + 5];
             foundInterface = numEndpoints === 2 && interfaceClass === CDC_DATA_CLASS;
         }
-        if (foundInterface && type === interfaces_1.DescriptorType.Endpoint && len === 7) {
+        if (foundInterface && type === interfaces_js_1.DescriptorType.Endpoint && len === 7) {
             const address = descriptors[index + 2];
             const attributes = descriptors[index + 3];
             if ((attributes & 0x3) === ENDPOINT_BULK) {
@@ -51,7 +51,7 @@ exports.extractEndpointNumbers = extractEndpointNumbers;
 class USBCDC {
     constructor(usb) {
         this.usb = usb;
-        this.txFIFO = new fifo_1.FIFO(TX_FIFO_SIZE);
+        this.txFIFO = new fifo_js_1.FIFO(TX_FIFO_SIZE);
         this.initialized = false;
         this.descriptorsSize = null;
         this.descriptors = [];
@@ -61,13 +61,13 @@ class USBCDC {
             this.usb.resetDevice();
         };
         this.usb.onResetReceived = () => {
-            this.usb.sendSetupPacket(setup_1.setDeviceAddressPacket(1));
+            this.usb.sendSetupPacket(setup_js_1.setDeviceAddressPacket(1));
         };
         this.usb.onEndpointWrite = (endpoint, buffer) => {
             var _a, _b;
             if (endpoint === ENDPOINT_ZERO && buffer.length === 0) {
                 if (this.descriptorsSize == null) {
-                    this.usb.sendSetupPacket(setup_1.getDescriptorPacket(interfaces_1.DescriptorType.Configration, CONFIGURATION_DESCRIPTOR_SIZE));
+                    this.usb.sendSetupPacket(setup_js_1.getDescriptorPacket(interfaces_js_1.DescriptorType.Configration, CONFIGURATION_DESCRIPTOR_SIZE));
                 }
                 // Acknowledgement
                 else if (!this.initialized) {
@@ -77,10 +77,10 @@ class USBCDC {
             }
             if (endpoint === ENDPOINT_ZERO && buffer.length > 1) {
                 if (buffer.length === CONFIGURATION_DESCRIPTOR_SIZE &&
-                    buffer[1] === interfaces_1.DescriptorType.Configration &&
+                    buffer[1] === interfaces_js_1.DescriptorType.Configration &&
                     this.descriptorsSize == null) {
                     this.descriptorsSize = (buffer[3] << 8) | buffer[2];
-                    this.usb.sendSetupPacket(setup_1.getDescriptorPacket(interfaces_1.DescriptorType.Configration, this.descriptorsSize));
+                    this.usb.sendSetupPacket(setup_js_1.getDescriptorPacket(interfaces_js_1.DescriptorType.Configration, this.descriptorsSize));
                 }
                 else if (this.descriptorsSize != null && this.descriptors.length < this.descriptorsSize) {
                     this.descriptors.push(...buffer);
@@ -90,7 +90,7 @@ class USBCDC {
                     this.inEndpoint = endpoints.in;
                     this.outEndpoint = endpoints.out;
                     // Now configure the device
-                    this.usb.sendSetupPacket(setup_1.setDeviceConfigurationPacket(1));
+                    this.usb.sendSetupPacket(setup_js_1.setDeviceConfigurationPacket(1));
                 }
             }
             if (endpoint === this.inEndpoint) {
@@ -108,10 +108,10 @@ class USBCDC {
         };
     }
     cdcSetControlLineState(value = CDC_DTR | CDC_RTS, interfaceNumber = 0) {
-        this.usb.sendSetupPacket(setup_1.createSetupPacket({
-            dataDirection: interfaces_1.DataDirection.HostToDevice,
-            type: interfaces_1.SetupType.Class,
-            recipient: interfaces_1.SetupRecipient.Device,
+        this.usb.sendSetupPacket(setup_js_1.createSetupPacket({
+            dataDirection: interfaces_js_1.DataDirection.HostToDevice,
+            type: interfaces_js_1.SetupType.Class,
+            recipient: interfaces_js_1.SetupRecipient.Device,
             bRequest: CDC_REQUEST_SET_CONTROL_LINE_STATE,
             wValue: value,
             wIndex: interfaceNumber,

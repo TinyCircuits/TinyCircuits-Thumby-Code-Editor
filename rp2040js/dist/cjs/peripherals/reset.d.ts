@@ -1,4 +1,4 @@
-import { BasePeripheral, Peripheral } from './peripheral';
+import { BasePeripheral, Peripheral } from './peripheral.js';
 export declare class RPReset extends BasePeripheral implements Peripheral {
     private reset;
     private wdsel;

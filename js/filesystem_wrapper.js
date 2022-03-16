@@ -7,9 +7,18 @@ class FILESYSTEM{
         // Related to golden-layout
         this._container = _container;
 
-        // Contains all bitmap builder elements
         this.FS_ALL_DIV = document.createElement("div");
         this.FS_ALL_DIV.classList.add("fs");
+
+
+        this.FS_STORAGE_BAR_PARENT_DIV = document.createElement("div");
+        this.FS_STORAGE_BAR_PARENT_DIV.classList = "fs_storage_bar_parent";
+        this.FS_ALL_DIV.appendChild(this.FS_STORAGE_BAR_PARENT_DIV);
+
+        this.FS_STORAGE_BAR_DIV = document.createElement("div");
+        this.FS_STORAGE_BAR_DIV.classList = "fs_storage_bar";
+        this.FS_STORAGE_BAR_DIV.innerHTML = "&nbsp;Storage:";
+        this.FS_STORAGE_BAR_PARENT_DIV.appendChild(this.FS_STORAGE_BAR_DIV);
 
         this.FS_AREA_DIV = document.createElement("div");
         this.FS_AREA_DIV.classList.add("fs_area");
@@ -38,18 +47,22 @@ class FILESYSTEM{
 
 
         this.FS_UPLOAD_BTN = document.createElement("button");
-        this.FS_UPLOAD_BTN.classList.add("uk-button");
-        this.FS_UPLOAD_BTN.classList.add("uk-button-secondary");
-        this.FS_UPLOAD_BTN.classList.add("uk-button-small");
-        this.FS_UPLOAD_BTN.classList.add("uk-width-1-1");
+        this.FS_UPLOAD_BTN.classList = "uk-button uk-button-secondary uk-button-small uk-width-1-1";
         this.FS_UPLOAD_BTN.onclick = () => {this.onUploadFiles()};
         this.FS_UPLOAD_BTN.innerText = "UPLOAD FILES";
         this.FS_UPLOAD_BTN.title = "Uploads files to Thumby (use this for text and binary files)";
         this.FS_FOOTER_DIV.appendChild(this.FS_UPLOAD_BTN);
 
 
+        this.FS_REFRESH_BTN = document.createElement("button");
+        this.FS_REFRESH_BTN.classList = "uk-button uk-button-secondary uk-button-small uk-width-1-1";
+        this.FS_REFRESH_BTN.onclick = () => {this.onRefresh()};
+        this.FS_REFRESH_BTN.textContent = "\u21bb";
+        this.FS_REFRESH_BTN.title = "Refresh filesystem";
+        this.FS_FOOTER_DIV.appendChild(this.FS_REFRESH_BTN);
+
+
         this.FS_DROPDOWN_DIV = document.createElement("div");
-        // this.FS_DROPDOWN_DIV.classList = "uk-nav uk-dropdown-nav";
         this.FS_DROPDOWN_DIV.setAttribute("uk-dropdown", "offset: 0; toggle: null");
         document.body.appendChild(this.FS_DROPDOWN_DIV);
 
@@ -118,6 +131,7 @@ class FILESYSTEM{
         this.onOpen = undefined;
         this.onNewFolder = undefined;
         this.onUploadFiles = undefined;
+        this.onRefresh = undefined;
         this.onDownloadFiles = undefined;
 
 
@@ -139,6 +153,29 @@ class FILESYSTEM{
         });
 
         this.DIR_CHOOSER_PATH = "";
+    }
+
+
+    updateStorageBar(sizeData){
+        let blockSizeBytes = parseInt(sizeData[0]);
+        let totalBlockCount = parseInt(sizeData[1]);
+        let totalBlocksFree = parseInt(sizeData[2]);
+
+        let totalBytes = blockSizeBytes * totalBlockCount;
+        let freeBytes = blockSizeBytes * totalBlocksFree;
+        let usedBytes = totalBytes - freeBytes;
+
+        let percent = (usedBytes / totalBytes * 100);
+
+        this.FS_STORAGE_BAR_DIV.style.width = percent + "%";
+
+        if(percent > 75){
+            this.FS_STORAGE_BAR_DIV.style.backgroundColor = "red";
+        }else{
+            this.FS_STORAGE_BAR_DIV.style.backgroundColor = "green";
+        }
+
+        this.FS_STORAGE_BAR_DIV.innerHTML = "&nbsp;Storage: " + (usedBytes/1000000).toFixed(2) + "/" + (totalBytes/1000000).toFixed(1) + " MB";
     }
 
 
@@ -179,6 +216,9 @@ class FILESYSTEM{
     clearToWaiting(){
         this.FS_AREA_DIV.innerText = "Waiting for connection...\n\n(click 'Connect Thumby')";
         this.FS_AREA_DIV.style.display = "flex";
+        
+        this.FS_STORAGE_BAR_DIV.style.width = 0 + "%";
+        this.FS_STORAGE_BAR_DIV.innerHTML = "&nbsp;Storage:";
     }
 
 
@@ -277,7 +317,13 @@ class FILESYSTEM{
                         // Show menu for renaming, moving, deleting files and move to cursor.
                         this.FS_DROPDOWN_DIV.style.display = "block";
                         this.FS_DROPDOWN_DIV.style.left = (event.clientX - 15) + 'px';
-                        this.FS_DROPDOWN_DIV.style.top  = (event.clientY - this.FS_DROPDOWN_DIV.clientHeight + 3) + 'px';
+
+                        let top = (event.clientY - this.FS_DROPDOWN_DIV.clientHeight + 3);
+                        if(top < 0){
+                            top = 0;
+                        }
+                        this.FS_DROPDOWN_DIV.style.top = top + 'px';
+
                         node.setSelected(true);
                         return false;
                     }, false);
@@ -297,7 +343,13 @@ class FILESYSTEM{
                         // Show menu for renaming, moving, deleting files and move to cursor.
                         this.FS_DROPDOWN_DIV.style.display = "block";
                         this.FS_DROPDOWN_DIV.style.left = (event.clientX - 15) + 'px';
-                        this.FS_DROPDOWN_DIV.style.top  = (event.clientY - this.FS_DROPDOWN_DIV.clientHeight + 3) + 'px';
+
+                        let top = (event.clientY - this.FS_DROPDOWN_DIV.clientHeight + 3);
+                        if(top < 0){
+                            top = 0;
+                        }
+                        this.FS_DROPDOWN_DIV.style.top = top + 'px';
+
                         node.setSelected(true);
                         return false;
                     }, false);

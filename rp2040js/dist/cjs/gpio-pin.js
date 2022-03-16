@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.GPIOPin = exports.FUNCTION_PIO1 = exports.FUNCTION_PIO0 = exports.FUNCTION_SIO = exports.GPIOPinState = void 0;
-const pio_1 = require("./peripherals/pio");
+const pio_js_1 = require("./peripherals/pio.js");
 var GPIOPinState;
 (function (GPIOPinState) {
     GPIOPinState[GPIOPinState["Low"] = 0] = "Low";
@@ -171,7 +171,7 @@ class GPIOPin {
             for (const machine of pio.machines) {
                 if (machine.enabled &&
                     machine.waiting &&
-                    machine.waitType === pio_1.WaitType.Pin &&
+                    machine.waitType === pio_js_1.WaitType.Pin &&
                     machine.waitIndex === this.index) {
                     machine.checkWait();
                 }

@@ -61,16 +61,16 @@ var IMPORTER = new Importer(document.getElementById("IDImportSpriteBTN"), onExpo
 
 
 // Show pop-up containing IDE changelog every time showChangelogVersion is increased
-const showChangelogVersion = 10;
+const showChangelogVersion = 11;
 
 // This should match what is in /ThumbyGames/lib/thumby.py as '__version__'
-window.latestThumbyLibraryVersion = 1.3
+window.latestThumbyLibraryVersion = 1.4
 
 if(localStorage.getItem(showChangelogVersion) == null){
     console.log("Updates to IDE! Showing changelog...");    // Show message in console
     localStorage.removeItem(showChangelogVersion-1);        // Remove flag from last version
 
-    fetch("https://raw.githubusercontent.com/TinyCircuits/tinycircuits.github.io/master/CHANGELOG.txt").then(async (response) => {
+    fetch("CHANGELOG.txt").then(async (response) => {
         await response.text().then((text) => {
             var listener = window.addEventListener("keydown", (event) => {
                 document.getElementById("IDChangelog").style.display = "none";
@@ -538,6 +538,16 @@ function registerFilesystem(_container, state){
             alert("Thumby not connected, can't upload files");
         }
     }
+    FS.onRefresh = async () => {
+        if(REPL.PORT != undefined){
+            window.setPercent(1, "Refreshing filesystem panel");
+            await REPL.getOnBoardFSTree();
+            window.setPercent(99.8);
+            window.resetPercentDelay();
+        }else{
+            alert("Thumby not connected");
+        }
+    }
     FS.onOpen = async (filePath) => {
         // Make sure no editors with this file path already exist
         for (const [id, editor] of Object.entries(EDITORS)) {
@@ -623,8 +633,9 @@ function registerShell(_container, state){
     REPL.onConnect = () => {
         ATERM.writeln('\x1b[1;32m' + "\n\rConnected" + '\x1b[1;0m');
     }
-    REPL.onFSData = (jsonStrData) => {
+    REPL.onFSData = (jsonStrData, fsSizeData) => {
         FS.updateTree(jsonStrData);
+        FS.updateStorageBar(fsSizeData);
         DIR.updateTree(jsonStrData);
     };
     REPL.doPrintSeparator = () => {

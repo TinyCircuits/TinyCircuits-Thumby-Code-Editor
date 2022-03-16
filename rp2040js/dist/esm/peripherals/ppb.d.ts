@@ -1,5 +1,5 @@
-import { IClockTimer } from '../clock/clock';
-import { BasePeripheral, Peripheral } from './peripheral';
+import { IClockTimer } from '../clock/clock.js';
+import { BasePeripheral, Peripheral } from './peripheral.js';
 export declare const VTOR = 3336;
 export declare const SHPR2 = 3356;
 export declare const SHPR3 = 3360;

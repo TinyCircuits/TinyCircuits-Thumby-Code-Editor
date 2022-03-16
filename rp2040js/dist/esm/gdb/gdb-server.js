@@ -3,9 +3,9 @@
  *
  * Copyright (C) 2021, Uri Shaked
  */
-import { SYSM_CONTROL, SYSM_MSP, SYSM_PRIMASK, SYSM_PSP } from '../rp2040';
-import { ConsoleLogger, LogLevel } from '../utils/logging';
-import { decodeHexBuf, encodeHexBuf, encodeHexByte, encodeHexUint32, gdbMessage, } from './gdb-utils';
+import { SYSM_CONTROL, SYSM_MSP, SYSM_PRIMASK, SYSM_PSP } from '../rp2040.js';
+import { ConsoleLogger, LogLevel } from '../utils/logging.js';
+import { decodeHexBuf, encodeHexBuf, encodeHexByte, encodeHexUint32, gdbMessage, } from './gdb-utils.js';
 export const STOP_REPLY_SIGINT = 'S02';
 export const STOP_REPLY_TRAP = 'S05';
 const targetXML = `<?xml version="1.0"?>

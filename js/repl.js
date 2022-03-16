@@ -15,7 +15,7 @@ class ReplJS{
         this.THUMBY_SEND_BLOCK_SIZE = 255;  // How many bytes to send to Thumby at a time when uploading a file to it
 
         // Set true so most terminal output gets passed to javascript terminal
-        this.DEBUG_CONSOLE_ON = true;
+        this.DEBUG_CONSOLE_ON = false;
 
         this.COLLECT_RAW_DATA = false;
         this.COLLECTED_RAW_DATA = [];
@@ -330,11 +330,16 @@ class ReplJS{
         "struct = {}\n" +
         "print(ujson.dumps(walk(\"\", struct, \"\")))\n";
 
-        var hiddenLines = await this.writeUtilityCmdRaw(messageCmd + getFilesystemCmd, true, 1);
+
+        var sizeCmd = 
+        "a = os.statvfs('/')\n" +
+        "print(a[0], a[2], a[3])";
+
+        var hiddenLines = await this.writeUtilityCmdRaw(messageCmd + getFilesystemCmd + sizeCmd, true, 1);
 
         // Make sure this wasn't executed when no Thumby was attached
         if(hiddenLines != undefined){
-            this.onFSData(hiddenLines[0].substring(2));
+            this.onFSData(hiddenLines[0].substring(2), hiddenLines[1].split(' '));
         }
 
         // Get back into normal mode and omit the 3 lines from the normal message,

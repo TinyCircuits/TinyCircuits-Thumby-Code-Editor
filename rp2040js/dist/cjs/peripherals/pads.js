@@ -1,13 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RPPADS = void 0;
-const peripheral_1 = require("./peripheral");
+const peripheral_js_1 = require("./peripheral.js");
 const VOLTAGE_SELECT = 0;
 const GPIO_FIRST = 0x4;
 const GPIO_LAST = 0x78;
 const QSPI_FIRST = 0x4;
 const QSPI_LAST = 0x18;
-class RPPADS extends peripheral_1.BasePeripheral {
+class RPPADS extends peripheral_js_1.BasePeripheral {
     constructor(rp2040, name, bank) {
         super(rp2040, name);
         this.bank = bank;

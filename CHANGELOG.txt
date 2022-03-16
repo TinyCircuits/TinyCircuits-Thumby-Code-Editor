@@ -4,11 +4,22 @@ Thumby Code Editor changelog!
 
 ####################
 
+March 16th, 2022
+
+* Add bar to filesystem panel to show used storage in MB
+* Add refresh button to filesystem panel
+* Change code editor source code location from https://github.com/TinyCircuits/tinycircuits.github.io to https://github.com/TinyCircuits/TinyCircuits-Thumby-Code-Editor
+* Update credits.txt and library version
+
+
+####################
+
 March 10th, 2022
 
 * Disallow zooming the emulator past 64x
 * Redirect "Add Game to Arcade" button to documentation site
 * Add link to Discord server under "Other Links"
+
 
 ####################
 

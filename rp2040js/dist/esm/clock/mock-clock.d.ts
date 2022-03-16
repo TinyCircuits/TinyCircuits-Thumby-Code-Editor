@@ -1,4 +1,4 @@
-import { IClock, IClockTimer } from './clock';
+import { IClock, IClockTimer } from './clock.js';
 export declare class MockClockTimer implements IClockTimer {
     readonly micros: number;
     readonly callback: () => void;

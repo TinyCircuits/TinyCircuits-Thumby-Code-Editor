@@ -6,9 +6,9 @@
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.GDBServer = exports.STOP_REPLY_TRAP = exports.STOP_REPLY_SIGINT = void 0;
-const rp2040_1 = require("../rp2040");
-const logging_1 = require("../utils/logging");
-const gdb_utils_1 = require("./gdb-utils");
+const rp2040_js_1 = require("../rp2040.js");
+const logging_js_1 = require("../utils/logging.js");
+const gdb_utils_js_1 = require("./gdb-utils.js");
 exports.STOP_REPLY_SIGINT = 'S02';
 exports.STOP_REPLY_TRAP = 'S05';
 const targetXML = `<?xml version="1.0"?>
@@ -47,32 +47,32 @@ const LOG_NAME = 'GDBServer';
 class GDBServer {
     constructor(rp2040) {
         this.rp2040 = rp2040;
-        this.logger = new logging_1.ConsoleLogger(logging_1.LogLevel.Warn, true);
+        this.logger = new logging_js_1.ConsoleLogger(logging_js_1.LogLevel.Warn, true);
         this.connections = new Set();
     }
     processGDBMessage(cmd) {
         const { rp2040 } = this;
         if (cmd === 'Hg0') {
-            return gdb_utils_1.gdbMessage('OK');
+            return gdb_utils_js_1.gdbMessage('OK');
         }
         switch (cmd[0]) {
             case '?':
-                return gdb_utils_1.gdbMessage(exports.STOP_REPLY_TRAP);
+                return gdb_utils_js_1.gdbMessage(exports.STOP_REPLY_TRAP);
             case 'q':
                 // Query things
                 if (cmd.startsWith('qSupported:')) {
-                    return gdb_utils_1.gdbMessage('PacketSize=4000;vContSupported+;qXfer:features:read+');
+                    return gdb_utils_js_1.gdbMessage('PacketSize=4000;vContSupported+;qXfer:features:read+');
                 }
                 if (cmd === 'qAttached') {
-                    return gdb_utils_1.gdbMessage('1');
+                    return gdb_utils_js_1.gdbMessage('1');
                 }
                 if (cmd.startsWith('qXfer:features:read:target.xml')) {
-                    return gdb_utils_1.gdbMessage('l' + targetXML);
+                    return gdb_utils_js_1.gdbMessage('l' + targetXML);
                 }
-                return gdb_utils_1.gdbMessage('');
+                return gdb_utils_js_1.gdbMessage('');
             case 'v':
                 if (cmd === 'vCont?') {
-                    return gdb_utils_1.gdbMessage('vCont;c;C;s;S');
+                    return gdb_utils_js_1.gdbMessage('vCont;c;C;s;S');
                 }
                 if (cmd.startsWith('vCont;c')) {
                     if (!rp2040.executing) {
@@ -82,7 +82,7 @@ class GDBServer {
                 }
                 if (cmd.startsWith('vCont;s')) {
                     rp2040.executeInstruction();
-                    return gdb_utils_1.gdbMessage(exports.STOP_REPLY_TRAP);
+                    return gdb_utils_js_1.gdbMessage(exports.STOP_REPLY_TRAP);
                 }
                 break;
             case 'c':
@@ -95,32 +95,32 @@ class GDBServer {
                 const buf = new Uint32Array(17);
                 buf.set(rp2040.registers);
                 buf[16] = rp2040.xPSR;
-                return gdb_utils_1.gdbMessage(gdb_utils_1.encodeHexBuf(new Uint8Array(buf.buffer)));
+                return gdb_utils_js_1.gdbMessage(gdb_utils_js_1.encodeHexBuf(new Uint8Array(buf.buffer)));
             }
             case 'p': {
                 // Read register
                 const registerIndex = parseInt(cmd.substr(1), 16);
                 if (registerIndex >= 0 && registerIndex <= 15) {
-                    return gdb_utils_1.gdbMessage(gdb_utils_1.encodeHexUint32(rp2040.registers[registerIndex]));
+                    return gdb_utils_js_1.gdbMessage(gdb_utils_js_1.encodeHexUint32(rp2040.registers[registerIndex]));
                 }
-                const specialRegister = (sysm) => gdb_utils_1.gdbMessage(gdb_utils_1.encodeHexUint32(rp2040.readSpecialRegister(sysm)));
+                const specialRegister = (sysm) => gdb_utils_js_1.gdbMessage(gdb_utils_js_1.encodeHexUint32(rp2040.readSpecialRegister(sysm)));
                 switch (registerIndex) {
                     case 0x10:
-                        return gdb_utils_1.gdbMessage(gdb_utils_1.encodeHexUint32(rp2040.xPSR));
+                        return gdb_utils_js_1.gdbMessage(gdb_utils_js_1.encodeHexUint32(rp2040.xPSR));
                     case 0x11:
-                        return specialRegister(rp2040_1.SYSM_MSP);
+                        return specialRegister(rp2040_js_1.SYSM_MSP);
                     case 0x12:
-                        return specialRegister(rp2040_1.SYSM_PSP);
+                        return specialRegister(rp2040_js_1.SYSM_PSP);
                     case 0x13:
-                        return specialRegister(rp2040_1.SYSM_PRIMASK);
+                        return specialRegister(rp2040_js_1.SYSM_PRIMASK);
                     case 0x14:
                         this.logger.warn(LOG_NAME, 'TODO BASEPRI');
-                        return gdb_utils_1.gdbMessage(gdb_utils_1.encodeHexUint32(0)); // TODO BASEPRI
+                        return gdb_utils_js_1.gdbMessage(gdb_utils_js_1.encodeHexUint32(0)); // TODO BASEPRI
                     case 0x15:
                         this.logger.warn(LOG_NAME, 'TODO faultmask');
-                        return gdb_utils_1.gdbMessage(gdb_utils_1.encodeHexUint32(0)); // TODO faultmask
+                        return gdb_utils_js_1.gdbMessage(gdb_utils_js_1.encodeHexUint32(0)); // TODO faultmask
                     case 0x16:
-                        return specialRegister(rp2040_1.SYSM_CONTROL);
+                        return specialRegister(rp2040_js_1.SYSM_CONTROL);
                 }
                 break;
             }
@@ -130,9 +130,9 @@ class GDBServer {
                 const registerIndex = parseInt(params[0], 16);
                 const registerValue = params[1].trim();
                 const registerBytes = registerIndex > 0x12 ? 1 : 4;
-                const decodedValue = gdb_utils_1.decodeHexBuf(registerValue);
+                const decodedValue = gdb_utils_js_1.decodeHexBuf(registerValue);
                 if (registerIndex < 0 || registerIndex > 0x16 || decodedValue.length !== registerBytes) {
-                    return gdb_utils_1.gdbMessage('E00');
+                    return gdb_utils_js_1.gdbMessage('E00');
                 }
                 const valueBuffer = new Uint8Array(4);
                 valueBuffer.set(decodedValue.slice(0, 4));
@@ -142,13 +142,13 @@ class GDBServer {
                         rp2040.xPSR = value;
                         break;
                     case 0x11:
-                        rp2040.writeSpecialRegister(rp2040_1.SYSM_MSP, value);
+                        rp2040.writeSpecialRegister(rp2040_js_1.SYSM_MSP, value);
                         break;
                     case 0x12:
-                        rp2040.writeSpecialRegister(rp2040_1.SYSM_PSP, value);
+                        rp2040.writeSpecialRegister(rp2040_js_1.SYSM_PSP, value);
                         break;
                     case 0x13:
-                        rp2040.writeSpecialRegister(rp2040_1.SYSM_PRIMASK, value);
+                        rp2040.writeSpecialRegister(rp2040_js_1.SYSM_PRIMASK, value);
                         break;
                     case 0x14:
                         this.logger.warn(LOG_NAME, 'TODO BASEPRI');
@@ -157,13 +157,13 @@ class GDBServer {
                         this.logger.warn(LOG_NAME, 'TODO faultmask');
                         break; // TODO faultmask
                     case 0x16:
-                        rp2040.writeSpecialRegister(rp2040_1.SYSM_CONTROL, value);
+                        rp2040.writeSpecialRegister(rp2040_js_1.SYSM_CONTROL, value);
                         break;
                     default:
                         rp2040.registers[registerIndex] = value;
                         break;
                 }
-                return gdb_utils_1.gdbMessage('OK');
+                return gdb_utils_js_1.gdbMessage('OK');
             }
             case 'm': {
                 // Read memory
@@ -172,24 +172,24 @@ class GDBServer {
                 const length = parseInt(params[1], 16);
                 let result = '';
                 for (let i = 0; i < length; i++) {
-                    result += gdb_utils_1.encodeHexByte(rp2040.readUint8(address + i));
+                    result += gdb_utils_js_1.encodeHexByte(rp2040.readUint8(address + i));
                 }
-                return gdb_utils_1.gdbMessage(result);
+                return gdb_utils_js_1.gdbMessage(result);
             }
             case 'M': {
                 // Write memory
                 const params = cmd.substr(1).split(/[,:]/);
                 const address = parseInt(params[0], 16);
                 const length = parseInt(params[1], 16);
-                const data = gdb_utils_1.decodeHexBuf(params[2].substr(0, length * 2));
+                const data = gdb_utils_js_1.decodeHexBuf(params[2].substr(0, length * 2));
                 for (let i = 0; i < data.length; i++) {
                     this.debug(`Write ${data[i].toString(16)} to ${(address + i).toString(16)}`);
                     rp2040.writeUint8(address + i, data[i]);
                 }
-                return gdb_utils_1.gdbMessage('OK');
+                return gdb_utils_js_1.gdbMessage('OK');
             }
         }
-        return gdb_utils_1.gdbMessage('');
+        return gdb_utils_js_1.gdbMessage('');
     }
     addConnection(connection) {
         this.connections.add(connection);

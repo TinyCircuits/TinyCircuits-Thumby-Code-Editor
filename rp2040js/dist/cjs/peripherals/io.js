@@ -1,14 +1,14 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RPIO = void 0;
-const peripheral_1 = require("./peripheral");
+const peripheral_js_1 = require("./peripheral.js");
 const GPIO_CTRL_LAST = 0x0ec;
 const INTR0 = 0xf0;
 const PROC0_INTE0 = 0x100;
 const PROC0_INTF0 = 0x110;
 const PROC0_INTS0 = 0x120;
 const PROC0_INTS3 = 0x12c;
-class RPIO extends peripheral_1.BasePeripheral {
+class RPIO extends peripheral_js_1.BasePeripheral {
     constructor(rp2040, name) {
         super(rp2040, name);
     }

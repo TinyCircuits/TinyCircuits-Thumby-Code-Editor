@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RPPIO = exports.StateMachine = exports.WaitType = void 0;
-const fifo_1 = require("../utils/fifo");
-const dma_1 = require("./dma");
-const peripheral_1 = require("./peripheral");
+const fifo_js_1 = require("../utils/fifo.js");
+const dma_js_1 = require("./dma.js");
+const peripheral_js_1 = require("./peripheral.js");
 // Generic registers
 const CTRL = 0x000;
 const FSTAT = 0x004;
@@ -87,28 +87,28 @@ function irqIndex(irq, machineIndex) {
     return rel ? (irq & 0x4) | (((irq & 0x3) + machineIndex) & 0x3) : irq & 0x7;
 }
 const dreqRx0 = [
-    dma_1.DREQChannel.DREQ_PIO1_RX0,
-    dma_1.DREQChannel.DREQ_PIO0_RX1,
-    dma_1.DREQChannel.DREQ_PIO0_RX2,
-    dma_1.DREQChannel.DREQ_PIO0_RX3,
+    dma_js_1.DREQChannel.DREQ_PIO1_RX0,
+    dma_js_1.DREQChannel.DREQ_PIO0_RX1,
+    dma_js_1.DREQChannel.DREQ_PIO0_RX2,
+    dma_js_1.DREQChannel.DREQ_PIO0_RX3,
 ];
 const dreqTx0 = [
-    dma_1.DREQChannel.DREQ_PIO0_TX0,
-    dma_1.DREQChannel.DREQ_PIO0_TX1,
-    dma_1.DREQChannel.DREQ_PIO0_TX2,
-    dma_1.DREQChannel.DREQ_PIO0_TX3,
+    dma_js_1.DREQChannel.DREQ_PIO0_TX0,
+    dma_js_1.DREQChannel.DREQ_PIO0_TX1,
+    dma_js_1.DREQChannel.DREQ_PIO0_TX2,
+    dma_js_1.DREQChannel.DREQ_PIO0_TX3,
 ];
 const dreqRx1 = [
-    dma_1.DREQChannel.DREQ_PIO1_RX0,
-    dma_1.DREQChannel.DREQ_PIO1_RX1,
-    dma_1.DREQChannel.DREQ_PIO1_RX2,
-    dma_1.DREQChannel.DREQ_PIO1_RX3,
+    dma_js_1.DREQChannel.DREQ_PIO1_RX0,
+    dma_js_1.DREQChannel.DREQ_PIO1_RX1,
+    dma_js_1.DREQChannel.DREQ_PIO1_RX2,
+    dma_js_1.DREQChannel.DREQ_PIO1_RX3,
 ];
 const dreqTx1 = [
-    dma_1.DREQChannel.DREQ_PIO1_TX0,
-    dma_1.DREQChannel.DREQ_PIO1_TX1,
-    dma_1.DREQChannel.DREQ_PIO1_TX2,
-    dma_1.DREQChannel.DREQ_PIO1_TX3,
+    dma_js_1.DREQChannel.DREQ_PIO1_TX0,
+    dma_js_1.DREQChannel.DREQ_PIO1_TX1,
+    dma_js_1.DREQChannel.DREQ_PIO1_TX2,
+    dma_js_1.DREQChannel.DREQ_PIO1_TX3,
 ];
 class StateMachine {
     constructor(rp2040, pio, index) {
@@ -133,8 +133,8 @@ class StateMachine {
         this.execCtrl = 0x1f << 12;
         this.shiftCtrl = 0b11 << 18;
         this.pinCtrl = 0x5 << 26;
-        this.rxFIFO = new fifo_1.FIFO(4);
-        this.txFIFO = new fifo_1.FIFO(4);
+        this.rxFIFO = new fifo_js_1.FIFO(4);
+        this.txFIFO = new fifo_js_1.FIFO(4);
         this.outPinValues = 0;
         this.outPinDirection = 0;
         this.waiting = false;
@@ -815,7 +815,7 @@ class StateMachine {
     }
 }
 exports.StateMachine = StateMachine;
-class RPPIO extends peripheral_1.BasePeripheral {
+class RPPIO extends peripheral_js_1.BasePeripheral {
     constructor(rp2040, name, firstIrq, index) {
         super(rp2040, name);
         this.firstIrq = firstIrq;

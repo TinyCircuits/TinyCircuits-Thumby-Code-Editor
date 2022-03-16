@@ -1,5 +1,5 @@
-import { RP2040 } from '../rp2040';
-import { BasePeripheral, Peripheral } from './peripheral';
+import { RP2040 } from '../rp2040.js';
+import { BasePeripheral, Peripheral } from './peripheral.js';
 export declare enum I2CMode {
     Write = 0,
     Read = 1

@@ -2,9 +2,9 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.GDBTCPServer = void 0;
 const net_1 = require("net");
-const gdb_connection_1 = require("./gdb-connection");
-const gdb_server_1 = require("./gdb-server");
-class GDBTCPServer extends gdb_server_1.GDBServer {
+const gdb_connection_js_1 = require("./gdb-connection.js");
+const gdb_server_js_1 = require("./gdb-server.js");
+class GDBTCPServer extends gdb_server_js_1.GDBServer {
     constructor(rp2040, port = 3333) {
         super(rp2040);
         this.port = port;
@@ -15,7 +15,7 @@ class GDBTCPServer extends gdb_server_1.GDBServer {
     handleConnection(socket) {
         this.info('GDB connected');
         socket.setNoDelay(true);
-        const connection = new gdb_connection_1.GDBConnection(this, (data) => {
+        const connection = new gdb_connection_js_1.GDBConnection(this, (data) => {
             socket.write(data);
         });
         socket.on('data', (data) => {

@@ -1,4 +1,4 @@
-import { RP2040 } from '../rp2040';
+import { RP2040 } from '../rp2040.js';
 export declare function atomicUpdate(currentValue: number, atomicType: number, newValue: number): number;
 export interface Peripheral {
     readUint32(offset: number): number;

@@ -1,7 +1,7 @@
-import { RP2040 } from '../rp2040';
-import { FIFO } from '../utils/fifo';
-import { DREQChannel } from './dma';
-import { BasePeripheral, Peripheral } from './peripheral';
+import { RP2040 } from '../rp2040.js';
+import { FIFO } from '../utils/fifo.js';
+import { DREQChannel } from './dma.js';
+import { BasePeripheral, Peripheral } from './peripheral.js';
 export declare enum WaitType {
     None = 0,
     Pin = 1,
@@ -48,7 +48,7 @@ export declare class StateMachine {
     writeFIFO(value: number): void;
     readFIFO(): number;
     get status(): 0 | 4294967295;
-    jmpCondition(condition: number): boolean | import("../gpio-pin").GPIOPinState;
+    jmpCondition(condition: number): boolean | import("../gpio-pin.js").GPIOPinState;
     get inPins(): number;
     inSourceValue(source: number): number;
     writeOutValue(destination: number, value: number, bitCount: number): void;

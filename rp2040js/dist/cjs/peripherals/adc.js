@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RPADC = void 0;
-const irq_1 = require("../irq");
-const fifo_1 = require("../utils/fifo");
-const peripheral_1 = require("./peripheral");
+const irq_js_1 = require("../irq.js");
+const fifo_js_1 = require("../utils/fifo.js");
+const peripheral_js_1 = require("./peripheral.js");
 const CS = 0x00; // ADC Control and Status
 const RESULT = 0x04; // Result of most recent ADC conversion
 const FCS = 0x08; // FIFO control and status
@@ -54,7 +54,7 @@ const DIV_FRAC_MASK = 0xff;
 const DIV_FRAC_SHIFT = 0;
 // Interrupt bits
 const FIFO_INT = 1 << 0;
-class RPADC extends peripheral_1.BasePeripheral {
+class RPADC extends peripheral_js_1.BasePeripheral {
     constructor(rp2040, name) {
         super(rp2040, name);
         /* Number of ADC channels */
@@ -83,7 +83,7 @@ class RPADC extends peripheral_1.BasePeripheral {
             // Default implementation
             this.rp2040.clock.createTimer(this.sampleTime, () => this.completeADCRead(this.channelValues[channel], false));
         };
-        this.fifo = new fifo_1.FIFO(4);
+        this.fifo = new fifo_js_1.FIFO(4);
         // Registers
         this.cs = 0;
         this.fcs = 0;
@@ -121,7 +121,7 @@ class RPADC extends peripheral_1.BasePeripheral {
         this.cs |= (channel & CS_AINSEL_SHIFT) << CS_AINSEL_SHIFT;
     }
     checkInterrupts() {
-        this.rp2040.setInterrupt(irq_1.IRQ.ADC_FIFO, !!this.intStatus);
+        this.rp2040.setInterrupt(irq_js_1.IRQ.ADC_FIFO, !!this.intStatus);
     }
     startADCRead() {
         this.busy = true;

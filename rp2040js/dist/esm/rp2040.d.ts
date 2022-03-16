@@ -1,16 +1,16 @@
-import { IClock } from './clock/clock';
-import { GPIOPin } from './gpio-pin';
-import { RPADC } from './peripherals/adc';
-import { RPDMA } from './peripherals/dma';
-import { RPI2C } from './peripherals/i2c';
-import { Peripheral } from './peripherals/peripheral';
-import { RPPIO } from './peripherals/pio';
-import { RPPPB } from './peripherals/ppb';
-import { RPSPI } from './peripherals/spi';
-import { RPUART } from './peripherals/uart';
-import { RPUSBController } from './peripherals/usb';
-import { RPSIO } from './sio';
-import { Logger } from './utils/logging';
+import { IClock } from './clock/clock.js';
+import { GPIOPin } from './gpio-pin.js';
+import { RPADC } from './peripherals/adc.js';
+import { RPDMA } from './peripherals/dma.js';
+import { RPI2C } from './peripherals/i2c.js';
+import { Peripheral } from './peripherals/peripheral.js';
+import { RPPIO } from './peripherals/pio.js';
+import { RPPPB } from './peripherals/ppb.js';
+import { RPSPI } from './peripherals/spi.js';
+import { RPUART } from './peripherals/uart.js';
+import { RPUSBController } from './peripherals/usb.js';
+import { RPSIO } from './sio.js';
+import { Logger } from './utils/logging.js';
 export declare const FLASH_START_ADDRESS = 268435456;
 export declare const FLASH_END_ADDRESS = 335544320;
 export declare const RAM_START_ADDRESS = 536870912;
@@ -84,6 +84,9 @@ export declare class RP2040 {
     readonly peripherals: {
         [index: number]: Peripheral;
     };
+    onScreenAddr: (placeholder: number) => void;
+    onAudioFreq: (placeholder: number) => void;
+    onBrightness: (placeholder: number) => void;
     onBreak: (code: number) => void;
     constructor(clock?: IClock);
     loadBootrom(bootromData: Uint32Array): void;
@@ -131,5 +134,10 @@ export declare class RP2040 {
     execute(): void;
     stop(): void;
     get executing(): boolean;
+}
+declare global {
+    interface Window {
+        setZeroTimeout: any;
+    }
 }
 export {};

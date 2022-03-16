@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RealtimeClock = exports.ClockTimer = void 0;
-const time_1 = require("../utils/time");
+const time_js_1 = require("../utils/time.js");
 class ClockTimer {
     constructor(micros, callback) {
         this.micros = micros;
@@ -46,7 +46,7 @@ class RealtimeClock {
     }
     resume() {
         if (this.paused) {
-            this.baseTime = time_1.getCurrentMicroseconds() - this.pauseTime;
+            this.baseTime = time_js_1.getCurrentMicroseconds() - this.pauseTime;
             this.paused = false;
             for (const timer of this.timers) {
                 timer.resume(this.micros);
@@ -67,7 +67,7 @@ class RealtimeClock {
         this.timers.delete(timer);
     }
     get micros() {
-        return time_1.getCurrentMicroseconds() - this.baseTime;
+        return time_js_1.getCurrentMicroseconds() - this.baseTime;
     }
 }
 exports.RealtimeClock = RealtimeClock;

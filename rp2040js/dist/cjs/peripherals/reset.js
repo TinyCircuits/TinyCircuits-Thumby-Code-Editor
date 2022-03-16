@@ -1,11 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RPReset = void 0;
-const peripheral_1 = require("./peripheral");
+const peripheral_js_1 = require("./peripheral.js");
 const RESET = 0x0; //Reset control.
 const WDSEL = 0x4; //Watchdog select.
 const RESET_DONE = 0x8; //Reset Done
-class RPReset extends peripheral_1.BasePeripheral {
+class RPReset extends peripheral_js_1.BasePeripheral {
     constructor() {
         super(...arguments);
         this.reset = 0;

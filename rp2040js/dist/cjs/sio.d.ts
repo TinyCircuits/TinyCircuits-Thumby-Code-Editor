@@ -1,4 +1,4 @@
-import { RP2040 } from './rp2040';
+import { RP2040 } from './rp2040.js';
 export declare class RPSIO {
     private readonly rp2040;
     gpioValue: number;

@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RPI2C = exports.I2CSpeed = exports.I2CMode = void 0;
-const fifo_1 = require("../utils/fifo");
-const peripheral_1 = require("./peripheral");
+const fifo_js_1 = require("../utils/fifo.js");
+const peripheral_js_1 = require("./peripheral.js");
 const IC_CON = 0x00; // I2C Control Register
 const IC_TAR = 0x04; // I2C Target Address Register
 const IC_SAR = 0x08; // I2C Slave Address Register
@@ -135,7 +135,7 @@ const FIRST_DATA_BYTE = 1 << 10;
 const RESTART = 1 << 10;
 const STOP = 1 << 9;
 const CMD = 1 << 8; // 0 for write, 1 for read
-class RPI2C extends peripheral_1.BasePeripheral {
+class RPI2C extends peripheral_js_1.BasePeripheral {
     constructor(rp2040, name, irq) {
         super(rp2040, name);
         this.irq = irq;
@@ -144,8 +144,8 @@ class RPI2C extends peripheral_1.BasePeripheral {
         this.stop = false;
         this.pendingRestart = false;
         this.firstByte = false;
-        this.rxFIFO = new fifo_1.FIFO(16);
-        this.txFIFO = new fifo_1.FIFO(16);
+        this.rxFIFO = new fifo_js_1.FIFO(16);
+        this.txFIFO = new fifo_js_1.FIFO(16);
         // user provided callbacks
         this.onStart = () => this.completeStart();
         this.onConnect = () => this.completeConnect(false);

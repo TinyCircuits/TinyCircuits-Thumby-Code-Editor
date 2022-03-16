@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RPTimer = void 0;
-const irq_1 = require("../irq");
-const peripheral_1 = require("./peripheral");
+const irq_js_1 = require("../irq.js");
+const peripheral_js_1 = require("./peripheral.js");
 const TIMEHR = 0x08;
 const TIMELR = 0x0c;
 const TIMERAWH = 0x24;
@@ -21,7 +21,7 @@ const ALARM_0 = 1 << 0;
 const ALARM_1 = 1 << 1;
 const ALARM_2 = 1 << 2;
 const ALARM_3 = 1 << 3;
-const timerInterrupts = [irq_1.IRQ.TIMER_0, irq_1.IRQ.TIMER_1, irq_1.IRQ.TIMER_2, irq_1.IRQ.TIMER_3];
+const timerInterrupts = [irq_js_1.IRQ.TIMER_0, irq_js_1.IRQ.TIMER_1, irq_js_1.IRQ.TIMER_2, irq_js_1.IRQ.TIMER_3];
 class RPTimerAlarm {
     constructor(name, bitValue) {
         this.name = name;
@@ -31,7 +31,7 @@ class RPTimerAlarm {
         this.timer = null;
     }
 }
-class RPTimer extends peripheral_1.BasePeripheral {
+class RPTimer extends peripheral_js_1.BasePeripheral {
     constructor(rp2040, name) {
         super(rp2040, name);
         this.latchedTimeHigh = 0;

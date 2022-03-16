@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ConsoleLogger = exports.LogLevel = void 0;
-const time_1 = require("./time");
+const time_js_1 = require("./time.js");
 var LogLevel;
 (function (LogLevel) {
     LogLevel[LogLevel["Debug"] = 0] = "Debug";
@@ -18,7 +18,7 @@ class ConsoleLogger {
         return logLevel >= this.currentLogLevel ? true : false;
     }
     formatMessage(componentName, message) {
-        const currentTime = time_1.formatTime(new Date());
+        const currentTime = time_js_1.formatTime(new Date());
         return `${currentTime} [${componentName}] ${message}`;
     }
     debug(componetName, message) {

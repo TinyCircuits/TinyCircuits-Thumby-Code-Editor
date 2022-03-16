@@ -3,9 +3,9 @@
  *
  * Copyright (C) 2021, Uri Shaked
  */
-import { RP2040 } from '../rp2040';
-import { Logger } from '../utils/logging';
-import { GDBConnection } from './gdb-connection';
+import { RP2040 } from '../rp2040.js';
+import { Logger } from '../utils/logging.js';
+import { GDBConnection } from './gdb-connection.js';
 export declare const STOP_REPLY_SIGINT = "S02";
 export declare const STOP_REPLY_TRAP = "S05";
 export declare class GDBServer {

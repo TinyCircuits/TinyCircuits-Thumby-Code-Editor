@@ -1,5 +1,5 @@
-import { RPUSBController } from '../peripherals/usb';
-import { FIFO } from '../utils/fifo';
+import { RPUSBController } from '../peripherals/usb.js';
+import { FIFO } from '../utils/fifo.js';
 export declare function extractEndpointNumbers(descriptors: ArrayLike<number>): {
     in: number;
     out: number;

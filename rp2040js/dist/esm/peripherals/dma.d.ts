@@ -1,5 +1,5 @@
-import { RP2040 } from '../rp2040';
-import { BasePeripheral, Peripheral } from './peripheral';
+import { RP2040 } from '../rp2040.js';
+import { BasePeripheral, Peripheral } from './peripheral.js';
 export declare enum DREQChannel {
     DREQ_PIO0_TX0 = 0,
     DREQ_PIO0_TX1 = 1,

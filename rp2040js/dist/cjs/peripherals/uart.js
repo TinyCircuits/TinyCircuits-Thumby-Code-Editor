@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RPUART = void 0;
-const fifo_1 = require("../utils/fifo");
-const peripheral_1 = require("./peripheral");
+const fifo_js_1 = require("../utils/fifo.js");
+const peripheral_js_1 = require("./peripheral.js");
 const UARTDR = 0x0;
 const UARTFR = 0x18;
 const UARTLCR_H = 0x2c;
@@ -22,13 +22,13 @@ const TXE = 1 << 8;
 const UARTEN = 1 << 0;
 // Interrupt bits
 const UARTRXINTR = 1 << 4;
-class RPUART extends peripheral_1.BasePeripheral {
+class RPUART extends peripheral_js_1.BasePeripheral {
     constructor(rp2040, name, irq) {
         super(rp2040, name);
         this.irq = irq;
         this.ctrlRegister = RXE | TXE;
         this.lineCtrlRegister = 0;
-        this.rxFIFO = new fifo_1.FIFO(32);
+        this.rxFIFO = new fifo_js_1.FIFO(32);
         this.interruptMask = 0;
         this.interruptStatus = 0;
     }

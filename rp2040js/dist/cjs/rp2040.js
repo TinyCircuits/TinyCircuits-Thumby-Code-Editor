@@ -1,28 +1,28 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RP2040 = exports.SYSM_CONTROL = exports.SYSM_PRIMASK = exports.SYSM_PSP = exports.SYSM_MSP = exports.SIO_START_ADDRESS = exports.DPRAM_START_ADDRESS = exports.RAM_START_ADDRESS = exports.FLASH_END_ADDRESS = exports.FLASH_START_ADDRESS = void 0;
-const realtime_clock_1 = require("./clock/realtime-clock");
-const gpio_pin_1 = require("./gpio-pin");
-const irq_1 = require("./irq");
-const adc_1 = require("./peripherals/adc");
-const clocks_1 = require("./peripherals/clocks");
-const dma_1 = require("./peripherals/dma");
-const i2c_1 = require("./peripherals/i2c");
-const io_1 = require("./peripherals/io");
-const pads_1 = require("./peripherals/pads");
-const peripheral_1 = require("./peripherals/peripheral");
-const pio_1 = require("./peripherals/pio");
-const ppb_1 = require("./peripherals/ppb");
-const reset_1 = require("./peripherals/reset");
-const rtc_1 = require("./peripherals/rtc");
-const spi_1 = require("./peripherals/spi");
-const ssi_1 = require("./peripherals/ssi");
-const syscfg_1 = require("./peripherals/syscfg");
-const timer_1 = require("./peripherals/timer");
-const uart_1 = require("./peripherals/uart");
-const usb_1 = require("./peripherals/usb");
-const sio_1 = require("./sio");
-const logging_1 = require("./utils/logging");
+const realtime_clock_js_1 = require("./clock/realtime-clock.js");
+const gpio_pin_js_1 = require("./gpio-pin.js");
+const irq_js_1 = require("./irq.js");
+const adc_js_1 = require("./peripherals/adc.js");
+const clocks_js_1 = require("./peripherals/clocks.js");
+const dma_js_1 = require("./peripherals/dma.js");
+const i2c_js_1 = require("./peripherals/i2c.js");
+const io_js_1 = require("./peripherals/io.js");
+const pads_js_1 = require("./peripherals/pads.js");
+const peripheral_js_1 = require("./peripherals/peripheral.js");
+const pio_js_1 = require("./peripherals/pio.js");
+const ppb_js_1 = require("./peripherals/ppb.js");
+const reset_js_1 = require("./peripherals/reset.js");
+const rtc_js_1 = require("./peripherals/rtc.js");
+const spi_js_1 = require("./peripherals/spi.js");
+const ssi_js_1 = require("./peripherals/ssi.js");
+const syscfg_js_1 = require("./peripherals/syscfg.js");
+const timer_js_1 = require("./peripherals/timer.js");
+const uart_js_1 = require("./peripherals/uart.js");
+const usb_js_1 = require("./peripherals/usb.js");
+const sio_js_1 = require("./sio.js");
+const logging_js_1 = require("./utils/logging.js");
 exports.FLASH_START_ADDRESS = 0x10000000;
 exports.FLASH_END_ADDRESS = 0x14000000;
 exports.RAM_START_ADDRESS = 0x20000000;
@@ -72,7 +72,7 @@ const KB = 1024;
 const MB = 1024 * KB;
 const MHz = 1000000;
 class RP2040 {
-    constructor(clock = new realtime_clock_1.RealtimeClock()) {
+    constructor(clock = new realtime_clock_js_1.RealtimeClock()) {
         this.clock = clock;
         this.bootrom = new Uint32Array(4 * KB);
         this.sram = new Uint8Array(264 * KB);
@@ -88,62 +88,62 @@ class RP2040 {
         /* Clocks */
         this.clkSys = 125 * MHz;
         this.clkPeri = 125 * MHz;
-        this.ppb = new ppb_1.RPPPB(this, 'PPB');
-        this.sio = new sio_1.RPSIO(this);
-        this.uart = [new uart_1.RPUART(this, 'UART0', irq_1.IRQ.UART0), new uart_1.RPUART(this, 'UART1', irq_1.IRQ.UART1)];
-        this.i2c = [new i2c_1.RPI2C(this, 'I2C0', irq_1.IRQ.I2C0), new i2c_1.RPI2C(this, 'I2C1', irq_1.IRQ.I2C1)];
-        this.spi = [new spi_1.RPSPI(this, 'SPI0', irq_1.IRQ.SPI0), new spi_1.RPSPI(this, 'SPI1', irq_1.IRQ.SPI1)];
-        this.adc = new adc_1.RPADC(this, 'ADC');
+        this.ppb = new ppb_js_1.RPPPB(this, 'PPB');
+        this.sio = new sio_js_1.RPSIO(this);
+        this.uart = [new uart_js_1.RPUART(this, 'UART0', irq_js_1.IRQ.UART0), new uart_js_1.RPUART(this, 'UART1', irq_js_1.IRQ.UART1)];
+        this.i2c = [new i2c_js_1.RPI2C(this, 'I2C0', irq_js_1.IRQ.I2C0), new i2c_js_1.RPI2C(this, 'I2C1', irq_js_1.IRQ.I2C1)];
+        this.spi = [new spi_js_1.RPSPI(this, 'SPI0', irq_js_1.IRQ.SPI0), new spi_js_1.RPSPI(this, 'SPI1', irq_js_1.IRQ.SPI1)];
+        this.adc = new adc_js_1.RPADC(this, 'ADC');
         this.gpio = [
-            new gpio_pin_1.GPIOPin(this, 0),
-            new gpio_pin_1.GPIOPin(this, 1),
-            new gpio_pin_1.GPIOPin(this, 2),
-            new gpio_pin_1.GPIOPin(this, 3),
-            new gpio_pin_1.GPIOPin(this, 4),
-            new gpio_pin_1.GPIOPin(this, 5),
-            new gpio_pin_1.GPIOPin(this, 6),
-            new gpio_pin_1.GPIOPin(this, 7),
-            new gpio_pin_1.GPIOPin(this, 8),
-            new gpio_pin_1.GPIOPin(this, 9),
-            new gpio_pin_1.GPIOPin(this, 10),
-            new gpio_pin_1.GPIOPin(this, 11),
-            new gpio_pin_1.GPIOPin(this, 12),
-            new gpio_pin_1.GPIOPin(this, 13),
-            new gpio_pin_1.GPIOPin(this, 14),
-            new gpio_pin_1.GPIOPin(this, 15),
-            new gpio_pin_1.GPIOPin(this, 16),
-            new gpio_pin_1.GPIOPin(this, 17),
-            new gpio_pin_1.GPIOPin(this, 18),
-            new gpio_pin_1.GPIOPin(this, 19),
-            new gpio_pin_1.GPIOPin(this, 20),
-            new gpio_pin_1.GPIOPin(this, 21),
-            new gpio_pin_1.GPIOPin(this, 22),
-            new gpio_pin_1.GPIOPin(this, 23),
-            new gpio_pin_1.GPIOPin(this, 24),
-            new gpio_pin_1.GPIOPin(this, 25),
-            new gpio_pin_1.GPIOPin(this, 26),
-            new gpio_pin_1.GPIOPin(this, 27),
-            new gpio_pin_1.GPIOPin(this, 28),
-            new gpio_pin_1.GPIOPin(this, 29),
+            new gpio_pin_js_1.GPIOPin(this, 0),
+            new gpio_pin_js_1.GPIOPin(this, 1),
+            new gpio_pin_js_1.GPIOPin(this, 2),
+            new gpio_pin_js_1.GPIOPin(this, 3),
+            new gpio_pin_js_1.GPIOPin(this, 4),
+            new gpio_pin_js_1.GPIOPin(this, 5),
+            new gpio_pin_js_1.GPIOPin(this, 6),
+            new gpio_pin_js_1.GPIOPin(this, 7),
+            new gpio_pin_js_1.GPIOPin(this, 8),
+            new gpio_pin_js_1.GPIOPin(this, 9),
+            new gpio_pin_js_1.GPIOPin(this, 10),
+            new gpio_pin_js_1.GPIOPin(this, 11),
+            new gpio_pin_js_1.GPIOPin(this, 12),
+            new gpio_pin_js_1.GPIOPin(this, 13),
+            new gpio_pin_js_1.GPIOPin(this, 14),
+            new gpio_pin_js_1.GPIOPin(this, 15),
+            new gpio_pin_js_1.GPIOPin(this, 16),
+            new gpio_pin_js_1.GPIOPin(this, 17),
+            new gpio_pin_js_1.GPIOPin(this, 18),
+            new gpio_pin_js_1.GPIOPin(this, 19),
+            new gpio_pin_js_1.GPIOPin(this, 20),
+            new gpio_pin_js_1.GPIOPin(this, 21),
+            new gpio_pin_js_1.GPIOPin(this, 22),
+            new gpio_pin_js_1.GPIOPin(this, 23),
+            new gpio_pin_js_1.GPIOPin(this, 24),
+            new gpio_pin_js_1.GPIOPin(this, 25),
+            new gpio_pin_js_1.GPIOPin(this, 26),
+            new gpio_pin_js_1.GPIOPin(this, 27),
+            new gpio_pin_js_1.GPIOPin(this, 28),
+            new gpio_pin_js_1.GPIOPin(this, 29),
         ];
         this.qspi = [
-            new gpio_pin_1.GPIOPin(this, 0, 'SCLK'),
-            new gpio_pin_1.GPIOPin(this, 1, 'SS'),
-            new gpio_pin_1.GPIOPin(this, 2, 'SD0'),
-            new gpio_pin_1.GPIOPin(this, 3, 'SD1'),
-            new gpio_pin_1.GPIOPin(this, 4, 'SD2'),
-            new gpio_pin_1.GPIOPin(this, 5, 'SD3'),
+            new gpio_pin_js_1.GPIOPin(this, 0, 'SCLK'),
+            new gpio_pin_js_1.GPIOPin(this, 1, 'SS'),
+            new gpio_pin_js_1.GPIOPin(this, 2, 'SD0'),
+            new gpio_pin_js_1.GPIOPin(this, 3, 'SD1'),
+            new gpio_pin_js_1.GPIOPin(this, 4, 'SD2'),
+            new gpio_pin_js_1.GPIOPin(this, 5, 'SD3'),
         ];
-        this.dma = new dma_1.RPDMA(this, 'DMA');
+        this.dma = new dma_js_1.RPDMA(this, 'DMA');
         this.pio = [
-            new pio_1.RPPIO(this, 'PIO0', irq_1.IRQ.PIO0_IRQ0, 0),
-            new pio_1.RPPIO(this, 'PIO1', irq_1.IRQ.PIO1_IRQ0, 1),
+            new pio_js_1.RPPIO(this, 'PIO0', irq_js_1.IRQ.PIO0_IRQ0, 0),
+            new pio_js_1.RPPIO(this, 'PIO1', irq_js_1.IRQ.PIO1_IRQ0, 1),
         ];
-        this.usbCtrl = new usb_1.RPUSBController(this, 'USB');
+        this.usbCtrl = new usb_js_1.RPUSBController(this, 'USB');
         this.stopped = true;
         this.eventRegistered = false;
         this.waiting = false;
-        this.logger = new logging_1.ConsoleLogger(logging_1.LogLevel.Debug, true);
+        this.logger = new logging_js_1.ConsoleLogger(logging_js_1.LogLevel.Debug, true);
         // APSR fields
         this.N = false;
         this.C = false;
@@ -170,20 +170,20 @@ class RP2040 {
         this.SHPR3 = 0;
         this.executeTimer = null;
         this.peripherals = {
-            0x18000: new ssi_1.RPSSI(this, 'SSI'),
-            0x40000: new peripheral_1.UnimplementedPeripheral(this, 'SYSINFO_BASE'),
-            0x40004: new syscfg_1.RP2040SysCfg(this, 'SYSCFG'),
-            0x40008: new clocks_1.RPClocks(this, 'CLOCKS_BASE'),
-            0x4000c: new reset_1.RPReset(this, 'RESETS_BASE'),
-            0x40010: new peripheral_1.UnimplementedPeripheral(this, 'PSM_BASE'),
-            0x40014: new io_1.RPIO(this, 'IO_BANK0_BASE'),
-            0x40018: new peripheral_1.UnimplementedPeripheral(this, 'IO_QSPI_BASE'),
-            0x4001c: new pads_1.RPPADS(this, 'PADS_BANK0_BASE', 'bank0'),
-            0x40020: new pads_1.RPPADS(this, 'PADS_QSPI_BASE', 'qspi'),
-            0x40024: new peripheral_1.UnimplementedPeripheral(this, 'XOSC_BASE'),
-            0x40028: new peripheral_1.UnimplementedPeripheral(this, 'PLL_SYS_BASE'),
-            0x4002c: new peripheral_1.UnimplementedPeripheral(this, 'PLL_USB_BASE'),
-            0x40030: new peripheral_1.UnimplementedPeripheral(this, 'BUSCTRL_BASE'),
+            0x18000: new ssi_js_1.RPSSI(this, 'SSI'),
+            0x40000: new peripheral_js_1.UnimplementedPeripheral(this, 'SYSINFO_BASE'),
+            0x40004: new syscfg_js_1.RP2040SysCfg(this, 'SYSCFG'),
+            0x40008: new clocks_js_1.RPClocks(this, 'CLOCKS_BASE'),
+            0x4000c: new reset_js_1.RPReset(this, 'RESETS_BASE'),
+            0x40010: new peripheral_js_1.UnimplementedPeripheral(this, 'PSM_BASE'),
+            0x40014: new io_js_1.RPIO(this, 'IO_BANK0_BASE'),
+            0x40018: new peripheral_js_1.UnimplementedPeripheral(this, 'IO_QSPI_BASE'),
+            0x4001c: new pads_js_1.RPPADS(this, 'PADS_BANK0_BASE', 'bank0'),
+            0x40020: new pads_js_1.RPPADS(this, 'PADS_QSPI_BASE', 'qspi'),
+            0x40024: new peripheral_js_1.UnimplementedPeripheral(this, 'XOSC_BASE'),
+            0x40028: new peripheral_js_1.UnimplementedPeripheral(this, 'PLL_SYS_BASE'),
+            0x4002c: new peripheral_js_1.UnimplementedPeripheral(this, 'PLL_USB_BASE'),
+            0x40030: new peripheral_js_1.UnimplementedPeripheral(this, 'BUSCTRL_BASE'),
             0x40034: this.uart[0],
             0x40038: this.uart[1],
             0x4003c: this.spi[0],
@@ -191,24 +191,47 @@ class RP2040 {
             0x40044: this.i2c[0],
             0x40048: this.i2c[1],
             0x4004c: this.adc,
-            0x40050: new peripheral_1.UnimplementedPeripheral(this, 'PWM_BASE'),
-            0x40054: new timer_1.RPTimer(this, 'TIMER_BASE'),
-            0x40058: new peripheral_1.UnimplementedPeripheral(this, 'WATCHDOG_BASE'),
-            0x4005c: new rtc_1.RP2040RTC(this, 'RTC_BASE'),
-            0x40060: new peripheral_1.UnimplementedPeripheral(this, 'ROSC_BASE'),
-            0x40064: new peripheral_1.UnimplementedPeripheral(this, 'VREG_AND_CHIP_RESET_BASE'),
-            0x4006c: new peripheral_1.UnimplementedPeripheral(this, 'TBMAN_BASE'),
+            0x40050: new peripheral_js_1.UnimplementedPeripheral(this, 'PWM_BASE'),
+            0x40054: new timer_js_1.RPTimer(this, 'TIMER_BASE'),
+            0x40058: new peripheral_js_1.UnimplementedPeripheral(this, 'WATCHDOG_BASE'),
+            0x4005c: new rtc_js_1.RP2040RTC(this, 'RTC_BASE'),
+            0x40060: new peripheral_js_1.UnimplementedPeripheral(this, 'ROSC_BASE'),
+            0x40064: new peripheral_js_1.UnimplementedPeripheral(this, 'VREG_AND_CHIP_RESET_BASE'),
+            0x4006c: new peripheral_js_1.UnimplementedPeripheral(this, 'TBMAN_BASE'),
             0x50000: this.dma,
             0x50110: this.usbCtrl,
             0x50200: this.pio[0],
             0x50300: this.pio[1],
         };
+        this.onScreenAddr = (placeholder) => { };
+        this.onAudioFreq = (placeholder) => { };
+        this.onBrightness = (placeholder) => { };
         // Debugging
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         this.onBreak = (code) => {
             // TODO: raise HardFault exception
             // console.error('Breakpoint!', code);
-            this.stopped = true;
+            // console.log(code);
+            if (code == 27) {
+                const flashAddr = this.registers[0];
+                const ramAddr = this.registers[1] - exports.RAM_START_ADDRESS;
+                const count = this.registers[2];
+                this.flash.set(this.sram.slice(ramAddr, ramAddr + count), flashAddr);
+            }
+            else if (code == 28) {
+                this.onScreenAddr(this.registers[0]);
+            }
+            else if (code == 29) {
+                this.onAudioFreq(this.registers[0]);
+            }
+            else if (code == 30) {
+                this.onBrightness(this.registers[0]);
+            }
+            else {
+                this.stopped = true;
+            }
+            // Copy LR to PC register
+            this.registers[15] = this.registers[14];
         };
         this.SP = 0xfffffffc;
         this.bankedSP = 0xfffffffc;
@@ -627,7 +650,7 @@ class RP2040 {
             if (levelInterrupts) {
                 for (let interruptNumber = 0; interruptNumber < 32; interruptNumber++) {
                     if (levelInterrupts & (1 << interruptNumber)) {
-                        if (interruptNumber > irq_1.MAX_HARDWARE_IRQ) {
+                        if (interruptNumber > irq_js_1.MAX_HARDWARE_IRQ) {
                             this.pendingInterrupts &= ~(1 << interruptNumber);
                         }
                         this.exceptionEntry(16 + interruptNumber);
@@ -646,7 +669,7 @@ class RP2040 {
                 interruptValue = true;
             }
         }
-        this.setInterrupt(irq_1.IRQ.IO_BANK0, interruptValue);
+        this.setInterrupt(irq_js_1.IRQ.IO_BANK0, interruptValue);
     }
     readSpecialRegister(sysm) {
         switch (sysm) {
@@ -1497,7 +1520,7 @@ class RP2040 {
             this.executeInstruction();
         }
         if (!this.stopped) {
-            this.executeTimer = setTimeout(() => this.execute(), 0);
+            this.executeTimer = window.setZeroTimeout(() => this.execute());
         }
     }
     stop() {
@@ -1513,3 +1536,25 @@ class RP2040 {
     }
 }
 exports.RP2040 = RP2040;
+// Only add setZeroTimeout to the window object, and hide everything
+// else in a closure.
+// https://dbaron.org/log/20100309-faster-timeouts
+(function () {
+    let timeouts = [];
+    let messageName = "zero-timeout-message";
+    function setZeroTimeout(fn) {
+        timeouts.push(fn);
+        window.postMessage(messageName, "*");
+    }
+    function handleMessage(event) {
+        if (event.source == window && event.data == messageName) {
+            event.stopPropagation();
+            if (timeouts.length > 0) {
+                var fn = timeouts.shift();
+                fn();
+            }
+        }
+    }
+    window.addEventListener("message", handleMessage, true);
+    window.setZeroTimeout = setZeroTimeout;
+})();

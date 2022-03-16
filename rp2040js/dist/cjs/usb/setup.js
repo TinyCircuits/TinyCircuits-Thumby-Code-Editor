@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.setDeviceConfigurationPacket = exports.getDescriptorPacket = exports.setDeviceAddressPacket = exports.createSetupPacket = void 0;
-const interfaces_1 = require("./interfaces");
+const interfaces_js_1 = require("./interfaces.js");
 function createSetupPacket(params) {
     const setupPacket = new Uint8Array(8);
     setupPacket[0] = (params.dataDirection << 7) | (params.type << 5) | params.recipient;
@@ -17,10 +17,10 @@ function createSetupPacket(params) {
 exports.createSetupPacket = createSetupPacket;
 function setDeviceAddressPacket(address) {
     return createSetupPacket({
-        dataDirection: interfaces_1.DataDirection.HostToDevice,
-        type: interfaces_1.SetupType.Standard,
-        recipient: interfaces_1.SetupRecipient.Device,
-        bRequest: interfaces_1.SetupRequest.SetAddress,
+        dataDirection: interfaces_js_1.DataDirection.HostToDevice,
+        type: interfaces_js_1.SetupType.Standard,
+        recipient: interfaces_js_1.SetupRecipient.Device,
+        bRequest: interfaces_js_1.SetupRequest.SetAddress,
         wValue: address,
         wIndex: 0,
         wLength: 0,
@@ -29,10 +29,10 @@ function setDeviceAddressPacket(address) {
 exports.setDeviceAddressPacket = setDeviceAddressPacket;
 function getDescriptorPacket(type, length, index = 0) {
     return createSetupPacket({
-        dataDirection: interfaces_1.DataDirection.DeviceToHost,
-        type: interfaces_1.SetupType.Standard,
-        recipient: interfaces_1.SetupRecipient.Device,
-        bRequest: interfaces_1.SetupRequest.GetDescriptor,
+        dataDirection: interfaces_js_1.DataDirection.DeviceToHost,
+        type: interfaces_js_1.SetupType.Standard,
+        recipient: interfaces_js_1.SetupRecipient.Device,
+        bRequest: interfaces_js_1.SetupRequest.GetDescriptor,
         wValue: type << 8,
         wIndex: index,
         wLength: length,
@@ -41,10 +41,10 @@ function getDescriptorPacket(type, length, index = 0) {
 exports.getDescriptorPacket = getDescriptorPacket;
 function setDeviceConfigurationPacket(configurationNumber) {
     return createSetupPacket({
-        dataDirection: interfaces_1.DataDirection.HostToDevice,
-        type: interfaces_1.SetupType.Standard,
-        recipient: interfaces_1.SetupRecipient.Device,
-        bRequest: interfaces_1.SetupRequest.SetDeviceConfiguration,
+        dataDirection: interfaces_js_1.DataDirection.HostToDevice,
+        type: interfaces_js_1.SetupType.Standard,
+        recipient: interfaces_js_1.SetupRecipient.Device,
+        bRequest: interfaces_js_1.SetupRequest.SetDeviceConfiguration,
         wValue: configurationNumber,
         wIndex: 0,
         wLength: 0,

@@ -1,1 +1,0 @@
-This was moved to https://thumby.us/API/Get-Started/

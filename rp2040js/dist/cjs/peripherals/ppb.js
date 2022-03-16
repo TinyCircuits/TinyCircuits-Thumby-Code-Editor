@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RPPPB = exports.SHPR3 = exports.SHPR2 = exports.VTOR = void 0;
-const irq_1 = require("../irq");
-const peripheral_1 = require("./peripheral");
+const irq_js_1 = require("../irq.js");
+const peripheral_js_1 = require("./peripheral.js");
 exports.VTOR = 0xd08;
 exports.SHPR2 = 0xd1c;
 exports.SHPR3 = 0xd20;
@@ -28,7 +28,7 @@ const NVIC_IPR7 = 0x41c;
  *
  * Included peripheral: NVIC, SysTick timer
  */
-class RPPPB extends peripheral_1.BasePeripheral {
+class RPPPB extends peripheral_js_1.BasePeripheral {
     constructor() {
         super(...arguments);
         // Systick
@@ -98,7 +98,7 @@ class RPPPB extends peripheral_1.BasePeripheral {
     }
     writeUint32(offset, value) {
         const { rp2040 } = this;
-        const hardwareInterruptMask = (1 << irq_1.MAX_HARDWARE_IRQ) - 1;
+        const hardwareInterruptMask = (1 << irq_js_1.MAX_HARDWARE_IRQ) - 1;
         switch (offset) {
             case exports.VTOR:
                 rp2040.VTOR = value;

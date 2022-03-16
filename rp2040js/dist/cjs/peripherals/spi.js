@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RPSPI = void 0;
-const fifo_1 = require("../utils/fifo");
-const peripheral_1 = require("./peripheral");
+const fifo_js_1 = require("../utils/fifo.js");
+const peripheral_js_1 = require("./peripheral.js");
 const SSPCR0 = 0x000; // Control register 0, SSPCR0 on page 3-4
 const SSPCR1 = 0x004; // Control register 1, SSPCR1 on page 3-5
 const SSPDR = 0x008; // Data register, SSPDR on page 3-6
@@ -52,12 +52,12 @@ const SSPTXINTR = 1 << 3;
 const SSPRXINTR = 1 << 2;
 const SSPRTINTR = 1 << 1;
 const SSPRORINTR = 1 << 0;
-class RPSPI extends peripheral_1.BasePeripheral {
+class RPSPI extends peripheral_js_1.BasePeripheral {
     constructor(rp2040, name, irq) {
         super(rp2040, name);
         this.irq = irq;
-        this.rxFIFO = new fifo_1.FIFO(8);
-        this.txFIFO = new fifo_1.FIFO(8);
+        this.rxFIFO = new fifo_js_1.FIFO(8);
+        this.txFIFO = new fifo_js_1.FIFO(8);
         // User provided callbacks
         this.onTransmit = () => this.completeTransmit(0);
         this.busy = false;
