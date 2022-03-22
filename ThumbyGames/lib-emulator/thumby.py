@@ -28,8 +28,8 @@ import ssd1306
 import os
 import emulator
 
-# Last updated 3/16/2022 for credits and HWID change
-__version__ = '1.4'
+# Last updated 3/22/2022 for credits
+__version__ = '1.5'
 
 # Pin definitions for button inputs & buzzer.
 swL = Pin(3, Pin.IN, Pin.PULL_UP) # D-pad left
