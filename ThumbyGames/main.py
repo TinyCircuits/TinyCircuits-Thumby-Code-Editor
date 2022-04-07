@@ -62,7 +62,7 @@ display=None
 if(HWID==0):
     i2c = I2C(0, sda=Pin(16), scl=Pin(17), freq=1000000)
     display = ssd1306.SSD1306_I2C(72, 40, i2c, res=Pin(18))
-if(HWID==1):
+if(HWID>=1):
     spi = SPI(0, sck=Pin(18), mosi=Pin(19))#possible assignment of miso to 4 or 16?
     display = ssd1306.SSD1306_SPI(72, 40, spi, dc=Pin(17), res=Pin(20), cs=Pin(16))
 
