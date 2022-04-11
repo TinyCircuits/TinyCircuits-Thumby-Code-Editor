@@ -28,7 +28,7 @@ var onExportToEditor = (bytes) => {
     var filePath = undefined;
     while(true){
         var increased = false;
-        filePath = "/sprite" + editorSpriteID + ".raw";
+        filePath = "/sprite" + editorSpriteID + ".bin";
 
         for (const [id, editor] of Object.entries(EDITORS)) {
             if(editor.EDITOR_PATH == filePath){
