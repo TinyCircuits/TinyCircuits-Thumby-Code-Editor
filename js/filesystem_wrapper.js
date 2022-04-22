@@ -324,6 +324,13 @@ class FILESYSTEM{
                         }
                         this.FS_DROPDOWN_DIV.style.top = top + 'px';
 
+                        var selectedNodes = this.FS_TREE.getSelectedNodes();
+
+                        // Unselect all nodes so next time multiple are not selected
+                        for(var i=0; i<selectedNodes.length; i++){
+                            selectedNodes[i].setSelected(false);
+                        }
+
                         node.setSelected(true);
                         return false;
                     }, false);
@@ -349,6 +356,13 @@ class FILESYSTEM{
                             top = 0;
                         }
                         this.FS_DROPDOWN_DIV.style.top = top + 'px';
+
+                        var selectedNodes = this.FS_TREE.getSelectedNodes();
+
+                        // Unselect all nodes so next time multiple are not selected
+                        for(var i=0; i<selectedNodes.length; i++){
+                            selectedNodes[i].setSelected(false);
+                        }
 
                         node.setSelected(true);
                         return false;
@@ -428,6 +442,7 @@ class FILESYSTEM{
         for(var i=0; i<selectedNodes.length; i++){
             selectedNodes[i].setSelected(false);
         }
+
         return selectedNodePath;
     }
 
