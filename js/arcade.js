@@ -88,7 +88,7 @@ class Arcade{
                 this.NEXT_GAME_INDEX = 0;
 
                 await this.fillUserAndRepoNameList();
-                this.loadNewGames(10);
+                this.loadNewGames();
             }
         };
         this.ARCADE_HEADER_DIV.appendChild(this.ARCADE_REFRESH_BTN);
@@ -111,15 +111,6 @@ class Arcade{
             }
         });
 
-        // When scrolling through games, add hidden/unparsed
-        // games when scroll position is far enough
-        this.ARCADE_SCROLL_AREA_DIV.onscroll = (event) => {
-            // When scroll hits the bottom, load some number of games
-            if(this.ARCADE_SCROLL_AREA_DIV.scrollTop >= this.ARCADE_SCROLL_AREA_DIV.scrollHeight - this.ARCADE_SCROLL_AREA_DIV.clientHeight){
-                this.loadNewGames(4);
-            }
-        }
-
         // Functions that are defined outside this module
         this.onDownload = undefined;
         this.onOpen = undefined;
@@ -127,9 +118,10 @@ class Arcade{
 
 
     // Actually add games to the arcade, fetch assets using URLs compiled before
-    async loadNewGames(count){
+    async loadNewGames(){
         this.LOADING = true;
-        for(var i=0; i<count; i++){
+        this.ARCADE_REFRESH_BTN.disabled = true;
+        for(var i=0; i<this.GAME_URL_CONTAINERS.length; i++){
             if(this.NEXT_GAME_INDEX < this.GAME_URL_CONTAINERS.length-1){
 
                 var descText = "";
@@ -226,6 +218,7 @@ class Arcade{
             }
         }
         this.LOADING = false;
+        this.ARCADE_REFRESH_BTN.disabled = false;
     }
 
 
@@ -279,7 +272,7 @@ class Arcade{
 
             // Start arcade with some number of items loaded (should be enough so that the scroll bar
             // is active (if enough games) and more games can be loaded on all screen sizes)
-            this.loadNewGames(10);
+            this.loadNewGames();
         }
     }
 
