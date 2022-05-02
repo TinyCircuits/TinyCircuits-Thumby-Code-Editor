@@ -51,6 +51,7 @@ class GameURLContainer{
 class Arcade{
     constructor(){
         this.SHOWN = false;
+        this.LOADING = false;
 
         // Direct link to raw page from Github of txt file
         this.DIRECT_TXT_URL = "https://raw.githubusercontent.com/TinyCircuits/TinyCircuits-Thumby-Games/master/url_list.txt";
@@ -75,18 +76,20 @@ class Arcade{
         this.ARCADE_REFRESH_BTN.title = "Grabs the list of game repos and starts from the beginning (as if the page was refreshed)";
         this.ARCADE_REFRESH_BTN.textContent = "REFRESH";
         this.ARCADE_REFRESH_BTN.onclick = async () => {
-            // Scroll to start, remove all child divs, reset state machine, re-fetch games
-            this.ARCADE_SCROLL_AREA_DIV.scrollTo(0, 0);
-            while(this.ARCADE_SCROLL_AREA_DIV.children.length > 0){
-                this.ARCADE_SCROLL_AREA_DIV.removeChild(this.ARCADE_SCROLL_AREA_DIV.children[0]);
+            if(this.LOADING == false){
+                // Scroll to start, remove all child divs, reset state machine, re-fetch games
+                this.ARCADE_SCROLL_AREA_DIV.scrollTo(0, 0);
+                while(this.ARCADE_SCROLL_AREA_DIV.children.length > 0){
+                    this.ARCADE_SCROLL_AREA_DIV.removeChild(this.ARCADE_SCROLL_AREA_DIV.children[0]);
+                }
+
+                this.GAME_URL_CONTAINERS = [];
+                this.FILLED_GAME_URLS = true;
+                this.NEXT_GAME_INDEX = 0;
+
+                await this.fillUserAndRepoNameList();
+                this.loadNewGames(10);
             }
-
-            this.GAME_URL_CONTAINERS = [];
-            this.FILLED_GAME_URLS = true;
-            this.NEXT_GAME_INDEX = 0;
-
-            await this.fillUserAndRepoNameList();
-            this.loadNewGames(12);
         };
         this.ARCADE_HEADER_DIV.appendChild(this.ARCADE_REFRESH_BTN);
 
@@ -125,6 +128,7 @@ class Arcade{
 
     // Actually add games to the arcade, fetch assets using URLs compiled before
     async loadNewGames(count){
+        this.LOADING = true;
         for(var i=0; i<count; i++){
             if(this.NEXT_GAME_INDEX < this.GAME_URL_CONTAINERS.length-1){
 
@@ -221,6 +225,7 @@ class Arcade{
                 console.log("Reached library limit, no more games to browse");
             }
         }
+        this.LOADING = false;
     }
 
 
@@ -229,11 +234,12 @@ class Arcade{
     // each repo listed (not all at once, only when scrolling happens)
     async fillUserAndRepoNameList(){
         var repoLinksTxt = undefined;
-        await fetch(this.DIRECT_TXT_URL).then(async (response) => {
+        await fetch(this.DIRECT_TXT_URL, {cache: 'no-store', pragma: 'no-cache'}).then(async (response) => {
             await response.text().then((text) => {
                 repoLinksTxt = text;
             });
         });
+
 
         // Split the list by whatever newline may be after each line
         var txtFileLines = repoLinksTxt.split(/\r\n|\n|\r/);
@@ -273,7 +279,7 @@ class Arcade{
 
             // Start arcade with some number of items loaded (should be enough so that the scroll bar
             // is active (if enough games) and more games can be loaded on all screen sizes)
-            this.loadNewGames(50);
+            this.loadNewGames(10);
         }
     }
 
