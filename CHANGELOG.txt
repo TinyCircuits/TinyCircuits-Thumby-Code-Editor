@@ -4,6 +4,13 @@ Thumby Code Editor changelog!
 
 ####################
 
+May 12th, 2022
+
+* Attempt to fix some arcade games getting stuck when downloading to Thumby
+
+
+####################
+
 March 16th, 2022
 
 * Add bar to filesystem panel to show used storage in MB

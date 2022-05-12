@@ -36,7 +36,7 @@ class ReplJS{
         // ### MicroPython Control Commands ###
         // DOCS: https://docs.micropython.org/en/latest/esp8266/tutorial/repl.html#other-control-commands
         // UNICODE CTRL CHARS COMBOS: https://unicodelookup.com/#ctrl
-        this.CTRL_CMD_RAWMODE = "\x01";     // ctrl-A (use for wating to get file information, upload files, run custom python tool, etc)
+        this.CTRL_CMD_RAWMODE = "\x01";     // ctrl-A (used for waiting to get file information, upload files, run custom python tool, etc)
         this.CTRL_CMD_NORMALMODE = "\x02";  // ctrl-B (user friendly terminal)
         this.CTRL_CMD_KINTERRUPT = "\x03";  // ctrl-C (stops a running program)
         this.CTRL_CMD_SOFTRESET = "\x04";   // ctrl-D (soft reset the board, required after a command is entered in raw!)
@@ -557,7 +557,6 @@ class ReplJS{
         this.BUSY = true;
         if(usePercent) window.setPercent(1, "Uploading file...");
 
-        await this.getToRaw();
         if(usePercent) window.setPercent(2);
         // this.startReaduntil(">");
 
@@ -595,6 +594,7 @@ class ReplJS{
                                 "    read_byte_count = read_byte_count + sys.stdin.buffer.readinto(read_buffer, 255)\n" +
 
                                 "    if byte_count_to_read == -1:\n" +
+                                "        time.sleep(0.1)\n" +
                                 "        byte_count_to_read = int(read_buffer[0:7].decode('utf-8'))\n" +
                                 "        specialIndex = 7\n" +
 
@@ -611,6 +611,7 @@ class ReplJS{
                                 "w.close()\n" +
 
                                 "micropython.kbd_intr(0x03)\n";
+
 
 
         await this.writeUtilityCmdRaw(writeFileScript, true, 1, "OK");

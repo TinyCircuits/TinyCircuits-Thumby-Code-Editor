@@ -61,7 +61,7 @@ var IMPORTER = new Importer(document.getElementById("IDImportSpriteBTN"), onExpo
 
 
 // Show pop-up containing IDE changelog every time showChangelogVersion is increased
-const showChangelogVersion = 11;
+const showChangelogVersion = 12;
 
 // This should match what is in /ThumbyGames/lib/thumby.py as '__version__'
 window.latestThumbyLibraryVersion = 1.5
@@ -746,8 +746,11 @@ function registerBitmapBuilder(_container, state){
 
 ARCADE.onDownload = async (thumbyURL, binaryFileContents) => {
     await REPL.uploadFile(thumbyURL, binaryFileContents, false, true);
-    await REPL.getOnBoardFSTree();
 }
+
+ARCADE.onDoneDownload = async () => {
+    await REPL.getOnBoardFSTree();
+} 
 
 
 

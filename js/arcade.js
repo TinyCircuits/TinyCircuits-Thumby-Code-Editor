@@ -15,8 +15,9 @@ class GameURLContainer{
     }
 
     // Inits button callback for download button
-    initDownloadButton(downloadFunc){
+    initDownloadButton(downloadFunc, doneDownloadFunc){
         this.downloadFunc = downloadFunc;
+        this.doneDownloadFunc = doneDownloadFunc;
 
         // On click, split URL, forget about the first 5 elements, combine the last elements to path, fetch file from URL, send to Thumby
         this.downloadButton.onclick = async () => {
@@ -24,7 +25,7 @@ class GameURLContainer{
                 // Make URL from root of Thumby (start at '/')
                 var thumbyURL = "/Games/" + this.GAME_FILE_URLS[i].split('/').slice(6).join('/');
 
-                window.setPercent((i/this.GAME_FILE_URLS.length) * 100, "Downloading: " + thumbyURL);
+                window.setPercent(((i/this.GAME_FILE_URLS.length) * 100).toFixed(1), "Downloading: " + thumbyURL);
                 
                 await fetch(this.GAME_FILE_URLS[i]).then(async (response) => {
                     await this.downloadFunc(thumbyURL, new Uint8Array(await response.arrayBuffer()));
@@ -32,6 +33,8 @@ class GameURLContainer{
             }
             window.setPercent(100, "Downloaded arcade game...");
             window.resetPercentDelay();
+
+            this.doneDownloadFunc();
         }
     }
 
@@ -113,6 +116,7 @@ class Arcade{
 
         // Functions that are defined outside this module
         this.onDownload = undefined;
+        this.onDoneDownload = undefined;
         this.onOpen = undefined;
     }
 
@@ -200,7 +204,7 @@ class Arcade{
                 this.GAME_URL_CONTAINERS[this.NEXT_GAME_INDEX].downloadButton.textContent = "ADD TO THUMBY";
                 this.GAME_URL_CONTAINERS[this.NEXT_GAME_INDEX].downloadButton.title = "Downloads all game content to connected Thumby";
                 buttonAreaDiv.appendChild(this.GAME_URL_CONTAINERS[this.NEXT_GAME_INDEX].downloadButton);
-                this.GAME_URL_CONTAINERS[this.NEXT_GAME_INDEX].initDownloadButton(this.onDownload);
+                this.GAME_URL_CONTAINERS[this.NEXT_GAME_INDEX].initDownloadButton(this.onDownload, this.onDoneDownload);
 
                 this.GAME_URL_CONTAINERS[this.NEXT_GAME_INDEX].openButton = document.createElement("button");
                 this.GAME_URL_CONTAINERS[this.NEXT_GAME_INDEX].openButton.classList = "uk-button uk-button-primary uk-text-small uk-width-1-1";
