@@ -594,7 +594,7 @@ class ReplJS{
                                 "    read_byte_count = read_byte_count + sys.stdin.buffer.readinto(read_buffer, 255)\n" +
 
                                 "    if byte_count_to_read == -1:\n" +
-                                "        time.sleep(0.1)\n" +
+                                "        time.sleep(0.025)\n" +
                                 "        byte_count_to_read = int(read_buffer[0:7].decode('utf-8'))\n" +
                                 "        specialIndex = 7\n" +
 
@@ -691,6 +691,7 @@ class ReplJS{
         await this.uploadFile("lib/ssd1306.py", await window.downloadFile("/ThumbyGames/lib/ssd1306.py"), false);
         await this.uploadFile("lib/thumby.py", await window.downloadFile("/ThumbyGames/lib/thumby.py"), false);
         window.setPercent(53.9);
+        await this.uploadFile("lib/font3x5.bin", await window.downloadFile("/ThumbyGames/lib/font3x5.bin", true), false, true);
         await this.uploadFile("lib/font5x7.bin", await window.downloadFile("/ThumbyGames/lib/font5x7.bin", true), false, true);
         await this.uploadFile("lib/font8x8.bin", await window.downloadFile("/ThumbyGames/lib/font8x8.bin", true), false, true);
         window.setPercent(61.6);
@@ -747,9 +748,22 @@ class ReplJS{
 
     async update(){
         window.setPercent(1, "Updating Thumby...");
-        await this.uploadFile("lib/credits.txt", await window.downloadFile("/ThumbyGames/lib/credits.txt", true), false, true);
-        window.setPercent(50);
+        await this.uploadFile("lib/ssd1306.py", await window.downloadFile("/ThumbyGames/lib/ssd1306.py"), false);
         await this.uploadFile("lib/thumby.py", await window.downloadFile("/ThumbyGames/lib/thumby.py"), false);
+        window.setPercent(14);
+        await this.uploadFile("lib/font3x5.bin", await window.downloadFile("/ThumbyGames/lib/font3x5.bin", true), false, true);
+        await this.uploadFile("lib/font5x7.bin", await window.downloadFile("/ThumbyGames/lib/font5x7.bin", true), false, true);
+        await this.uploadFile("lib/font8x8.bin", await window.downloadFile("/ThumbyGames/lib/font8x8.bin", true), false, true);
+        window.setPercent(28);
+        await this.uploadFile("lib/TClogo.bin", await window.downloadFile("/ThumbyGames/lib/TClogo.bin", true), false, true);
+        window.setPercent(42);
+        await this.uploadFile("lib/thumbyLogo.bin", await window.downloadFile("/ThumbyGames/lib/thumbyLogo.bin", true), false, true);
+        window.setPercent(56);
+        await this.uploadFile("lib/credits.txt", await window.downloadFile("/ThumbyGames/lib/credits.txt", true), false, true);
+        window.setPercent(70);
+        await this.uploadFile("main.py", await window.downloadFile("/ThumbyGames/main.py"), false);
+        window.setPercent(84);
+        await this.uploadFile("menu.py", await window.downloadFile("/ThumbyGames/menu.py"), false);
         window.setPercent(99.8);
 
         // Make sure to update the filesystem after modifying it

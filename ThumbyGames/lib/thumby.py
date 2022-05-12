@@ -27,8 +27,8 @@ from machine import reset as machineReset
 import ssd1306
 import os
 
-# Last updated 3/22/2022 for credits
-__version__ = '1.5'
+# Last updated 5/12/2022 for 3x5 font
+__version__ = '1.6'
 
 # Pin definitions for button inputs & buzzer.
 swL = Pin(3, Pin.IN, Pin.PULL_UP) # D-pad left
