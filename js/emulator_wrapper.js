@@ -831,6 +831,7 @@ export class EMULATOR{
 
       await this.loadServerFile("ThumbyGames/lib-emulator/thumby.py", '/lib/thumby.py');
       await this.loadServerFile("ThumbyGames/lib-emulator/ssd1306.py", '/lib/ssd1306.py');
+      await this.loadServerFile("ThumbyGames/lib-emulator/font3x5.bin", '/lib/font3x5.bin');
       await this.loadServerFile("ThumbyGames/lib-emulator/font5x7.bin", '/lib/font5x7.bin');
       await this.loadServerFile("ThumbyGames/lib-emulator/font8x8.bin", '/lib/font8x8.bin');
       await this.loadServerFile("ThumbyGames/lib-emulator/TClogo.bin", '/lib/TClogo.bin');
