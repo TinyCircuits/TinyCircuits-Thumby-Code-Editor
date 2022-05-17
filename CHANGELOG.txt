@@ -4,6 +4,13 @@ Thumby Code Editor changelog!
 
 ####################
 
+May 17th, 2022
+
+* Warn the user when they try to delete folders that contain other files/folders
+
+
+####################
+
 May 12th, 2022
 
 * Attempt to fix some arcade games getting stuck when downloading to Thumby

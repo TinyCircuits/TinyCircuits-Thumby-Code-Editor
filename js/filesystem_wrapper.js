@@ -438,6 +438,12 @@ class FILESYSTEM{
         var selectedNode = selectedNodes[0];
         var selectedNodePath = this.getNodePath(selectedNode);
 
+        if(selectedNodes[0].getChildCount() > 0){
+            if(!confirm("Are you sure you want to delete " + selectedNodePath + "? It has " + selectedNodes[0].getChildCount() + " child items")){
+                return undefined;
+            }
+        }
+
         // Unselect all nodes so next time multiple are not selected
         for(var i=0; i<selectedNodes.length; i++){
             selectedNodes[i].setSelected(false);

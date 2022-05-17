@@ -389,41 +389,43 @@ class ReplJS{
 
     // Given a path, delete it on RP2040
     async deleteFileOrDir(path){
-        if(this.BUSY == true){
-            return;
+        if(path != undefined){
+            if(this.BUSY == true){
+                return;
+            }
+            this.BUSY = true;
+
+            window.setPercent(1, "Deleting...");
+            var cmd =   "import os\n" +
+                        "def rm(d):  # Remove file or tree\n" +
+                        "   try:\n" +
+                        "       if os.stat(d)[0] & 0x4000:  # Dir\n" +
+                        "           for f in os.ilistdir(d):\n" +
+                        "               if f[0] not in ('.', '..'):\n" +
+                        "                   rm('/'.join((d, f[0])))  # File or Dir\n" +
+                        "           os.rmdir(d)\n" +
+                        "       else:  # File\n" +
+                        "           os.remove(d)\n" +
+                        "       print('rm_worked')\n" +
+                        "   except:\n" +
+                        "       print('rm_failed')\n" +
+                        "rm('" + path + "')\n";
+
+
+            window.setPercent(2);
+            await this.writeUtilityCmdRaw(cmd, true, 1);
+            window.setPercent(55);
+
+            // Get back into normal mode and omit the 3 lines from the normal message,
+            // don't want to repeat (assumes already on a normal prompt)
+            await this.getToNormal(3);
+            this.BUSY = false;
+
+            // Make sure to update the filesystem after modifying it
+            await this.getOnBoardFSTree();
+            window.setPercent(100);
+            window.resetPercentDelay();
         }
-        this.BUSY = true;
-
-        window.setPercent(1, "Deleting...");
-        var cmd =   "import os\n" +
-                    "def rm(d):  # Remove file or tree\n" +
-                    "   try:\n" +
-                    "       if os.stat(d)[0] & 0x4000:  # Dir\n" +
-                    "           for f in os.ilistdir(d):\n" +
-                    "               if f[0] not in ('.', '..'):\n" +
-                    "                   rm('/'.join((d, f[0])))  # File or Dir\n" +
-                    "           os.rmdir(d)\n" +
-                    "       else:  # File\n" +
-                    "           os.remove(d)\n" +
-                    "       print('rm_worked')\n" +
-                    "   except:\n" +
-                    "       print('rm_failed')\n" +
-                    "rm('" + path + "')\n";
-
-
-        window.setPercent(2);
-        await this.writeUtilityCmdRaw(cmd, true, 1);
-        window.setPercent(55);
-
-        // Get back into normal mode and omit the 3 lines from the normal message,
-        // don't want to repeat (assumes already on a normal prompt)
-        await this.getToNormal(3);
-        this.BUSY = false;
-
-        // Make sure to update the filesystem after modifying it
-        await this.getOnBoardFSTree();
-        window.setPercent(100);
-        window.resetPercentDelay();
     }
 
 
