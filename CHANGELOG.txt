@@ -4,6 +4,13 @@ Thumby Code Editor changelog!
 
 ####################
 
+May 18th, 2022
+
+* Fix bug that made delete warning appear when creating new folders
+
+
+####################
+
 May 17th, 2022
 
 * Warn the user when they try to delete folders that contain other files/folders

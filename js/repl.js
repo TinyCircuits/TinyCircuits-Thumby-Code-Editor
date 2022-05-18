@@ -710,6 +710,9 @@ class ReplJS{
 
         // Make sure to update the filesystem after modifying it
         await this.getOnBoardFSTree();
+
+        await this.checkIfNeedUpdate();
+
         window.resetPercentDelay();
     }
 

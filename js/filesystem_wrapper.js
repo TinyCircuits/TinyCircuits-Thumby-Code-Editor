@@ -73,7 +73,7 @@ class FILESYSTEM{
         var li = document.createElement("li");
         this.FS_DROPDOWN_DELETE_BTN = document.createElement("button");
         this.FS_DROPDOWN_DELETE_BTN.classList = "uk-button uk-button-secondary uk-width-1-1";
-        this.FS_DROPDOWN_DELETE_BTN.onclick = () => {this.onDelete(this.getSelectedNodePath()); this.FS_DROPDOWN_DIV.style.display = "none";};
+        this.FS_DROPDOWN_DELETE_BTN.onclick = () => {this.onDelete(this.getSelectedNodePath(true)); this.FS_DROPDOWN_DIV.style.display = "none";};
         this.FS_DROPDOWN_DELETE_BTN.innerText = "Delete";
         this.FS_DROPDOWN_DELETE_BTN.title = "Deletes selected file or directory on Thumby";
         li.appendChild(this.FS_DROPDOWN_DELETE_BTN);
@@ -433,12 +433,12 @@ class FILESYSTEM{
     // and returns it for use in the RP2040 module. NOTE: nodes
     // are selected on right-click because of callback .setSelected 
     // call provided to each node on tree update
-    getSelectedNodePath(){
+    getSelectedNodePath(deleting){
         var selectedNodes = this.FS_TREE.getSelectedNodes();
         var selectedNode = selectedNodes[0];
         var selectedNodePath = this.getNodePath(selectedNode);
 
-        if(selectedNodes[0].getChildCount() > 0){
+        if(selectedNodes[0].getChildCount() > 0 && deleting == true){
             if(!confirm("Are you sure you want to delete " + selectedNodePath + "? It has " + selectedNodes[0].getChildCount() + " child items")){
                 return undefined;
             }
