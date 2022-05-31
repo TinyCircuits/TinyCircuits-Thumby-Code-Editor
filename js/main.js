@@ -617,7 +617,7 @@ function registerShell(_container, state){
         // console.log(data);
         // When the RP2040 is busy with any utility operations where BUSY is set, only allow interrupt key through
         // Allow certain characters through so thumby can pick them up
-        if(REPL.BUSY == true && data != '' && data != 'w' && data != 'a' && data != 's' && data != 'd' && data != ',' && data != '.'){
+        if(REPL.BUSY == true){
            return;
         }
         REPL.writeToDevice(data);
