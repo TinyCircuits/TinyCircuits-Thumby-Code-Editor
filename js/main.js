@@ -621,6 +621,9 @@ function registerShell(_container, state){
            return;
         }
         REPL.writeToDevice(data);
+        if(EMU.cdc != undefined){
+            EMU.cdc.sendSerialByte(data.charCodeAt(0));
+        }
     }
 
     REPL.onData = (data) => ATERM.write(data);
