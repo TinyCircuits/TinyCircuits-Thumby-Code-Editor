@@ -22,7 +22,7 @@ Features:
 Only Google Chrome and Microsoft Edge are officially supported by the WebSerial JavaScript API
 
 ## Links
-* [Web IDE](https://tinycircuits.github.io/)
+* [Web IDE](https://code.thumby.us/)
 * [Web IDE Tutorial](https://tinycircuits.com/blogs/thumby/building-a-game-with-the-thumby-ide)
 * [Thumby Website](https://thumby.us)
 * [Contact us](https://tinycircuits.com/pages/contact-us)
