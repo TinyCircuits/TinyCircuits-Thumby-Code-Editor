@@ -3,7 +3,7 @@
 # Contains helpful abstractions between hardware features of Thumby and the uPython REPL.
 
 # Written by Mason Watmough, Jason Marcum, and Ben Rose for TinyCircuits.
-# Last edited 2/04/2022
+# Last edited 6/30/2022
 
 '''
     This program is free software: you can redistribute it and/or modify
@@ -26,9 +26,10 @@ from machine import Pin, Timer, I2C, PWM, SPI, UART
 from machine import reset as machineReset
 import ssd1306
 import os
+import json
 
-# Last updated 5/12/2022 for 3x5 font
-__version__ = '1.6'
+# Last updated 6/30/2022 for saves API
+__version__ = '1.7t' # t for testing
 
 # Pin definitions for button inputs & buzzer.
 swL = Pin(3, Pin.IN, Pin.PULL_UP) # D-pad left
@@ -675,6 +676,129 @@ class LinkClass:
         elif self.sent == True and ticks_ms() - self.timeAtLastSend > self.timeout:
             self.sent = False
 
+class SavesClass:
+    def __init__(self):
+        
+        oldDir = os.getcwd()
+        try:
+            os.stat("/Saves")
+        except OSError:
+            os.chdir("/")
+            os.mkdir("/Saves")
+            os.mkdir("/Saves/temp")
+            
+        self.savesPath = "/Saves"
+        self.saveFile = None
+        self.volatileDict = dict()
+        
+        try:
+            os.stat("/Saves/temp")
+            self.setSubDir("temp")
+        except OSError:
+            pass
+        
+        os.chdir(oldDir)
+    
+    # Set a game save's working subdirectory in "/Saves/"
+    @micropython.viper
+    def setSubDir(self, subdir):
+        
+        oldDir = os.getcwd()
+        self.savesPath = "/Saves/" + subdir
+        
+        try:
+            os.stat(self.savesPath)
+        except OSError:
+            os.mkdir(self.savesPath)
+        
+        if type(self.saveFile) != type(None):
+            self.saveFile.close()
+        
+        try:
+            self.saveFile = open(self.savesPath+"/persistent.json", "r+")
+            self.volatileDict = json.load(self.saveFile)
+        except (OSError):
+            try:
+                self.saveFile = open(self.savesPath+"/backup.json", "r+")
+                self.volatileDict = json.load(self.saveFile)
+                self.write(False) # Make sure we have a persistent.json
+            except (OSError):
+                self.saveFile = open(self.savesPath+"/persistent.json", "w+") # Make a new one
+                self.saveFile.write("{}")
+                self.saveFile.seek(0, 0)
+                self.volatileDict = json.load(self.saveFile)
+        os.chdir(oldDir)
+    
+    # Set entry in volatile dictionary
+    @micropython.viper
+    def setEntry(self, key, value):
+        self.volatileDict.update({key:value})
+        
+    # Update volatile dictionary with another dictionary
+    @micropython.viper
+    def setEntries(self, d):
+        self.volatileDict.update(d)
+    
+    # Get entry from volatile dictionary
+    @micropython.viper
+    def getEntry(self, key):
+        return self.volatileDict.get(key, None)
+    
+    # Delete entry in volatile dictionary
+    @micropython.viper
+    def delEntry(self, key):
+        try:
+            return self.volatileDict.pop(key)
+        except KeyError:
+            return None
+        
+    # Check if save data entry exists in volatile dictionary
+    @micropython.viper
+    def hasEntry(self, key):
+        return key in self.volatileDict
+    
+    # Write volatile dictionary to persistent.json
+    @micropython.native
+    def write(self, backup = False):
+        
+        oldDir = os.getcwd()
+        
+        if(self.savesPath == "/Saves"): # If a directory hasn't been set, use a temporary one
+            self.savesPath = "/Saves/temp"
+        
+        if type(self.saveFile) != type(None):
+            self.saveFile.close()
+        
+        try:
+            if(backup == True):
+                os.rename(self.savesPath+"/persistent.json", self.savesPath+"/backup.json")
+            else:
+                os.remove(self.savesPath+"/persistent.json")
+        except OSError:
+            pass
+        
+        self.saveFile = open(self.savesPath+"/persistent.json", "w+")
+        json.dump(self.volatileDict, self.saveFile)
+        os.chdir(oldDir)
+    
+    # Return the current save path
+    @micropython.viper
+    def getSavesPath(self):
+        return self.savesPath
+    
+    # Expose the dictionary keys(), values() and items()
+    @micropython.viper
+    def getEntryKeys(self):
+        return self.volatileDict.keys()
+    
+    @micropython.viper
+    def getEntryValues(self):
+        return self.volatileDict.values()
+    
+    @micropython.viper
+    def getEntryKeyValues(self):
+        return self.volatileDict.items()
+    
 
 # Button instantiation
 buttonA = ButtonClass(swA) # Left (A) button
@@ -689,6 +813,9 @@ audio = AudioClass(swBuzzer)
 
 # Link instantiation
 link = LinkClass()
+
+# Saves instantiation
+saves = SavesClass()
 
 # Wrap machine.reset() to be accessible as thumby.reset()
 def reset():
@@ -730,3 +857,4 @@ def actionPressed():
 @micropython.native
 def actionJustPressed():
     return (buttonA.justPressed() or buttonB.justPressed())
+
