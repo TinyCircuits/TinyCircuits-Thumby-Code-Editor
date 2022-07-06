@@ -30,7 +30,7 @@ import ssd1306
 import os
 
 # Last updated 7/6/2022 for new saves API features
-__version__ = '1.7tr2' # t for testing, revision 2
+__version__ = '1.7tr3' # t for testing, revision 2
 
 # Pin definitions for button inputs & buzzer.
 swL = Pin(3, Pin.IN, Pin.PULL_UP) # D-pad left
@@ -694,7 +694,7 @@ class SavesClass:
         
         try:
             os.stat("/Saves/temp")
-            self.setSubDir("temp")
+            self.setSaveName("temp")
         except OSError:
             pass
         
@@ -702,7 +702,7 @@ class SavesClass:
     
     # Set a game save's working subdirectory in "/Saves/"
     @micropython.viper
-    def setSubDir(self, subdir):
+    def setSaveName(self, subdir):
         
         oldDir = os.getcwd()
         self.savesPath = "/Saves/" + subdir
