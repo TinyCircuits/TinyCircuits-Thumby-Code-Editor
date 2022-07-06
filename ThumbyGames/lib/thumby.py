@@ -24,12 +24,13 @@
 from time import ticks_ms, ticks_us, sleep_ms
 from machine import Pin, Timer, I2C, PWM, SPI, UART
 from machine import reset as machineReset
+from json import load as JSONLoad, dump as JSONDump
+from ubinascii import a2b_base64 as b64dec, b2a_base64 as b64enc
 import ssd1306
 import os
-import json
 
-# Last updated 6/30/2022 for saves API
-__version__ = '1.7t' # t for testing
+# Last updated 7/6/2022 for new saves API features
+__version__ = '1.7tr2' # t for testing, revision 2
 
 # Pin definitions for button inputs & buzzer.
 swL = Pin(3, Pin.IN, Pin.PULL_UP) # D-pad left
@@ -716,17 +717,17 @@ class SavesClass:
         
         try:
             self.saveFile = open(self.savesPath+"/persistent.json", "r+")
-            self.volatileDict = json.load(self.saveFile)
-        except (OSError):
+            self.volatileDict = JSONLoad(self.saveFile)
+        except (OSError, ValueError):
             try:
                 self.saveFile = open(self.savesPath+"/backup.json", "r+")
-                self.volatileDict = json.load(self.saveFile)
+                self.volatileDict = JSONLoad(self.saveFile)
                 self.write(False) # Make sure we have a persistent.json
-            except (OSError):
+            except (OSError, ValueError):
                 self.saveFile = open(self.savesPath+"/persistent.json", "w+") # Make a new one
                 self.saveFile.write("{}")
                 self.saveFile.seek(0, 0)
-                self.volatileDict = json.load(self.saveFile)
+                self.volatileDict = JSONLoad(self.saveFile)
         os.chdir(oldDir)
     
     # Set entry in volatile dictionary
@@ -757,6 +758,19 @@ class SavesClass:
     def hasEntry(self, key):
         return key in self.volatileDict
     
+    # Set an entry to base-64 encoded bytes
+    @micropython.viper
+    def setBytesEntry(self, key, data):
+        self.volatileDict.update({key:b64enc(data)})
+        
+    # Get a base-64 encoded bytes entry
+    @micropython.viper
+    def getBytesEntry(self, key):
+        try:
+            return b64dec(self.volatileDict.get(key, None))
+        except TypeError:
+            return None
+    
     # Write volatile dictionary to persistent.json
     @micropython.native
     def write(self, backup = False):
@@ -778,7 +792,7 @@ class SavesClass:
             pass
         
         self.saveFile = open(self.savesPath+"/persistent.json", "w+")
-        json.dump(self.volatileDict, self.saveFile)
+        JSONDump(self.volatileDict, self.saveFile)
         os.chdir(oldDir)
     
     # Return the current save path
@@ -798,6 +812,17 @@ class SavesClass:
     @micropython.viper
     def getEntryKeyValues(self):
         return self.volatileDict.items()
+        
+    # Get the volatile dictionary for direct access/modification
+    @micropython.viper
+    def getSaveDict(self):
+        return self.volatileDict
+    
+    # Wipe out the old volatile dictionary and set a new one
+    @micropython.viper
+    def setSaveDict(self, newDict):
+        del self.volatileDict
+        self.volatileDict = newDict.copy()
     
 
 # Button instantiation
