@@ -30,7 +30,7 @@ import ssd1306
 import os
 
 # Last updated 7/6/2022 for new saves API features
-__version__ = '1.7tr3' # t for testing, revision 2
+__version__ = '1.7tr3' # t for testing, revision 3
 
 # Pin definitions for button inputs & buzzer.
 swL = Pin(3, Pin.IN, Pin.PULL_UP) # D-pad left
