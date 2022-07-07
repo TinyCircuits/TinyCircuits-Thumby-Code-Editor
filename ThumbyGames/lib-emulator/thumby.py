@@ -22,6 +22,8 @@
 from time import ticks_ms, ticks_us, sleep_ms
 from machine import Pin, Timer, I2C, PWM, SPI, UART
 from machine import reset as machineReset
+from json import load as JSONLoad, dump as JSONDump
+from ubinascii import a2b_base64 as b64dec, b2a_base64 as b64enc
 import ssd1306
 import os
 import emulator
