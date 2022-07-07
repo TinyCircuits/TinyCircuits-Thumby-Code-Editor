@@ -3,7 +3,7 @@
 # Contains helpful abstractions between hardware features of Thumby and the uPython REPL.
 
 # Written by Mason Watmough, Jason Marcum, and Ben Rose for TinyCircuits.
-# Last edited 6/30/2022
+# Last edited 7/7/2022
 
 '''
     This program is free software: you can redistribute it and/or modify
@@ -29,7 +29,7 @@ from ubinascii import a2b_base64 as b64dec, b2a_base64 as b64enc
 import ssd1306
 import os
 
-# Last updated 7/6/2022 for new saves API features
+# Last updated 7/7/2022 for new saves API features
 __version__ = '1.7tr3' # t for testing, revision 3
 
 # Pin definitions for button inputs & buzzer.
