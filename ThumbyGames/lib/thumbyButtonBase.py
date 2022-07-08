@@ -20,7 +20,7 @@
 
 from thumbyHardwareBase import swL, swR, swU, swD, swA, swB
 
-__version__ = '1.7tr4'
+__version__ = '1.7tr5'
 
 class ButtonClass:
     def __init__(self, pin):

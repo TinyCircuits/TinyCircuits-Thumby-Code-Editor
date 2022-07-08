@@ -21,7 +21,7 @@
 from machine import Pin, Timer, I2C, PWM, SPI, UART
 from machine import reset as machineReset
 
-__version__ = '1.7tr4'
+__version__ = '1.7tr5'
 
 # Pin definitions for button inputs & buzzer.
 swL = Pin(3, Pin.IN, Pin.PULL_UP) # D-pad left

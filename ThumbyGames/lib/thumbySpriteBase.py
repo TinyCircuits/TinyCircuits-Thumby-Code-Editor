@@ -20,7 +20,7 @@
 
 import os
 
-__version__ = '1.7tr4'
+__version__ = '1.7tr5'
 
 # Sprite class for holding pixel data 
 class Sprite:
@@ -63,12 +63,3 @@ class Sprite:
                 #f.close()
             elif type(self.bitmapSource)==bytearray:
                 self.bitmap = memoryview(self.bitmapSource)[offset:offset+self.bitmapByteCount]
-    
-    @micropython.viper
-    def boundingBoxTest(self, other) -> bool:
-        if(self.x + self.width < other.x or other.x + other.width < self.x):
-            return False
-        elif(self.y + self.height < other.y or other.y + other.height < self.y):
-            return False
-        else:
-            return True

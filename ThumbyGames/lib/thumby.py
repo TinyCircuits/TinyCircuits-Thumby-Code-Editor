@@ -28,7 +28,7 @@ from machine import reset as machineReset, freq
 #import os
 
 # Last updated 7/8/2022 for sprite BB test, correct tick difference handling
-__version__ = '1.7tr4' # t for testing, revision 4
+__version__ = '1.7tr5' # t for testing, revision 4
 
 # Grab initial frequency
 __f0 = freq()
@@ -46,7 +46,7 @@ from thumbyAudioBase import audio
 
 from thumbyLinkBase import link
 
-from thumbySavesBase import saves
+from thumbySavesBase import saveData
 
 from thumbyGraphicsBase import display
 

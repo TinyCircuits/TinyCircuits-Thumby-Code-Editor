@@ -22,7 +22,7 @@ from json import load as JSONLoad, dump as JSONDump
 from ubinascii import a2b_base64 as b64dec, b2a_base64 as b64enc
 import os
 
-__version__ = '1.7tr4'
+__version__ = '1.7tr5'
 
 class SavesClass:
     def __init__(self):
@@ -41,7 +41,7 @@ class SavesClass:
         
         try:
             os.stat("/Saves/temp")
-            self.setSaveName("temp")
+            self.setName("temp")
         except OSError:
             pass
         
@@ -49,7 +49,7 @@ class SavesClass:
     
     # Set a game save's working subdirectory in "/Saves/"
     @micropython.viper
-    def setSaveName(self, subdir):
+    def setName(self, subdir):
         
         oldDir = os.getcwd()
         self.savesPath = "/Saves/" + subdir
@@ -79,22 +79,19 @@ class SavesClass:
     
     # Set entry in volatile dictionary
     @micropython.viper
-    def setEntry(self, key, value):
+    def setItem(self, key, value):
+        if(type(value) is bytes or type(value) is bytearray):
+            raise ValueError("Bytes-like objects must be saved with setBytesItem()")
         self.volatileDict.update({key:value})
-        
-    # Update volatile dictionary with another dictionary
-    @micropython.viper
-    def setEntries(self, d):
-        self.volatileDict.update(d)
     
     # Get entry from volatile dictionary
     @micropython.viper
-    def getEntry(self, key):
+    def getItem(self, key):
         return self.volatileDict.get(key, None)
     
     # Delete entry in volatile dictionary
     @micropython.viper
-    def delEntry(self, key):
+    def delItem(self, key):
         try:
             return self.volatileDict.pop(key)
         except KeyError:
@@ -102,17 +99,17 @@ class SavesClass:
         
     # Check if save data entry exists in volatile dictionary
     @micropython.viper
-    def hasEntry(self, key):
+    def hasItem(self, key):
         return key in self.volatileDict
     
     # Set an entry to base-64 encoded bytes
     @micropython.viper
-    def setBytesEntry(self, key, data):
+    def setBytesItem(self, key, data):
         self.volatileDict.update({key:b64enc(data)})
         
     # Get a base-64 encoded bytes entry
     @micropython.viper
-    def getBytesEntry(self, key):
+    def getBytesItem(self, key):
         try:
             return b64dec(self.volatileDict.get(key, None))
         except TypeError:
@@ -120,7 +117,7 @@ class SavesClass:
     
     # Write volatile dictionary to persistent.json
     @micropython.native
-    def write(self, backup = False):
+    def save(self, backup = False):
         
         oldDir = os.getcwd()
         
@@ -144,19 +141,8 @@ class SavesClass:
     
     # Return the current save path
     @micropython.viper
-    def getSavesPath(self):
+    def getName(self):
         return self.savesPath
-        
-    # Get the volatile dictionary for direct access/modification
-    @micropython.viper
-    def getSaveDict(self):
-        return self.volatileDict
-    
-    # Wipe out the old volatile dictionary and set a new one
-    @micropython.viper
-    def setSaveDict(self, newDict):
-        del self.volatileDict
-        self.volatileDict = newDict.copy()
 
 # Saves instantiation
-saves = SavesClass()
+saveData = SavesClass()
