@@ -6,6 +6,7 @@ import os
 import gc
 import thumby
 freq(48000000)
+thumby.display.setFont('lib/font5x7.bin', 5, 7, 1)
 
 try:
     conf = open("thumby.cfg", "r").read().split(',')
