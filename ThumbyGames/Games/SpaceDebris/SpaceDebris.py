@@ -177,6 +177,8 @@ for i in range(0, 5):
 
 bullets = []
 
+thumby.saveData.setName("SpaceDebris")
+
 def UpdateBullets():
     # Bullet dynamics and drawing
     for bullet in bullets:
@@ -308,7 +310,7 @@ while(GameRunning == True):
             else:
                 CurSpr = UpMovingFrame2
             YVel -= Accel
-        if(thumby.buttonB.pressed() == True and ReloadTimer == 0):
+        if(thumby.buttonA.pressed() == True and ReloadTimer == 0):
             bulletNoiseDuration = 200
             bullets.append(ShipBullet(XPos-1, YPos - 8, XVel, YVel-BulletVel))
             ReloadTimer = MaxFps * 0.5
@@ -324,7 +326,7 @@ while(GameRunning == True):
                 CurSpr = UpRightMovingFrame2
             YVel -= Accel * 0.707106
             XVel += Accel * 0.707106
-        if(thumby.buttonB.pressed() == True and ReloadTimer == 0):
+        if(thumby.buttonA.pressed() == True and ReloadTimer == 0):
             bulletNoiseDuration = 200
             bullets.append(ShipBullet(XPos+7, YPos - 7, XVel+BulletVel*0.707106, YVel-BulletVel*0.707106))
             ReloadTimer = MaxFps * 0.5
@@ -339,7 +341,7 @@ while(GameRunning == True):
             else:
                 CurSpr = RightMovingFrame2
             XVel += Accel
-        if(thumby.buttonB.pressed() == True and ReloadTimer == 0):
+        if(thumby.buttonA.pressed() == True and ReloadTimer == 0):
             bulletNoiseDuration = 200
             bullets.append(ShipBullet(XPos+8, YPos-1, XVel+BulletVel, YVel))
             ReloadTimer = MaxFps * 0.5
@@ -355,7 +357,7 @@ while(GameRunning == True):
                 CurSpr = UpRightMovingFrame2
             YVel += Accel * 0.707106
             XVel += Accel * 0.707106
-        if(thumby.buttonB.pressed() == True and ReloadTimer == 0):
+        if(thumby.buttonA.pressed() == True and ReloadTimer == 0):
             bulletNoiseDuration = 200
             bullets.append(ShipBullet(XPos+7, YPos+7, XVel+BulletVel*0.707106, YVel+BulletVel*0.707106))
             ReloadTimer = MaxFps * 0.5
@@ -370,7 +372,7 @@ while(GameRunning == True):
             else:
                 CurSpr = UpMovingFrame2
             YVel += Accel
-        if(thumby.buttonB.pressed() == True and ReloadTimer == 0):
+        if(thumby.buttonA.pressed() == True and ReloadTimer == 0):
             bulletNoiseDuration = 200
             bullets.append(ShipBullet(XPos-1, YPos+8, XVel, YVel+BulletVel))
             ReloadTimer = MaxFps * 0.5
@@ -386,7 +388,7 @@ while(GameRunning == True):
                 CurSpr = UpRightMovingFrame2
             YVel += Accel * 0.707106
             XVel -= Accel * 0.707106
-        if(thumby.buttonB.pressed() == True and ReloadTimer == 0):
+        if(thumby.buttonA.pressed() == True and ReloadTimer == 0):
             bulletNoiseDuration = 200
             bullets.append(ShipBullet(XPos-7, YPos+7, XVel-BulletVel*0.707106, YVel+BulletVel*0.707106))
             ReloadTimer = MaxFps * 0.5
@@ -401,7 +403,7 @@ while(GameRunning == True):
             else:
                 CurSpr = RightMovingFrame2
             XVel -= Accel
-        if(thumby.buttonB.pressed() == True and ReloadTimer == 0):
+        if(thumby.buttonA.pressed() == True and ReloadTimer == 0):
             bulletNoiseDuration = 200
             bullets.append(ShipBullet(XPos-8, YPos-1, XVel-BulletVel, YVel))
             ReloadTimer = MaxFps * 0.5
@@ -417,7 +419,7 @@ while(GameRunning == True):
                 CurSpr = UpRightMovingFrame2
             YVel -= Accel * 0.707106
             XVel -= Accel * 0.707106
-        if(thumby.buttonB.pressed() == True and ReloadTimer == 0):
+        if(thumby.buttonA.pressed() == True and ReloadTimer == 0):
             bulletNoiseDuration = 200
             bullets.append(ShipBullet(XPos-7, YPos-7, XVel-BulletVel*0.707106, YVel-BulletVel*0.707106))
             ReloadTimer = MaxFps * 0.5
@@ -475,13 +477,22 @@ elif(time.ticks_diff(endTime, startTime) < 200000):
     thumby.display.drawText("Done!", 0, 0, 1)
 elif(time.ticks_diff(endTime, startTime) < 300000):
     thumby.display.drawText("C'mon!", 0, 0, 1)
-thumby.display.drawText(str(time.ticks_diff(endTime, startTime) / 1000) + "s", 0, 8, 1)
+thisTime = time.ticks_diff(endTime, startTime) / 1000
+thumby.display.drawText(str(thisTime) + "s", 0, 8, 1)
+high = 1000000
+if thumby.saveData.hasItem("highscore"):
+    high = thumby.saveData.getItem("highscore")
+    thumby.display.drawText("Best: "+str(high) + "s", 0, 16, 1)
+if thisTime < high:
+    thumby.saveData.setItem("highscore", thisTime)
+    thumby.saveData.save()
 thumby.display.update()
 
 time.sleep_ms(3000)
 
 machine.reset()
 #exec(open("/main.py").read())
+
 
 
 
