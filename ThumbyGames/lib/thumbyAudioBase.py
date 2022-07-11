@@ -22,7 +22,7 @@ from thumbyHardwareBase import swBuzzer
 from machine import Timer
 from time import ticks_ms, ticks_diff
 
-__version__ = '1.7tr5'
+__version__ = '1.7tr6'
 
 # Audio class, from which the audio namespace is defined.
 class AudioClass:

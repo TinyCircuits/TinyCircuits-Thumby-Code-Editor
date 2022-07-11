@@ -20,7 +20,7 @@
 
 import os
 
-__version__ = '1.7tr5'
+__version__ = '1.7tr6'
 
 # Sprite class for holding pixel data 
 class Sprite:

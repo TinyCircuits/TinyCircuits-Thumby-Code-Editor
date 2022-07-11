@@ -3,7 +3,7 @@
 # Contains helpful abstractions between hardware features of Thumby and the uPython REPL.
 
 # Written by Mason Watmough, Jason Marcum, and Ben Rose for TinyCircuits.
-# Last edited 7/8/2022
+# Last edited 7/11/2022
 
 '''
     This file is part of the Thumby API.
@@ -27,8 +27,8 @@ from machine import reset as machineReset, freq
 #import ssd1306
 #import os
 
-# Last updated 7/8/2022 for sprite BB test, correct tick difference handling
-__version__ = '1.7tr5' # t for testing, revision 4
+# Last updated 7/11/2022 for saves API improvements
+__version__ = '1.7tr6' # t for testing, revision 4
 
 # Grab initial frequency
 __f0 = freq()

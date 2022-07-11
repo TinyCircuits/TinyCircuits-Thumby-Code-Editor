@@ -1,6 +1,6 @@
 # Thumby saves base
 # Written by Mason Watmough, Jason Marcum, and Ben Rose for TinyCircuits.
-# Last edited 7/8/2022
+# Last edited 7/11/2022
 
 '''
     This file is part of the Thumby API.
@@ -22,7 +22,7 @@ from json import load as JSONLoad, dump as JSONDump
 from ubinascii import a2b_base64 as b64dec, b2a_base64 as b64enc
 import os
 
-__version__ = '1.7tr5'
+__version__ = '1.7tr6'
 
 class SavesClass:
     def __init__(self):
@@ -78,16 +78,26 @@ class SavesClass:
         os.chdir(oldDir)
     
     # Set entry in volatile dictionary
-    @micropython.viper
+    @micropython.native
     def setItem(self, key, value):
-        if(type(value) is bytes or type(value) is bytearray):
-            raise ValueError("Bytes-like objects must be saved with setBytesItem()")
-        self.volatileDict.update({key:value})
+        if(key[:3] == "__b"):
+            raise ValueError("Save data key cannot be prefixed with metadata tag \"__b\"")
+        if(type(value) is bytes or type(value) is bytearray): # Attach bytes metadata to the key
+            key = "__b"+key 
+            self.volatileDict.update({key:b64enc(value)})
+        else:
+            self.volatileDict.update({key:value})
     
     # Get entry from volatile dictionary
-    @micropython.viper
+    @micropython.native
     def getItem(self, key):
-        return self.volatileDict.get(key, None)
+        ret = self.volatileDict.get(key, None)
+        if ret == None:
+            try: # Look for a bytes item under the key
+                ret = b64dec(self.volatileDict.get("__b"+key, None))
+            except TypeError:
+                return None
+        return ret
     
     # Delete entry in volatile dictionary
     @micropython.viper
@@ -95,25 +105,19 @@ class SavesClass:
         try:
             return self.volatileDict.pop(key)
         except KeyError:
-            return None
+            try: # Try deleting as a bytes item
+                return self.volatileDict.pop("__b"+key)
+            except KeyError:
+                return None
         
     # Check if save data entry exists in volatile dictionary
     @micropython.viper
-    def hasItem(self, key):
-        return key in self.volatileDict
-    
-    # Set an entry to base-64 encoded bytes
-    @micropython.viper
-    def setBytesItem(self, key, data):
-        self.volatileDict.update({key:b64enc(data)})
-        
-    # Get a base-64 encoded bytes entry
-    @micropython.viper
-    def getBytesItem(self, key):
-        try:
-            return b64dec(self.volatileDict.get(key, None))
-        except TypeError:
-            return None
+    def hasItem(self, key) -> bool:
+        if key in self.volatileDict:
+            return True
+        if "__b"+key in self.volatileDict:
+            return True
+        return False
     
     # Write volatile dictionary to persistent.json
     @micropython.native
@@ -137,6 +141,7 @@ class SavesClass:
         
         self.saveFile = open(self.savesPath+"/persistent.json", "w+")
         JSONDump(self.volatileDict, self.saveFile)
+        self.saveFile.flush()
         os.chdir(oldDir)
     
     # Return the current save path

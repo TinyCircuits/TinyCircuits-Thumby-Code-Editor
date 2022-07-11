@@ -25,7 +25,7 @@ from time import ticks_ms, ticks_diff, sleep_ms
 from thumbyHardwareBase import i2c, spi
 from thumbyButtonBase import buttonA, buttonB, buttonU, buttonD, buttonL, buttonR
 
-__version__ = '1.7tr5'
+__version__ = '1.7tr6'
 
 # Graphics class, from which the gfx namespace is defined.
 class GraphicsClass:

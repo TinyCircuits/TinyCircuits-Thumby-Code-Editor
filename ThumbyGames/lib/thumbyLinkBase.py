@@ -20,7 +20,7 @@
 
 from machine import Pin, UART
 
-__version__ = '1.7tr5'
+__version__ = '1.7tr6'
 
 class LinkClass:
     def __init__(self):
