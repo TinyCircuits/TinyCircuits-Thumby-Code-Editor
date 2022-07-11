@@ -5,12 +5,12 @@
 '''
     This file is part of the Thumby API.
 
-    the Thumby API is free software: you can redistribute it and/or modify
+    The Thumby API is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published
     by the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    the Thumby API is distributed in the hope that it will be useful, but
+    The Thumby API is distributed in the hope that it will be useful, but
     WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
     or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
@@ -22,7 +22,7 @@ from json import load as JSONLoad, dump as JSONDump
 from ubinascii import a2b_base64 as b64dec, b2a_base64 as b64enc
 import os
 
-__version__ = '1.7tr6'
+__version__ = '1.7'
 
 class SavesClass:
     def __init__(self):

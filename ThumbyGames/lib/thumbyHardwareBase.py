@@ -1,16 +1,16 @@
 # Thumby hardware base
 # Written by Mason Watmough, Jason Marcum, and Ben Rose for TinyCircuits.
-# Last edited 7/8/2022
+# Last edited 7/11/2022
 
 '''
     This file is part of the Thumby API.
 
-    the Thumby API is free software: you can redistribute it and/or modify
+    The Thumby API is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published
     by the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    the Thumby API is distributed in the hope that it will be useful, but
+    The Thumby API is distributed in the hope that it will be useful, but
     WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
     or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
@@ -21,7 +21,7 @@
 from machine import Pin, Timer, I2C, PWM, SPI, UART
 from machine import reset as machineReset
 
-__version__ = '1.7tr6'
+__version__ = '1.7'
 
 # Pin definitions for button inputs & buzzer.
 swL = Pin(3, Pin.IN, Pin.PULL_UP) # D-pad left

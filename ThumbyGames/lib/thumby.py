@@ -8,12 +8,12 @@
 '''
     This file is part of the Thumby API.
 
-    the Thumby API is free software: you can redistribute it and/or modify
+    The Thumby API is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published
     by the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    the Thumby API is distributed in the hope that it will be useful, but
+    The Thumby API is distributed in the hope that it will be useful, but
     WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
     or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
@@ -28,7 +28,7 @@ from machine import reset as machineReset, freq
 #import os
 
 # Last updated 7/11/2022 for saves API improvements
-__version__ = '1.7tr6' # t for testing, revision 4
+__version__ = '1.7'
 
 # Grab initial frequency
 __f0 = freq()
