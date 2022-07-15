@@ -831,6 +831,15 @@ export class EMULATOR{
 
       await this.loadServerFile("ThumbyGames/lib-emulator/thumby.py", '/lib/thumby.py');
       await this.loadServerFile("ThumbyGames/lib-emulator/ssd1306.py", '/lib/ssd1306.py');
+
+      await this.loadServerFile("ThumbyGames/lib-emulator/thumbyAudioBase.py", "/lib/thumbyAudioBase.py");
+      await this.loadServerFile("ThumbyGames/lib-emulator/thumbyButtonBase.py", "/lib/thumbyButtonBase.py");
+      await this.loadServerFile("ThumbyGames/lib-emulator/thumbyGraphicsBase.py", "/lib/thumbyGraphicsBase.py");
+      await this.loadServerFile("ThumbyGames/lib-emulator/thumbyHardwareBase.py", "/lib/thumbyHardwareBase.py");
+      await this.loadServerFile("ThumbyGames/lib-emulator/thumbyLinkBase.py", "/lib/thumbyLinkBase.py");
+      await this.loadServerFile("ThumbyGames/lib-emulator/thumbySavesBase.py", "/lib/thumbySavesBase.py");
+      await this.loadServerFile("ThumbyGames/lib-emulator/thumbySpriteBase.py", "/lib/thumbySpriteBase.py");
+
       await this.loadServerFile("ThumbyGames/lib-emulator/font3x5.bin", '/lib/font3x5.bin');
       await this.loadServerFile("ThumbyGames/lib-emulator/font5x7.bin", '/lib/font5x7.bin');
       await this.loadServerFile("ThumbyGames/lib-emulator/font8x8.bin", '/lib/font8x8.bin');
@@ -838,7 +847,7 @@ export class EMULATOR{
       await this.loadServerFile("ThumbyGames/lib-emulator/thumbyLogo.bin", '/lib/thumbyLogo.bin');
 
       await window.copyFSToFlash(this.mcu);
-      
+
       // Start the emulator
       this.mcu.PC = 0x10000000;
       this.mcu.start();

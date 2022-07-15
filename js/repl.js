@@ -692,6 +692,17 @@ class ReplJS{
         window.setPercent(46.2);
         await this.uploadFile("lib/ssd1306.py", await window.downloadFile("/ThumbyGames/lib/ssd1306.py"), false);
         await this.uploadFile("lib/thumby.py", await window.downloadFile("/ThumbyGames/lib/thumby.py"), false);
+
+        await this.uploadFile("lib/thumbyAudioBase.py", await window.downloadFile("/ThumbyGames/lib/thumbyAudioBase.py"), false);
+        await this.uploadFile("lib/thumbyButtonBase.py", await window.downloadFile("/ThumbyGames/lib/thumbyButtonBase.py"), false);
+        window.setPercent(48.2);
+        await this.uploadFile("lib/thumbyGraphicsBase.py", await window.downloadFile("/ThumbyGames/lib/thumbyGraphicsBase.py"), false);
+        await this.uploadFile("lib/thumbyHardwareBase.py", await window.downloadFile("/ThumbyGames/lib/thumbyHardwareBase.py"), false);
+        window.setPercent(50.2);
+        await this.uploadFile("lib/thumbyLinkBase.py", await window.downloadFile("/ThumbyGames/lib/thumbyLinkBase.py"), false);
+        await this.uploadFile("lib/thumbySavesBase.py", await window.downloadFile("/ThumbyGames/lib/thumbySavesBase.py"), false);
+        await this.uploadFile("lib/thumbySpriteBase.py", await window.downloadFile("/ThumbyGames/lib/thumbySpriteBase.py"), false);
+
         window.setPercent(53.9);
         await this.uploadFile("lib/font3x5.bin", await window.downloadFile("/ThumbyGames/lib/font3x5.bin", true), false, true);
         await this.uploadFile("lib/font5x7.bin", await window.downloadFile("/ThumbyGames/lib/font5x7.bin", true), false, true);
@@ -755,6 +766,17 @@ class ReplJS{
         window.setPercent(1, "Updating Thumby...");
         await this.uploadFile("lib/ssd1306.py", await window.downloadFile("/ThumbyGames/lib/ssd1306.py"), false);
         await this.uploadFile("lib/thumby.py", await window.downloadFile("/ThumbyGames/lib/thumby.py"), false);
+
+        await this.uploadFile("lib/thumbyAudioBase.py", await window.downloadFile("/ThumbyGames/lib/thumbyAudioBase.py"), false);
+        await this.uploadFile("lib/thumbyButtonBase.py", await window.downloadFile("/ThumbyGames/lib/thumbyButtonBase.py"), false);
+        window.setPercent(5);
+        await this.uploadFile("lib/thumbyGraphicsBase.py", await window.downloadFile("/ThumbyGames/lib/thumbyGraphicsBase.py"), false);
+        await this.uploadFile("lib/thumbyHardwareBase.py", await window.downloadFile("/ThumbyGames/lib/thumbyHardwareBase.py"), false);
+        window.setPercent(9);
+        await this.uploadFile("lib/thumbyLinkBase.py", await window.downloadFile("/ThumbyGames/lib/thumbyLinkBase.py"), false);
+        await this.uploadFile("lib/thumbySavesBase.py", await window.downloadFile("/ThumbyGames/lib/thumbySavesBase.py"), false);
+        await this.uploadFile("lib/thumbySpriteBase.py", await window.downloadFile("/ThumbyGames/lib/thumbySpriteBase.py"), false);
+
         window.setPercent(14);
         await this.uploadFile("lib/font3x5.bin", await window.downloadFile("/ThumbyGames/lib/font3x5.bin", true), false, true);
         await this.uploadFile("lib/font5x7.bin", await window.downloadFile("/ThumbyGames/lib/font5x7.bin", true), false, true);

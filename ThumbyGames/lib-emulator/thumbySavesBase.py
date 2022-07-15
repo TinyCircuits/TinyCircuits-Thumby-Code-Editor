@@ -49,7 +49,7 @@ class SavesClass:
         os.chdir(oldDir)
     
     # Set a game save's working subdirectory in "/Saves/"
-    @micropython.viper
+    # @micropython.viper
     def setName(self, subdir):
         
         oldDir = os.getcwd()
@@ -121,7 +121,7 @@ class SavesClass:
         return False
     
     # Write volatile dictionary to persistent.json
-    @micropython.native
+    # @micropython.native
     def save(self, backup = False):
         
         oldDir = os.getcwd()

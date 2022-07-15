@@ -4,7 +4,7 @@ from time import ticks_ms, ticks_us
 from micropython import const
 import machine
 
-# Needed by emulator quickly set pin state
+# Needed by emulator to quickly set pin state
 SIO_BASE     = 0xD0000000
 
 GPIO_OUT     = SIO_BASE + 0x010
