@@ -69,6 +69,8 @@ thumby.display.update()
 
 thumby.display.setFPS(60)
 
+thumby.saveData.setName("SaurRun")
+
 while(thumby.buttonA.pressed() == True or thumby.buttonB.pressed() == True):
     if(time.ticks_ms() % 1000 < 500):
         thumby.display.drawFilledRectangle(0, 32, 72, 8, 0)
@@ -134,9 +136,16 @@ while(GameRunning):
         thumby.display.fill(1)
         thumby.audio.stop()
         thumby.display.drawText("Oh no!", 18, 1, 0)
-        thumby.display.drawText(str(int(Distance))+"m", 26, 13, 0)
-        thumby.display.drawText("Again?", 19, 24, 0)
-        thumby.display.drawText("A:N B:Y", 16, 32, 0) 
+        thumby.display.drawText(str(int(Distance))+"m", 26, 9, 0)
+        high = -1
+        if(thumby.saveData.hasItem("highscore")):
+            high = int(thumby.saveData.getItem("highscore"))
+            thumby.display.drawText("High: " + str(high)+"m", 8, 17, 0)
+        if(Distance > high):
+            thumby.saveData.setItem("highscore", Distance)
+            thumby.saveData.save()
+        thumby.display.drawText("Again?", 19, 25, 0)
+        thumby.display.drawText("A:N B:Y", 16, 33, 0) 
         thumby.display.update()
         thumby.audio.playBlocking(300, 250)
         thumby.audio.play(260, 250)
