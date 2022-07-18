@@ -34,6 +34,32 @@
     </head>
 
     <body>
+        <div id="updateMPOverlay" class="update_mp_overlay">
+            <div id="updateMP" class="update_mp">
+                <p style="margin: 10px">
+                    MicroPython needs updated to work with the newest games.<br><br>Please move your important files from your Thumby to your computer by right-clicking them and selecting "Download".<br><br>You can update in the future using the "Update MicroPython" button under "Utilities"<br><br> Would you like to update now?
+                </p>
+
+                <button id="updateMPYes" style="width:175px; height:50px; position:absolute; left:30px; bottom:10px" class="uk-button uk-button-secondary uk-width-1-1 uk-height-1-1 uk-text-small uk-text-nowrap">
+                    Yes
+                </button>
+
+                <button id="updateMPNo" style="width:175px; height:50px; position:absolute; right:30px; bottom:10px" class="uk-button uk-button-secondary uk-width-1-1 uk-height-1-1 uk-text-small uk-text-nowrap">
+                    No
+                </button>
+            </div>
+
+            <div id="updateMPExtraInfo" class="update_mp_extra">
+                <p style="margin: 10px">
+                    Select the 'RPI-RP2' drive using the "Select Folder" window.
+                </p>
+
+                <button id="updateMPOk" style="width:175px; height:50px; position:absolute; left:0; right:0; margin-left:auto; margin-right:auto; bottom:10px" class="uk-button uk-button-secondary uk-width-1-1 uk-height-1-1 uk-text-small uk-text-nowrap">
+                    OK
+                </button>
+            </div>
+        </div>
+
         <div id="IDChangelog" class="changelog">
             <button id="IDChnagelogExitBtn" class="changelog_exit_btn" uk-icon="icon: close"></button>
             <div id="IDChangelogText" class="changelog_text"></div>
@@ -69,6 +95,7 @@
                                 <li><button title="Resets all widget positions, refreshes page" id="IDResetLayoutBTN" class="uk-button uk-button-secondary uk-width-1-1 uk-height-1-1">Reset Layout</button></li>
                                 <li><button title="Erases/closes all editors and bitmap builder then refreshes page" id="IDHardResetBTN" class="uk-button uk-button-secondary uk-width-1-1 uk-height-1-1">Hard Reset Page</button></li>
                                 <li><button title="Toggles page theme between light and dark" id="IDInvertThemeBTN" class="uk-button uk-button-secondary uk-width-1-1 uk-height-1-1">Invert Theme</button></li>
+                                <li><button title="Updates MicroPython" id="IDUpdateMicroPython" class="uk-button uk-button-secondary uk-width-1-1 uk-height-1-1">Update MicroPython</button></li>
                                 <li class="uk-nav-divider"></li>
 
                                 <button title="Buttons for adding back any panel" class="uk-button uk-button-secondary uk-width-1-1 uk-height-1-1">Widgets&#9662</button>

@@ -15,7 +15,7 @@ class ReplJS{
         this.THUMBY_SEND_BLOCK_SIZE = 255;  // How many bytes to send to Thumby at a time when uploading a file to it
 
         // Set true so most terminal output gets passed to javascript terminal
-        this.DEBUG_CONSOLE_ON = false;
+        this.DEBUG_CONSOLE_ON = true;
 
         this.COLLECT_RAW_DATA = false;
         this.COLLECTED_RAW_DATA = [];
@@ -32,6 +32,7 @@ class ReplJS{
         this.doPrintSeparator = undefined;
         this.forceTermNewline = undefined;
         this.onShowUpdate = undefined;
+        this.showMicropythonUpdate = undefined;
 
         // ### MicroPython Control Commands ###
         // DOCS: https://docs.micropython.org/en/latest/esp8266/tutorial/repl.html#other-control-commands
@@ -722,19 +723,18 @@ class ReplJS{
         // Make sure to update the filesystem after modifying it
         await this.getOnBoardFSTree();
 
-        await this.checkIfNeedUpdate();
-
         window.resetPercentDelay();
     }
 
 
-    async getLibraryVersion(){
+    async getVersionInfo(){
         if(this.BUSY == true){
             return;
         }
         this.BUSY = true;
 
         var cmd =   "import os\n" +
+                    "import sys\n" +
 
                     "try:\n" +
                     "    f = open(\"/lib/thumby.py\", \"r\")\n" +
@@ -742,6 +742,7 @@ class ReplJS{
                     "        line = f.readline()\n" +
                     "        if \"__version__ = \" in line:\n" +
                     "            print(line.split('\\\'')[1])\n" +
+                    "            print(sys.implementation[1])\n" +
                     "            break\n" +
                     "except:\n" +
                     "    print(\"ERROR\")\n";
@@ -752,11 +753,10 @@ class ReplJS{
         this.BUSY = false;
 
         if(hiddenLines != undefined){
-            let message = hiddenLines[0].substring(2);
-            if(message != "ERROR"){
-                return parseFloat(hiddenLines[0].substring(2));
+            if(hiddenLines[0].substring(2) != "ERROR"){
+                return [hiddenLines[0].substring(2), hiddenLines[1]];
             }else{
-                return -1
+                console.error("Error getting version information");
             }
         }
     }
@@ -862,11 +862,63 @@ class ReplJS{
 
 
     async checkIfNeedUpdate(){
-        if(await this.getLibraryVersion() < window.latestThumbyLibraryVersion){
+        let info = await this.getVersionInfo();
+
+        if(info[0] < window.latestThumbyLibraryVersion){
+            // Need to update Micropython libraries, change color of FS update button
             this.onShowUpdate();
-        }else{
-            console.log("Thumby does not need updated!");
         }
+
+        let major = parseInt(info[1].split(", ")[0].substring(1));
+        let minor = parseInt(info[1].split(", ")[1]);
+        let micro = parseInt(info[1].split(", ")[2].substring(0, 1));
+
+        if(major < window.window.latestMicroPythonVersion[0] || minor < window.window.latestMicroPythonVersion[1] || micro < window.window.latestMicroPythonVersion[2]){
+            // Need to update MicroPython
+            this.showMicropythonUpdate();
+        }
+    }
+
+
+    async updateMicroPython(){
+        if(this.BUSY == true){
+            return;
+        }
+        this.BUSY = true;
+
+        window.setPercent(1, "Updating MicroPython...");
+
+        let cmd = "import machine\n" +
+                  "machine.bootloader()\n";
+        
+        await this.getToRaw();
+
+        this.startReaduntil("OK");
+        await this.writeToDevice(cmd + "\x04");
+
+        window.setPercent(3);
+
+        let dirHandler = await window.showDirectoryPicker({mode: "readwrite"});
+        let fileHandle = await dirHandler.getFileHandle("firmware.uf2", {create: true});
+        let writable = await fileHandle.createWritable();
+        window.setPercent(35);
+
+        let data = await (await fetch("rp2-pico-20220618-v1.19.1.uf2")).arrayBuffer();
+        window.setPercent(40);
+
+        await writable.write(data);
+        window.setPercent(65);
+
+        await writable.close();
+        window.setPercent(75);
+
+        setTimeout(() => {
+            window.setPercent(100);
+            alert("You may need to click 'Connect Thumby' to select the updated device");
+            window.resetPercentDelay();
+        }, 2000);
+
+        this.BUSY = false;
     }
 
 

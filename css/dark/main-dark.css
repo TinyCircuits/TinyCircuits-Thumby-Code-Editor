@@ -48,6 +48,63 @@ html, body{
 }
 
 
+.update_mp_overlay {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.35);
+  z-index: 99999;
+
+  display: none;
+}
+
+
+.update_mp {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  margin: auto;
+  width: 500px;
+  height: 275px;
+  background-color: black;
+  border: 1px solid white;
+  border-radius: 10px;
+  z-index: 100000;
+
+  color: white;
+  font-family: Roboto;
+  font-size: 14px;
+
+  display: none;
+}
+
+.update_mp_extra {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  margin: auto;
+  width: 300px;
+  height: 135px;
+  background-color: black;
+  border: 1px solid white;
+  border-radius: 10px;
+  z-index: 100000;
+
+  color: white;
+  font-family: Roboto;
+  font-size: 14px;
+
+  display: none;
+}
+
+
+
 /* Scrollbar style */
 ::-webkit-scrollbar{
   height: 10px;

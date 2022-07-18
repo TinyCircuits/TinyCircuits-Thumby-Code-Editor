@@ -64,7 +64,10 @@ var IMPORTER = new Importer(document.getElementById("IDImportSpriteBTN"), onExpo
 const showChangelogVersion = 16;
 
 // This should match what is in /ThumbyGames/lib/thumby.py as '__version__'
-window.latestThumbyLibraryVersion = 1.7
+window.latestThumbyLibraryVersion = 1.7;
+
+// This should match what is on the actual Thumby firmware found through import sys and sys.implementation
+window.latestMicroPythonVersion = [1, 19, 1];
 
 if(localStorage.getItem(showChangelogVersion) == null){
     console.log("Updates to IDE! Showing changelog...");    // Show message in console
@@ -609,6 +612,24 @@ function registerFilesystem(_container, state){
 }
 
 
+
+document.getElementById("IDUpdateMicroPython").onclick = (event) => {
+    if(REPL.PORT != undefined){
+        document.getElementById("updateMPOverlay").style.display = "block";
+        document.getElementById("updateMPExtraInfo").style.display = "block";
+
+        document.getElementById("updateMPOk").onclick = (event) => {
+            document.getElementById("updateMPOverlay").style.display = "none";
+            document.getElementById("updateMPExtraInfo").style.display = "none";
+
+            REPL.updateMicroPython();
+        }
+    }else{
+        alert("No board connected, cannot update...");
+    }
+}
+
+
 // Terminal module
 var ATERM = undefined;
 function registerShell(_container, state){
@@ -648,6 +669,25 @@ function registerShell(_container, state){
         ATERM.write("\r\n");
     }
     REPL.onShowUpdate = () => {FS.showUpdate()};
+    REPL.showMicropythonUpdate = () => {
+        document.getElementById("updateMPOverlay").style.display = "block";
+        document.getElementById("updateMP").style.display = "block";
+        document.getElementById("updateMPYes").onclick = (event) => {
+            document.getElementById("updateMP").style.display = "none";
+            document.getElementById("updateMPExtraInfo").style.display = "block";
+
+            document.getElementById("updateMPOk").onclick = (event) => {
+                document.getElementById("updateMPOverlay").style.display = "none";
+                document.getElementById("updateMPExtraInfo").style.display = "none";
+
+                REPL.updateMicroPython();
+            }
+        }
+        document.getElementById("updateMPNo").onclick = (event) => {
+            document.getElementById("updateMPOverlay").style.display = "none";
+            document.getElementById("updateMP").style.display = "none";
+        }
+    };
 }
 
 
