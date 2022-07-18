@@ -904,19 +904,16 @@ class ReplJS{
         window.setPercent(35);
 
         let data = await (await fetch("rp2-pico-20220618-v1.19.1.uf2")).arrayBuffer();
-        window.setPercent(40);
+        window.setPercent(85);
 
         await writable.write(data);
-        window.setPercent(65);
+        window.resetPercentDelay();
 
         await writable.close();
-        window.setPercent(75);
 
         setTimeout(() => {
-            window.setPercent(100);
             alert("You may need to click 'Connect Thumby' to select the updated device");
-            window.resetPercentDelay();
-        }, 2000);
+        }, 1000);
 
         this.BUSY = false;
     }
