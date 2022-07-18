@@ -17,8 +17,6 @@ var ARCADE = new Arcade();
 window.addEventListener("load", (event) => {
     if(window.location.origin.indexOf("arcade.thumby.us") != -1){
         ARCADE.show();
-    }else if(window.location.origin.indexOf("tinycircuits.github.io") != -1){
-        alert("WARNING!\n\nThe Thumby Code Editor location is changing!\n\nPlease start using https://code.thumby.us/\n\nhttps://tinycircuits.github.io/ and files stored on it will no longer be accessible starting March 16th, 2022")
     }
 });
 
