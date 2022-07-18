@@ -15,7 +15,7 @@ class ReplJS{
         this.THUMBY_SEND_BLOCK_SIZE = 255;  // How many bytes to send to Thumby at a time when uploading a file to it
 
         // Set true so most terminal output gets passed to javascript terminal
-        this.DEBUG_CONSOLE_ON = true;
+        this.DEBUG_CONSOLE_ON = false;
 
         this.COLLECT_RAW_DATA = false;
         this.COLLECTED_RAW_DATA = [];
