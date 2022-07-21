@@ -19,6 +19,7 @@
 '''
 
 from machine import Pin, UART
+from time import ticks_ms, ticks_diff
 
 __version__ = '1.7'
 
