@@ -35,7 +35,7 @@ __f0 = freq()
 # Speed us up so imports take less time
 freq(250000000)
 
-from thumbyHardware import swL, swR, swU, swD, swA, swB, swBuzzer, IDPin, i2c, spi
+from thumbyHardware import swL, swR, swU, swD, swA, swB, swBuzzer, IDPin, i2c, spi, reset
 
 from thumbySprite import Sprite
 
@@ -49,10 +49,6 @@ from thumbyLink import link
 from thumbySaves import saveData
 
 from thumbyGraphics import display
-
-# Wrap machine.reset() to be accessible as thumby.reset()
-def reset():
-    machineReset()
 
 # Reset to initial frequency
 freq(__f0)

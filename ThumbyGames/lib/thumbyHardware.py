@@ -56,3 +56,7 @@ if(HWID==0):
     i2c = I2C(0, sda=Pin(16), scl=Pin(17), freq=1000000)
 if(HWID>=1):
     spi = SPI(0, sck=Pin(18), mosi=Pin(19))#possible assignment of miso to 4 or 16?
+
+# Wrap machine.reset() to be accessible as thumby.reset()
+def reset():
+    machineReset()

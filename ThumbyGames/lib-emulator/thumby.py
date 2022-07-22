@@ -51,9 +51,5 @@ from thumbySaves import saveData
 
 from thumbyGraphics import display
 
-# Wrap machine.reset() to be accessible as thumby.reset()
-def reset():
-    machineReset()
-
 # Reset to initial frequency
 # freq(__f0)
