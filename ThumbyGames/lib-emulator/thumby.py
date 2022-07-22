@@ -36,20 +36,20 @@ __version__ = '1.7'
 # Speed us up so imports take less time
 # freq(250000000)
 
-from thumbyHardwareBase import swL, swR, swU, swD, swA, swB, swBuzzer, IDPin, i2c, spi
+from thumbyHardware import swL, swR, swU, swD, swA, swB, swBuzzer, IDPin, i2c, spi
 
-from thumbySpriteBase import Sprite
+from thumbySprite import Sprite
 
-from thumbyButtonBase import buttonA, buttonB, buttonU, buttonD, buttonL, buttonR
-from thumbyButtonBase import inputPressed, inputJustPressed, dpadPressed, dpadJustPressed, actionPressed, actionJustPressed
+from thumbyButton import buttonA, buttonB, buttonU, buttonD, buttonL, buttonR
+from thumbyButton import inputPressed, inputJustPressed, dpadPressed, dpadJustPressed, actionPressed, actionJustPressed
 
-from thumbyAudioBase import audio
+from thumbyAudio import audio
 
-from thumbyLinkBase import link
+from thumbyLink import link
 
-from thumbySavesBase import saveData
+from thumbySaves import saveData
 
-from thumbyGraphicsBase import display
+from thumbyGraphics import display
 
 # Wrap machine.reset() to be accessible as thumby.reset()
 def reset():
