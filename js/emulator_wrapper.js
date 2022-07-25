@@ -832,13 +832,13 @@ export class EMULATOR{
       await this.loadServerFile("ThumbyGames/lib-emulator/thumby.py", '/lib/thumby.py');
       await this.loadServerFile("ThumbyGames/lib-emulator/ssd1306.py", '/lib/ssd1306.py');
 
-      await this.loadServerFile("ThumbyGames/lib-emulator/thumbyAudioBase.py", "/lib/thumbyAudioBase.py");
-      await this.loadServerFile("ThumbyGames/lib-emulator/thumbyButtonBase.py", "/lib/thumbyButtonBase.py");
-      await this.loadServerFile("ThumbyGames/lib-emulator/thumbyGraphicsBase.py", "/lib/thumbyGraphicsBase.py");
-      await this.loadServerFile("ThumbyGames/lib-emulator/thumbyHardwareBase.py", "/lib/thumbyHardwareBase.py");
-      await this.loadServerFile("ThumbyGames/lib-emulator/thumbyLinkBase.py", "/lib/thumbyLinkBase.py");
-      await this.loadServerFile("ThumbyGames/lib-emulator/thumbySavesBase.py", "/lib/thumbySavesBase.py");
-      await this.loadServerFile("ThumbyGames/lib-emulator/thumbySpriteBase.py", "/lib/thumbySpriteBase.py");
+      await this.loadServerFile("ThumbyGames/lib-emulator/thumbyAudio.py", "/lib/thumbyAudio.py");
+      await this.loadServerFile("ThumbyGames/lib-emulator/thumbyButton.py", "/lib/thumbyButton.py");
+      await this.loadServerFile("ThumbyGames/lib-emulator/thumbyGraphics.py", "/lib/thumbyGraphics.py");
+      await this.loadServerFile("ThumbyGames/lib-emulator/thumbyHardware.py", "/lib/thumbyHardware.py");
+      await this.loadServerFile("ThumbyGames/lib-emulator/thumbyLink.py", "/lib/thumbyLink.py");
+      await this.loadServerFile("ThumbyGames/lib-emulator/thumbySaves.py", "/lib/thumbySaves.py");
+      await this.loadServerFile("ThumbyGames/lib-emulator/thumbySprite.py", "/lib/thumbySprite.py");
 
       await this.loadServerFile("ThumbyGames/lib-emulator/font3x5.bin", '/lib/font3x5.bin');
       await this.loadServerFile("ThumbyGames/lib-emulator/font5x7.bin", '/lib/font5x7.bin');
