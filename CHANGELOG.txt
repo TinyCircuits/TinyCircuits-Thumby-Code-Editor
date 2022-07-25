@@ -2,7 +2,7 @@ Thumby Code Editor changelog!
 
 ####################
 
-July 18th, 2022
+July 25th, 2022
 
 * Update MicroPython to 1.19.1
 * Split Thumby API into different modules (allows speeding up import of `thumby` module)
