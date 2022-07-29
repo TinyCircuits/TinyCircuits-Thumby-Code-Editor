@@ -27,7 +27,7 @@ export class EMULATOR{
     this.mcu = undefined;                                       // Main emulator object
     this.cdc = undefined;                                       // Main usb emulator object
     this.decoder = new TextDecoder('utf-8');                    // Main emulator serial output utf8 text decoder
-    this.uf2Name = "rp2-pico-freq-custom-faster.uf2";           // File name of emulator uf2 (custom compiled version)
+    this.uf2Name = "emulator-firmware.uf2";                     // File name of emulator uf2 (custom compiled version)
     this.bootromName = "bootrom.bin";
     this.bootromData = undefined;                               // Store bootrom data so only need to fetch once
 
