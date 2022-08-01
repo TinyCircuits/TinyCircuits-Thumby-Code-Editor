@@ -200,7 +200,7 @@ function invertPageTheme(){
         if (link.rel === "stylesheet"){
             var href = link.href.substring(link.href.lastIndexOf("/") + 1);
 
-            if(href == "main-dark.css"){
+            if(href.indexOf("main-dark.css") != -1){
                 link.href = "css/light/main-light.css";
                 document.getElementById("logo").src = "css/thumby_logo-dark.png";
                 for (const [id, editor] of Object.entries(EDITORS)) {
@@ -208,7 +208,7 @@ function invertPageTheme(){
                 }
                 localStorage.setItem("lastTheme", "light");
                 window.theme = "light";
-            }else if(href == "main-light.css"){
+            }else if(href.indexOf("main-light.css") != -1){
                 link.href = "css/dark/main-dark.css";
                 document.getElementById("logo").src = "css/thumby_logo-light.png";
                 for (const [id, editor] of Object.entries(EDITORS)) {
@@ -218,35 +218,35 @@ function invertPageTheme(){
                 window.theme = "dark";
             }
 
-            if(href == "editor-dark.css"){
+            if(href.indexOf("editor-dark.css") != -1){
                 link.href = "css/light/editor-light.css";
-            }else if(href == "editor-light.css"){
+            }else if(href.indexOf("editor-light.css") != -1){
                 link.href = "css/dark/editor-dark.css";
             }
 
-            if(href == "importer-dark.css"){
+            if(href.indexOf("importer-dark.css") != -1){
                 link.href = "css/light/importer-light.css";
-            }else if(href == "importer-light.css"){
+            }else if(href.indexOf("importer-light.css") != -1){
                 link.href = "css/dark/importer-dark.css";
             }
 
-            if(href == "uikit-dark.css"){
+            if(href.indexOf("uikit-dark.css") != -1){
                 link.href = "uikit-3.7.3/css/uikit-light.css";
-            }else if(href == "uikit-light.css"){
+            }else if(href.indexOf("uikit-light.css") != -1){
                 link.href = "uikit-3.7.3/css/uikit-dark.css";
             }
 
-            if(href == "shell-dark.css"){
+            if(href.indexOf("shell-dark.css") != -1){
                 link.href = "css/light/shell-light.css";
                 ATERM.setLightTheme();
-            }else if(href == "shell-light.css"){
+            }else if(href.indexOf("shell-light.css") != -1){
                 link.href = "css/dark/shell-dark.css";
                 ATERM.setDarkTheme();
             }
 
-            if(href == "fs-dark.css"){
+            if(href.indexOf("fs-dark.css") != -1){
                 link.href = "css/light/fs-light.css";
-            }else if(href == "fs-light.css"){
+            }else if(href.indexOf("fs-light.css") != -1){
                 link.href = "css/dark/fs-dark.css";
             }
 
@@ -256,29 +256,29 @@ function invertPageTheme(){
                 link.href = "css/dark/bitmap_builder-dark.css";
             }
 
-            if(href == "emulator-dark.css"){
+            if(href.indexOf("emulator-dark.css") != -1){
                 link.href = "css/light/emulator-light.css";
-            }else if(href == "emulator-light.css"){
+            }else if(href.indexOf("emulator-light.css") != -1){
                 link.href = "css/dark/emulator-dark.css";
             }
 
-            if(href == "arcade-dark.css"){
+            if(href.indexOf("arcade-dark.css") != -1){
                 link.href = "css/light/arcade-light.css";
-            }else if(href == "arcade-light.css"){
+            }else if(href.indexOf("arcade-light.css") != -1){
                 link.href = "css/dark/arcade-dark.css";
             }
 
-            if(href == "dir_chooser-dark.css"){
+            if(href.indexOf("dir_chooser-dark.css") != -1){
                 link.href = "css/light/dir_chooser-light.css";
                 ATERM.setLightTheme();
-            }else if(href == "dir_chooser-light.css"){
+            }else if(href.indexOf("dir_chooser-light.css") != -1){
                 link.href = "css/dark/dir_chooser-dark.css";
                 ATERM.setDarkTheme();
             }
 
-            if(href == "goldenlayout-dark-theme.css"){
+            if(href.indexOf("goldenlayout-dark-theme.css") != -1){
                 link.href = "golden-layout/css/themes/goldenlayout-light-theme.css";
-            }else if(href == "goldenlayout-light-theme.css"){
+            }else if(href.indexOf("goldenlayout-light-theme.css") != -1){
                 link.href = "golden-layout/css/themes/goldenlayout-dark-theme.css";
             }
         }
