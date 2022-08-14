@@ -609,11 +609,22 @@ class EditorWrapper{
         this.ACE_EDITOR.session.setMode("ace/mode/python");
 
         var lastTheme = localStorage.getItem("lastTheme");
+        const darkEditorTheme = localStorage.getItem("darkEditorTheme")
+        const lightEditorTheme = localStorage.getItem("lightEditorTheme")
         if(lastTheme != undefined && lastTheme != null && lastTheme == "light"){
-            this.setThemeLight()
+            if (!lightEditorTheme) {
+                this.setThemeLight();
+            } else {
+                this.setTheme(lightEditorTheme);
+            }
         }else{
-            this.setThemeDark();
+            if (!darkEditorTheme){
+                this.setThemeDark();
+            } else {
+                this.setTheme(darkEditorTheme);
+            }
         }
+
         this.resize();
 
 
@@ -799,6 +810,10 @@ class EditorWrapper{
 
     setThemeDark(){
         this.ACE_EDITOR.setTheme("ace/theme/tomorrow_night_bright");
+    }
+
+    setTheme(theme){
+        this.ACE_EDITOR.setTheme(`ace/theme/${theme}`);
     }
 
 

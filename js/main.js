@@ -195,25 +195,34 @@ var defaultConfig = {
 function invertPageTheme(){
     // https://stackoverflow.com/questions/2024486/is-there-an-easy-way-to-reload-css-without-reloading-the-page/43161591#43161591
     var links = document.getElementsByTagName("link");
+    const darkEditorTheme = localStorage.getItem("darkEditorTheme")
+    const lightEditorTheme = localStorage.getItem("lightEditorTheme")
     for (var cl in links){
         var link = links[cl];
         if (link.rel === "stylesheet"){
             var href = link.href.substring(link.href.lastIndexOf("/") + 1);
-
             if(href.indexOf("main-dark.css") != -1){
                 link.href = "css/light/main-light.css";
                 document.getElementById("logo").src = "css/thumby_logo-dark.png";
                 for (const [id, editor] of Object.entries(EDITORS)) {
-                    editor.setThemeLight();
+                    if (!lightEditorTheme) {
+                        editor.setThemeLight();
+                    } else {
+                        editor.setTheme(lightEditorTheme);
+                    }
                 }
                 localStorage.setItem("lastTheme", "light");
                 window.theme = "light";
             }else if(href.indexOf("main-light.css") != -1){
                 link.href = "css/dark/main-dark.css";
                 document.getElementById("logo").src = "css/thumby_logo-light.png";
-                for (const [id, editor] of Object.entries(EDITORS)) {
-                    editor.setThemeDark();
-                }
+                    for (const [id, editor] of Object.entries(EDITORS)) {
+                        if (!darkEditorTheme){
+                            editor.setThemeDark();
+                        } else {
+                            editor.setTheme(darkEditorTheme);
+                        }
+                    }
                 localStorage.setItem("lastTheme", "dark");
                 window.theme = "dark";
             }
@@ -283,6 +292,7 @@ function invertPageTheme(){
             }
         }
     }
+    setEditorThemeList()
 }
 
 
@@ -294,6 +304,64 @@ document.getElementById("IDArcadeBTN").onclick = async (event) => {
 document.getElementById("IDInvertThemeBTN").onclick = (event) => {
     invertPageTheme();
 }
+
+const unordered_list = document.getElementById("EditorThemeUL")
+
+const darkEditorThemes = ["ambiance", "chaos", "clouds_midnight", "cobalt", "dracula",
+"gob", "gruvbox", "idle_fingers", "kr_theme", "merbivore", "merbivore_soft", "mono_industrial", "monokai",
+"nord_dark", "pastel_on_dark", "solarized_dark", "terminal", "tomorrow_night_blue",
+"tomorrow_night_bright", "tomorrow_night_eighties", "tomorrow_night", "twilight", "vibrant_ink"]
+
+const lightEditorThemes = ["chrome", "clouds", "crimson_editor", "dawn", "dreamweaver", "eclipse",
+"github", "iplastic", "katzenmilch", "kuroir", "solarized_light",
+"sqlserver", "textmate", "tomorrow", "xcode"]
+
+const listClasses = "uk-button uk-button-secondary uk-width-1-1 uk-height-1-1 uk-text-nowrap uk-text-left"
+
+const setEditorThemeList = () => {
+    unordered_list.innerHTML = ""
+    const lastTheme = localStorage.getItem("lastTheme")
+    const editorThemes = lastTheme === "light" ? lightEditorThemes : darkEditorThemes 
+
+        // Create editor theme reset button
+    let resetButton = document.createElement("button")
+    resetButton.className = listClasses
+    resetButton.id = "resetButtonListItem"
+    resetButton.innerText = "RESET THEME"
+    resetButton.title = "Reset the editor theme to default"
+    resetButton.onclick = () => {
+        localStorage.removeItem(lastTheme === "light" ? "lightEditorTheme" : "darkEditorTheme");
+        for (const [id, editor] of Object.entries(EDITORS)) {
+            if (localStorage.getItem("lastTheme") === "dark"){
+                editor.setThemeDark();
+            } else {
+                editor.setThemeLight();
+            }
+        }
+    }
+    let li_elem = document.createElement("li")
+    li_elem.appendChild(resetButton)
+    unordered_list.appendChild(li_elem)
+
+    // Create list elements for each theme
+    for (let i = 0; i < editorThemes.length; i++) {
+        let themeButton = document.createElement("button")
+        themeButton.className = listClasses
+        themeButton.id = `${editorThemes[i]}ListItem`
+        themeButton.innerText = `${editorThemes[i]}`
+        themeButton.title = `Set the editor theme to ${editorThemes[i]}`
+        themeButton.onclick = () => {
+            for (const [id, editor] of Object.entries(EDITORS)) {
+                editor.setTheme(editorThemes[i]);
+            }
+            localStorage.setItem(lastTheme === "light" ? "lightEditorTheme" : "darkEditorTheme", editorThemes[i]);
+        }
+        let li_elem = document.createElement("li")
+        li_elem.appendChild(themeButton)
+        unordered_list.appendChild(li_elem)
+    }
+}
+setEditorThemeList()
 
 
 document.getElementById("IDNewGameBTN").onclick = async (event) => {
@@ -883,6 +951,8 @@ if(lastTheme != undefined && lastTheme != null && lastTheme == "light"){
 }
 
 
+
+
 // Resize layout on browser window resize
 window.addEventListener('resize', () => {
     console.log("Window and layout resized");
@@ -904,7 +974,7 @@ for (const [id, editor] of Object.entries(EDITORS)) {
 }
 
 
-// Used to turn ASCII unto hex string that is typical for Python
+// Used to turn ASCII into hex string that is typical for Python
 // https://stackoverflow.com/questions/33920230/how-to-convert-string-from-ascii-to-hexadecimal-in-javascript-or-jquery/33920309#33920309
 // can use delim = '\\x' for Python like hex/byte string (fails for unicode characters)
 String.prototype.convertToHex = function (delim) {
