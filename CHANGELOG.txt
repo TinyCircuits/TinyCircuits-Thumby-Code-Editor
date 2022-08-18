@@ -2,12 +2,20 @@ Thumby Code Editor changelog!
 
 ####################
 
+August 18th, 2022
+
+* Expose all Ace code editor themes under 'Utilities' dropdown
+
+
+####################
+
 July 25th, 2022
 
 * Update MicroPython to 1.19.1
 * Split Thumby API into different modules (allows speeding up import of `thumby` module)
 * Add saves API
 * Add Thumby Code Editor function to update MicroPython
+
 
 ####################
 
