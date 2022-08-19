@@ -126,7 +126,10 @@ class ReplJS{
             var tempLines = this.COLLECTED_DATA.split('\r\n');
 
             for(var i=0; i<tempLines.length; i++){
-                if(tempLines[i] == "OK" || tempLines[i] == ">"){
+                // Sometimes the OK response gets mixed with the prompt, e.g:
+                //    0: "raw REPL; CTRL-B to exit"
+                //    1: ">OK"
+                if(tempLines[i] == "OK" || tempLines[i] == ">OK" || tempLines[i] == ">"){
                     return;
                 }
             }
