@@ -132,7 +132,7 @@ class ReplJS{
             }
 
             times = times + 1;
-            if(times >= 15){
+            if(times >= 30){
                 this.writeToDevice('');
                 console.error("Had to use ugly hack for hanging raw prompt...");
                 return;
