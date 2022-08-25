@@ -132,7 +132,7 @@ class ReplJS{
             }
 
             times = times + 1;
-            if(times >= 15){
+            if(times >= 30){
                 this.writeToDevice('');
                 console.error("Had to use ugly hack for hanging raw prompt...");
                 return;
@@ -147,6 +147,7 @@ class ReplJS{
     // found line set by startReaduntil.
     // Loops forever if never finds line set by startReaduntil()
     async haltUntilRead(omitOffset = 0){
+        var waitOmitOffset = 0;
 
         // Re-evaluate collected data for readUntil line every 85ms
         while (this.DISCONNECT == false) {
@@ -155,6 +156,11 @@ class ReplJS{
             for(var i=0; i<tempLines.length; i++){
                 if(tempLines[i] == this.READ_UNTIL_STRING || this.READ_UNTIL_STRING == "" || tempLines[i].indexOf(this.READ_UNTIL_STRING) != -1
                   || tempLines[i] == ">"){ // Keyboard interrupt
+                    // Wait for omitOffset lines
+                    if (i > tempLines.length-omitOffset && waitOmitOffset < 5) {
+                        waitOmitOffset++;
+                        break;
+                    }
                     this.READ_UNTIL_STRING = "";
 
                     // Output the rest of the lines that should not be hidden
@@ -239,7 +245,7 @@ class ReplJS{
     async softReset(){
         this.startReaduntil("MPY: soft reboot");
         await this.writeToDevice(this.CTRL_CMD_SOFTRESET);
-        await this.haltUntilRead(4);
+        await this.haltUntilRead(3);
     }
 
     // https://github.com/micropython/micropython/blob/master/tools/pyboard.py#L325
@@ -355,6 +361,7 @@ class ReplJS{
             return;
         }
         this.BUSY = true;
+        this.forceTermNewline();
 
         // Get into raw mode
         await this.getToRaw();
@@ -362,7 +369,6 @@ class ReplJS{
         // Not really needed for hiding output to terminal since raw does not echo
         // but is needed to only grab the FS lines/data
         this.startReaduntil(">");
-        this.forceTermNewline();
         await this.writeToDevice(lines + "\x04");
         await this.waitUntilOK();
         this.SPECIAL_FORCE_OUTPUT_FLAG = true;
