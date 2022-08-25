@@ -1,6 +1,6 @@
 # Thumby main.py- quick initialization to display the TinyCircuits logo before menu.py is called
 
-from machine import mem32, freq
+from machine import mem32, freq, reset
 #Address of watchdog timer scratch register
 WATCHDOG_BASE=0x40058000
 SCRATCH0_ADDR=WATCHDOG_BASE+0x0C
@@ -17,6 +17,8 @@ if(mem32[SCRATCH0_ADDR]==1):
         __import__(gamePath)
     except ImportError:
         print("Thumby error: Couldn't load "+gamePath)
+    finally:
+        reset()
 
 
 
