@@ -22,7 +22,8 @@ from machine import Pin, UART
 from time import ticks_ms, ticks_diff
 import emulator
 
-__version__ = '1.7'
+# Last updated 8/25/2022 for menu reset change
+__version__ = '1.8'
 
 class LinkClass:
     def __init__(self):

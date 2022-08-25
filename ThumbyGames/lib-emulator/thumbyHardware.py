@@ -22,7 +22,8 @@ from machine import Pin, Timer, I2C, PWM, SPI, UART
 from machine import reset as machineReset
 import emulator
 
-__version__ = '1.7'
+# Last updated 8/25/2022 for menu reset change
+__version__ = '1.8'
 
 # Pin definitions for button inputs & buzzer.
 swL = Pin(3, Pin.IN, Pin.PULL_UP) # D-pad left

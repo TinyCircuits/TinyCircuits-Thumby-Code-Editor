@@ -20,7 +20,8 @@
 
 from thumbyHardware import swL, swR, swU, swD, swA, swB
 
-__version__ = '1.7'
+# Last updated 8/25/2022 for menu reset change
+__version__ = '1.8'
 
 class ButtonClass:
     def __init__(self, pin):

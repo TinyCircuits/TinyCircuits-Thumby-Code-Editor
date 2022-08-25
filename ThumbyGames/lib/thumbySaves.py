@@ -22,7 +22,8 @@ from json import load as JSONLoad, dump as JSONDump
 from ubinascii import a2b_base64 as b64dec, b2a_base64 as b64enc
 import os
 
-__version__ = '1.7'
+# Last updated 8/25/2022 for menu reset change
+__version__ = '1.8'
 
 class SavesClass:
     def __init__(self):

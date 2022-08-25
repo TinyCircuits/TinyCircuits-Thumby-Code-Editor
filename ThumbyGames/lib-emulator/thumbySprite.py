@@ -21,7 +21,8 @@
 import os
 import emulator
 
-__version__ = '1.7'
+# Last updated 8/25/2022 for menu reset change
+__version__ = '1.8'
 
 # Sprite class for holding pixel data 
 class Sprite:

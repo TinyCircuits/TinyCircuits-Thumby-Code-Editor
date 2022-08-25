@@ -63,7 +63,7 @@ var IMPORTER = new Importer(document.getElementById("IDImportSpriteBTN"), onExpo
 const showChangelogVersion = 18;
 
 // This should match what is in /ThumbyGames/lib/thumby.py as '__version__'
-window.latestThumbyLibraryVersion = 1.7;
+window.latestThumbyLibraryVersion = 1.8;
 
 // This should match what is on the actual Thumby firmware found through import sys and sys.implementation
 window.latestMicroPythonVersion = [1, 19, 1];
