@@ -42,7 +42,7 @@ class FILESYSTEM{
         this.FS_UPDATE_LIBS_BTN.classList = "uk-button uk-button-secondary uk-button-small uk-width-1-1";
         this.FS_UPDATE_LIBS_BTN.onclick = () => {this.removeUpdate(); this.onUpdate()}
         this.FS_UPDATE_LIBS_BTN.innerText = "UPDATE LIBRARIES";
-        this.FS_UPDATE_LIBS_BTN.title = "Overwrites files all default files in lib directory";
+        this.FS_UPDATE_LIBS_BTN.title = "Overwrites all default files in lib directory";
         this.FS_FOOTER_DIV.appendChild(this.FS_UPDATE_LIBS_BTN);
 
 
