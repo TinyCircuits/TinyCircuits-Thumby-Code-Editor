@@ -38,6 +38,7 @@ export class EMULATOR{
 
     this.nextLineIsAddr = false;        // Flag for parsing serial output for display buffer address
     this.displayBufferAdr = undefined;  // The actual display buffer address in ram
+    this.grayscaleActive = false;  // Whether grayscale is active
 
     // Simple div to take up all emulator panel space so as to not rely on _container div settings that change
     this.EMULATOR_PANEL_DIV = document.createElement("div");
@@ -662,9 +663,44 @@ export class EMULATOR{
     return new ImageData(this.PIXELS, this.WIDTH, this.HEIGHT);
   }
 
+  bufferGrayscaleToImageData(buffer){
+    var ib = 0;
+    for(var row=0; row < this.HEIGHT; row+=8){
+      for(var col=0; col < this.WIDTH; col++){
+        var curByte = buffer[ib];
+        var curShad = buffer[ib+360];
+
+        for(var i=0; i<8; i++){
+          const x = col;
+          const y = row + i;
+          const lit = ((curByte & (1 << i)) === 0 ? 0 : 1);
+          const shad = ((curShad & (1 << i)) === 0 ? 0 : 1);
+          const bit = (lit ? (shad ? 0.67 : 1) : (shad ? 0.33 : 0)) * this.BRIGHTNESS;
+          const p = (y * this.WIDTH + x) * 4;
+          this.PIXELS[p] = bit;
+          this.PIXELS[p+1] = bit;
+          this.PIXELS[p+2] = bit;
+          this.PIXELS[p+3] = 255;
+        }
+
+        ib += 1;
+      }
+    }
+
+    return new ImageData(this.PIXELS, this.WIDTH, this.HEIGHT);
+  }
 
   // Use address fed through serial from emulator to display the contents of MicroPython's Thumby framebuffer
   async drawDisplayBuffer(){
+    if (this.grayscaleActive) {
+      const buffer = new Uint8Array(this.mcu.sramView.buffer.slice(this.displayBufferAdr, this.displayBufferAdr+360*2));
+
+      await createImageBitmap(this.bufferGrayscaleToImageData(buffer)).then(async (imgBitmap) => {
+        this.context.drawImage(imgBitmap, -this.WIDTH/2, -this.HEIGHT/2);
+      });
+      return;
+    }
+
     const buffer = new Uint8Array(this.mcu.sramView.buffer.slice(this.displayBufferAdr, this.displayBufferAdr+360));
 
     // Maybe change this to putImage(): https://themadcreator.github.io/gifler/docs.html#animator::createBufferCanvas()
@@ -708,6 +744,7 @@ export class EMULATOR{
     // These all need reset or subsequent runs will start at the wrong places
     this.collectedData = "";
     this.displayBufferAdr = undefined;
+    this.grayscaleActive = false;
     this.nextLineIsAddr = false;
 
 
@@ -739,7 +776,14 @@ export class EMULATOR{
 
 
     this.mcu.onScreenAddr = (addr) => {
-      this.displayBufferAdr = addr - 0x20000000
+      // Treat 0 and 1 as special grayscale status flags,
+      // which presumes the display buffer is never at those addresses.
+      if (addr == 0) this.grayscaleActive = false;
+      else if (addr == 1) this.grayscaleActive = true;
+      else {
+        this.grayscaleActive = false
+        this.displayBufferAdr = addr - 0x20000000
+      }
     }
 
     this.mcu.onAudioFreq = (freq) => {
