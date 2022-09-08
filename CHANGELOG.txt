@@ -2,6 +2,13 @@ Thumby Code Editor changelog!
 
 ####################
 
+September 8th, 2022
+
+* Add initial support for greyscale library in emulator
+
+
+####################
+
 August 25th, 2022
 
 * Automatically call machine.reset() when a game ends to prevent pollution of menu
