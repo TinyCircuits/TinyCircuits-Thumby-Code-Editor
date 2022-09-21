@@ -864,7 +864,7 @@ ARCADE.onDoneDownload = async () => {
 
 
 
-ARCADE.onOpen = async (arcadeGameFileURLS) => {
+ARCADE.onOpen = async (arcadeGameFileURLS, gameName) => {
 
     // Uncheck all emulation boxes in all editors
     for (const [id, editor] of Object.entries(EDITORS)) {
@@ -872,6 +872,7 @@ ARCADE.onOpen = async (arcadeGameFileURLS) => {
         editor.MAIN_EMU_CHECKBOX.checked = false;
     }
 
+    // Hide the arcade pop-up
     ARCADE.hide();
 
     // Loop through each URL for this open
@@ -913,7 +914,7 @@ ARCADE.onOpen = async (arcadeGameFileURLS) => {
                 state.path = thumbyPathAndURL;
 
                 // When games are opened, check the boxes so emulation can happen right away
-                if(thumbyPathAndURL.indexOf(".py") != -1){
+                if(thumbyPathAndURL.indexOf(gameName + ".py") != -1){
                     state.mainChecked = true;
                 }else{
                     state.normalChecked = true;

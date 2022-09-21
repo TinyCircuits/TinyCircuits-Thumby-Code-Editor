@@ -43,7 +43,7 @@ class GameURLContainer{
 
         // On click, split URL, forget about the first 5 elements, combine the last elements to path, fetch file from URL, open in editors
         this.openButton.onclick = async () => {
-            await this.openFunc(this.GAME_FILE_URLS);
+            await this.openFunc(this.GAME_FILE_URLS, this.GAME_NAME);
             window.setPercent(100, "Opened arcade game...");
             window.resetPercentDelay();
         }
