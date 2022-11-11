@@ -26,8 +26,8 @@ from thumbyHardware import i2c, spi
 from thumbyButton import buttonA, buttonB, buttonU, buttonD, buttonL, buttonR
 import emulator
 
-# Last updated 8/25/2022 for menu reset change
-__version__ = '1.8'
+# Last updated 11/11/2022 for menu reset change
+__version__ = '1.9'
 
 # Graphics class, from which the gfx namespace is defined.
 class GraphicsClass:

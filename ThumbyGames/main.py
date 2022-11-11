@@ -17,7 +17,16 @@ if(mem32[SCRATCH0_ADDR]==1):
         __import__(gamePath)
     except ImportError:
         print("Thumby error: Couldn't load "+gamePath)
-    finally:
+    except Exception as e:
+        import sys
+        import time
+        print("\nThis Thumby script crashed... :(")
+        sys.print_exception(e)
+        
+        # Let the exception print before resetting
+        time.sleep(1)
+        reset()
+    else:
         reset()
 
 

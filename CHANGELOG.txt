@@ -2,6 +2,13 @@ Thumby Code Editor changelog!
 
 ####################
 
+November 11th, 2022
+
+* Fix Thumby main.py not printing exceptions
+
+
+####################
+
 September 8th, 2022
 
 * Add initial support for greyscale library in emulator

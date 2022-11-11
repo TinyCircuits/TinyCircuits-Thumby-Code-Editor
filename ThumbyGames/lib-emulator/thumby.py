@@ -28,8 +28,8 @@ import emulator
 #import ssd1306
 #import os
 
-# Last updated 8/25/2022 for menu reset change
-__version__ = '1.8'
+# Last updated 11/11/2022 for menu reset change
+__version__ = '1.9'
 
 # Grab initial frequency
 # __f0 = freq()

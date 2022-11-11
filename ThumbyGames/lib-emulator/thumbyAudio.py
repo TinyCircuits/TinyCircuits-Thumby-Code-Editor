@@ -23,8 +23,8 @@ from machine import Timer
 from time import ticks_ms, ticks_diff
 import emulator
 
-# Last updated 8/25/2022 for menu reset change
-__version__ = '1.8'
+# Last updated 11/11/2022 for menu reset change
+__version__ = '1.9'
 
 # Audio class, from which the audio namespace is defined.
 class AudioClass:

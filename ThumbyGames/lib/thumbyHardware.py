@@ -21,8 +21,8 @@
 from machine import Pin, Timer, I2C, PWM, SPI, UART
 from machine import reset as machineReset
 
-# Last updated 8/25/2022 for menu reset change
-__version__ = '1.8'
+# Last updated 11/11/2022 for menu reset change
+__version__ = '1.9'
 
 # Pin definitions for button inputs & buzzer.
 swL = Pin(3, Pin.IN, Pin.PULL_UP) # D-pad left
