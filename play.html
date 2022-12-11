@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1 user-scalable=no"/>
+
+    <title>Thumby Emulator</title>
+        <link rel="stylesheet" href="uikit-3.7.3/css/uikit-dark.css?version=19" />
+
+        <link rel="stylesheet" href="css/dark/main-dark.css?version=19">
+        <link rel="stylesheet" href="css/dark/emulator-dark.css?version=19">
+        <link rel="stylesheet" href="css/dark/play-emulator-dark.css?version=19">
+
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap" rel="stylesheet">
+        <link rel="icon" type="image/png" href="favicon.png">
+    </head>
+
+    <body>
+        <div id="infoBar">
+            <p id=loading>Loading...</p>
+            <a id=buyme href="https://tinycircuits.com/products/thumby">Buy your Thumby today!</a>
+        </div>
+        <!-- https://stackoverflow.com/questions/61286599/how-to-force-browser-to-load-new-content -->
+        <script type="module" src="rp2040js/dist/esm/rp2040.js?version=19"></script>
+        <script src="js/load-file-gen.js?version=19"></script>
+        <script src="js/ace/ace.js?version=19" type="text/javascript" charset="utf-8"></script>
+        <script src="js/ace/ext-language_tools.js?version=19"></script>
+        <script src="js/editor_wrapper.js?version=19"></script>
+        <script src="js/arcade.js?version=19"></script>
+        <script type="module" src="js/play.js?version=19"></script>
+    </body>
+</html>
