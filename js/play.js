@@ -25,6 +25,34 @@ emu.onData = (data) => {
     if (data == "_") { loading.style.display = "none" }
 };
 
+// Setup up delaying audio until after unmute
+const muter = () => {
+  if(emu.EMULATOR_MUTED == undefined || emu.EMULATOR_MUTED == false){
+    emu.EMULATOR_MUTED = true;
+    emu.EMULATOR_MUTE_BTN.innerHTML = "UNMUTE";
+    if (emu.AUDIO_VOLUME != undefined) emu.AUDIO_VOLUME.gain.value = 0.0;
+  }else{
+    emu.AUDIO_CONTEXT = new(window.AudioContext || window.webkitAudioContext)();
+
+    emu.AUDIO_VOLUME = emu.AUDIO_CONTEXT.createGain();
+    emu.AUDIO_VOLUME.connect(emu.AUDIO_CONTEXT.destination);
+
+    emu.AUDIO_BUZZER = emu.AUDIO_CONTEXT.createOscillator();
+    emu.AUDIO_BUZZER.frequency.value = 0;
+    emu.AUDIO_BUZZER.type = "triangle";
+    emu.AUDIO_BUZZER.start();
+    emu.AUDIO_BUZZER.connect(emu.AUDIO_VOLUME);
+
+    emu.AUDIO_VOLUME.gain.value = 0.25;
+
+    emu.EMULATOR_MUTED = false;
+    emu.EMULATOR_MUTE_BTN.innerHTML = "MUTE";
+    if (emu.AUDIO_VOLUME != undefined) emu.AUDIO_VOLUME.gain.value = 0.25;
+  }
+};
+muter();
+emu.EMULATOR_MUTE_BTN.onclick = muter;
+
 // Hide unused elements
 emu.EMULATOR_ZOOM_IN_BTN.style.display = 'none';
 emu.EMULATOR_ZOOM_OUT_BTN.style.display = 'none';
