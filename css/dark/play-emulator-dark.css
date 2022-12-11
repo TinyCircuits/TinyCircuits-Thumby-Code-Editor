@@ -23,6 +23,8 @@ html, body {
     overflow: hidden;
     margin-top: auto;
     margin-bottom: auto;
+    top: 50%;
+    transform: translate(0, -50%);
 }
 
 .emulator_canvas{
