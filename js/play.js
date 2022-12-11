@@ -43,11 +43,9 @@ const muter = () => {
     emu.AUDIO_BUZZER.start();
     emu.AUDIO_BUZZER.connect(emu.AUDIO_VOLUME);
 
-    emu.AUDIO_VOLUME.gain.value = 0.25;
-
     emu.EMULATOR_MUTED = false;
     emu.EMULATOR_MUTE_BTN.innerHTML = "MUTE";
-    if (emu.AUDIO_VOLUME != undefined) emu.AUDIO_VOLUME.gain.value = 0.25;
+    emu.AUDIO_VOLUME.gain.value = 0.25;
   }
 };
 muter();
@@ -86,10 +84,12 @@ document.addEventListener("DOMContentLoaded", sizer);
 emu.adjustSize = sizer;
 emu.adjustCanvas = sizer;
 sizer();
-emu.EMULATOR_START_BTN.onclick = () => {
+const starter = () => {
     emu.startEmulator();
-    sizer();
+    // Correct the MUTE state
+    emu.AUDIO_VOLUME.gain.value = 0.25 ? (emu.EMULATOR_MUTE_BTN.innerHTML == "MUTE") : 0;
 };
+emu.EMULATOR_START_BTN.onclick = starter
 
 // Touch screen controls
 window.addEventListener("touchstart", (e) => {
@@ -199,5 +199,5 @@ if (game) {
     await openGame(files, game);
 
     // Load the emulator (delay for chonky files to settle e.g: Fireplace)
-    setTimeout(() => {emu.startEmulator()}, 2000);
+    setTimeout(() => {starter()}, 2000);
 }
