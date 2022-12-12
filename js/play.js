@@ -28,7 +28,6 @@ const emu = await new EMULATOR(conta, {}, EDITORS);
 const starter = () => {
     loading.style.display = "initial"
     if (MAIN_EDITOR && GAME_EDITOR) {
-        console.log("OHHH");
         GAME_EDITOR.state.mainChecked = false;
         GAME_EDITOR.MAIN_EMU_CHECKBOX.checked = false;
         MAIN_EDITOR.state.mainChecked = true;
@@ -46,8 +45,9 @@ emu.onData = async (data) => {
     // Game was selected
     if (MAIN_EDITOR && data.startsWith("HEYTHUMBY!LOAD:")) {
         emu.stopEmulator();
-        const game = data.substring(15);
+        const game = data.substring(15) || localStorage.getItem("PlayerLastGame") || "TinyBlocks";
         console.log(`Playing: ${game}!`);
+        localStorage.setItem("PlayerLastGame", game);
         MAIN_EDITOR.state.mainChecked = false;
         MAIN_EDITOR.MAIN_EMU_CHECKBOX.checked = false;
         await openGame(game);
@@ -250,8 +250,8 @@ else {
             'os.stat("/Games/"+files[k])[0] != 16384',
             'False');
         data = data.replace(
-            'saveConfigSetting("lastgame", gamePath)',
-            'print(f"HEYTHUMBY!LOAD:{files[selpos]}")')
+            'machine.mem32[SCRATCH0_ADDR]=1',
+            'print(f"HEYTHUMBY!LOAD:{files[selpos] if selpos >=0 else ""}")')
         new EditorWrapper(conta, {
             "id": "PlayerEditorMenu",
             "path": "/menu.py",
