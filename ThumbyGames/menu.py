@@ -141,7 +141,6 @@ def drawBracketsAround(text, x, y ,color):
     if(color):
         thumby.display.blit(rightArrowBA, xc-1, y+1, 3, 5,-1,0,0)
     xc=x +(textLen * 6) // 2 +2
-    #x=min(x,70)
     if(color):
         thumby.display.blit(leftArrowBA, xc-1, y+1, 3, 5,-1,0,0)
 lastPosition=0
@@ -266,10 +265,8 @@ while True:
         if(selpos<2):
             selectOffset = selpos*8+8
             
-        #thumby.display.blit(gamesBM, xScrollPos + 72//2 - 32//2 +1, max(0,yScrollPos+40), 32, 7, -1,0,0)
         gamesHeader.x= xScrollPos + 72//2 - 32//2 +1
         gamesHeader.y= max(0,yScrollPos+40)
-        #gamesHeader.setFrame( frameCounter%2)
         thumby.display.drawSprite(gamesHeader)
         
         if(ticks_ms() % 1000 < 500 and selpos<0 and yScrollTarget == -40 and xScrollTarget == 0):
@@ -290,7 +287,6 @@ while True:
         if(ticks_ms() % 1000 < 500 and settingsSelpos>=0):
             drawBracketsAround(settings[settingsSelpos], 72+xScrollPos + thumby.display.width//2, yScrollPos+40+selectOffset+scrollDisplayed, 1)
         
-        #thumby.display.blit(settingsBM, 72+xScrollPos + 72//2 - 46//2 +1, max(0,yScrollPos+40), 46, 7, -1,0,0)
         settingsHeader.x=72+xScrollPos + 72//2 - 46//2 +1
         settingsHeader.y=max(0,yScrollPos+40)
         thumby.display.drawSprite(settingsHeader)
@@ -367,13 +363,6 @@ while True:
     
     
     thumby.display.update()
-#     frameTimeRemaining = 28-(ticks_us() - start)//1000
-#     if(frameTimeRemaining>0):
-#         sleep_ms(frameTimeRemaining)
-#         
-    #print(ticks_us() - start)
-    #machine.idle()
-    #sleep_ms(100)
     frameCounter+=1
     
     if(thumby.inputJustPressed()):
@@ -440,9 +429,6 @@ while True:
                         thumby.display.brightness(brightnessVals[brightnessSetting])
                         saveConfigSetting("brightness", str(brightnessSetting))
                     settings=[audioSettings[audioSetting], brightnessSettings[brightnessSetting]]
-        #print(ticks_us() - start)
-
-
 
 
 machine.reset()
