@@ -1,6 +1,6 @@
 
 from machine import freq
-freq(125_000_000)
+freq(250_000_000)
 from time import ticks_ms, ticks_us
 import os
 import gc
