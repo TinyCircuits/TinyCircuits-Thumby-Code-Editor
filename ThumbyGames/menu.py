@@ -1,11 +1,11 @@
 
 from machine import freq
-freq(125000000)
-from time import sleep_ms, ticks_ms, sleep_us, ticks_us
+freq(125_000_000)
+from time import sleep_ms, ticks_ms, ticks_us
 import os
 import gc
 import thumby
-freq(48000000)
+freq(48_000_000)
 thumby.display.setFont('lib/font5x7.bin', 5, 7, 1)
 
 try:

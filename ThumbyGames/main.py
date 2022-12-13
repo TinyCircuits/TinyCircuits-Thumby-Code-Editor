@@ -12,7 +12,7 @@ if(mem32[SCRATCH0_ADDR]==1):
     for k in range(len(conf)):
         if(conf[k] == "lastgame"):
             gamePath = conf[k+1]
-    freq(125000000)
+    freq(125_000_000)
     try:
         __import__(gamePath)
     except ImportError:
@@ -31,8 +31,7 @@ if(mem32[SCRATCH0_ADDR]==1):
 
 
 
-from machine import Pin, Timer, I2C, PWM, SPI, freq, WDT
-from time import sleep_ms, ticks_ms, sleep_us, ticks_us
+from machine import Pin, Timer, I2C, SPI
 import ssd1306
 
 
