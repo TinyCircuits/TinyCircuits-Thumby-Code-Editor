@@ -332,7 +332,7 @@ while True:
             creditsScrollOffset = (creditsScrollPosition)%(width)
             xScrollTarget = -216
             noButtonPress = True
-            sleep_ms(100)
+            machine.lightsleep(100)
                     
     if(xScrollPos<-144 or (xScrollTarget==-72 and xScrollPos<-72)):
         if(xScrollPos==-216):

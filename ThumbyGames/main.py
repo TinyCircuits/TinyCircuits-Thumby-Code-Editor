@@ -1,6 +1,6 @@
 # Thumby main.py- quick initialization to display the TinyCircuits logo before menu.py is called
 
-from machine import mem32, freq, reset
+from machine import mem32, freq, reset, lightsleep
 #Address of watchdog timer scratch register
 WATCHDOG_BASE=0x40058000
 SCRATCH0_ADDR=WATCHDOG_BASE+0x0C
@@ -19,12 +19,11 @@ if(mem32[SCRATCH0_ADDR]==1):
         print("Thumby error: Couldn't load "+gamePath)
     except Exception as e:
         import sys
-        import time
         print("\nThis Thumby script crashed... :(")
         sys.print_exception(e)
         
         # Let the exception print before resetting
-        time.sleep(1)
+        lightsleep(1000)
         reset()
     else:
         reset()
@@ -73,7 +72,7 @@ if(HWID==0):
     i2c = I2C(0, sda=Pin(16), scl=Pin(17), freq=1000000)
     display = ssd1306.SSD1306_I2C(72, 40, i2c, res=Pin(18))
 if(HWID>=1):
-    spi = SPI(0, sck=Pin(18), mosi=Pin(19))#possible assignment of miso to 4 or 16?
+    spi = SPI(0, sck=Pin(18), mosi=Pin(19)) #possible assignment of miso to 4 or 16?
     display = ssd1306.SSD1306_SPI(72, 40, spi, dc=Pin(17), res=Pin(20), cs=Pin(16))
 
 display.init_display()
@@ -85,7 +84,6 @@ f.close()
 display.show()
 
 
-
 import menu
 
-machine.reset()
+reset()
