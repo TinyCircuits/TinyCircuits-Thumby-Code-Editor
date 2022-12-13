@@ -117,9 +117,9 @@ for k in range(len(shortFiles)):
 settingsSelpos = -1
 SettingsScroll = 0
 
-print(gc.mem_free())
-print(gc.collect())
-print(gc.mem_free())
+#print(gc.mem_free())
+#print(gc.collect())
+#print(gc.mem_free())
 
 
 def writeCenteredText(text, x, y ,color):
@@ -418,7 +418,6 @@ while True:
                     if(settingsSelpos==0):
                         audioSetting= (audioSetting+1) % 2
                         thumby.audio.setEnabled(audioSetting)
-                        print(audioSetting)
                         saveConfigSetting("audioenabled", str(audioSetting))
                         thumby.audio.play(500,20)
                     if(settingsSelpos==1):
