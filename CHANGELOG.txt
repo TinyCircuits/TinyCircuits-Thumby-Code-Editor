@@ -2,6 +2,21 @@ Thumby Code Editor changelog!
 
 ####################
 
+December 12th, 2022
+
+* Add support for grayscale bitmap builder when an editor with path "/thumbyGrayscale.py" is open (by community member hemlockmay)
+* Add new https://code.thumby.us/play.html page for easily playing games through the emulator (by community member hemlockmay)
+
+
+####################
+
+November 11th, 2022
+
+* Fix Thumby main.py not printing exceptions
+
+
+####################
+
 November 11th, 2022
 
 * Fix Thumby main.py not printing exceptions
