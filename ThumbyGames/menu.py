@@ -54,7 +54,7 @@ creditsScrollPosition = -1
 width=(6*16 + 10)
 firstLine = 0
 creditsScrollOffset=-1
-    
+
 
 TCSplash=thumby.Sprite(72, 24, 'lib/TClogo.bin',0,0,-1)
 thumbySplash=thumby.Sprite(72, 24, 'lib/thumbyLogo.bin',0,0,-1)
@@ -67,9 +67,7 @@ gamesBMonly +=bytearray([65,93,85,69,69,127,67,65,117,65,67,127,65,65,115,103,11
 settingsHeader = thumby.Sprite(46, 7, settingsBMonly,key=-1)
 gamesHeader = thumby.Sprite(32, 7, gamesBMonly,key=-1)
 
-#thumbySplash = thumby.sprite(30, 30, 'bird.bin',0,0,-1)
-
-thumby.display.setFPS(100)
+thumby.display.setFPS(50)
 
 thumbySplash.y = -37
 while thumbySplash.y < 5:
@@ -79,8 +77,6 @@ while thumbySplash.y < 5:
     thumby.display.drawSprite(thumbySplash)
     thumby.display.drawSprite(TCSplash)
     thumby.display.update()
-    
-thumby.display.setFPS(50)
 
 thumbyLogoHeight=thumbySplash.y
 
