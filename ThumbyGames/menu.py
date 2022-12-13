@@ -1,7 +1,7 @@
 
 from machine import freq
 freq(125_000_000)
-from time import sleep_ms, ticks_ms, ticks_us
+from time import ticks_ms, ticks_us
 import os
 import gc
 import thumby
@@ -328,7 +328,8 @@ while True:
             creditsScrollOffset = (creditsScrollPosition)%(width)
             xScrollTarget = -216
             noButtonPress = True
-            machine.lightsleep(100)
+            from machine import lightsleep
+            lightsleep(100)
                     
     if(xScrollPos<-144 or (xScrollTarget==-72 and xScrollPos<-72)):
         if(xScrollPos==-216):
