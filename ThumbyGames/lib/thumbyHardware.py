@@ -18,7 +18,7 @@
     the Thumby API. If not, see <https://www.gnu.org/licenses/>.
 '''
 
-from machine import Pin, Timer, I2C, PWM, SPI, UART
+from machine import Pin, Timer, I2C, PWM, SPI
 from machine import reset as machineReset
 
 # Last updated 11/11/2022 for menu reset change

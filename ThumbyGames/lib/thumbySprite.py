@@ -18,7 +18,7 @@
     the Thumby API. If not, see <https://www.gnu.org/licenses/>.
 '''
 
-import os
+from os import stat
 
 # Last updated 11/11/2022 for menu reset change
 __version__ = '1.9'
@@ -39,7 +39,7 @@ class Sprite:
             self.bitmap = bytearray(self.bitmapByteCount)
             self.file = open(self.bitmapSource,'rb')
             self.file.readinto(self.bitmap)
-            self.frameCount = os.stat(self.bitmapSource)[6] // self.bitmapByteCount
+            self.frameCount = stat(self.bitmapSource)[6] // self.bitmapByteCount
         elif type(self.bitmapSource)==bytearray:
             self.bitmap = memoryview(self.bitmapSource)[0:self.bitmapByteCount]
             self.frameCount = len(self.bitmapSource) // self.bitmapByteCount
