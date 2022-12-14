@@ -2,6 +2,13 @@ Thumby Code Editor changelog!
 
 ####################
 
+December 14th, 2022
+
+* Small cleanup of core files, including reduced code import (by community members acedent, hemlockmay).
+
+
+####################
+
 December 12th, 2022
 
 * Add support for grayscale bitmap builder when an editor with path "/thumbyGrayscale.py" is open (by community member hemlockmay)
