@@ -1,6 +1,8 @@
 # Thumby hardware base
+# - Emulator edition
+
 # Written by Mason Watmough, Jason Marcum, and Ben Rose for TinyCircuits.
-# Last edited 7/11/2022
+# 11-Jul-2022
 
 '''
     This file is part of the Thumby API.
@@ -18,11 +20,11 @@
     the Thumby API. If not, see <https://www.gnu.org/licenses/>.
 '''
 
-from machine import Pin, Timer, I2C, PWM, SPI, UART
+from machine import Pin, Timer, I2C, PWM, SPI
 from machine import reset as machineReset
 import emulator
 
-# Last updated 11/11/2022 for menu reset change
+# Last updated 14-Dec-2022
 __version__ = '1.9'
 
 # Pin definitions for button inputs & buzzer.

@@ -1,6 +1,8 @@
 # MicroPython SSD1306 OLED driver, I2C and SPI interfaces- modified for Thumby
+# - Emulator edition
 
-from time import ticks_ms, ticks_us
+# Last updated 14-Dec-2022
+
 from micropython import const
 import machine
 
@@ -90,5 +92,3 @@ class SSD1306_SPI(SSD1306):
     @micropython.native
     def write_data(self, buf):
         pass
-
-

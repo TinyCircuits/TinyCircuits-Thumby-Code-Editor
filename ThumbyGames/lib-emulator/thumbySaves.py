@@ -1,6 +1,8 @@
 # Thumby saves base
+# - Emulator edition
+
 # Written by Mason Watmough, Jason Marcum, and Ben Rose for TinyCircuits.
-# Last edited 7/11/2022
+# 11-Jul-2022
 
 '''
     This file is part of the Thumby API.
@@ -23,7 +25,7 @@ from ubinascii import a2b_base64 as b64dec, b2a_base64 as b64enc
 import os
 import emulator
 
-# Last updated 11/11/2022 for menu reset change
+# Last updated 14-Dec-2022
 __version__ = '1.9'
 
 class SavesClass:

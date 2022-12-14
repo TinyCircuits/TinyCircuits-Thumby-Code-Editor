@@ -1,6 +1,7 @@
 # Thumby button base
+
 # Written by Mason Watmough, Jason Marcum, and Ben Rose for TinyCircuits.
-# Last edited 7/11/2022
+# 11-Jul-2022
 
 '''
     This file is part of the Thumby API.
@@ -20,7 +21,7 @@
 
 from thumbyHardware import swL, swR, swU, swD, swA, swB
 
-# Last updated 11/11/2022 for menu reset change
+# Last updated 14-Dec-2022
 __version__ = '1.9'
 
 class ButtonClass:
@@ -28,12 +29,12 @@ class ButtonClass:
         self.pin = pin
         self.lastState = False
         self.latchedPress = False
-    
+
     # Returns True if the button is currently pressed, False if not.
     @micropython.native
     def pressed(self):
         return False if self.pin.value() == 1 else True
-    
+
     # Returns True if the button was just pressed, False if not.
     @micropython.native
     def justPressed(self):
@@ -46,7 +47,7 @@ class ButtonClass:
             self.latchedPress = False
         self.lastState = currentState
         return returnVal
-    
+
     # Latches a button press state to be returned later through justPressed
     @micropython.native
     def update(self):
@@ -54,7 +55,7 @@ class ButtonClass:
         if(self.lastState == False and currentState==True):
             self.latchedPress = True
         self.lastState = currentState
-        
+
 # Button instantiation
 buttonA = ButtonClass(swA) # Left (A) button
 buttonB = ButtonClass(swB) # Right (B) button
