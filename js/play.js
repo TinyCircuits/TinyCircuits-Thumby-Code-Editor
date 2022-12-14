@@ -244,10 +244,10 @@ else {
         var data = new TextDecoder("utf-8").decode(new Uint8Array(await response.arrayBuffer()));
         // Patch the menu to work in the emulator
         data = data.replace(
-            'files = os.listdir("/Games")',
+            'files = listdir("/Games")',
             `files = """${games.join("\n")}""".split("\\n")`)
         data = data.replace(
-            'os.stat("/Games/"+files[k])[0] != 16384',
+            'stat("/Games/"+files[k])[0] != 16384',
             'False');
         data = data.replace(
             'machine.mem32[SCRATCH0_ADDR]=1',
