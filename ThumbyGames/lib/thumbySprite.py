@@ -61,6 +61,5 @@ class Sprite:
             if type(self.bitmapSource)==str:
                 self.file.seek(offset)
                 self.file.readinto(self.bitmap)
-                #f.close()
             elif type(self.bitmapSource)==bytearray:
                 self.bitmap = memoryview(self.bitmapSource)[offset:offset+self.bitmapByteCount]

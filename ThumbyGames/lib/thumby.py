@@ -21,19 +21,15 @@
     the Thumby API. If not, see <https://www.gnu.org/licenses/>.
 '''
 
-# Necessary things.
-#from machine import Pin, Timer, I2C, PWM, SPI, UART
-from machine import reset as machineReset, freq
-#import ssd1306
-#import os
 
 # Last updated 11/11/2022 for menu reset change
 __version__ = '1.9'
 
+from machine import reset as machineReset, freq
 # Grab initial frequency
 __f0 = freq()
 # Speed us up so imports take less time
-freq(250000000)
+freq(250_000_000)
 
 from thumbyHardware import swL, swR, swU, swD, swA, swB, swBuzzer, IDPin, i2c, spi, reset
 
