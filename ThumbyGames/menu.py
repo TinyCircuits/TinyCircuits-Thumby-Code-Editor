@@ -3,7 +3,7 @@ from machine import freq
 freq(250_000_000)
 from time import ticks_ms, ticks_us
 from os import listdir, stat
-from gc import 
+from gc import collect
 import thumby
 freq(48_000_000)
 thumby.display.setFont('lib/font5x7.bin', 5, 7, 1)
