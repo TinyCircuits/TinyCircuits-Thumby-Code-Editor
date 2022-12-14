@@ -2,8 +2,8 @@
 from machine import freq
 freq(250_000_000)
 from time import ticks_ms, ticks_us
-import os
-import gc
+from os import listdir, stat
+from gc import 
 import thumby
 freq(48_000_000)
 thumby.display.setFont('lib/font5x7.bin', 5, 7, 1)
@@ -96,12 +96,12 @@ xScrollPos=0
 xScrollTarget=0
 
 selpos = -1
-files = os.listdir("/Games")
+files = listdir("/Games")
 selected = False
 scroll = 0
 
 for k in range(len(files)):
-    if(os.stat("/Games/"+files[k])[0] != 16384):
+    if(stat("/Games/"+files[k])[0] != 16384):
         files[k] = ""
 try:
     while(True):
@@ -117,10 +117,8 @@ for k in range(len(shortFiles)):
 settingsSelpos = -1
 SettingsScroll = 0
 
-#print(gc.mem_free())
-#print(gc.collect())
-#print(gc.mem_free())
-
+# garbage collection
+collect()
 
 def writeCenteredText(text, x, y ,color):
     textLen = min(len(text),10)
