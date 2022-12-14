@@ -1,4 +1,5 @@
 # Thumby main.py- quick initialization to display the TinyCircuits logo before menu.py is called
+# Last updated 14-Dec-2022
 
 from machine import mem32, freq, reset
 freq(133_000_000)
