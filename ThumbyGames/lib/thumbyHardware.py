@@ -22,7 +22,7 @@
 from machine import Pin, Timer, I2C, PWM, SPI
 from machine import reset as machineReset
 
-# Last updated 14-Dec-2022
+# Last updated 15-Dec-2022
 __version__ = '1.9'
 
 # Pin definitions for button inputs & buzzer.
@@ -54,10 +54,11 @@ IDPin = Pin(12, Pin.IN, Pin.PULL_DOWN)
 
 i2c = None
 spi = None
-if(HWID==0):
-    i2c = I2C(0, sda=Pin(16), scl=Pin(17), freq=1000000)
 if(HWID>=1):
-    spi = SPI(0, sck=Pin(18), mosi=Pin(19))#possible assignment of miso to 4 or 16?
+    spi = SPI(0, sck=Pin(18), mosi=Pin(19)) # Assign miso to 4 or 16?
+else:
+    i2c = I2C(0, sda=Pin(16), scl=Pin(17), freq=1_000_000)
+
 
 # Wrap machine.reset() to be accessible as thumby.reset()
 def reset():
