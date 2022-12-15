@@ -38,7 +38,6 @@ import ssd1306
 brightnessSetting=2
 try:
     conf = open("thumby.cfg", "r").read().split(',')
-    print(conf)
     for k in range(len(conf)):
         if(conf[k] == "brightness"):
             brightnessSetting = int(conf[k+1])

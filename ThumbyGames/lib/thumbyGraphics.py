@@ -362,7 +362,6 @@ class GraphicsClass:
             xFirst=0
         if xStart+width>72:
             blitWidth = 72-xStart
-        #print(y, yFirst, blitHeight, height)
         y=yFirst
         if(key==key):#ignore key value?
             while y < blitHeight:
