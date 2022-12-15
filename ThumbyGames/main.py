@@ -1,7 +1,7 @@
 # Thumby main.py- quick initialization to display the TinyCircuits logo before menu.py is called
 # Last updated 15-Dec-2022
 
-from machine import mem32, freq, reset
+from machine import freq, mem32, reset
 freq(133_000_000)
 #Address of watchdog timer scratch register
 WATCHDOG_BASE=0x40058000
@@ -29,7 +29,7 @@ if(mem32[SCRATCH0_ADDR]==1):
         reset()
 
 
-from machine import Pin, I2C, SPI
+from machine import Pin, SPI
 import ssd1306
 
 IDPin = Pin(15, Pin.IN, Pin.PULL_UP)
@@ -37,6 +37,7 @@ if(IDPin.value() == 0):
     spi = SPI(0, sck=Pin(18), mosi=Pin(19)) # Assign miso to 4 or 16?
     display = ssd1306.SSD1306_SPI(72, 40, spi, dc=Pin(17), res=Pin(20), cs=Pin(16))
 else:
+    from machine import I2C
     i2c = I2C(0, sda=Pin(16), scl=Pin(17), freq=1_000_000)
     display = ssd1306.SSD1306_I2C(72, 40, i2c, res=Pin(18))
 IDPin = Pin(15, Pin.IN, Pin.PULL_DOWN)

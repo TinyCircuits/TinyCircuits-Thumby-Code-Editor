@@ -19,7 +19,7 @@
     the Thumby API. If not, see <https://www.gnu.org/licenses/>.
 '''
 
-from machine import Pin, Timer, I2C, PWM, SPI
+from machine import Pin, PWM, SPI
 from machine import reset as machineReset
 
 # Last updated 15-Dec-2022
@@ -52,12 +52,14 @@ IDPin = Pin(14, Pin.IN, Pin.PULL_DOWN)
 IDPin = Pin(13, Pin.IN, Pin.PULL_DOWN)
 IDPin = Pin(12, Pin.IN, Pin.PULL_DOWN)
 
-i2c = None
-spi = None
+
 if(HWID>=1):
     spi = SPI(0, sck=Pin(18), mosi=Pin(19)) # Assign miso to 4 or 16?
+    i2c = None
 else:
+    from machine import I2C
     i2c = I2C(0, sda=Pin(16), scl=Pin(17), freq=1_000_000)
+    spi = None
 
 
 # Wrap machine.reset() to be accessible as thumby.reset()
