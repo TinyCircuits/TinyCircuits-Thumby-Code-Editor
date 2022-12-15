@@ -40,7 +40,6 @@ class GraphicsClass:
         self.frameRate = 0
         self.lastUpdateEnd = 0
         self.setFont('lib/font5x7.bin', 5, 7, 1)
-        #self.setFont('lib/font8x8.bin', 8, 8, 0)
         self.fill(0)
 
     @micropython.native
@@ -363,7 +362,7 @@ class GraphicsClass:
         if xStart+width>72:
             blitWidth = 72-xStart
         y=yFirst
-        if(key==key):#ignore key value?
+        if(key==key): # ignore key value?
             while y < blitHeight:
                 x=xFirst
                 while x < blitWidth:
