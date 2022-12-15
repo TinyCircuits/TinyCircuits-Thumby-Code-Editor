@@ -2,7 +2,7 @@ Thumby Code Editor changelog!
 
 ####################
 
-December 14th, 2022
+December 15th, 2022
 
 * Small cleanup of core files, including reduced code import (by community members acedent, hemlockmay).
 

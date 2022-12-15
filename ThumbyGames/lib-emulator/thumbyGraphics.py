@@ -28,7 +28,7 @@ from thumbyHardware import i2c, spi
 from thumbyButton import buttonA, buttonB, buttonU, buttonD, buttonL, buttonR
 import emulator
 
-# Last updated 14-Dec-2022
+# Last updated 15-Dec-2022
 __version__ = '1.9'
 
 # Graphics class, from which the gfx namespace is defined.
@@ -43,7 +43,6 @@ class GraphicsClass:
         self.frameRate = 0
         self.lastUpdateEnd = 0
         self.setFont('lib/font5x7.bin', 5, 7, 1)
-        #self.setFont('lib/font8x8.bin', 8, 8, 0)
         self.fill(0)
         
     @micropython.viper
@@ -370,7 +369,6 @@ class GraphicsClass:
             xFirst=0
         if xStart+width>72:
             blitWidth = 72-xStart
-        #print(y, yFirst, blitHeight, height)
         y=yFirst
         if(key==key):#ignore key value?
             while y < blitHeight:
