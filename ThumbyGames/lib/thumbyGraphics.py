@@ -19,14 +19,14 @@
     the Thumby API. If not, see <https://www.gnu.org/licenses/>.
 '''
 
-import ssd1306
+from ssd1306 import SSD1306_SPI
 from machine import Pin
 from os import stat
 from time import ticks_ms, ticks_diff, sleep_ms
 from thumbyHardware import i2c, spi
 from thumbyButton import buttonA, buttonB, buttonU, buttonD, buttonL, buttonR
 
-# Last updated 14-Dec-2022
+# Last updated 15-Dec-2022
 __version__ = '1.9'
 
 # Graphics class, from which the gfx namespace is defined.
@@ -377,10 +377,10 @@ class GraphicsClass:
     @micropython.native
     def drawSpriteWithMask(self, s, m):
         self.blitWithMask(s.bitmap, int(s.x), int(s.y), s.width, s.height, s.key, s.mirrorX, s.mirrorY, m.bitmap)
-        
+
 # Graphics instantiation
-display=None
-if(i2c):
-    display = GraphicsClass(ssd1306.SSD1306_I2C(72, 40, i2c, res=Pin(18)), 72, 40)
 if(spi):
-    display = GraphicsClass(ssd1306.SSD1306_SPI(72, 40, spi, dc=Pin(17), res=Pin(20), cs=Pin(16)), 72, 40)
+    display = GraphicsClass(SSD1306_SPI(72, 40, spi, dc=Pin(17), res=Pin(20), cs=Pin(16)), 72, 40)
+else:
+    from ssd1306 import SSD1306_I2C
+    display = GraphicsClass(SSD1306_I2C(72, 40, i2c, res=Pin(18)), 72, 40)

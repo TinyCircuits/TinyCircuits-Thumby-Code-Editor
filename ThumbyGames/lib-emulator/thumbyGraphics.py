@@ -20,7 +20,7 @@
     the Thumby API. If not, see <https://www.gnu.org/licenses/>.
 '''
 
-import ssd1306
+from ssd1306 import SSD1306_SPI
 from machine import Pin
 from os import stat
 from time import ticks_ms, ticks_diff, sleep_ms
@@ -387,4 +387,4 @@ class GraphicsClass:
         self.blitWithMask(s.bitmap, int(s.x), int(s.y), s.width, s.height, s.key, s.mirrorX, s.mirrorY, m.bitmap)
         
 # Graphics instantiation
-display = GraphicsClass(ssd1306.SSD1306_SPI(72, 40, spi, dc=Pin(17), res=Pin(20), cs=Pin(16)), 72, 40)
+display = GraphicsClass(SSD1306_SPI(72, 40, spi, dc=Pin(17), res=Pin(20), cs=Pin(16)), 72, 40)
