@@ -32,6 +32,15 @@ if(mem32[SCRATCH0_ADDR]==1):
 from machine import Pin, I2C, SPI
 import ssd1306
 
+IDPin = Pin(15, Pin.IN, Pin.PULL_UP)
+if(IDPin.value() == 0):
+    spi = SPI(0, sck=Pin(18), mosi=Pin(19)) # Assign miso to 4 or 16?
+    display = ssd1306.SSD1306_SPI(72, 40, spi, dc=Pin(17), res=Pin(20), cs=Pin(16))
+else:
+    i2c = I2C(0, sda=Pin(16), scl=Pin(17), freq=1_000_000)
+    display = ssd1306.SSD1306_I2C(72, 40, i2c, res=Pin(18))
+IDPin = Pin(15, Pin.IN, Pin.PULL_DOWN)
+display.init_display()
 
 brightnessSetting=2
 try:
@@ -41,20 +50,7 @@ try:
             brightnessSetting = int(conf[k+1])
 except OSError:
     pass
-
 brightnessVals=[0,28,127]
-
-
-IDPin = Pin(15, Pin.IN, Pin.PULL_UP)
-if(IDPin.value() == 0):
-    spi = SPI(0, sck=Pin(18), mosi=Pin(19)) # Assign miso to 4 or 16?
-    display = ssd1306.SSD1306_SPI(72, 40, spi, dc=Pin(17), res=Pin(20), cs=Pin(16))
-else:
-    i2c = I2C(0, sda=Pin(16), scl=Pin(17), freq=1_000_000)
-    display = ssd1306.SSD1306_I2C(72, 40, i2c, res=Pin(18))
-IDPin = Pin(15, Pin.IN, Pin.PULL_DOWN)
-
-display.init_display()
 display.contrast(brightnessVals[brightnessSetting])
 
 f=open('lib/TClogo.bin')
