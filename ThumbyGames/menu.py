@@ -2,9 +2,10 @@
 
 from machine import freq
 freq(250_000_000)
+from machine import mem32, soft_reset
 from time import ticks_ms, ticks_us, sleep_ms
 from os import listdir, stat
-from gc import collect
+from gc import collect as gc_collect
 import thumby
 freq(48_000_000)
 thumby.display.setFont('lib/font5x7.bin', 5, 7, 1)
@@ -118,8 +119,9 @@ for k in range(len(shortFiles)):
 settingsSelpos = -1
 SettingsScroll = 0
 
-# garbage collection
-collect()
+
+gc_collect() # Garbage collection
+
 
 def writeCenteredText(text, x, y ,color):
     textLen = min(len(text),10)
@@ -189,12 +191,8 @@ def launchGame():
     if(selpos>=0):
         gamePath="/Games/"+files[selpos]+"/"+files[selpos]+".py"
         saveConfigSetting("lastgame", gamePath)
-    import machine
-    #Address of watchdog timer scratch register
-    WATCHDOG_BASE=0x40058000
-    SCRATCH0_ADDR=WATCHDOG_BASE+0x0C
-    machine.mem32[SCRATCH0_ADDR]=1
-    machine.soft_reset()
+    mem32[0x4005800C]=1 # Watchdog timer scratch register
+    soft_reset()
 
 
 while True:

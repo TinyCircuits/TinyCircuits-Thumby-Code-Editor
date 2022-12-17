@@ -3,18 +3,16 @@
 
 from machine import freq, mem32, reset
 freq(133_000_000)
-#Address of watchdog timer scratch register
-WATCHDOG_BASE=0x40058000
-SCRATCH0_ADDR=WATCHDOG_BASE+0x0C
 
-if(mem32[SCRATCH0_ADDR]==1):
-    mem32[SCRATCH0_ADDR]=0
+if(mem32[0x4005800C]==1): # Watchdog timer scratch register
+    mem32[0x4005800C]=0
     gamePath=''
     conf = open("thumby.cfg", "r").read().split(',')
     for k in range(len(conf)):
         if(conf[k] == "lastgame"):
             gamePath = conf[k+1]
     try:
+        freq(125_000_000)
         __import__(gamePath)
     except ImportError:
         print("Thumby error: Couldn't load "+gamePath)
