@@ -1,4 +1,4 @@
-# Last updated 14-Dec-2022
+# Last updated 17-Dec-2022
 
 from machine import freq
 freq(250_000_000)
@@ -12,7 +12,7 @@ thumby.display.setFont('lib/font5x7.bin', 5, 7, 1)
 try:
     conf = open("thumby.cfg", "r").read().split(',')
     if(len(conf)<6):
-        conf.append(',brightness,2')
+        conf.append(',brightness,1')
 except OSError:
     conf = open("thumby.cfg", "w")
     conf.write("audioenabled,1,lastgame,/Games/TinyBlocks/TinyBlocks.py,brightness,1")
@@ -44,7 +44,7 @@ audioSetting=int(getConfigSetting("audioenabled"))
 brightnessSetting=int(getConfigSetting("brightness"))
 audioSettings=['Audio: Off', 'Audio:  On']
 brightnessSettings=['Brite: Low', 'Brite: Mid', 'Brite:  Hi']
-brightnessVals=[0,28,127]
+brightnessVals=[1,28,127]
 settings=[audioSettings[audioSetting], brightnessSettings[brightnessSetting]]
 
 

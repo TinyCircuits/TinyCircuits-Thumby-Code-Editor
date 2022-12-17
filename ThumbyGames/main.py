@@ -1,5 +1,5 @@
 # Thumby main.py- quick initialization to display the TinyCircuits logo before menu.py is called
-# Last updated 15-Dec-2022
+# Last updated 17-Dec-2022
 
 from machine import freq, mem32, reset
 freq(133_000_000)
@@ -33,6 +33,7 @@ from machine import Pin, SPI
 import ssd1306
 
 IDPin = Pin(15, Pin.IN, Pin.PULL_UP)
+# Future hardware revsions may need to check HWID with GPIO pins 14–12.
 if(IDPin.value() == 0):
     spi = SPI(0, sck=Pin(18), mosi=Pin(19)) # Assign miso to 4 or 16?
     display = ssd1306.SSD1306_SPI(72, 40, spi, dc=Pin(17), res=Pin(20), cs=Pin(16))
@@ -43,7 +44,7 @@ else:
 IDPin = Pin(15, Pin.IN, Pin.PULL_DOWN)
 display.init_display()
 
-brightnessSetting=2
+brightnessSetting=1
 try:
     conf = open("thumby.cfg", "r").read().split(',')
     for k in range(len(conf)):
@@ -51,7 +52,7 @@ try:
             brightnessSetting = int(conf[k+1])
 except OSError:
     pass
-brightnessVals=[0,28,127]
+brightnessVals=[1,28,127]
 display.contrast(brightnessVals[brightnessSetting])
 
 f=open('lib/TClogo.bin')
