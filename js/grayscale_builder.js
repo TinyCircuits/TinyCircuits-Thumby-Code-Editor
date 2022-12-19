@@ -666,6 +666,11 @@ class GRAYSCALE_BUILDER{
     // extract each bit and apply reverse algorithm than exporting to grid data. If fails at
     // any point returns 0, else 1
     importBitmap(selectedLines){
+        // Check for Blockly error selection flags
+        if(selectedLines == "NO BLOCK"){
+            alert("Please select a [load sprite] block.");
+            return 0;
+        }
         // Check that lines exist, are not completely empty of characters
         if(selectedLines != undefined && selectedLines != ""){
             let arrayStartIndex = selectedLines.indexOf('[');

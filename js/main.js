@@ -100,7 +100,7 @@ document.getElementById("IDUtilitesDropdown").addEventListener("beforeshow", () 
     const grayscaleBitmapEditorLauncher = document.getElementById("IDAddGrayscaleBuilder");
     grayscaleBitmapEditorLauncher.hidden = true;
     for (const [id, editor] of Object.entries(EDITORS)) {
-        if (editor.EDITOR_PATH.endsWith("/thumbyGrayscale.py")) {
+        if (editor.EDITOR_PATH && editor.EDITOR_PATH.endsWith("/thumbyGrayscale.py")) {
             grayscaleBitmapEditorLauncher.hidden = false;
         }
     }
@@ -178,7 +178,7 @@ var defaultConfig = {
                 content:[{
                     type: 'component',
                     componentName: 'Editor',
-                    componentState: { label: 'Editor', editor: undefined},
+                    componentState: { label: 'Editor', editor: undefined, choose: true},
                     title: 'Editor',
                     id: "aEditor"
                 }]
@@ -445,6 +445,12 @@ document.getElementById("IDHardResetBTN").onclick = (event) =>{
 document.getElementById("IDAddEditorBTN").onclick = (event) =>{
     console.log("PAGE: +Editor");
     myLayout.addComponent('Editor', undefined, 'Editor');
+}
+
+// Add blockly editor panel to layout
+document.getElementById("IDAddBlocklyEditorBTN").onclick = (event) =>{
+    console.log("PAGE: +BlocklyEditor");
+    myLayout.addComponent('Editor', {'isBlockly':true}, 'Editor');
 }
 
 // Add bitmap builder panel to layout
