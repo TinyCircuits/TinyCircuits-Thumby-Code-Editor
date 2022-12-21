@@ -21,15 +21,19 @@ conta._layoutManager = hidden;
 conta._layoutManager.on = (a, b) => {};
 
 // Start warming up the emulator
-var EDITORS = [];
+var EDITORS = {};
 var MAIN_EDITOR = null;
-var GAME_EDITOR = null;
+var GAME_LOADED = false;
 const emu = await new EMULATOR(conta, {}, EDITORS);
 const starter = () => {
     loading.style.display = "initial"
-    if (MAIN_EDITOR && GAME_EDITOR) {
-        GAME_EDITOR.state.mainChecked = false;
-        GAME_EDITOR.MAIN_EMU_CHECKBOX.checked = false;
+    if (MAIN_EDITOR && GAME_LOADED) {
+        // Remove all previous game files
+        Object.keys(EDITORS).forEach((k)=>{
+          if (k.startsWith('PlayerEditorGameFile')) {
+            delete EDITORS[k];
+          }
+        });
         MAIN_EDITOR.state.mainChecked = true;
         MAIN_EDITOR.MAIN_EMU_CHECKBOX.checked = true;
     }
@@ -199,7 +203,7 @@ const openGame = async (gameName) => {
             state.path = thumbyPathAndURL;
 
             // Ensure no collisions with normal editors or cached data
-            state.id = `PlayerEditor${i}`;
+            state.id = `PlayerEditorGameFile${i}`;
             (new EditorWrapper(conta, state, EDITORS)).clearStorage();
 
             // When games are opened, check the boxes so emulation can happen right away
@@ -208,9 +212,8 @@ const openGame = async (gameName) => {
             }else{
                 state.normalChecked = true;
             }
-
-            const edi = new EditorWrapper(conta, state, EDITORS);
-            if (state.mainChecked) {GAME_EDITOR = edi}
+            new EditorWrapper(conta, state, EDITORS);
+            GAME_LOADED = true;
         });
     }
 }
@@ -230,6 +233,13 @@ else {
     games.sort();
 
     // Load the menu
+    (new EditorWrapper(conta, {"id": "PlayerEditorGames"}, EDITORS)).clearStorage();
+    new EditorWrapper(conta, {
+        "id": "PlayerEditorGames",
+        "path": "/__Games__",
+        "value": Array.from(new TextEncoder("utf-8").encode(games.join("\n"))),
+        "normalChecked": true
+    }, EDITORS);
     await fetch("ThumbyGames/main.py").then(async (response) => {
         (new EditorWrapper(conta, {"id": "PlayerEditorMain"}, EDITORS)).clearStorage();
         MAIN_EDITOR = new EditorWrapper(conta, {
@@ -241,21 +251,10 @@ else {
     });
     await fetch("ThumbyGames/menu.py").then(async (response) => {
         (new EditorWrapper(conta, {"id": "PlayerEditorMenu"}, EDITORS)).clearStorage();
-        var data = new TextDecoder("utf-8").decode(new Uint8Array(await response.arrayBuffer()));
-        // Patch the menu to work in the emulator
-        data = data.replace(
-            'files = listdir("/Games")',
-            `files = """${games.join("\n")}""".split("\\n")`)
-        data = data.replace(
-            'stat("/Games/"+files[k])[0] != 16384',
-            'False');
-        data = data.replace(
-            'mem32[0x4005800C]=1',
-            'print(f"HEYTHUMBY!LOAD:{files[selpos] if selpos >=0 else ""}")')
         new EditorWrapper(conta, {
             "id": "PlayerEditorMenu",
             "path": "/menu.py",
-            "value": Array.from(new TextEncoder("utf-8").encode(data)),
+            "value": Array.from(new Uint8Array(await response.arrayBuffer())),
             "normalChecked": true
         }, EDITORS);
     });
