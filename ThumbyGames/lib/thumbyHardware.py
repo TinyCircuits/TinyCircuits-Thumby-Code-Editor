@@ -22,7 +22,7 @@
 from machine import Pin, PWM, SPI
 from machine import reset as machineReset
 
-# Last updated 15-Dec-2022
+# Last updated 22-Dec-2022
 __version__ = '1.9'
 
 # Pin definitions for button inputs & buzzer.
@@ -38,19 +38,19 @@ HWID = 0
 IDPin = Pin(15, Pin.IN, Pin.PULL_UP)
 if(IDPin.value() == 0):
     HWID+=1
+IDPin.init(IDPin.PULL_DOWN)
 IDPin = Pin(14, Pin.IN, Pin.PULL_UP)
 if(IDPin.value() == 0):
     HWID+=2
+IDPin.init(IDPin.PULL_DOWN)
 IDPin = Pin(13, Pin.IN, Pin.PULL_UP)
 if(IDPin.value() == 0):
     HWID+=4
+IDPin.init(IDPin.PULL_DOWN)
 IDPin = Pin(12, Pin.IN, Pin.PULL_UP)
 if(IDPin.value() == 0):
-    HWID+=8
-IDPin = Pin(15, Pin.IN, Pin.PULL_DOWN)
-IDPin = Pin(14, Pin.IN, Pin.PULL_DOWN)
-IDPin = Pin(13, Pin.IN, Pin.PULL_DOWN)
-IDPin = Pin(12, Pin.IN, Pin.PULL_DOWN)
+   HWID+=8
+IDPin.init(IDPin.PULL_DOWN)
 
 
 if(HWID>=1):
@@ -65,3 +65,4 @@ else:
 # Wrap machine.reset() to be accessible as thumby.reset()
 def reset():
     machineReset()
+    

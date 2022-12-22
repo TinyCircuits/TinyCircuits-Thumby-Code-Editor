@@ -1,5 +1,5 @@
 # Thumby main.py- quick initialization to display the TinyCircuits logo before menu.py is called
-# Last updated 17-Dec-2022
+# Last updated 22-Dec-2022
 
 from machine import freq, mem32, reset
 freq(133_000_000)
@@ -28,18 +28,27 @@ if(mem32[0x4005800C]==1): # Watchdog timer scratch register
 
 
 from machine import Pin, SPI
-import ssd1306
+from ssd1306 import SSD1306_SPI
 
+HWID = 0
 IDPin = Pin(15, Pin.IN, Pin.PULL_UP)
-# Future hardware revsions may need to check HWID with GPIO pins 14–12.
 if(IDPin.value() == 0):
+    HWID+=1
+IDPin.init(IDPin.PULL_DOWN)
+IDPin = Pin(14, Pin.IN, Pin.PULL_UP)
+if(IDPin.value() == 0):
+    HWID+=2
+IDPin.init(IDPin.PULL_DOWN)
+# Check HWID with GPIO pins 13–12 for future revisions
+
+if(HWID>=1):
     spi = SPI(0, sck=Pin(18), mosi=Pin(19)) # Assign miso to 4 or 16?
-    display = ssd1306.SSD1306_SPI(72, 40, spi, dc=Pin(17), res=Pin(20), cs=Pin(16))
+    display = SSD1306_SPI(72, 40, spi, dc=Pin(17), res=Pin(20), cs=Pin(16))
 else:
     from machine import I2C
+    from ssd1306 import SSD1306_I2C
     i2c = I2C(0, sda=Pin(16), scl=Pin(17), freq=1_000_000)
-    display = ssd1306.SSD1306_I2C(72, 40, i2c, res=Pin(18))
-IDPin = Pin(15, Pin.IN, Pin.PULL_DOWN)
+    display = SSD1306_I2C(72, 40, i2c, res=Pin(18))
 display.init_display()
 
 brightnessSetting=1
