@@ -250,7 +250,7 @@ else {
             'stat("/Games/"+files[k])[0] != 16384',
             'False');
         data = data.replace(
-            'machine.mem32[SCRATCH0_ADDR]=1',
+            'mem32[0x4005800C]=1',
             'print(f"HEYTHUMBY!LOAD:{files[selpos] if selpos >=0 else ""}")')
         new EditorWrapper(conta, {
             "id": "PlayerEditorMenu",
