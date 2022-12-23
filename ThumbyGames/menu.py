@@ -1,14 +1,13 @@
-# Last updated 17-Dec-2022
+# Last updated 23-Dec-2022
 
 from machine import freq
 freq(250_000_000)
 from machine import mem32, soft_reset
-from time import ticks_ms, ticks_us, sleep_ms
+from time import ticks_ms, sleep_ms
 from os import listdir, stat
 from gc import collect as gc_collect
 import thumby
 freq(48_000_000)
-thumby.display.setFont('lib/font5x7.bin', 5, 7, 1)
 
 try:
     conf = open("thumby.cfg", "r").read().split(',')
@@ -64,7 +63,7 @@ thumbySplash=thumby.Sprite(72, 24, 'lib/thumbyLogo.bin',0,0,-1)
 
 settingsBMonly = bytearray([81,81,85,69,69,127,65,65,85,85,93,127,125,65,65,125,127,125,65,65,125,127,93,65,65,93,127,65,65,115,103,65,65,127,65,65,93,85,69,69,127,81,81,85,69,69])
 gamesBMonly =bytearray([65,65,93,85,69,69,127,67,65,117,65,67,127,65,65,115,103,115,65,65,127,65,65,85,85,93,127,81,81,85,69,69])
-gamesBMonly +=bytearray([65,93,85,69,69,127,67,65,117,65,67,127,65,65,115,103,115,65,65,127,65,65,85,85,93,127,81,81,85,69,69,0xFF])
+
 
 settingsHeader = thumby.Sprite(46, 7, settingsBMonly,key=-1)
 gamesHeader = thumby.Sprite(32, 7, gamesBMonly,key=-1)
@@ -73,7 +72,7 @@ thumby.display.setFPS(50)
 
 thumbySplash.y = -37
 while thumbySplash.y < 5:
-    thumbySplash.y += 1
+    thumbySplash.y += 2
     TCSplash.y=thumbySplash.y+37
     thumby.display.fill(0)
     thumby.display.drawSprite(thumbySplash)
@@ -197,7 +196,6 @@ def launchGame():
 
 while True:
     thumbySplash.setFrame(thumbySplash.currentFrame+1)
-    start = ticks_us()
     if(yScrollTarget!=yScrollPos):
         if(yScrollTarget>yScrollPos):
             yScrollPos += 1
