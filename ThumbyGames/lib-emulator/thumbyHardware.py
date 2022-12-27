@@ -20,11 +20,10 @@
     the Thumby API. If not, see <https://www.gnu.org/licenses/>.
 '''
 
-from machine import Pin, PWM, SPI
-from machine import reset as machineReset
+from machine import Pin, PWM, SPI, reset as machineReset
 import emulator
 
-# Last updated 22-Dec-2022
+# Last updated 27-Dec-2022
 __version__ = '1.9'
 
 # Pin definitions for button inputs & buzzer.
@@ -67,4 +66,3 @@ else:
 # Wrap machine.reset() to be accessible as thumby.reset()
 def reset():
     machineReset()
-    
