@@ -1,10 +1,10 @@
-# Thumby main.py- quick initialization to display the TinyCircuits logo before menu.py is called
-# Last updated 22-Dec-2022
+# Thumby main.py- quick initialization and splashscreen before menu.py is called
+# Last updated 29-Dec-2022
 
 from machine import freq, mem32, reset
 freq(133_000_000)
 
-if(mem32[0x4005800C]==1): # Watchdog timer scratch register
+if(mem32[0x4005800C]==1): # WDT scratch register '0'
     mem32[0x4005800C]=0
     gamePath=''
     conf = open("thumby.cfg", "r").read().split(',')
@@ -39,7 +39,7 @@ IDPin = Pin(14, Pin.IN, Pin.PULL_UP)
 if(IDPin.value() == 0):
     HWID+=2
 IDPin.init(IDPin.PULL_DOWN)
-# Check HWID with GPIO pins 13–12 for future revisions
+# Check HWID with GPIO pins 13-12 for future revisions
 
 if(HWID>=1):
     spi = SPI(0, sck=Pin(18), mosi=Pin(19)) # Assign miso to 4 or 16?

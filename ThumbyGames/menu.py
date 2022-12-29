@@ -1,4 +1,4 @@
-# Last updated 23-Dec-2022
+# Last updated 29-Dec-2022
 
 from machine import freq
 freq(250_000_000)
@@ -190,7 +190,7 @@ def launchGame():
     if(selpos>=0):
         gamePath="/Games/"+files[selpos]+"/"+files[selpos]+".py"
         saveConfigSetting("lastgame", gamePath)
-    mem32[0x4005800C]=1 # Watchdog timer scratch register
+    mem32[0x4005800C]=1 # WDT scratch register '0'
     soft_reset()
 
 
