@@ -52,14 +52,13 @@ class SSD1306_I2C(SSD1306):
         super().__init__(width, height, external_vcc)
 
     def reset(self):
-        self.res.init(self.res.OUT, value=0)
-        from time import sleep_ms
-        self.res(1)
-        sleep_ms(1)
+        self.res.init(self.res.OUT, value=1)
+        from time import sleep_us
+        sleep_us(10)
         self.res(0)
-        sleep_ms(10)
+        sleep_us(10)
         self.res(1)
-        sleep_ms(10)
+        sleep_us(20)
 
     @micropython.native
     def write_window_cmd(self):
@@ -95,14 +94,13 @@ class SSD1306_SPI(SSD1306):
         super().__init__(width, height, external_vcc)
 
     def reset(self):
-        self.res.init(self.res.OUT, value=0)
-        from time import sleep_ms
-        self.res(1)
-        sleep_ms(1)
+        self.res.init(self.res.OUT, value=1)
+        from time import sleep_us
+        sleep_us(10)
         self.res(0)
-        sleep_ms(10)
+        sleep_us(10)
         self.res(1)
-        sleep_ms(10)
+        sleep_us(20)
 
     @micropython.native
     def write_cmd(self, cmd):
