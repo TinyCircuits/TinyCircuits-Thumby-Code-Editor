@@ -1,4 +1,4 @@
-# Last updated 29-Dec-2022
+# Last updated 8-Jan-2023
 
 from machine import freq
 freq(250_000_000)
@@ -421,4 +421,4 @@ while True:
                     settings=[audioSettings[audioSetting], brightnessSettings[brightnessSetting]]
 
 
-machine.reset()
+thumby.reset()
