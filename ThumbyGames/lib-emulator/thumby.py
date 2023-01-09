@@ -22,7 +22,7 @@
     the Thumby API. If not, see <https://www.gnu.org/licenses/>.
 '''
 
-from machine import reset as machineReset #, freq
+# from machine import freq
 import emulator
 
 # Last updated 14-Dec-2022
