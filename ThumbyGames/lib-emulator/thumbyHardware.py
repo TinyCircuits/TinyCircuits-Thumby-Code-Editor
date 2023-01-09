@@ -1,6 +1,8 @@
 # Thumby hardware base
+# - Emulator edition
+
 # Written by Mason Watmough, Jason Marcum, and Ben Rose for TinyCircuits.
-# Last edited 7/11/2022
+# 11-Jul-2022
 
 '''
     This file is part of the Thumby API.
@@ -18,11 +20,10 @@
     the Thumby API. If not, see <https://www.gnu.org/licenses/>.
 '''
 
-from machine import Pin, Timer, I2C, PWM, SPI, UART
-from machine import reset as machineReset
+from machine import Pin, PWM, SPI, reset as machineReset
 import emulator
 
-# Last updated 11/11/2022 for menu reset change
+# Last updated 27-Dec-2022
 __version__ = '1.9'
 
 # Pin definitions for button inputs & buzzer.
@@ -38,26 +39,29 @@ HWID = 0
 IDPin = Pin(15, Pin.IN, Pin.PULL_UP)
 if(IDPin.value() == 0):
     HWID+=1
+IDPin.init(IDPin.PULL_DOWN)
 IDPin = Pin(14, Pin.IN, Pin.PULL_UP)
 if(IDPin.value() == 0):
     HWID+=2
+IDPin.init(IDPin.PULL_DOWN)
 IDPin = Pin(13, Pin.IN, Pin.PULL_UP)
 if(IDPin.value() == 0):
     HWID+=4
+IDPin.init(IDPin.PULL_DOWN)
 IDPin = Pin(12, Pin.IN, Pin.PULL_UP)
 if(IDPin.value() == 0):
-    HWID+=8
-IDPin = Pin(15, Pin.IN, Pin.PULL_DOWN)
-IDPin = Pin(14, Pin.IN, Pin.PULL_DOWN)
-IDPin = Pin(13, Pin.IN, Pin.PULL_DOWN)
-IDPin = Pin(12, Pin.IN, Pin.PULL_DOWN)
+   HWID+=8
+IDPin.init(IDPin.PULL_DOWN)
 
-i2c = None
-spi = None
-if(HWID==0):
-    i2c = I2C(0, sda=Pin(16), scl=Pin(17), freq=1000000)
+
 if(HWID>=1):
-    spi = SPI(0, sck=Pin(18), mosi=Pin(19))#possible assignment of miso to 4 or 16?
+    spi = SPI(0, sck=Pin(18), mosi=Pin(19)) # Assign miso to 4 or 16?
+    i2c = None
+else:
+    from machine import I2C
+    i2c = I2C(0, sda=Pin(16), scl=Pin(17), freq=1_000_000)
+    spi = None
+
 
 # Wrap machine.reset() to be accessible as thumby.reset()
 def reset():

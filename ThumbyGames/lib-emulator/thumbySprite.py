@@ -1,6 +1,8 @@
 # Thumby sprite base
+# - Emulator edition
+
 # Written by Mason Watmough, Jason Marcum, and Ben Rose for TinyCircuits.
-# Last edited 7/11/2022
+# 11-Jul-2022
 
 '''
     This file is part of the Thumby API.
@@ -18,10 +20,10 @@
     the Thumby API. If not, see <https://www.gnu.org/licenses/>.
 '''
 
-import os
+from os import stat
 import emulator
 
-# Last updated 11/11/2022 for menu reset change
+# Last updated 14-Dec-2022
 __version__ = '1.9'
 
 # Sprite class for holding pixel data 
@@ -40,7 +42,7 @@ class Sprite:
             self.bitmap = bytearray(self.bitmapByteCount)
             self.file = open(self.bitmapSource,'rb')
             self.file.readinto(self.bitmap)
-            self.frameCount = os.stat(self.bitmapSource)[6] // self.bitmapByteCount
+            self.frameCount = stat(self.bitmapSource)[6] // self.bitmapByteCount
         elif type(self.bitmapSource)==bytearray:
             self.bitmap = memoryview(self.bitmapSource)[0:self.bitmapByteCount]
             self.frameCount = len(self.bitmapSource) // self.bitmapByteCount
@@ -62,6 +64,5 @@ class Sprite:
             if type(self.bitmapSource)==str:
                 self.file.seek(offset)
                 self.file.readinto(self.bitmap)
-                #f.close()
             elif type(self.bitmapSource)==bytearray:
                 self.bitmap = memoryview(self.bitmapSource)[offset:offset+self.bitmapByteCount]

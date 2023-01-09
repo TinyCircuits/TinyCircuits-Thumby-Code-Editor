@@ -1,6 +1,7 @@
 # Thumby graphics base
+
 # Written by Mason Watmough, Jason Marcum, and Ben Rose for TinyCircuits.
-# Last edited 7/11/2022
+# 11-Jul-2022
 
 '''
     This file is part of the Thumby API.
@@ -18,14 +19,14 @@
     the Thumby API. If not, see <https://www.gnu.org/licenses/>.
 '''
 
-import ssd1306
+from ssd1306 import SSD1306_SPI
 from machine import Pin
 from os import stat
 from time import ticks_ms, ticks_diff, sleep_ms
 from thumbyHardware import i2c, spi
 from thumbyButton import buttonA, buttonB, buttonU, buttonD, buttonL, buttonR
 
-# Last updated 11/11/2022 for menu reset change
+# Last updated 15-Dec-2022
 __version__ = '1.9'
 
 # Graphics class, from which the gfx namespace is defined.
@@ -39,7 +40,6 @@ class GraphicsClass:
         self.frameRate = 0
         self.lastUpdateEnd = 0
         self.setFont('lib/font5x7.bin', 5, 7, 1)
-        #self.setFont('lib/font8x8.bin', 8, 8, 0)
         self.fill(0)
 
     @micropython.native
@@ -361,9 +361,8 @@ class GraphicsClass:
             xFirst=0
         if xStart+width>72:
             blitWidth = 72-xStart
-        #print(y, yFirst, blitHeight, height)
         y=yFirst
-        if(key==key):#ignore key value?
+        if(key==key): # ignore key value?
             while y < blitHeight:
                 x=xFirst
                 while x < blitWidth:
@@ -378,10 +377,10 @@ class GraphicsClass:
     @micropython.native
     def drawSpriteWithMask(self, s, m):
         self.blitWithMask(s.bitmap, int(s.x), int(s.y), s.width, s.height, s.key, s.mirrorX, s.mirrorY, m.bitmap)
-        
+
 # Graphics instantiation
-display=None
-if(i2c):
-    display = GraphicsClass(ssd1306.SSD1306_I2C(72, 40, i2c, res=Pin(18)), 72, 40)
 if(spi):
-    display = GraphicsClass(ssd1306.SSD1306_SPI(72, 40, spi, dc=Pin(17), res=Pin(20), cs=Pin(16)), 72, 40)
+    display = GraphicsClass(SSD1306_SPI(72, 40, spi, dc=Pin(17), res=Pin(20), cs=Pin(16)), 72, 40)
+else:
+    from ssd1306 import SSD1306_I2C
+    display = GraphicsClass(SSD1306_I2C(72, 40, i2c, res=Pin(18)), 72, 40)

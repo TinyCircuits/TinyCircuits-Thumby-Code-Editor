@@ -1,17 +1,18 @@
+# Last updated 8-Jan-2023
 
 from machine import freq
-freq(125000000)
-from time import sleep_ms, ticks_ms, sleep_us, ticks_us
-import os
-import gc
+freq(250_000_000)
+from machine import mem32, soft_reset
+from time import ticks_ms, sleep_ms
+from os import listdir, stat
+from gc import collect as gc_collect
 import thumby
-freq(48000000)
-thumby.display.setFont('lib/font5x7.bin', 5, 7, 1)
+freq(48_000_000)
 
 try:
     conf = open("thumby.cfg", "r").read().split(',')
     if(len(conf)<6):
-        conf.append(',brightness,2')
+        conf.append(',brightness,1')
 except OSError:
     conf = open("thumby.cfg", "w")
     conf.write("audioenabled,1,lastgame,/Games/TinyBlocks/TinyBlocks.py,brightness,1")
@@ -43,7 +44,7 @@ audioSetting=int(getConfigSetting("audioenabled"))
 brightnessSetting=int(getConfigSetting("brightness"))
 audioSettings=['Audio: Off', 'Audio:  On']
 brightnessSettings=['Brite: Low', 'Brite: Mid', 'Brite:  Hi']
-brightnessVals=[0,28,127]
+brightnessVals=[1,28,127]
 settings=[audioSettings[audioSetting], brightnessSettings[brightnessSetting]]
 
 
@@ -54,7 +55,7 @@ creditsScrollPosition = -1
 width=(6*16 + 10)
 firstLine = 0
 creditsScrollOffset=-1
-    
+
 
 TCSplash=thumby.Sprite(72, 24, 'lib/TClogo.bin',0,0,-1)
 thumbySplash=thumby.Sprite(72, 24, 'lib/thumbyLogo.bin',0,0,-1)
@@ -62,25 +63,21 @@ thumbySplash=thumby.Sprite(72, 24, 'lib/thumbyLogo.bin',0,0,-1)
 
 settingsBMonly = bytearray([81,81,85,69,69,127,65,65,85,85,93,127,125,65,65,125,127,125,65,65,125,127,93,65,65,93,127,65,65,115,103,65,65,127,65,65,93,85,69,69,127,81,81,85,69,69])
 gamesBMonly =bytearray([65,65,93,85,69,69,127,67,65,117,65,67,127,65,65,115,103,115,65,65,127,65,65,85,85,93,127,81,81,85,69,69])
-gamesBMonly +=bytearray([65,93,85,69,69,127,67,65,117,65,67,127,65,65,115,103,115,65,65,127,65,65,85,85,93,127,81,81,85,69,69,0xFF])
+
 
 settingsHeader = thumby.Sprite(46, 7, settingsBMonly,key=-1)
 gamesHeader = thumby.Sprite(32, 7, gamesBMonly,key=-1)
 
-#thumbySplash = thumby.sprite(30, 30, 'bird.bin',0,0,-1)
-
-thumby.display.setFPS(100)
+thumby.display.setFPS(50)
 
 thumbySplash.y = -37
 while thumbySplash.y < 5:
-    thumbySplash.y += 1
+    thumbySplash.y += 2
     TCSplash.y=thumbySplash.y+37
     thumby.display.fill(0)
     thumby.display.drawSprite(thumbySplash)
     thumby.display.drawSprite(TCSplash)
     thumby.display.update()
-    
-thumby.display.setFPS(50)
 
 thumbyLogoHeight=thumbySplash.y
 
@@ -100,12 +97,12 @@ xScrollPos=0
 xScrollTarget=0
 
 selpos = -1
-files = os.listdir("/Games")
+files = listdir("/Games")
 selected = False
 scroll = 0
 
 for k in range(len(files)):
-    if(os.stat("/Games/"+files[k])[0] != 16384):
+    if(stat("/Games/"+files[k])[0] != 16384):
         files[k] = ""
 try:
     while(True):
@@ -121,9 +118,8 @@ for k in range(len(shortFiles)):
 settingsSelpos = -1
 SettingsScroll = 0
 
-print(gc.mem_free())
-print(gc.collect())
-print(gc.mem_free())
+
+gc_collect() # Garbage collection
 
 
 def writeCenteredText(text, x, y ,color):
@@ -141,7 +137,6 @@ def drawBracketsAround(text, x, y ,color):
     if(color):
         thumby.display.blit(rightArrowBA, xc-1, y+1, 3, 5,-1,0,0)
     xc=x +(textLen * 6) // 2 +2
-    #x=min(x,70)
     if(color):
         thumby.display.blit(leftArrowBA, xc-1, y+1, 3, 5,-1,0,0)
 lastPosition=0
@@ -195,17 +190,12 @@ def launchGame():
     if(selpos>=0):
         gamePath="/Games/"+files[selpos]+"/"+files[selpos]+".py"
         saveConfigSetting("lastgame", gamePath)
-    import machine
-    #Address of watchdog timer scratch register
-    WATCHDOG_BASE=0x40058000
-    SCRATCH0_ADDR=WATCHDOG_BASE+0x0C
-    machine.mem32[SCRATCH0_ADDR]=1
-    machine.soft_reset()
+    mem32[0x4005800C]=1 # WDT scratch register '0'
+    soft_reset()
 
 
 while True:
     thumbySplash.setFrame(thumbySplash.currentFrame+1)
-    start = ticks_us()
     if(yScrollTarget!=yScrollPos):
         if(yScrollTarget>yScrollPos):
             yScrollPos += 1
@@ -266,10 +256,8 @@ while True:
         if(selpos<2):
             selectOffset = selpos*8+8
             
-        #thumby.display.blit(gamesBM, xScrollPos + 72//2 - 32//2 +1, max(0,yScrollPos+40), 32, 7, -1,0,0)
         gamesHeader.x= xScrollPos + 72//2 - 32//2 +1
         gamesHeader.y= max(0,yScrollPos+40)
-        #gamesHeader.setFrame( frameCounter%2)
         thumby.display.drawSprite(gamesHeader)
         
         if(ticks_ms() % 1000 < 500 and selpos<0 and yScrollTarget == -40 and xScrollTarget == 0):
@@ -290,7 +278,6 @@ while True:
         if(ticks_ms() % 1000 < 500 and settingsSelpos>=0):
             drawBracketsAround(settings[settingsSelpos], 72+xScrollPos + thumby.display.width//2, yScrollPos+40+selectOffset+scrollDisplayed, 1)
         
-        #thumby.display.blit(settingsBM, 72+xScrollPos + 72//2 - 46//2 +1, max(0,yScrollPos+40), 46, 7, -1,0,0)
         settingsHeader.x=72+xScrollPos + 72//2 - 46//2 +1
         settingsHeader.y=max(0,yScrollPos+40)
         thumby.display.drawSprite(settingsHeader)
@@ -367,13 +354,6 @@ while True:
     
     
     thumby.display.update()
-#     frameTimeRemaining = 28-(ticks_us() - start)//1000
-#     if(frameTimeRemaining>0):
-#         sleep_ms(frameTimeRemaining)
-#         
-    #print(ticks_us() - start)
-    #machine.idle()
-    #sleep_ms(100)
     frameCounter+=1
     
     if(thumby.inputJustPressed()):
@@ -432,7 +412,6 @@ while True:
                     if(settingsSelpos==0):
                         audioSetting= (audioSetting+1) % 2
                         thumby.audio.setEnabled(audioSetting)
-                        print(audioSetting)
                         saveConfigSetting("audioenabled", str(audioSetting))
                         thumby.audio.play(500,20)
                     if(settingsSelpos==1):
@@ -440,9 +419,6 @@ while True:
                         thumby.display.brightness(brightnessVals[brightnessSetting])
                         saveConfigSetting("brightness", str(brightnessSetting))
                     settings=[audioSettings[audioSetting], brightnessSettings[brightnessSetting]]
-        #print(ticks_us() - start)
 
 
-
-
-machine.reset()
+thumby.reset()

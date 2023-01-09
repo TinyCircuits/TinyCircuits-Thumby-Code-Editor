@@ -2,17 +2,18 @@ Thumby Code Editor changelog!
 
 ####################
 
-December 12th, 2022
+January 8th, 2023
 
-* Add support for grayscale bitmap builder when an editor with path "/thumbyGrayscale.py" is open (by community member hemlockmay)
-* Add new https://code.thumby.us/play.html page for easily playing games through the emulator (by community member hemlockmay)
+* Tweak core files; faster startup and reduced code imports (by community members acedent, hemlockmay).
+* Adjust contrast settings to support all OLED models (by community members agovtman, acedent).
 
 
 ####################
 
-November 11th, 2022
+December 12th, 2022
 
-* Fix Thumby main.py not printing exceptions
+* Add support for grayscale bitmap builder when an editor with path "/thumbyGrayscale.py" is open (by community member hemlockmay)
+* Add new https://code.thumby.us/play.html page for easily playing games through the emulator (by community member hemlockmay)
 
 
 ####################

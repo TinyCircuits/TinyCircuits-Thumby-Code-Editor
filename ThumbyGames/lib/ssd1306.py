@@ -1,7 +1,7 @@
 # MicroPython SSD1306 OLED driver, I2C and SPI interfaces- modified for Thumby
 
-from time import ticks_ms, ticks_us
-from micropython import const
+# Last updated 20-Dec-2022
+
 
 class SSD1306():
     def __init__(self, width, height, external_vcc):
@@ -10,7 +10,6 @@ class SSD1306():
         self.external_vcc = external_vcc
         self.pages = self.height // 8
         self.buffer = bytearray(self.pages * self.width)
-        #self.init_display()
 
     def init_display(self):
         self.reset()
@@ -19,8 +18,6 @@ class SSD1306():
             0x10 if self.external_vcc else 0x14,0xAD,0x30,0xAE | 0x01
         ):
             self.write_cmd(cmd)
-        #self.fill(0)
-        #self.show()
 
     def poweroff(self):
         self.write_cmd(0xAE | 0x00)
@@ -79,7 +76,6 @@ class SSD1306_I2C(SSD1306):
 
     @micropython.native
     def write_data(self, buf):
-        #self.write_list[1] = buf
         self.i2c.writeto_mem(self.addr, 0x40, buf)
 
 
@@ -103,7 +99,7 @@ class SSD1306_SPI(SSD1306):
         sleep_ms(1)
         self.res(0)
         sleep_ms(10)
-        self.res(1)        
+        self.res(1)
         sleep_ms(10)
 
     @micropython.native
@@ -124,7 +120,6 @@ class SSD1306_SPI(SSD1306):
         self.spi.write(self.cmdWindow)
         self.cs(1)
 
-
     @micropython.native
     def write_data(self, buf):
         self.spi.init(baudrate=self.rate, polarity=0, phase=0)
@@ -133,5 +128,3 @@ class SSD1306_SPI(SSD1306):
         self.cs(0)
         self.spi.write(buf)
         self.cs(1)
-
-
