@@ -33,7 +33,7 @@ __version__ = '1.9'
 # Speed us up so imports take less time
 # freq(250_000_000)
 
-from thumbyHardware import swL, swR, swU, swD, swA, swB, swBuzzer, IDPin, i2c, spi
+from thumbyHardware import swL, swR, swU, swD, swA, swB, swBuzzer, IDPin, i2c, spi, reset
 
 from thumbySprite import Sprite
 
