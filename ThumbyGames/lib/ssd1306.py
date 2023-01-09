@@ -18,8 +18,6 @@ class SSD1306():
             0x10 if self.external_vcc else 0x14,0xAD,0x30,0xAE | 0x01
         ):
             self.write_cmd(cmd)
-            self.fill(0)
-            self.show()
 
     def poweroff(self):
         self.write_cmd(0xAE | 0x00)
