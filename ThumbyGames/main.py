@@ -16,13 +16,11 @@ if(mem32[0x4005800C]==1): # WDT scratch register '0'
         freq(125_000_000)
         __import__(gamePath)
     except ImportError:
-        print("Thumby error: Couldn't load "+gamePath)
-        sleep_ms(1000)
-    except Exception as e:
-        from sys import print_exception
-        print("\nThis Thumby script crashed... :(")
-        print_exception(e)
-        sleep_ms(1000)
+        print("Couldn't load "+gamePath)
+        sleep_ms(500)
+    except:
+        print("Script error... :(")
+        sleep_ms(500)
     finally:
         reset()
 
