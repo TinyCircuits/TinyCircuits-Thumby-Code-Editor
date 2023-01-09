@@ -5,6 +5,7 @@ from machine import freq, mem32, reset
 freq(133_000_000)
 
 if(mem32[0x4005800C]==1): # WDT scratch register '0'
+    from time import sleep_ms
     mem32[0x4005800C]=0
     gamePath=''
     conf = open("thumby.cfg", "r").read().split(',')
@@ -16,14 +17,13 @@ if(mem32[0x4005800C]==1): # WDT scratch register '0'
         __import__(gamePath)
     except ImportError:
         print("Thumby error: Couldn't load "+gamePath)
+        sleep_ms(1000)
     except Exception as e:
         from sys import print_exception
-        from time import sleep_ms
         print("\nThis Thumby script crashed... :(")
         print_exception(e)
         sleep_ms(1000)
-        reset()
-    else:
+    finally:
         reset()
 
 
