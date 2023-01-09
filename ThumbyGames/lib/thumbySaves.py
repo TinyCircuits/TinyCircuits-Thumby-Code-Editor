@@ -71,7 +71,7 @@ class SavesClass:
             try:
                 self.saveFile = open(self.savesPath+"/backup.json", "r+")
                 self.volatileDict = JSONLoad(self.saveFile)
-                self.write(False) # Make sure we have a persistent.json
+                self.save(False) # Make sure we have a persistent.json
             except (OSError, ValueError):
                 self.saveFile = open(self.savesPath+"/persistent.json", "w+") # Make a new one
                 self.saveFile.write("{}")
