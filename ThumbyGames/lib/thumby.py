@@ -21,9 +21,9 @@
     the Thumby API. If not, see <https://www.gnu.org/licenses/>.
 '''
 
-from machine import reset as machineReset, freq
+from machine import freq
 
-# Last updated 14-Dec-2022
+# Last updated 9-Jan-2023
 __version__ = '1.9'
 
 # Grab initial frequency
