@@ -93,7 +93,6 @@ class SavesClass:
             self.volatileDict.update({key:value})
     
     # Get entry from volatile dictionary
-    @micropython.native
     def getItem(self, key):
         ret = self.volatileDict.get(key, None)
         if ret == None:
@@ -104,7 +103,6 @@ class SavesClass:
         return ret
     
     # Delete entry in volatile dictionary
-    @micropython.viper
     def delItem(self, key):
         try:
             return self.volatileDict.pop(key)
