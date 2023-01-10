@@ -94,23 +94,20 @@ class SavesClass:
     @micropython.native
     def getItem(self, key):
         ret = self.volatileDict.get(key, None)
-        if ret == None:
-            try: # Look for a bytes item under the key
-                ret = b64dec(self.volatileDict.get("__b"+key, None))
-            except TypeError:
-                return None
+        if ret is None:
+            # Look for a bytes item under the key
+            ret = self.volatileDict.get("__b"+key, None)
+            return (None if ret is None else b64dec(ret))
         return ret
     
     # Delete entry in volatile dictionary
-    @micropython.viper
+    @micropython.native
     def delItem(self, key):
-        try:
-            return self.volatileDict.pop(key)
-        except KeyError:
-            try: # Try deleting as a bytes item
-                return self.volatileDict.pop("__b"+key)
-            except KeyError:
-                return None
+        ret = self.volatileDict.pop(key, None)
+        if ret is None:
+            ret = self.volatileDict.pop("__b"+key, None)
+            return (None if ret is None else b64dec(ret))
+        return ret
         
     # Check if save data entry exists in volatile dictionary
     @micropython.viper
