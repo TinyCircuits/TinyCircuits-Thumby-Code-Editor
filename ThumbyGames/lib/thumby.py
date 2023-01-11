@@ -23,8 +23,8 @@
 
 from machine import freq
 
-# Last updated 9-Jan-2023
-__version__ = '1.9'
+# Last updated 11-Jan-2023
+__version__ = '2.0tr1'
 
 # Grab initial frequency
 __f0 = freq()
