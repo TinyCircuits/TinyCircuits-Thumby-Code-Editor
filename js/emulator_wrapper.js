@@ -844,6 +844,7 @@ export class EMULATOR{
       // Loop through all editors and get file names + content
       this.MAIN_FILE = undefined;
       for (const [editorID, editorWrapper] of Object.entries(this.EDITORS)) {
+        if(!editorWrapper.EDITOR_PATH){continue}
 
         // Check that the first character is a forward slash, otherwise, add it
         // (Emulator will not load file without it!)
