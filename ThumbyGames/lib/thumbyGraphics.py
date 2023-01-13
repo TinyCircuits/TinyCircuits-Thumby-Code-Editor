@@ -34,7 +34,7 @@ class GraphicsClass:
         self.height = height
         self.max_x = width-1
         self.max_y = height-1
-        self.frameRate = 0
+        self.frameRate = 30
         self.lastUpdateEnd = 0
         self.setFont('lib/font5x7.bin', 5, 7, 1)
         self.fill(0)
