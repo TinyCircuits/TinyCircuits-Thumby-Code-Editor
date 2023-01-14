@@ -647,7 +647,8 @@ function registerFilesystem(_container, state){
     FS.onOpen = async (filePath) => {
         // Make sure no editors with this file path already exist
         for (const [id, editor] of Object.entries(EDITORS)) {
-            if(editor.EDITOR_PATH == filePath){
+            if(editor.EDITOR_PATH == filePath
+                || editor.EDITOR_PATH == filePath.replace(/\.blocks$/, '.py')){
                 editor._container.parent.focus();
                 alert("This file is already open in Editor" + id + "! Please close it first");
                 return;
@@ -806,7 +807,8 @@ function registerEditor(_container, state){
             if(path != undefined){
                 // Make sure no editors with this file path already exist
                 for (const [id, editor] of Object.entries(EDITORS)) {
-                    if(editor.EDITOR_PATH == path){
+                    if(editor.EDITOR_PATH == path
+                        || editor.EDITOR_PATH == path.replace(/\.blocks$/, '.py')){
                         editor._container.parent.focus();
                         alert("This file is already open in Editor" + id + "! Please close it first");
                         return;
@@ -832,6 +834,18 @@ function registerEditor(_container, state){
                         window.resetPercentDelay();
                     }
                 })
+            }else if(editor.isBlockly){
+                var blocksPath = (editor.EDITOR_PATH.endsWith('.py') ?
+                  editor.EDITOR_PATH.replace(/\.py$/, '.blocks') : editor.EDITOR_PATH + ".blocks");
+                var busy = await REPL.uploadFile(blocksPath, editor.getBlockData(), true, false);
+                if(busy != true && editor.EDITOR_PATH.endsWith('.py')){
+                    busy = await REPL.uploadFile(editor.EDITOR_PATH, editor.getValue(), true, false);
+                }
+                if(busy != true){
+                    REPL.getOnBoardFSTree();
+                    window.setPercent(100);
+                    window.resetPercentDelay();
+                }
             }else{
                 var busy = await REPL.uploadFile(editor.EDITOR_PATH, editor.getValue(), true, false);
                 if(busy != true){

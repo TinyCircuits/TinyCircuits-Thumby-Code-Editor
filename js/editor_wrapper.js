@@ -591,8 +591,7 @@ class EditorWrapper{
         if(lastEditorPath != null){
             this.EDITOR_PATH = lastEditorPath;
         }else if(this.state['path'] != undefined){
-            this.EDITOR_PATH = this.state['path'];
-            localStorage.setItem("EditorPath" + this.ID, this.EDITOR_PATH);
+            this.setPath(this.state['path']);
         }
 
 
@@ -1017,7 +1016,18 @@ class EditorWrapper{
         // have been loaded from a .blocks file or other sensible extension.
         // Adjust this so it will run in the emulator.
         if(this.isBlockly && !path.endsWith(".py")){
-            path += ".py";
+            const origPath = path;
+            if(path.endsWith(".blocks")){
+                path = path.replace(/\.blocks$/, ".py");
+            }else{
+                path += ".py";
+            }
+            for (const [id, editor] of Object.entries(this.EDITORS)) {
+                if(editor == this){continue}
+                if(editor.EDITOR_PATH == path){ // Abort rename if we get a path collision
+                    path = origPath;
+                }
+            }
         }
 
         this.EDITOR_PATH = path;
@@ -1239,6 +1249,14 @@ class EditorWrapper{
             }else{
                 this.FILE_OPTIONS.suggestedName = this.CURRENT_FILE_NAME;
             }
+
+            if(this.isBlockly){                                                             // Save with .blocks extension if running in Blockly mode.
+                if(this.FILE_OPTIONS.suggestedName == undefined){
+                    this.FILE_OPTIONS.suggestedName = this.EDITOR_PATH.replace(/^.*[\\\/]/, '')
+                }
+                this.FILE_OPTIONS.suggestedName = this.FILE_OPTIONS.suggestedName.replace(/\.py$/, ".blocks");
+            }
+
             fileHandle = await window.showSaveFilePicker(this.FILE_OPTIONS);            // Let the user pick location to save with dialog
         }catch(err){                                                                    // If the user aborts, stop function execution, leave unsaved
             this.FILE_OPTIONS.suggestedName = ".py";                                    // Reset this before stopping function
@@ -1256,8 +1274,7 @@ class EditorWrapper{
         var file = fileHandle.getFile();                                                // Get file from promise so that the name can be retrieved
         var data = undefined;
         if(this.isBlockly){
-            data = JSON.stringify(Blockly.serialization.workspaces.save(this.BLOCKLY_WORKSPACE));
-            await writeStream.write(data);
+            await writeStream.write(this.getBlockData());
             writeStream.close();
         }else if(!this.isEditorBinary()){
             data = await this.ACE_EDITOR.getValue();
@@ -1272,13 +1289,19 @@ class EditorWrapper{
 
     }
 
-
+    // Block data as a JSON string, or null
+    getBlockData(){
+        if(!this.isBlockly){
+          return null;
+        }
+        return JSON.stringify(Blockly.serialization.workspaces.save(this.BLOCKLY_WORKSPACE));
+    }
 
     // Expose common Ace editor operation
     getValue(){
         if(this.isBlockly){
             return blockly_fix_for_micropython(
-							Blockly.Python.workspaceToCode(this.BLOCKLY_WORKSPACE));
+              Blockly.Python.workspaceToCode(this.BLOCKLY_WORKSPACE));
         }else{
             return this.ACE_EDITOR.getValue();
         }
