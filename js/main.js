@@ -847,6 +847,10 @@ function registerEditor(_container, state){
                     window.resetPercentDelay();
                 }
             }else{
+                if(editor.getValue().indexOf("#### !!!! BLOCKLY EXPORT !!!! ####") != -1){
+                    alert("Detected export from Blockly. Please export from the block file.");
+                    return;
+                }
                 var busy = await REPL.uploadFile(editor.EDITOR_PATH, editor.getValue(), true, false);
                 if(busy != true){
                     REPL.getOnBoardFSTree();
