@@ -108,6 +108,8 @@ class GraphicsClass:
             buf[(y >> 3) * screenWidth + x] |= 1 << (y & 0x07)
         elif(color==int(0)):
             buf[(y >> 3) * screenWidth + x] &= 0xff ^ (1 << (y & 0x07))
+        elif(color==int(-1)):
+            buf[(y >> 3) * screenWidth + x] ^= 1 << (y & 0x07)
 
     
     @micropython.viper
