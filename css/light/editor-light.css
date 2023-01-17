@@ -49,13 +49,3 @@
 .editor_emulate_checkbox{
     margin-top: 0.5px;
 }
-
-.editor .blocklySvg {
-    background-color: white;
-}
-
-.blocklyToolboxDiv,.blocklyFlyoutBackground {
-    background-color: lightgrey;
-    fill: lightgrey;
-    color: black;
-}
