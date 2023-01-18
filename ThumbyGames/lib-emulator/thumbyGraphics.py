@@ -91,6 +91,9 @@ class GraphicsClass:
         if int(color)==int(0):
             for i in range(int(len(self.display.buffer))):
                 buf[int(i)]=0
+        elif int(color)==int(-2):
+            for i in range(int(len(self.display.buffer))):
+                buf[i] ^= 0xff                
         else:
             for i in range(int(len(self.display.buffer))):
                 buf[i]=0xff
