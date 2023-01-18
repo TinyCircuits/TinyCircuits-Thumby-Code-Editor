@@ -1,5 +1,4 @@
 # Thumby graphics base
-# - Emulator edition
 
 # Written by Mason Watmough, Jason Marcum, and Ben Rose for TinyCircuits.
 # 11-Jul-2022
@@ -26,7 +25,6 @@ from os import stat
 from time import ticks_ms, ticks_diff, sleep_ms
 from thumbyHardware import i2c, spi
 from thumbyButton import buttonA, buttonB, buttonU, buttonD, buttonL, buttonR
-import emulator
 
 # Last updated 15-Dec-2022
 __version__ = '1.9'
@@ -35,7 +33,6 @@ __version__ = '1.9'
 class GraphicsClass:
     def __init__(self, display, width, height):
         self.display = display
-        self.initEmuScreen()
         self.width = width
         self.height = height
         self.max_x = width-1
@@ -44,10 +41,6 @@ class GraphicsClass:
         self.lastUpdateEnd = 0
         self.setFont('lib/font5x7.bin', 5, 7, 1)
         self.fill(0)
-        
-    @micropython.viper
-    def initEmuScreen(self):
-        emulator.screen_breakpoint(ptr16(self.display.buffer))
 
     @micropython.native
     def setFont(self, fontFile, width, height, space):
@@ -89,7 +82,6 @@ class GraphicsClass:
             setting=127
         if(setting<0):
             setting=0
-        emulator.brightness_breakpoint(setting)
         self.display.contrast(setting)
 
     # Fill the buffer with a given color.
@@ -116,6 +108,8 @@ class GraphicsClass:
             buf[(y >> 3) * screenWidth + x] |= 1 << (y & 0x07)
         elif(color==int(0)):
             buf[(y >> 3) * screenWidth + x] &= 0xff ^ (1 << (y & 0x07))
+        elif(color==int(-2)):
+            buf[(y >> 3) * screenWidth + x] ^= 1 << (y & 0x07)
 
     
     @micropython.viper
@@ -171,12 +165,17 @@ class GraphicsClass:
                         buf[(x1 >> 3) * screenWidth + y1] |= 1 << (x1 & 0x07)
                     elif(color==int(0)):
                         buf[(x1 >> 3) * screenWidth + y1] &= 0xff ^ (1 << (x1 & 0x07))
+                    elif(color==int(-2)):
+                        buf[(x1 >> 3) * screenWidth + y1] ^= 1 << (x1 & 0x07)
             else:
                 if (0 <= x1 and x1 < screenWidth and 0 <= y1 and y1 < screenHeight):
                     if(color==int(1)):
                         buf[(y1 >> 3) * screenWidth + x1] |= 1 << (y1 & 0x07)
                     elif(color==int(0)):
                         buf[(y1 >> 3) * screenWidth + x1] &= 0xff ^ (1 << (y1 & 0x07))
+                    elif(color==int(-2)):
+                        buf[(y1 >> 3) * screenWidth + x1] ^= 1 << (y1 & 0x07)
+                    
             while (e >= 0) :
                 y1 += sy
                 e -= 2 * dx
@@ -188,6 +187,8 @@ class GraphicsClass:
                 buf[(y2 >> 3) * screenWidth + x2] |= 1 << (y2 & 0x07)
             elif(color==int(0)):
                 buf[(y2 >> 3) * screenWidth + x2] &= 0xff ^ (1 << (y2 & 0x07))
+            elif(color==int(-2)):
+                buf[(y2 >> 3) * screenWidth + x2] ^= 1 << (y2 & 0x07)
 
     @micropython.viper
     def drawRectangle(self, x:int, y:int, width:int, height:int, color:int):
@@ -232,6 +233,13 @@ class GraphicsClass:
                     buf[(y >> 3) * screenWidth + px] &= 0xff ^ (1 << (y & 0x07))
                     px+=1
                 y+=1
+        elif(color==int(-2)):
+            while y < yMax:
+                px=x
+                while px < x+width+1:
+                    buf[(y >> 3) * screenWidth + px] ^= 1 << (y & 0x07)
+                    px+=1
+                y+=1
 
     # Draw a string with top left corner (x, y) in a given color.
     @micropython.viper
@@ -274,6 +282,14 @@ class GraphicsClass:
                             while x < blitWidth:
                                 if(sprtptr[(yb >> 3) * textWidth + x] & (1 << (yb & 0x07))):
                                     ptr[((yStart+yb) >> 3) * screenWidth + xStart+x] &= 0xff ^ (1 << (yStart+yb & 0x07))
+                                x+=1
+                            yb+=1
+                    elif(int(color)==int(-2)):
+                        while yb < blitHeight:
+                            x=xFirst
+                            while x < blitWidth:
+                                if(sprtptr[(yb >> 3) * textWidth + x] & (1 << (yb & 0x07))):
+                                    ptr[((yStart+yb) >> 3) * screenWidth + xStart+x] ^= 1 << ((yStart+yb) & 0x07)
                                 x+=1
                             yb+=1
                     else:
@@ -330,6 +346,14 @@ class GraphicsClass:
                         ptr[((yStart+y) >> 3) * screenWidth + xStart+x] &= 0xff ^ (1 << ((yStart+y) & 0x07))
                     x+=1
                 y+=1
+        elif(key==-2):
+            while y < blitHeight:
+                x=xFirst
+                while x < blitWidth:
+                    if(sprtptr[((height-1-y if mirrorY==1 else y) >> 3) * width + (width-1-x if mirrorX==1 else x)] & (1 << ((height-1-y if mirrorY==1 else y) & 0x07))):
+                        ptr[((yStart+y) >> 3) * screenWidth + xStart+x] ^= 1 << ((yStart+y) & 0x07)
+                    x+=1
+                y+=1
         else:
             while y < blitHeight:
                 x=xFirst
@@ -370,7 +394,7 @@ class GraphicsClass:
         if xStart+width>72:
             blitWidth = 72-xStart
         y=yFirst
-        if(key==key):#ignore key value?
+        if(key==key): # ignore key value?
             while y < blitHeight:
                 x=xFirst
                 while x < blitWidth:
@@ -385,6 +409,10 @@ class GraphicsClass:
     @micropython.native
     def drawSpriteWithMask(self, s, m):
         self.blitWithMask(s.bitmap, int(s.x), int(s.y), s.width, s.height, s.key, s.mirrorX, s.mirrorY, m.bitmap)
-        
+
 # Graphics instantiation
-display = GraphicsClass(SSD1306_SPI(72, 40, spi, dc=Pin(17), res=Pin(20), cs=Pin(16)), 72, 40)
+if(spi):
+    display = GraphicsClass(SSD1306_SPI(72, 40, spi, dc=Pin(17), res=Pin(20), cs=Pin(16)), 72, 40)
+else:
+    from ssd1306 import SSD1306_I2C
+    display = GraphicsClass(SSD1306_I2C(72, 40, i2c, res=Pin(18)), 72, 40)
