@@ -401,6 +401,10 @@ class EditorWrapper{
                     path = "/" + path;
                 }
 
+                if(this.isBlockly && !path.endsWith(".blocks")){
+                    path += ".blocks";
+                }
+
                 if(this.checkAllEditorsForPath(path) == false){
                     this.setPath(path);
                     this.setTitle("Editor" + this.ID + ' - ' + this.EDITOR_PATH);
@@ -619,6 +623,7 @@ class EditorWrapper{
         this.OPEN_PYTHON.title = "Open a new editor with the Python from this code";
         this.OPEN_PYTHON.onclick = (ev) => {
             this._container.layoutManager.addComponent('Editor', {'value':this.getValue()}, 'Editor');
+            alert('Do not edit the Python code: changes made in the exported Python will not update the blocks.');
         };
         this.HEADER_TOOLBAR_DIV.appendChild(this.OPEN_PYTHON);
 
@@ -742,24 +747,24 @@ class EditorWrapper{
                 Blockly.serialization.workspaces.load(defaultCode, this.BLOCKLY_WORKSPACE);
 
                 // When adding default editors, give them a path but make each unique by looking at all other open editors
-                if(this.checkAllEditorsForPath("/Games/HelloBlockly/HelloBlockly.py") == true){
+                if(this.checkAllEditorsForPath("/Games/HelloBlockly/HelloBlockly.blocks") == true){
                     var helloWorldNum = 1;
-                    while(this.checkAllEditorsForPath("/Games/HelloBlockly/HelloBlockly" + helloWorldNum + ".py")){
+                    while(this.checkAllEditorsForPath("/Games/HelloBlockly/HelloBlockly" + helloWorldNum + ".blocks")){
                         helloWorldNum = helloWorldNum + 1;
                     }
-                    this.setPath("/Games/HelloBlockly/HelloBlockly" + helloWorldNum + ".py");
+                    this.setPath("/Games/HelloBlockly/HelloBlockly" + helloWorldNum + ".blocks");
                 }else{
-                    this.setPath("/Games/HelloBlockly/HelloBlockly.py");
+                    this.setPath("/Games/HelloBlockly/HelloBlockly.blocks");
                 }
                 this.setTitle("Editor" + this.ID + ' - *' + this.EDITOR_PATH);
             }
             // Ensure all Blockly editors have a path set. Let's keep it simple for the <3n00bs<3
             if(!this.EDITOR_PATH){
                 var fileNum = 1;
-                while(this.checkAllEditorsForPath(`/Games/NewGame${fileNum}/NewGame${fileNum}.py`)){
+                while(this.checkAllEditorsForPath(`/Games/NewGame${fileNum}/NewGame${fileNum}.blocks`)){
                     fileNum += 1;
                 }
-                this.setPath(`/Games/NewGame${fileNum}/NewGame${fileNum}.py`);
+                this.setPath(`/Games/NewGame${fileNum}/NewGame${fileNum}.blocks`);
             }
         }
         this.resize();
@@ -964,7 +969,9 @@ class EditorWrapper{
 
     checkAllEditorsForPath(path){
         for(const [editorID, editorWrapper] of Object.entries(this.EDITORS)){
-            if(editorWrapper.EDITOR_PATH == path && editorWrapper.ID != this.ID){
+            if(editorWrapper.EDITOR_PATH != undefined
+                && editorWrapper.EDITOR_PATH.replace(/\.blocks$/, '.py') == path.replace(/\.blocks$/, '.py')
+                && editorWrapper.ID != this.ID){
                 return true;
             }
         }
@@ -1012,24 +1019,6 @@ class EditorWrapper{
 
 
     setPath(path){
-        // Blockly editors are only ever python files in disguise, and may
-        // have been loaded from a .blocks file or other sensible extension.
-        // Adjust this so it will run in the emulator.
-        if(this.isBlockly && !path.endsWith(".py")){
-            const origPath = path;
-            if(path.endsWith(".blocks")){
-                path = path.replace(/\.blocks$/, ".py");
-            }else{
-                path += ".py";
-            }
-            for (const [id, editor] of Object.entries(this.EDITORS)) {
-                if(editor == this){continue}
-                if(editor.EDITOR_PATH == path){ // Abort rename if we get a path collision
-                    path = origPath;
-                }
-            }
-        }
-
         this.EDITOR_PATH = path;
         localStorage.setItem("EditorPath" + this.ID, this.EDITOR_PATH);
     }
@@ -1164,6 +1153,21 @@ class EditorWrapper{
         var data = await file.arrayBuffer();
 
         this.CURRENT_FILE_NAME = file.name;
+
+        // Detect and extract out zipped blocks files.
+        if(file.name.endsWith('.zip')){
+            const zip = new JSZip();
+            const zipped = await zip.loadAsync(data)
+            const blockName = file.name.replace(/\.zip$/, ".blocks");
+            if(zipped.file(blockName)){
+                const blocksData = await zipped.file(blockName).async("string");
+                if(blocksData.startsWith("{") && blocksData.indexOf('{"blocks":{"') != -1){
+                    data = blocksData;
+                    this.CURRENT_FILE_NAME = blockName;
+                }
+            }
+        }
+
         this.initEditorPanelUI(data);
         
 
@@ -1242,6 +1246,27 @@ class EditorWrapper{
 
     // Shows the file dialog and suggests current name
     async exportFileAs(){
+        if(this.isBlockly){
+            var blocksName = "NewFile.blocks";
+            var pyName = "NewFile.py";
+            this.FILE_OPTIONS.suggestedName = "NewFile.zip"
+            if(this.EDITOR_PATH){
+                blocksName = this.EDITOR_PATH.split('/').reverse()[0];
+                pyName = blocksName.replace(/\.blocks$/, ".py");
+                this.FILE_OPTIONS.suggestedName = blocksName.replace(/\.blocks$/, ".zip");
+            }
+            const zip = new JSZip();
+            zip.file(blocksName, this.getBlockData());
+            zip.file(pyName, this.getValue());
+            zip.generateAsync({type:"blob"}).then(async (blob)=>{
+                fileHandle = await window.showSaveFilePicker(this.FILE_OPTIONS);
+                var writeStream = await fileHandle.createWritable();
+                await writeStream.write(blob);
+                writeStream.close();
+            })
+            return;
+        }
+
         var fileHandle = undefined;
         try{
             if(this.CURRENT_FILE_NAME  == ""){
@@ -1249,14 +1274,6 @@ class EditorWrapper{
             }else{
                 this.FILE_OPTIONS.suggestedName = this.CURRENT_FILE_NAME;
             }
-
-            if(this.isBlockly){                                                             // Save with .blocks extension if running in Blockly mode.
-                if(this.FILE_OPTIONS.suggestedName == undefined){
-                    this.FILE_OPTIONS.suggestedName = this.EDITOR_PATH.replace(/^.*[\\\/]/, '')
-                }
-                this.FILE_OPTIONS.suggestedName = this.FILE_OPTIONS.suggestedName.replace(/\.py$/, ".blocks");
-            }
-
             fileHandle = await window.showSaveFilePicker(this.FILE_OPTIONS);            // Let the user pick location to save with dialog
         }catch(err){                                                                    // If the user aborts, stop function execution, leave unsaved
             this.FILE_OPTIONS.suggestedName = ".py";                                    // Reset this before stopping function
@@ -1273,10 +1290,7 @@ class EditorWrapper{
 
         var file = fileHandle.getFile();                                                // Get file from promise so that the name can be retrieved
         var data = undefined;
-        if(this.isBlockly){
-            await writeStream.write(this.getBlockData());
-            writeStream.close();
-        }else if(!this.isEditorBinary()){
+        if(!this.isEditorBinary()){
             data = await this.ACE_EDITOR.getValue();
             await writeStream.write(data);                                              // Write data if using an HTTPS connection
             writeStream.close();                                                        // Save the data to the file now

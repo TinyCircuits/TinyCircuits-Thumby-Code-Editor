@@ -390,7 +390,8 @@ document.getElementById("IDNewGameBTN").onclick = async (event) => {
 
         // Make sure no editors with this file path already exist
         for (const [id, editor] of Object.entries(EDITORS)) {
-            if(editor.EDITOR_PATH == filePath){
+            if(editor.EDITOR_PATH != undefined
+                && editor.EDITOR_PATH.replace(/\.blocks$/, '.py') == filePath.replace(/\.blocks$/, '.py')){
                 editor._container.parent.focus();
                 alert("This file is already open in Editor" + id + "! Please close it first");
                 return;
@@ -647,8 +648,8 @@ function registerFilesystem(_container, state){
     FS.onOpen = async (filePath) => {
         // Make sure no editors with this file path already exist
         for (const [id, editor] of Object.entries(EDITORS)) {
-            if(editor.EDITOR_PATH == filePath
-                || editor.EDITOR_PATH == filePath.replace(/\.blocks$/, '.py')){
+            if(editor.EDITOR_PATH != undefined
+                && editor.EDITOR_PATH.replace(/\.blocks$/, '.py') == filePath.replace(/\.blocks$/, '.py')){
                 editor._container.parent.focus();
                 alert("This file is already open in Editor" + id + "! Please close it first");
                 return;
@@ -835,11 +836,11 @@ function registerEditor(_container, state){
                     }
                 })
             }else if(editor.isBlockly){
-                var blocksPath = (editor.EDITOR_PATH.endsWith('.py') ?
-                  editor.EDITOR_PATH.replace(/\.py$/, '.blocks') : editor.EDITOR_PATH + ".blocks");
-                var busy = await REPL.uploadFile(blocksPath, editor.getBlockData(), true, false);
-                if(busy != true && editor.EDITOR_PATH.endsWith('.py')){
-                    busy = await REPL.uploadFile(editor.EDITOR_PATH, editor.getValue(), true, false);
+                var busy = await REPL.uploadFile(
+                    editor.EDITOR_PATH, editor.getBlockData(), true, false);
+                if(busy != true){
+                    busy = await REPL.uploadFile(
+                      editor.EDITOR_PATH.replace(/\.blocks$/, ".py"), editor.getValue(), true, false);
                 }
                 if(busy != true){
                     REPL.getOnBoardFSTree();
@@ -848,8 +849,13 @@ function registerEditor(_container, state){
                 }
             }else{
                 if(editor.getValue().indexOf("#### !!!! BLOCKLY EXPORT !!!! ####") != -1){
-                    alert("Detected export from Blockly. Please export from the block file.");
-                    return;
+                    const checkBlocks = await REPL.checkFileExists(editor.EDITOR_PATH.replace(/\.py$/, ".blocks"));
+                    if(checkBlocks){
+                        alert("Detected export from Blockly. Please save to Thumby from the block file.");
+                        return;
+                    }else if(checkBlocks == undefined){
+                        return;
+                    }
                 }
                 var busy = await REPL.uploadFile(editor.EDITOR_PATH, editor.getValue(), true, false);
                 if(busy != true){
