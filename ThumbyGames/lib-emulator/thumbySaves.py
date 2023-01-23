@@ -87,9 +87,11 @@ class SavesClass:
         if(key[:3] == "__b"):
             raise ValueError("Save data key cannot be prefixed with metadata tag \"__b\"")
         if(type(value) is bytes or type(value) is bytearray): # Attach bytes metadata to the key
+            self.volatileDict.pop(key, None) # Try removing non-bytes element just in case
             key = "__b"+key 
             self.volatileDict.update({key:b64enc(value)})
         else:
+            self.volatileDict.pop("__b"+key, None) # Try removing bytes element just in case
             self.volatileDict.update({key:value})
     
     # Get entry from volatile dictionary
