@@ -23,9 +23,6 @@
 from thumbyHardware import swL, swR, swU, swD, swA, swB
 import emulator
 
-# Last updated 14-Dec-2022
-__version__ = '1.9'
-
 class ButtonClass:
     def __init__(self, pin):
         self.pin = pin

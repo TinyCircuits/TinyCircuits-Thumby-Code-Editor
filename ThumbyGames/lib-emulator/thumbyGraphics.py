@@ -28,9 +28,6 @@ from thumbyHardware import i2c, spi
 from thumbyButton import buttonA, buttonB, buttonU, buttonD, buttonL, buttonR
 import emulator
 
-# Last updated 15-Dec-2022
-__version__ = '1.9'
-
 # Graphics class, from which the gfx namespace is defined.
 class GraphicsClass:
     def __init__(self, display, width, height):

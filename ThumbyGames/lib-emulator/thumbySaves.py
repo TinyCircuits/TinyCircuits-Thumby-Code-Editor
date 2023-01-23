@@ -25,9 +25,6 @@ from ubinascii import a2b_base64 as b64dec, b2a_base64 as b64enc
 from os import chdir, getcwd, mkdir, rename, remove, stat
 import emulator
 
-# Last updated 20-Dec-2022
-__version__ = '1.9'
-
 class SavesClass:
     def __init__(self):
         
