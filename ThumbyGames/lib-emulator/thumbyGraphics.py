@@ -33,6 +33,12 @@ __version__ = '1.9'
 
 # Graphics class, from which the gfx namespace is defined.
 class GraphicsClass:
+    
+    BLACK     = 0
+    WHITE     = 1
+    TOGGLE    =-2
+    NOKEY     = 1
+    
     def __init__(self, display, width, height):
         self.display = display
         self.initEmuScreen()
