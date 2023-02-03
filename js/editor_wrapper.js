@@ -1023,6 +1023,13 @@ class EditorWrapper{
         localStorage.setItem("EditorPath" + this.ID, this.EDITOR_PATH);
     }
 
+    compiledPath(){
+        if(this.isBlockly){
+            return this.EDITOR_PATH.replace(/\.blocks$/, '.py')
+        }
+        return this.EDITOR_PATH;
+    }
+
     setSaved(){
         this.SAVED_TO_THUMBY = true;
         localStorage.setItem("EditorSavedToThumby" + this.ID, this.SAVED_TO_THUMBY);
