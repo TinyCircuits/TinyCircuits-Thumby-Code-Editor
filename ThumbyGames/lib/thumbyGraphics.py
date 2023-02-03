@@ -31,6 +31,12 @@ __version__ = '1.9'
 
 # Graphics class, from which the gfx namespace is defined.
 class GraphicsClass:
+    
+    BLACK     = 0
+    WHITE     = 1
+    TOGGLE    =-2
+    NOKEY     = 1
+    
     def __init__(self, display, width, height):
         self.display = display
         self.width = width
@@ -41,7 +47,7 @@ class GraphicsClass:
         self.lastUpdateEnd = 0
         self.setFont('lib/font5x7.bin', 5, 7, 1)
         self.fill(0)
-
+    
     @micropython.native
     def setFont(self, fontFile, width, height, space):
         self.textBitmapSource = fontFile
