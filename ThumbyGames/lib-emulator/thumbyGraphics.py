@@ -293,7 +293,7 @@ class GraphicsClass:
                         xFirst=0
                     if xStart+textWidth>72:
                         blitWidth = 72-xStart
-                    if(int(color)==int(0)):
+                    if(int(color)==int(self.BLACK)):
                         while yb < blitHeight:
                             x=xFirst
                             while x < blitWidth:
@@ -301,7 +301,7 @@ class GraphicsClass:
                                     ptr[((yStart+yb) >> 3) * screenWidth + xStart+x] &= 0xff ^ (1 << (yStart+yb & 0x07))
                                 x+=1
                             yb+=1
-                    elif(int(color)==int(-2)):
+                    elif(int(color)==int(self.TOGGLE)):
                         while yb < blitHeight:
                             x=xFirst
                             while x < blitWidth:
