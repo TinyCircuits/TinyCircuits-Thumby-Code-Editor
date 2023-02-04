@@ -37,7 +37,7 @@ class GraphicsClass:
     BLACK     = 0
     WHITE     = 1
     TOGGLE    =-2
-    NOKEY     = 1
+    NOKEY     =-1
     
     def __init__(self, display, width, height):
         self.display = display
@@ -102,10 +102,10 @@ class GraphicsClass:
     @micropython.viper
     def fill(self, color:int):
         buf = ptr8(self.display.buffer)
-        if int(color)==int(0):
+        if int(color)==int(self.BLACK):
             for i in range(int(len(self.display.buffer))):
                 buf[int(i)]=0
-        elif int(color)==int(-2):
+        elif int(color)==int(self.TOGGLE):
             for i in range(int(len(self.display.buffer))):
                 buf[i] ^= 0xff
         else:
@@ -121,11 +121,11 @@ class GraphicsClass:
         if not 0<=y<screenHeight:
             return
         buf = ptr8(self.display.buffer)
-        if(color==int(1)):
+        if(color==int(self.WHITE)):
             buf[(y >> 3) * screenWidth + x] |= 1 << (y & 0x07)
-        elif(color==int(0)):
+        elif(color==int(self.BLACK)):
             buf[(y >> 3) * screenWidth + x] &= 0xff ^ (1 << (y & 0x07))
-        elif(color==int(-2)):
+        elif(color==int(self.TOGGLE)):
             buf[(y >> 3) * screenWidth + x] ^= 1 << (y & 0x07)                                                                  
 
     
@@ -178,19 +178,19 @@ class GraphicsClass:
         for i in range(dx):
             if (steep):
                 if (0 <= y1 and y1 < screenWidth and 0 <= x1 and x1 < screenHeight):
-                    if(color==int(1)):
+                    if(color==int(self.WHITE)):
                         buf[(x1 >> 3) * screenWidth + y1] |= 1 << (x1 & 0x07)
-                    elif(color==int(0)):
+                    elif(color==int(self.BLACK)):
                         buf[(x1 >> 3) * screenWidth + y1] &= 0xff ^ (1 << (x1 & 0x07))
-                    elif(color==int(-2)):
+                    elif(color==int(self.TOGGLE)):
                         buf[(x1 >> 3) * screenWidth + y1] ^= 1 << (x1 & 0x07)
             else:
                 if (0 <= x1 and x1 < screenWidth and 0 <= y1 and y1 < screenHeight):
-                    if(color==int(1)):
+                    if(color==int(self.WHITE)):
                         buf[(y1 >> 3) * screenWidth + x1] |= 1 << (y1 & 0x07)
-                    elif(color==int(0)):
+                    elif(color==int(self.BLACK)):
                         buf[(y1 >> 3) * screenWidth + x1] &= 0xff ^ (1 << (y1 & 0x07))
-                    elif(color==int(-2)):
+                    elif(color==int(self.TOGGLE)):
                         buf[(y1 >> 3) * screenWidth + x1] ^= 1 << (y1 & 0x07)
                     
             while (e >= 0) :
@@ -200,11 +200,11 @@ class GraphicsClass:
             e += 2 * dy
 
         if (0 <= x2 and x2 < screenWidth and 0 <= y2 and y2 < screenHeight):
-            if(color==int(1)):
+            if(color==int(self.WHITE)):
                 buf[(y2 >> 3) * screenWidth + x2] |= 1 << (y2 & 0x07)
-            elif(color==int(0)):
+            elif(color==int(self.BLACK)):
                 buf[(y2 >> 3) * screenWidth + x2] &= 0xff ^ (1 << (y2 & 0x07))
-                    elif(color==int(-2)): 
+                    elif(color==int(self.TOGGLE)): 
                 buf[(y2 >> 3) * screenWidth + x2] ^= 1 << (y2 & 0x07)
 
     @micropython.viper
@@ -236,21 +236,21 @@ class GraphicsClass:
         buf = ptr8(self.display.buffer)
         yMax=y+height+1
         screenWidth=int(self.width)
-        if(color==int(1)):
+        if(color==int(self.WHITE)):
             while y < yMax:
                 px=x
                 while px < x+width+1:
                     buf[(y >> 3) * screenWidth + px] |= 1 << (y & 0x07)
                     px+=1
                 y+=1
-        elif(color==int(0)):
+        elif(color==int(self.BLACK)):
             while y < yMax:
                 px=x
                 while px < x+width+1:
                     buf[(y >> 3) * screenWidth + px] &= 0xff ^ (1 << (y & 0x07))
                     px+=1
                 y+=1
-        elif(color==int(-2)):
+        elif(color==int(self.TOGGLE)):
             while y < yMax:
                 px=x
                 while px < x+width+1:
@@ -347,7 +347,7 @@ class GraphicsClass:
             blitWidth = screenWidth-xStart
         
         y=yFirst
-        if(key==0):
+        if(key==int(self.BLACK)):
             while y < blitHeight:
                 x=xFirst
                 while x < blitWidth:
@@ -355,7 +355,7 @@ class GraphicsClass:
                         ptr[((yStart+y) >> 3) * screenWidth + xStart+x] |= 1 << ((yStart+y) & 0x07)
                     x+=1
                 y+=1
-        elif(key==1):
+        elif(key==int(self.WHITE)):
             while y < blitHeight:
                 x=xFirst
                 while x < blitWidth:
@@ -363,7 +363,7 @@ class GraphicsClass:
                         ptr[((yStart+y) >> 3) * screenWidth + xStart+x] &= 0xff ^ (1 << ((yStart+y) & 0x07))
                     x+=1
                 y+=1
-        elif(key==-2):
+        elif(key==int(self.TOGGLE)):
             while y < blitHeight:
                 x=xFirst
                 while x < blitWidth:
