@@ -867,6 +867,26 @@ class ReplJS{
     }
 
 
+    async checkFileExists(filePath){
+        if(this.BUSY == true){
+            return;
+        }
+        this.BUSY = true;
+
+        var cmd = "import os\n" +
+                  "try:\n" +
+                  "    os.stat(\"\"\""+filePath+"\"\"\")\n" +
+                  "    print('EXISTS')\n"+
+                  "except:\n"+
+                  "    print('NONE')\n"
+
+        var hiddenLines = await this.writeUtilityCmdRaw(cmd, true, 1);
+        await this.getToNormal(3);
+        this.BUSY = false;
+        return hiddenLines && hiddenLines[0].endsWith("EXISTS");
+    }
+
+
     async checkIfNeedUpdate(){
         let info = await this.getVersionInfo();
 

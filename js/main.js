@@ -100,7 +100,7 @@ document.getElementById("IDUtilitesDropdown").addEventListener("beforeshow", () 
     const grayscaleBitmapEditorLauncher = document.getElementById("IDAddGrayscaleBuilder");
     grayscaleBitmapEditorLauncher.hidden = true;
     for (const [id, editor] of Object.entries(EDITORS)) {
-        if (editor.EDITOR_PATH.endsWith("/thumbyGrayscale.py")) {
+        if (editor.EDITOR_PATH && editor.EDITOR_PATH.endsWith("/thumbyGrayscale.py")) {
             grayscaleBitmapEditorLauncher.hidden = false;
         }
     }
@@ -178,7 +178,7 @@ var defaultConfig = {
                 content:[{
                     type: 'component',
                     componentName: 'Editor',
-                    componentState: { label: 'Editor', editor: undefined},
+                    componentState: { label: 'Editor', editor: undefined, choose: true},
                     title: 'Editor',
                     id: "aEditor"
                 }]
@@ -390,7 +390,8 @@ document.getElementById("IDNewGameBTN").onclick = async (event) => {
 
         // Make sure no editors with this file path already exist
         for (const [id, editor] of Object.entries(EDITORS)) {
-            if(editor.EDITOR_PATH == filePath){
+            if(editor.EDITOR_PATH != undefined
+                && editor.EDITOR_PATH.replace(/\.blocks$/, '.py') == filePath.replace(/\.blocks$/, '.py')){
                 editor._container.parent.focus();
                 alert("This file is already open in Editor" + id + "! Please close it first");
                 return;
@@ -445,6 +446,12 @@ document.getElementById("IDHardResetBTN").onclick = (event) =>{
 document.getElementById("IDAddEditorBTN").onclick = (event) =>{
     console.log("PAGE: +Editor");
     myLayout.addComponent('Editor', undefined, 'Editor');
+}
+
+// Add blockly editor panel to layout
+document.getElementById("IDAddBlocklyEditorBTN").onclick = (event) =>{
+    console.log("PAGE: +BlocklyEditor");
+    myLayout.addComponent('Editor', {'isBlockly':true}, 'Editor');
 }
 
 // Add bitmap builder panel to layout
@@ -641,7 +648,8 @@ function registerFilesystem(_container, state){
     FS.onOpen = async (filePath) => {
         // Make sure no editors with this file path already exist
         for (const [id, editor] of Object.entries(EDITORS)) {
-            if(editor.EDITOR_PATH == filePath){
+            if(editor.EDITOR_PATH != undefined
+                && editor.EDITOR_PATH.replace(/\.blocks$/, '.py') == filePath.replace(/\.blocks$/, '.py')){
                 editor._container.parent.focus();
                 alert("This file is already open in Editor" + id + "! Please close it first");
                 return;
@@ -800,7 +808,8 @@ function registerEditor(_container, state){
             if(path != undefined){
                 // Make sure no editors with this file path already exist
                 for (const [id, editor] of Object.entries(EDITORS)) {
-                    if(editor.EDITOR_PATH == path){
+                    if(editor.EDITOR_PATH == path
+                        || editor.EDITOR_PATH == path.replace(/\.blocks$/, '.py')){
                         editor._container.parent.focus();
                         alert("This file is already open in Editor" + id + "! Please close it first");
                         return;
@@ -826,7 +835,28 @@ function registerEditor(_container, state){
                         window.resetPercentDelay();
                     }
                 })
+            }else if(editor.isBlockly){
+                var busy = await REPL.uploadFile(
+                    editor.EDITOR_PATH, editor.getBlockData(), true, false);
+                if(busy != true){
+                    busy = await REPL.uploadFile(
+                      editor.EDITOR_PATH.replace(/\.blocks$/, ".py"), editor.getValue(), true, false);
+                }
+                if(busy != true){
+                    REPL.getOnBoardFSTree();
+                    window.setPercent(100);
+                    window.resetPercentDelay();
+                }
             }else{
+                if(editor.getValue().indexOf("#### !!!! BLOCKLY EXPORT !!!! ####") != -1){
+                    const checkBlocks = await REPL.checkFileExists(editor.EDITOR_PATH.replace(/\.py$/, ".blocks"));
+                    if(checkBlocks){
+                        alert("Detected export from Blockly. Please save to Thumby from the block file.");
+                        return;
+                    }else if(checkBlocks == undefined){
+                        return;
+                    }
+                }
                 var busy = await REPL.uploadFile(editor.EDITOR_PATH, editor.getValue(), true, false);
                 if(busy != true){
                     REPL.getOnBoardFSTree();

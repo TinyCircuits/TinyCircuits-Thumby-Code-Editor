@@ -422,7 +422,7 @@ export class EMULATOR{
         
         var newChild = document.createElement("div");
         newChild.classList = "emulator_file_row";
-        newChild.innerHTML = editorWrapper.EDITOR_PATH;
+        newChild.innerHTML = editorWrapper.compiledPath();
         this.EMULATOR_FS_DIV.appendChild(newChild);
       }
     }
@@ -844,6 +844,7 @@ export class EMULATOR{
       // Loop through all editors and get file names + content
       this.MAIN_FILE = undefined;
       for (const [editorID, editorWrapper] of Object.entries(this.EDITORS)) {
+        if(!editorWrapper.EDITOR_PATH){continue}
 
         // Check that the first character is a forward slash, otherwise, add it
         // (Emulator will not load file without it!)
@@ -859,11 +860,11 @@ export class EMULATOR{
               await window.loadFileData(typedFileData, editorWrapper.EDITOR_PATH);
             })
           }else{
-            await window.loadFileData(this.FILE_ENCODER.encode(editorWrapper.getValue()), editorWrapper.EDITOR_PATH);
+            await window.loadFileData(this.FILE_ENCODER.encode(editorWrapper.getValue()), editorWrapper.compiledPath());
           }
 
           if(editorWrapper.MAIN_EMU_CHECKBOX.checked){
-            this.MAIN_FILE = editorWrapper.EDITOR_PATH;
+            this.MAIN_FILE = editorWrapper.compiledPath();
           }
         }
       }
