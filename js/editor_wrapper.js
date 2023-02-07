@@ -674,6 +674,15 @@ class EditorWrapper{
                 }
             });
             blocklyRegister(this.BLOCKLY_WORKSPACE);
+            // Ctrl+s / Cmd+s (Save)
+            this.BLOCKLY_DIV.onkeydown = (e) => {
+              if((window.navigator.platform.match("Mac") ? e.metaKey : e.ctrlKey)
+                && e.keyCode == 83){
+                this.onSaveToThumby();
+                e.preventDefault();
+              }
+            };
+            this.BLOCKLY_WORKSPACE.onSaveToThumby = this.onSaveToThumby;
 
             // Restoring of editor state
             var lastEditorValue = localStorage.getItem("EditorValue" + this.ID);
