@@ -363,7 +363,7 @@ class GraphicsClass:
                         ptr[((yStart+y) >> 3) * screenWidth + xStart+x] ^= 1 << ((yStart+y) & 0x07)
                     x+=1
                 y+=1
-        else:
+        else: # key==self.NOKEY
             while y < blitHeight:
                 x=xFirst
                 while x < blitWidth:
