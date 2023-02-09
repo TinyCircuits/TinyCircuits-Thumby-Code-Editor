@@ -23,9 +23,6 @@
 from os import stat
 import emulator
 
-# Last updated 14-Dec-2022
-__version__ = '1.9'
-
 # Sprite class for holding pixel data 
 class Sprite:
     @micropython.native

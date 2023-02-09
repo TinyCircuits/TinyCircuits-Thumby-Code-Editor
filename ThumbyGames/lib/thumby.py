@@ -23,8 +23,8 @@
 
 from machine import freq
 
-# Last updated 9-Jan-2023
-__version__ = '1.9'
+# Last updated 11-Jan-2023
+__version__ = '2.0tr1'
 
 # Grab initial frequency
 __f0 = freq()
@@ -35,8 +35,8 @@ from thumbyHardware import swL, swR, swU, swD, swA, swB, swBuzzer, IDPin, i2c, s
 
 from thumbySprite import Sprite
 
-from thumbyButton import buttonA, buttonB, buttonU, buttonD, buttonL, buttonR
-from thumbyButton import inputPressed, inputJustPressed, dpadPressed, dpadJustPressed, actionPressed, actionJustPressed
+from thumbyButton import buttonA, buttonB, buttonU, buttonD, buttonL, buttonR, buttonMaskA, buttonMaskB, buttonMaskU, buttonMaskD, buttonMaskL, buttonMaskR 
+from thumbyButton import inputPressed, inputJustPressed, dpadPressed, dpadJustPressed, actionPressed, actionJustPressed, isPressed, isJustPressed
 
 from thumbyAudio import audio
 

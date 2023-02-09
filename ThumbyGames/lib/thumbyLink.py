@@ -22,9 +22,6 @@
 from machine import Pin, UART
 from time import ticks_ms, ticks_diff
 
-# Last updated 14-Dec-2022
-__version__ = '1.9'
-
 class LinkClass:
     def __init__(self):
         self.initialized = False

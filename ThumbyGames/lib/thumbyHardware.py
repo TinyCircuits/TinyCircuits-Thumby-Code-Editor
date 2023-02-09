@@ -21,9 +21,6 @@
 
 from machine import Pin, PWM, SPI, reset as machineReset
 
-# Last updated 27-Dec-2022
-__version__ = '1.9'
-
 # Pin definitions for button inputs & buzzer.
 swL = Pin(3, Pin.IN, Pin.PULL_UP) # D-pad left
 swR = Pin(5, Pin.IN, Pin.PULL_UP) # D-pad right

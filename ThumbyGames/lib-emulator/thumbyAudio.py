@@ -25,9 +25,6 @@ from machine import Timer
 from time import ticks_ms, ticks_diff
 import emulator
 
-# Last updated 14-Dec-2022
-__version__ = '1.9'
-
 # Audio class, from which the audio namespace is defined.
 class AudioClass:
     def __init__(self, pwm):

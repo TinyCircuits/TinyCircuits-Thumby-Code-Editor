@@ -28,13 +28,11 @@ from thumbyHardware import i2c, spi
 from thumbyButton import buttonA, buttonB, buttonU, buttonD, buttonL, buttonR
 import emulator
 
-# Last updated 15-Dec-2022
-__version__ = '1.9'
-
 # Graphics class, from which the gfx namespace is defined.
 class GraphicsClass:
     def __init__(self, display, width, height):
         self.display = display
+        self.buffer = memoryview(display.buffer)
         self.initEmuScreen()
         self.width = width
         self.height = height
@@ -47,7 +45,7 @@ class GraphicsClass:
         
     @micropython.viper
     def initEmuScreen(self):
-        emulator.screen_breakpoint(ptr16(self.display.buffer))
+        emulator.screen_breakpoint(ptr16(self.buffer))
 
     @micropython.native
     def setFont(self, fontFile, width, height, space):
@@ -95,12 +93,12 @@ class GraphicsClass:
     # Fill the buffer with a given color.
     @micropython.viper
     def fill(self, color:int):
-        buf = ptr8(self.display.buffer)
+        buf = ptr8(self.buffer)
         if int(color)==int(0):
-            for i in range(int(len(self.display.buffer))):
+            for i in range(int(len(self.buffer))):
                 buf[int(i)]=0
         else:
-            for i in range(int(len(self.display.buffer))):
+            for i in range(int(len(self.buffer))):
                 buf[i]=0xff
 
     @micropython.viper
@@ -111,7 +109,7 @@ class GraphicsClass:
             return
         if not 0<=y<screenHeight:
             return
-        buf = ptr8(self.display.buffer)
+        buf = ptr8(self.buffer)
         if(color==int(1)):
             buf[(y >> 3) * screenWidth + x] |= 1 << (y & 0x07)
         elif(color==int(0)):
@@ -126,7 +124,7 @@ class GraphicsClass:
             return 0
         if not 0<=y<int(screenHeight):
             return 0
-        buf = ptr8(self.display.buffer)
+        buf = ptr8(self.buffer)
         if(buf[(y >> 3) * int(screenWidth) + x] & 1 << (y & 0x07)):
             return 1
         return 0
@@ -134,7 +132,7 @@ class GraphicsClass:
     # Draw a line from (x1, y1) to (x2, y2) in a given color- taken from MicroPython FrameBuf implementation
     @micropython.viper
     def drawLine(self, x1:int, y1:int, x2:int, y2:int, color:int):
-        buf = ptr8(self.display.buffer)
+        buf = ptr8(self.buffer)
         dx = int(x2 - x1)
         sx = int(1)
         if (dx <= 0):
@@ -215,7 +213,7 @@ class GraphicsClass:
             width=int(self.max_x)-x
         if(y+height>int(self.max_y)):
             height=int(self.max_y)-y
-        buf = ptr8(self.display.buffer)
+        buf = ptr8(self.buffer)
         yMax=y+height+1
         screenWidth=int(self.width)
         if(color==int(1)):
@@ -239,7 +237,7 @@ class GraphicsClass:
         xPos=int(x)
         charNum=int(0)
         charBitMap=int(0)
-        ptr = ptr8(self.display.buffer)
+        ptr = ptr8(self.buffer)
         sprtptr = ptr8(self.textBitmap)
         screenWidth=int(self.width)
         screenHeight=int(self.height)
@@ -295,7 +293,7 @@ class GraphicsClass:
             return
         xStart=int(x)
         yStart=int(y)
-        ptr = ptr8(self.display.buffer)
+        ptr = ptr8(self.buffer)
         screenWidth = int(self.width)
         screenHeight = int(self.height)
         
@@ -354,7 +352,7 @@ class GraphicsClass:
             return
         xStart=int(x)
         yStart=int(y)
-        ptr = ptr8(self.display.buffer)
+        ptr = ptr8(self.buffer)
         
         yFirst=0-yStart
         blitHeight=height

@@ -37,8 +37,8 @@ from thumbyHardware import swL, swR, swU, swD, swA, swB, swBuzzer, IDPin, i2c, s
 
 from thumbySprite import Sprite
 
-from thumbyButton import buttonA, buttonB, buttonU, buttonD, buttonL, buttonR
-from thumbyButton import inputPressed, inputJustPressed, dpadPressed, dpadJustPressed, actionPressed, actionJustPressed
+from thumbyButton import buttonA, buttonB, buttonU, buttonD, buttonL, buttonR, buttonMaskA, buttonMaskB, buttonMaskU, buttonMaskD, buttonMaskL, buttonMaskR 
+from thumbyButton import inputPressed, inputJustPressed, dpadPressed, dpadJustPressed, actionPressed, actionJustPressed, isPressed, isJustPressed
 
 from thumbyAudio import audio
 

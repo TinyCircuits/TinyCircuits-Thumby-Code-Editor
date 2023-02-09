@@ -21,9 +21,6 @@
 
 from thumbyHardware import swL, swR, swU, swD, swA, swB
 
-# Last updated 14-Dec-2022
-__version__ = '1.9'
-
 class ButtonClass:
     def __init__(self, pin):
         self.pin = pin
@@ -64,6 +61,14 @@ buttonD = ButtonClass(swD) # D-pad down
 buttonL = ButtonClass(swL) # D-pad left
 buttonR = ButtonClass(swR) # D-pad right
 
+# Masks for isPressed / isJustPressed
+buttonMaskA = const(0b00100000)
+buttonMaskB = const(0b00010000)
+buttonMaskD = const(0b00001000)
+buttonMaskU = const(0b00000100)
+buttonMaskR = const(0b00000010)
+buttonMaskL = const(0b00000001)
+
 # Returns true if any buttons are currently pressed on the thumby.
 @micropython.native
 def inputPressed():
@@ -93,3 +98,37 @@ def actionPressed():
 @micropython.native
 def actionJustPressed():
     return (buttonA.justPressed() or buttonB.justPressed())
+
+# Returns true if any of the masked buttons are pressed on the thumby.
+@micropython.native
+def isPressed(mask):
+    if((mask & 1) > 0 and buttonL.pressed()):
+        return True
+    elif((mask & 2) > 0 and buttonR.pressed()):
+        return True
+    elif((mask & 4) > 0 and buttonU.pressed()):
+        return True
+    elif((mask & 8) > 0 and buttonD.pressed()):
+        return True
+    elif((mask & 16) > 0 and buttonB.pressed()):
+        return True
+    elif((mask & 32) > 0 and buttonA.pressed()):
+        return True
+    return False
+
+# Returns true if any of the masked buttons were just pressed on the thumby.
+@micropython.native
+def isJustPressed(mask):
+    if((mask & 1) > 0 and buttonL.justPressed()):
+        return True
+    elif((mask & 2) > 0 and buttonR.justPressed()):
+        return True
+    elif((mask & 4) > 0 and buttonU.justPressed()):
+        return True
+    elif((mask & 8) > 0 and buttonD.justPressed()):
+        return True
+    elif((mask & 16) > 0 and buttonB.justPressed()):
+        return True
+    elif((mask & 32) > 0 and buttonA.justPressed()):
+        return True
+    return False
