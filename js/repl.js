@@ -15,7 +15,7 @@ class ReplJS{
         this.THUMBY_SEND_BLOCK_SIZE = 255;  // How many bytes to send to Thumby at a time when uploading a file to it
 
         // Set true so most terminal output gets passed to javascript terminal
-        this.DEBUG_CONSOLE_ON = false;
+        this.DEBUG_CONSOLE_ON = true;
 
         this.COLLECT_RAW_DATA = false;
         this.COLLECTED_RAW_DATA = [];
@@ -312,6 +312,9 @@ class ReplJS{
 
 
         var getFilesystemCmd = 
+        "import machine\n" +
+        "machine.freq(250000000)\n" +   // Speed up the process
+
         "import os\n" +
         "import ujson\n" +
         
@@ -324,8 +327,7 @@ class ReplJS{
         "    item_index = 0\n" +
         "    structure[dir] = {}\n" +
             
-        "    # Loop through and create stucture of on-board FS\n" +
-        "    for dirent in os.listdir(top):\n" +
+        "    for dirent in os.listdir(top):\n" +                        // Loop through and create structure of on-board FS
         "        if(os.stat(top + extend + dirent)[0] == 32768):\n" +   // File
         "            structure[dir][item_index] = {\"F\": dirent}\n" +
         "            item_index = item_index + 1\n" +
@@ -337,10 +339,11 @@ class ReplJS{
         "struct = {}\n" +
         "print(ujson.dumps(walk(\"\", struct, \"\")))\n";
 
-
         var sizeCmd = 
         "a = os.statvfs('/')\n" +
-        "print(a[0], a[2], a[3])";
+        "print(a[0], a[2], a[3])\n" +
+        "machine.freq(48000000)\n";     // Put it back at low power freq (for battery)
+
 
         var hiddenLines = await this.writeUtilityCmdRaw(messageCmd + getFilesystemCmd + sizeCmd, true, 1);
 
