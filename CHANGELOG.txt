@@ -1,5 +1,15 @@
 Thumby Code Editor changelog!
 
+#################### 
+
+March 1st, 2023 
+
+* Fix links and improve format of utilities dropdown
+* Make filesystem access a little faster (increase Thumby core frequency like is done in the main menu)
+* Make main boot file more resilient to errors (acedent) * Make screen power on slightly faster when using Thumby SSD1306.py (acedent)
+* General code improvements and maintenance (acedent)
+
+
 ####################
 
 January 8th, 2023
