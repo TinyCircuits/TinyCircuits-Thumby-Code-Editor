@@ -35,9 +35,7 @@ def saveConfigSetting(key, setting):
         if(cfg[k] == key):
             cfg[k+1] = setting
     cfgfile = open("thumby.cfg", "w")
-    cfgfile.write(cfg[0])
-    for k in range(1, len(cfg)):
-        cfgfile.write(","+cfg[k])
+    cfgfile.write(','.join(cfg))
     cfgfile.close()
 
 audioSetting=int(getConfigSetting("audioenabled"))

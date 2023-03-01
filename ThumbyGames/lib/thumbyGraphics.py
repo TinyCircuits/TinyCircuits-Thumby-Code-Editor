@@ -26,7 +26,7 @@ from time import ticks_ms, ticks_diff, sleep_ms
 from thumbyHardware import i2c, spi
 from thumbyButton import buttonA, buttonB, buttonU, buttonD, buttonL, buttonR
 
-# Last updated 15-Dec-2022
+# Last updated 17-Jan-2023
 __version__ = '1.9'
 
 # Graphics class, from which the gfx namespace is defined.
@@ -45,7 +45,7 @@ class GraphicsClass:
     @micropython.native
     def setFont(self, fontFile, width, height, space):
         self.textBitmapSource = fontFile
-        self.textBitmapFile = open(self.textBitmapSource)
+        self.textBitmapFile = open(self.textBitmapSource, 'rb')
         self.textWidth = width
         self.textHeight = height
         self.textSpaceWidth = space

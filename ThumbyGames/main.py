@@ -1,5 +1,5 @@
 # Thumby main.py- quick initialization and splashscreen before menu.py is called
-# Last updated 29-Dec-2022
+# Last updated 17-Jan-2023
 
 from machine import freq, mem32, reset
 freq(133_000_000)
@@ -62,9 +62,7 @@ except OSError:
 brightnessVals=[1,28,127]
 display.contrast(brightnessVals[brightnessSetting])
 
-f=open('lib/TClogo.bin')
-f.readinto(display.buffer)
-f.close()
+open('lib/TClogo.bin', 'rb').readinto(display.buffer)
 display.show()
 
 
