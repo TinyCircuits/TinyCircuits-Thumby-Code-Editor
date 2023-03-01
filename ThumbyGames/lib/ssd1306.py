@@ -1,6 +1,6 @@
 # MicroPython SSD1306 OLED driver, I2C and SPI interfaces- modified for Thumby
 
-# Last updated 20-Dec-2022
+# Last updated 9-Jan-2023
 
 
 class SSD1306():
@@ -13,19 +13,19 @@ class SSD1306():
 
     def init_display(self):
         self.reset()
-        for cmd in (0xAE,0x20,0x00,0x40,0xA1,0xA8,self.height-1,0xC8,0xD3,0x00,0xDA,0x12,0xD5,0x80,0xD9,
+        for cmd in (0x20,0x00,0x40,0xA1,0xA8,self.height-1,0xC8,0xD3,0x00,0xDA,0x12,0xD5,0x80,0xD9,
             0x22 if self.external_vcc else 0xF1,0xDB,0x20,0x81,0x7F,0xA4,0xA6,0x8D,
-            0x10 if self.external_vcc else 0x14,0xAD,0x30,0xAE | 0x01
+            0x10 if self.external_vcc else 0x14,0xAD,0x30,0xAF
         ):
             self.write_cmd(cmd)
         self.write_window_cmd()
         self.write_data(bytearray(360))
 
     def poweroff(self):
-        self.write_cmd(0xAE | 0x00)
+        self.write_cmd(0xAE)
 
     def poweron(self):
-        self.write_cmd(0xAE | 0x01)
+        self.write_cmd(0xAF)
 
     def contrast(self, contrast):
         self.write_cmd(0x81)
@@ -52,14 +52,13 @@ class SSD1306_I2C(SSD1306):
         super().__init__(width, height, external_vcc)
 
     def reset(self):
-        self.res.init(self.res.OUT, value=0)
-        from time import sleep_ms
-        self.res(1)
-        sleep_ms(1)
+        self.res.init(self.res.OUT, value=1)
+        from time import sleep_us
+        sleep_us(10)
         self.res(0)
-        sleep_ms(10)
+        sleep_us(10)
         self.res(1)
-        sleep_ms(10)
+        sleep_us(20)
 
     @micropython.native
     def write_window_cmd(self):
@@ -95,14 +94,13 @@ class SSD1306_SPI(SSD1306):
         super().__init__(width, height, external_vcc)
 
     def reset(self):
-        self.res.init(self.res.OUT, value=0)
-        from time import sleep_ms
-        self.res(1)
-        sleep_ms(1)
+        self.res.init(self.res.OUT, value=1)
+        from time import sleep_us
+        sleep_us(10)
         self.res(0)
-        sleep_ms(10)
+        sleep_us(10)
         self.res(1)
-        sleep_ms(10)
+        sleep_us(20)
 
     @micropython.native
     def write_cmd(self, cmd):
@@ -112,7 +110,7 @@ class SSD1306_SPI(SSD1306):
         self.cs(0)
         self.spi.write(bytearray([cmd]))
         self.cs(1)
-        
+
     @micropython.native
     def write_window_cmd(self):
         self.spi.init(baudrate=self.rate, polarity=0, phase=0)
