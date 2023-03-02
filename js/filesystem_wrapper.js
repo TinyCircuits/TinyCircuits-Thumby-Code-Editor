@@ -153,6 +153,23 @@ class FILESYSTEM{
         });
 
         this.DIR_CHOOSER_PATH = "";
+
+        // Disable these buttons by default when no Thumby is connected (gets re-enabled in main.js on connection)
+        this.disableButtons();
+    }
+
+
+    disableButtons(){
+        this.FS_REFORMAT_BTN.disabled = true;
+        this.FS_UPDATE_LIBS_BTN.disabled = true;
+        this.FS_UPLOAD_BTN.disabled = true;
+    }
+
+
+    enableButtons(){
+        this.FS_REFORMAT_BTN.disabled = false;
+        this.FS_UPDATE_LIBS_BTN.disabled = false;
+        this.FS_UPLOAD_BTN.disabled = false;
     }
 
 
