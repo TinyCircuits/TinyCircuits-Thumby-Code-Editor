@@ -837,8 +837,6 @@ function registerEditor(_container, state){
                     var busy = await REPL.uploadFile(editor.EDITOR_PATH, fileData, true, false);
                     if(busy != true){
                         REPL.getOnBoardFSTree();
-                        window.setPercent(100);
-                        window.resetPercentDelay();
                     }
                 })
             }else if(editor.isBlockly){
@@ -850,8 +848,6 @@ function registerEditor(_container, state){
                 }
                 if(busy != true){
                     REPL.getOnBoardFSTree();
-                    window.setPercent(100);
-                    window.resetPercentDelay();
                 }
             }else{
                 if(editor.getValue().indexOf("#### !!!! BLOCKLY EXPORT !!!! ####") != -1){
@@ -866,8 +862,6 @@ function registerEditor(_container, state){
                 var busy = await REPL.uploadFile(editor.EDITOR_PATH, editor.getValue(), true, false);
                 if(busy != true){
                     REPL.getOnBoardFSTree();
-                    window.setPercent(100);
-                    window.resetPercentDelay();
                 }
             }
         }
