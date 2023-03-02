@@ -802,6 +802,12 @@ function registerEditor(_container, state){
     var editor = new EditorWrapper(_container, state, EDITORS);
     editor.onFocus = () => {LAST_ACTIVE_EDITOR = editor};
     editor.onSaveToThumby = async () => {
+        // Warn user when trying to save and no Thumby is connected
+        if(REPL.DISCONNECT == true){
+            alert("No Thumby connected, did not save to device");
+            return;
+        }
+
         if(editor.EDITOR_PATH == undefined || editor.EDITOR_PATH == ""){
             console.log('Pick a folder');
             var path = await DIR.getPathFromUser(editor._container.element);

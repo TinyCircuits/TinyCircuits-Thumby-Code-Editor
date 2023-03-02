@@ -460,7 +460,7 @@ export class EMULATOR{
   }
 
 
-  async stopRecording(){
+  stopRecording(){
     this.EMULATOR_TOGGLE_RECORD_BTN.style.backgroundColor = "#222";
     this.RECORDING = false;
     this.EMULATOR_MEDIA_RECORDER.stop();
@@ -615,7 +615,7 @@ export class EMULATOR{
   }
 
 
-  // Handle special key presses (esc) and normal onces
+  // Handle special key presses (esc) and normal ones
   handleKeyDown = (event) => {
     if(this.BUTTONS[event.key] && this.BUTTONS[event.key].pressed == false){
       this.BUTTONS[event.key].pressed = true
@@ -690,7 +690,7 @@ export class EMULATOR{
     return new ImageData(this.PIXELS, this.WIDTH, this.HEIGHT);
   }
 
-  // Use address fed through serial from emulator to display the contents of MicroPython's Thumby framebuffer
+  // Use address from emulator module breakpoint listening
   async drawDisplayBuffer(){
     if (this.grayscaleActive) {
       const buffer = new Uint8Array(this.mcu.sramView.buffer.slice(this.displayBufferAdr, this.displayBufferAdr+360*2));
@@ -899,13 +899,12 @@ export class EMULATOR{
     }).catch(console.error);
 
     // Display updates based off MicroPython flipping a gpio pin in the ssd1306 library (special emulator
-    // version that also prints out the display buffer address that is then used here for canvas drawing)
+    // version that also provides the display buffer address that is then used here for canvas drawing)
     this.mcu.gpio[2].addListener(() => {
       this.drawDisplayBuffer();
     });
 
     // Show the emulator (un-hide)
-    // this.EMULATOR_MAIN_DIV.style.display = "flex";
     this.EMULATOR_CANVAS.style.display = "block";
   }
 }
