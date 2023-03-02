@@ -1,5 +1,4 @@
 import { decodeBlock } from './uf2/dist/esm/uf2.js';
-import { RP2040 } from '../rp2040js/dist/esm/rp2040.js';
 
 // UF2 data, stored here after first fetch so not done often (as happens when debugging MP code)
 var fileData = undefined;
