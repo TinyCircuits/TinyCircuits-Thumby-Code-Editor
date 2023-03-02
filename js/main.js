@@ -748,9 +748,13 @@ function registerShell(_container, state){
         ATERM.writeln("Waiting for connection... (click 'Connect Thumby')");
         FS.clearToWaiting();
         FS.removeUpdate();
+
+        FS.disableButtons();
     }
     REPL.onConnect = () => {
         ATERM.writeln('\x1b[1;32m' + "\n\rConnected" + '\x1b[1;0m');
+
+        FS.enableButtons();
     }
     REPL.onFSData = (jsonStrData, fsSizeData) => {
         FS.updateTree(jsonStrData);
