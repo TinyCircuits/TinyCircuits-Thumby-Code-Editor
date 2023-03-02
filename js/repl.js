@@ -696,9 +696,10 @@ class ReplJS{
 
 
     async format(){
-        window.setPercent(1, "Formatting Thumby...");
         await this.deleteAllFiles();
         await this.getOnBoardFSTree();
+
+        window.setPercent(1, "Formatting Thumby...");
 
         await this.uploadFile("Games/SpaceDebris/SpaceDebris.py", await window.downloadFile("ThumbyGames/Games/SpaceDebris/SpaceDebris.py"), false);
         window.setPercent(7.7);
