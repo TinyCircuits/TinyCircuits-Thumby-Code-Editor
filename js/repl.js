@@ -300,6 +300,7 @@ class ReplJS{
         }
         this.BUSY = true;
 
+        window.setPercent(1, "Fetching filesystem...");
 
         // Display connected message on Thumby screen
         var messageBitmap = ".write_data(bytearray([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 32, 32, 224, 32, 32, 0, 224, 0, 128, 128, 0, 0, 128, 0, 0, 0, 128, 0, 128, 128, 0, 128, 0, 0, 224, 0, 128, 128, 0, 0, 128, 0, 0, 0, 128, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 64, 64, 64, 128, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 192, 0, 0, 15, 1, 0, 0, 15, 0, 7, 8, 8, 4, 15, 192, 79, 64, 67, 64, 15, 0, 15, 9, 8, 200, 7, 0, 1, 74, 10, 10, 7, 0, 192, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 16, 16, 16, 8, 0, 14, 17, 17, 17, 14, 0, 14, 17, 17, 18, 31, 0, 14, 21, 21, 21, 6, 0, 0, 0, 0, 0, 0, 0, 31, 18, 18, 18, 16, 0, 14, 17, 17, 18, 31, 0, 0, 17, 31, 16, 0, 0, 1, 15, 17, 16, 8, 0, 14, 17, 17, 17, 14, 0, 31, 2, 1, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]))\n";
@@ -352,6 +353,7 @@ class ReplJS{
         "machine.freq(48000000)\n";     // Put it back at low power freq (for battery)
 
 
+        window.setPercent(25, "Fetching filesystem...");
         var hiddenLines = await this.writeUtilityCmdRaw(messageCmd + getFilesystemCmd + sizeCmd, true, 1);
 
         // Make sure this wasn't executed when no Thumby was attached
@@ -359,10 +361,15 @@ class ReplJS{
             this.onFSData(hiddenLines[0].substring(2), hiddenLines[1].split(' '));
         }
 
+        window.setPercent(65, "Fetching filesystem...");
+
         // Get back into normal mode and omit the 3 lines from the normal message,
         // don't want to repeat (assumes already on a normal prompt)
         await this.getToNormal(3);
         this.BUSY = false;
+
+        window.setPercent(100);
+        window.resetPercentDelay();
     }
 
 
