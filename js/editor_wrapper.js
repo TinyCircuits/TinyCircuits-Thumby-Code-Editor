@@ -1202,9 +1202,7 @@ class EditorWrapper{
 
         this.initEditorPanelUI(data);
         
-
-        // Make the editor take on the name of the file but use root since no other context for full path
-        // this.setPath("/" + this.CURRENT_FILE_NAME);
+        // Make sure the hover title is set
         this.setTitle("Editor" + this.ID + ' - ' + this.EDITOR_PATH);
 
         return file.name;
