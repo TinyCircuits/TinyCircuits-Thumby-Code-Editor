@@ -372,6 +372,10 @@ class EditorWrapper{
         this.FILE_DROPDOWN_UL.appendChild(listElem);
 
         listElem = document.createElement("li");
+        listElem.classList = "uk-nav-divider";
+        this.FILE_DROPDOWN_UL.appendChild(listElem);
+
+        listElem = document.createElement("li");
         this.FILE_SAVE_BUTTON = document.createElement("button");
         this.FILE_SAVE_BUTTON.classList = "uk-button uk-button-primary uk-width-1-1 uk-height-1-1 uk-text-nowrap";
         this.FILE_SAVE_BUTTON.textContent = "Save to Thumby";
@@ -387,6 +391,10 @@ class EditorWrapper{
         this.FILE_SAVEAS_BUTTON.title = "Save editor contents to file on Thumby under a specific path";
         this.FILE_SAVEAS_BUTTON.onclick = () => {this.onSaveAsToThumby()};
         listElem.appendChild(this.FILE_SAVEAS_BUTTON);
+        this.FILE_DROPDOWN_UL.appendChild(listElem);
+
+        listElem = document.createElement("li");
+        listElem.classList = "uk-nav-divider";
         this.FILE_DROPDOWN_UL.appendChild(listElem);
 
         listElem = document.createElement("li");
@@ -414,6 +422,10 @@ class EditorWrapper{
             }
         }
         listElem.appendChild(this.FILE_SET_PATH_BUTTON);
+        this.FILE_DROPDOWN_UL.appendChild(listElem);
+
+        listElem = document.createElement("li");
+        listElem.classList = "uk-nav-divider";
         this.FILE_DROPDOWN_UL.appendChild(listElem);
 
         listElem = document.createElement("li");
@@ -882,7 +894,7 @@ class EditorWrapper{
             if(this.INSERT_RESTORE == true){
                 if(this.SAVED_TO_THUMBY == true || this.SAVED_TO_THUMBY == undefined){
                     if(this.EDITOR_PATH != undefined){
-                        this.setTitle("Editor" + this.ID + ' - *' + this.EDITOR_PATH);
+                        this.setTitle("Editor" + this.ID + ' - ' + this.EDITOR_PATH);
                     }else{
                         this.setTitle("*Editor" + this.ID);
                     }
@@ -914,8 +926,12 @@ class EditorWrapper{
             }else{
                 this.setPath("/Games/HelloWorld/HelloWorld.py");
             }
+
+            this.setTitle("Editor" + this.ID + ' - ' + this.EDITOR_PATH);
         }
 
+        // Make it so you can't undo the code paste into the editor
+        this.ACE_EDITOR.session.getUndoManager().reset();
 
         // Set the font size based on what's saved, if it exists
         var lastEditorFontSize = localStorage.getItem("EditorFontSize" + this.ID);
@@ -925,7 +941,6 @@ class EditorWrapper{
         }
 
         // Get live autocomplete state, true if 'true' or undefined, affects all editors
-        var langTools = ace.require("ace/ext/language_tools");
         this.AUTOCOMPLETE_STATE = (localStorage.getItem("EditorAutocompleteState") === 'true' || localStorage.getItem("EditorAutocompleteState") == undefined);
         this.setAutocompleteButtonText();
 
@@ -1030,6 +1045,7 @@ class EditorWrapper{
     setPath(path){
         this.EDITOR_PATH = path;
         localStorage.setItem("EditorPath" + this.ID, this.EDITOR_PATH);
+        this.setTitle("Editor" + this.ID + ' - ' + this.EDITOR_PATH);
     }
 
     compiledPath(){
@@ -1188,7 +1204,7 @@ class EditorWrapper{
         
 
         // Make the editor take on the name of the file but use root since no other context for full path
-        this.setPath("/" + this.CURRENT_FILE_NAME);
+        // this.setPath("/" + this.CURRENT_FILE_NAME);
         this.setTitle("Editor" + this.ID + ' - ' + this.EDITOR_PATH);
 
         return file.name;
