@@ -741,6 +741,8 @@ export class EMULATOR{
 
   // Use this to start emulator and to restart it (just call it again)
   async startEmulator(){
+    window.setPercent(1, "Starting emulator...");
+
     // These all need reset or subsequent runs will start at the wrong places
     this.collectedData = "";
     this.displayBufferAdr = undefined;
@@ -761,6 +763,7 @@ export class EMULATOR{
 
     this.AUDIO_VOLUME.gain.value = 0.25;
 
+    window.setPercent(10);
 
     // Reset the littlefs module state (js/load-file.js)
     await window.startLittleFS();
@@ -809,6 +812,7 @@ export class EMULATOR{
     document.addEventListener('keydown', this.handleKeyDown);
     document.addEventListener('keyup', this.handleKeyUp);
 
+    window.setPercent(20);
 
     this.cdc = new USBCDC(this.mcu.usbCtrl);
 
@@ -831,6 +835,8 @@ export class EMULATOR{
       }else{
         this.sendStringToNormal("__import__('" + this.MAIN_FILE + "')");
       }
+      window.setPercent(100);
+      window.resetPercentDelay();
     };
 
 
@@ -874,6 +880,8 @@ export class EMULATOR{
         return;
       }
 
+      window.setPercent(50);
+
       await this.loadServerFile("ThumbyGames/lib-emulator/thumby.py", '/lib/thumby.py');
       await this.loadServerFile("ThumbyGames/lib-emulator/ssd1306.py", '/lib/ssd1306.py');
 
@@ -892,9 +900,12 @@ export class EMULATOR{
       await this.loadServerFile("ThumbyGames/lib-emulator/thumbyLogo.bin", '/lib/thumbyLogo.bin');
 
       await window.copyFSToFlash(this.mcu);
+      
+      window.setPercent(75);
 
       // Start the emulator
       this.mcu.PC = 0x10000000;
+
       this.mcu.start();
     }).catch(console.error);
 
