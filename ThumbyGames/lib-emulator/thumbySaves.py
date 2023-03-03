@@ -22,7 +22,7 @@
 
 from json import load as JSONLoad, dump as JSONDump
 from ubinascii import a2b_base64 as b64dec, b2a_base64 as b64enc
-from os import chdir, getcwd, mkdir, rename, remove, stat
+from os import chdir, getcwd, mkdir, rename, remove, stat, listdir
 import emulator
 
 # Last updated 20-Dec-2022

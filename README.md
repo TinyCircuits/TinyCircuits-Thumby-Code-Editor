@@ -1,8 +1,6 @@
 # TinyCircuits Thumby Web IDE
 
-A web IDE for building games on Thumby using MicroPython
-
-This is a Beta version of the IDE, make sure to report anything out of the ordinary! Thanks for checking it out.
+A web code editor for building games on Thumby using MicroPython
 
 Features:
 * Code editor with Python syntax highlighting
@@ -17,12 +15,12 @@ Features:
 * Easy connect and disconnect of Thumby
     * Automatically connects Thumby if it has connected to the page before
 * Format Thumby filesystem to default - all files erased and then preloaded games are re-uploaded
-* Emulator (audio in the works, expect lag for un-optimized games)
+* Emulator
 
 Only Google Chrome and Microsoft Edge are officially supported by the WebSerial JavaScript API
 
 ## Links
-* [Web IDE](https://code.thumby.us/)
-* [Web IDE Tutorial](https://tinycircuits.com/blogs/thumby/building-a-game-with-the-thumby-ide)
+* [Code Editor](https://code.thumby.us/)
+* [Code Editor Tutorial](https://thumby.us/Code-Editor/Get-Started/)
 * [Thumby Website](https://thumby.us)
 * [Contact us](https://tinycircuits.com/pages/contact-us)

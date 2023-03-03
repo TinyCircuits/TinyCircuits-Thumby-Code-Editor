@@ -31,8 +31,6 @@ export class EMULATOR{
     this.bootromName = "bootrom.bin";
     this.bootromData = undefined;                               // Store bootrom data so only need to fetch once
 
-    this.collectedData = "";
-
     this.WIDTH = 72;
     this.HEIGHT = 40;
 
@@ -568,6 +566,7 @@ export class EMULATOR{
 
   stopEmulator(){
     console.log("Emulator stopped");
+    
     document.removeEventListener("keydown", this.handleKeyDown);
     document.removeEventListener("keyup", this.handleKeyUp);
   
@@ -743,109 +742,101 @@ export class EMULATOR{
   async startEmulator(){
     window.setPercent(1, "Starting emulator...");
 
-    // These all need reset or subsequent runs will start at the wrong places
-    this.collectedData = "";
-    this.displayBufferAdr = undefined;
-    this.grayscaleActive = false;
-    this.nextLineIsAddr = false;
+    if(this.mcu == undefined){
+      // These all need reset or subsequent runs will start at the wrong places
+      this.displayBufferAdr = undefined;
+      this.grayscaleActive = false;
+      this.nextLineIsAddr = false;
 
+      // Setup key press and un-press on first emulator start (maybe these should only work when the emulator has focus?)
+      document.addEventListener('keydown', this.handleKeyDown);
+      document.addEventListener('keyup', this.handleKeyUp);
 
-    this.AUDIO_CONTEXT = new(window.AudioContext || window.webkitAudioContext)();
+      // Init audio
+      this.AUDIO_CONTEXT = new(window.AudioContext || window.webkitAudioContext)();
+      this.AUDIO_VOLUME = this.AUDIO_CONTEXT.createGain();
+      this.AUDIO_VOLUME.connect(this.AUDIO_CONTEXT.destination);
+      this.AUDIO_VOLUME.gain.value = 0.25;
+      this.AUDIO_BUZZER = this.AUDIO_CONTEXT.createOscillator();
+      this.AUDIO_BUZZER.frequency.value = 0;
+      this.AUDIO_BUZZER.type = "triangle";
+      this.AUDIO_BUZZER.start();
+      this.AUDIO_BUZZER.connect(this.AUDIO_VOLUME);
 
-    this.AUDIO_VOLUME = this.AUDIO_CONTEXT.createGain();
-    this.AUDIO_VOLUME.connect(this.AUDIO_CONTEXT.destination);
+      window.setPercent(10);
 
-    this.AUDIO_BUZZER = this.AUDIO_CONTEXT.createOscillator();
-    this.AUDIO_BUZZER.frequency.value = 0;
-    this.AUDIO_BUZZER.type = "triangle";
-    this.AUDIO_BUZZER.start();
-    this.AUDIO_BUZZER.connect(this.AUDIO_VOLUME);
+      // Reset the littlefs module state (js/load-file.js)
+      await window.startLittleFS();
 
-    this.AUDIO_VOLUME.gain.value = 0.25;
+      // Make the emulator MCU and cdc objects
+      this.mcu = new RP2040();
+      this.cdc = new USBCDC(this.mcu.usbCtrl);
 
-    window.setPercent(10);
-
-    // Reset the littlefs module state (js/load-file.js)
-    await window.startLittleFS();
-
-    // Make sure emulator is stopped if starting a new one
-    if(this.mcu != undefined){
-      this.mcu.stop();
-      this.mcu.reset();
-    }
-
-    // I guess reassigning everything works, idk, JS
-    this.mcu = new RP2040();
-
-
-    this.mcu.onScreenAddr = (addr) => {
-      // Treat 0 and 1 as special grayscale status flags,
-      // which presumes the display buffer is never at those addresses.
-      if (addr == 0) this.grayscaleActive = false;
-      else if (addr == 1) this.grayscaleActive = true;
-      else {
-        this.grayscaleActive = false
-        this.displayBufferAdr = addr - 0x20000000
+      // Setup common callbacks
+      this.mcu.onScreenAddr = (addr) => {
+        // Treat 0 and 1 as special grayscale status flags,
+        // which presumes the display buffer is never at those addresses.
+        if (addr == 0) this.grayscaleActive = false;
+        else if (addr == 1) this.grayscaleActive = true;
+        else {
+          this.grayscaleActive = false
+          this.displayBufferAdr = addr - 0x20000000
+        }
       }
-    }
-
-    this.mcu.onAudioFreq = (freq) => {
-      freq = freq + 0.0001;
-      this.AUDIO_BUZZER.frequency.exponentialRampToValueAtTime(freq, this.AUDIO_CONTEXT.currentTime + 0.03);
-    }
-
-    this.mcu.onBrightness = (brightness) => {
-      this.setBrightness(brightness);
-    }
-
-
-    // Only fetch bootrom data once
-    if(this.bootromData == undefined){
-      const res = await fetch(this.bootromName);
-      const buffer = await res.arrayBuffer();
-      this.bootromData = new Uint32Array(buffer);
-    }
-    this.mcu.loadBootrom(this.bootromData);
-    this.mcu.logger = new ConsoleLogger(LogLevel.Error);
-
-
-    document.addEventListener('keydown', this.handleKeyDown);
-    document.addEventListener('keyup', this.handleKeyUp);
-
-    window.setPercent(20);
-
-    this.cdc = new USBCDC(this.mcu.usbCtrl);
-
-    this.cdc.onDeviceConnected = () => {
-      // We send a newline so the user sees the MicroPython prompt
-      this.cdc.sendSerialByte('\r'.charCodeAt(0));
-      this.cdc.sendSerialByte('\n'.charCodeAt(0));
-      
-      // Set default button gpio pin states
-      this.mcu.gpio[24].setInputValue(true);
-      this.mcu.gpio[27].setInputValue(true);
-      this.mcu.gpio[4].setInputValue(true);
-      this.mcu.gpio[3].setInputValue(true);
-      this.mcu.gpio[6].setInputValue(true);
-      this.mcu.gpio[5].setInputValue(true);
-      
-      // Start the program the user chose to emulate
-      if(this.MAIN_FILE.indexOf(".py") != -1){
-        this.sendStringToNormal("__import__('" + this.MAIN_FILE.split('.')[0] + "')");
-      }else{
-        this.sendStringToNormal("__import__('" + this.MAIN_FILE + "')");
+      this.mcu.onAudioFreq = (freq) => {
+        freq = freq + 0.0001;
+        this.AUDIO_BUZZER.frequency.exponentialRampToValueAtTime(freq, this.AUDIO_CONTEXT.currentTime + 0.03);
       }
-      window.setPercent(100);
-      window.resetPercentDelay();
-    };
+      this.mcu.onBrightness = (brightness) => {
+        this.setBrightness(brightness);
+      }
+      // Display updates based off MicroPython flipping a gpio pin in the ssd1306 library (special emulator
+      // version that also provides the display buffer address that is then used here for canvas drawing)
+      this.mcu.gpio[2].addListener(() => {
+        this.drawDisplayBuffer();
+      });
+      this.cdc.onDeviceConnected = () => {
+        // We send a newline so the user sees the MicroPython prompt
+        this.cdc.sendSerialByte('\r'.charCodeAt(0));
+        this.cdc.sendSerialByte('\n'.charCodeAt(0));
+        
+        // Set default button gpio pin states
+        this.mcu.gpio[24].setInputValue(true);
+        this.mcu.gpio[27].setInputValue(true);
+        this.mcu.gpio[4].setInputValue(true);
+        this.mcu.gpio[3].setInputValue(true);
+        this.mcu.gpio[6].setInputValue(true);
+        this.mcu.gpio[5].setInputValue(true);
+        
+        // Start the program the user chose to emulate
+        if(this.MAIN_FILE.indexOf(".py") != -1){
+          this.sendStringToNormal("execfile('" + this.MAIN_FILE.split('.')[0] + ".py')");
+        }else{
+          this.sendStringToNormal("execfile('" + this.MAIN_FILE + ".py')");
+        }
+        window.setPercent(100);
+        window.resetPercentDelay();
+      };
+      this.cdc.onSerialData = (value) => {
+        this.onData(this.decoder.decode(value));  // Ends up being output to shell on page (same as the hardware)
+      };
 
 
-    this.cdc.onSerialData = (value) => {
-      this.onData(this.decoder.decode(value));
-    };
+      // Only fetch bootrom data once
+      if(this.bootromData == undefined){
+        const res = await fetch(this.bootromName);
+        const buffer = await res.arrayBuffer();
+        this.bootromData = new Uint32Array(buffer);
+      }
+      this.mcu.loadBootrom(this.bootromData);
+      this.mcu.logger = new ConsoleLogger(LogLevel.Error);
 
-    // Load UF2 then custom emulator MP library files + the user file(s)
-    await loadUF2(this.uf2Name, this.mcu).then(async () => {
+      window.setPercent(20);
+
+      // Load UF2 then custom emulator MP library files + the user file(s)
+      await loadUF2(this.uf2Name, this.mcu);
+
+
 
       // Loop through all editors and get file names + content
       this.MAIN_FILE = undefined;
@@ -876,6 +867,7 @@ export class EMULATOR{
       }
       if(this.MAIN_FILE == undefined){
         console.log("No main file found...");
+        window.resetPercentDelay();
         alert("No editor designated as main (red checkbox), stopping");
         return;
       }
@@ -903,17 +895,61 @@ export class EMULATOR{
       
       window.setPercent(75);
 
+
+
       // Start the emulator
       this.mcu.PC = 0x10000000;
 
       this.mcu.start();
-    }).catch(console.error);
+    }else{
+      this.mcu.stop();  // Pause the emulator
 
-    // Display updates based off MicroPython flipping a gpio pin in the ssd1306 library (special emulator
-    // version that also provides the display buffer address that is then used here for canvas drawing)
-    this.mcu.gpio[2].addListener(() => {
-      this.drawDisplayBuffer();
-    });
+      window.setPercent(10);
+      window.setFlash(this.mcu.flash.slice(0xa0000));
+
+      // Reset the littlefs module with the existing flash (js/load-file.js)
+      // await window.startLittleFS(this.mcu.flash);
+      this.MAIN_FILE = undefined;
+      for (const [editorID, editorWrapper] of Object.entries(this.EDITORS)) {
+        if(!editorWrapper.EDITOR_PATH){continue}
+
+        // Check that the first character is a forward slash, otherwise, add it
+        // (Emulator will not load file without it!)
+        if(editorWrapper.EDITOR_PATH[0] != "/"){
+          editorWrapper.EDITOR_PATH = "/" + editorWrapper.EDITOR_PATH;
+        }
+
+        if(editorWrapper.NORMAL_EMU_CHECKBOX.checked || editorWrapper.MAIN_EMU_CHECKBOX.checked){
+
+          // Make sure not to re-encode binary data retrieved from editor, also, get it the right way
+          if(editorWrapper.isEditorBinary()){
+            await editorWrapper.getDBFile(async (typedFileData) => {
+              await window.loadFileData(typedFileData, editorWrapper.EDITOR_PATH);
+            })
+          }else{
+            await window.loadFileData(this.FILE_ENCODER.encode(editorWrapper.getValue()), editorWrapper.compiledPath());
+          }
+
+          if(editorWrapper.MAIN_EMU_CHECKBOX.checked){
+            this.MAIN_FILE = editorWrapper.compiledPath();
+          }
+        }
+      }
+      await window.copyFSToFlash(this.mcu);
+
+      this.mcu.start(); // Start it again
+
+      // Start the program the user chose to emulate
+      if(this.MAIN_FILE.indexOf(".py") != -1){
+        this.sendStringToNormal("execfile('" + this.MAIN_FILE.split('.')[0] + ".py')");
+      }else{
+        this.sendStringToNormal("execfile('" + this.MAIN_FILE + ".py')");
+      }
+      window.setPercent(100);
+      window.resetPercentDelay();
+    }
+
+
 
     // Show the emulator (un-hide)
     this.EMULATOR_CANVAS.style.display = "block";

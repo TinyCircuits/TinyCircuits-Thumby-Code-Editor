@@ -1876,15 +1876,15 @@ var lfs = undefined;
 var mkDir = undefined;
 
 
-async function startLittleFS(){
-  flash = undefined;;
+async function startLittleFS(providedFlash){
+  flash = providedFlash;;
   littlefs = undefined;
   writeFile = undefined;
   config = undefined;
   lfs = undefined;
   mkDir = undefined;
 
-  flash = new Uint8Array(BLOCK_COUNT * BLOCK_SIZE);
+  if(providedFlash == undefined) flash = new Uint8Array(BLOCK_COUNT * BLOCK_SIZE);
   console.log("FS setup started");
   littlefs = await createLittleFS();
   function flashRead(cfg, block, off, buffer, size) {
@@ -1950,9 +1950,9 @@ window.loadFileData = loadFileData;
 async function copyFSToFlash(rp2040){
   console.log("Flash FS copy started");
 
-  littlefs._lfs_unmount(lfs);
-  littlefs._free(lfs);
-  littlefs._free(config);
+  // littlefs._lfs_unmount(lfs);
+  // littlefs._free(lfs);
+  // littlefs._free(config);
 
   rp2040.flash.set(flash, 0xa0000);
 
@@ -1966,6 +1966,12 @@ async function makeDir(path){
   mkDir(lfs, path);
 }
 window.makeDir = makeDir;
+
+window.setFlash = (providedFlash) => {
+  littlefs._lfs_unmount(lfs);
+  flash = providedFlash;
+  littlefs._lfs_mount(lfs, config);
+}
 
 // ##### END USER CODE #####
 },{"../js/littlefs":1}]},{},[2]);
