@@ -74,7 +74,7 @@ export class RP2040 {
         this.bootrom = new Uint32Array(4 * KB);
         this.sram = new Uint8Array(264 * KB);
         this.sramView = new DataView(this.sram.buffer);
-        this.flash = new Uint8Array(16 * MB);
+        this.flash = new Uint8Array(2 * MB);
         this.flash16 = new Uint16Array(this.flash.buffer);
         this.flashView = new DataView(this.flash.buffer);
         this.usbDPRAM = new Uint8Array(4 * KB);

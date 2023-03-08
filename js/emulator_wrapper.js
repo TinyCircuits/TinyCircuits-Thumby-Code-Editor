@@ -1,9 +1,9 @@
 import { RP2040 } from '../rp2040js/dist/esm/rp2040.js';
 import { USBCDC } from '../rp2040js/dist/esm/usb/cdc.js';
-import { RPI2C } from '../rp2040js/dist/esm/peripherals/i2c.js';
 import { ConsoleLogger, LogLevel } from '../rp2040js/dist/esm/utils/logging.js';
-import { bootromB1 } from './bootrom.js';
 import { loadUF2 } from './load-uf2.js';
+import { LittleFSHelper } from './littlefs_helper.js';
+
 
 
 export class EMULATOR{
@@ -22,6 +22,8 @@ export class EMULATOR{
     this._container.element.addEventListener('focusin', (event) => {
       this._container.focus();
     })
+
+    this.littlefsHelper = undefined;
 
 
     this.mcu = undefined;                                       // Main emulator object
@@ -117,7 +119,7 @@ export class EMULATOR{
 
     this.EMULATOR_START_BTN = document.createElement("button");
     this.EMULATOR_START_BTN.className = "uk-button uk-button-primary uk-button-small uk-width-1-1 uk-text-small";
-    this.EMULATOR_START_BTN.title = "Start the emulator using code from checked editors";
+    this.EMULATOR_START_BTN.title = "Start the emulator using code from checked editors.\nStops the running script and uploads the latest of the checked files.\nFlash/storage is persistent";
     this.EMULATOR_START_BTN.textContent = "Start";
     this.EMULATOR_START_BTN.onclick = () => {
       this.adjustCanvas();
@@ -399,6 +401,10 @@ export class EMULATOR{
 
     // "brightness" of emulator pixels as set by MicroPython (127 is max)
     this.setBrightness(127);
+
+    // Setup key press and un-press on first emulator start (maybe these should only work when the emulator has focus?)
+    document.addEventListener('keydown', this.handleKeyDown);
+    document.addEventListener('keyup', this.handleKeyUp);
   }
 
 
@@ -573,6 +579,8 @@ export class EMULATOR{
     this.mcu.stop();
     this.mcu.reset();
 
+    this.mcu = undefined;
+
     if (this.AUDIO_BUZZER != undefined) this.AUDIO_BUZZER.stop();
 
     this.EMULATOR_CANVAS.style.display = "none";
@@ -622,6 +630,8 @@ export class EMULATOR{
       this.animatePressedButtons();
     }else if(event.key == "Escape"){
       this.stopEmulator();
+    }else if(event.key == 'q' && event.ctrlKey == true){
+      this.startEmulator();
     }
   }
 
@@ -722,7 +732,7 @@ export class EMULATOR{
         
     // Read response stream as text and use load-file.js + load-file-gen.js to make littlefs entries
     let text_data = new Uint8Array(await response.arrayBuffer());
-    await window.loadFileData(text_data, serverFileName);
+    this.littlefsHelper.write(text_data, serverFileName);
     console.log("Server file loaded");
   }
 
@@ -734,7 +744,6 @@ export class EMULATOR{
     }
     
     this.cdc.sendSerialByte('\r'.charCodeAt(0));
-    this.cdc.sendSerialByte('\n'.charCodeAt(0));
   }
 
 
@@ -748,10 +757,6 @@ export class EMULATOR{
       this.grayscaleActive = false;
       this.nextLineIsAddr = false;
 
-      // Setup key press and un-press on first emulator start (maybe these should only work when the emulator has focus?)
-      document.addEventListener('keydown', this.handleKeyDown);
-      document.addEventListener('keyup', this.handleKeyUp);
-
       // Init audio
       this.AUDIO_CONTEXT = new(window.AudioContext || window.webkitAudioContext)();
       this.AUDIO_VOLUME = this.AUDIO_CONTEXT.createGain();
@@ -764,9 +769,6 @@ export class EMULATOR{
       this.AUDIO_BUZZER.connect(this.AUDIO_VOLUME);
 
       window.setPercent(10);
-
-      // Reset the littlefs module state (js/load-file.js)
-      await window.startLittleFS();
 
       // Make the emulator MCU and cdc objects
       this.mcu = new RP2040();
@@ -836,6 +838,9 @@ export class EMULATOR{
       // Load UF2 then custom emulator MP library files + the user file(s)
       await loadUF2(this.uf2Name, this.mcu);
 
+      // Setup the little FS virtual JS filesystem
+      this.littlefsHelper = new LittleFSHelper();
+      await this.littlefsHelper.init(this.mcu.flash); // Setup virtual filesystem with flash that already has the bootrom and MP
 
 
       // Loop through all editors and get file names + content
@@ -853,11 +858,11 @@ export class EMULATOR{
 
           // Make sure not to re-encode binary data retrieved from editor, also, get it the right way
           if(editorWrapper.isEditorBinary()){
-            await editorWrapper.getDBFile(async (typedFileData) => {
-              await window.loadFileData(typedFileData, editorWrapper.EDITOR_PATH);
+            await editorWrapper.getDBFile((typedFileData) => {
+              this.littlefsHelper.write(typedFileData, editorWrapper.EDITOR_PATH);
             })
           }else{
-            await window.loadFileData(this.FILE_ENCODER.encode(editorWrapper.getValue()), editorWrapper.compiledPath());
+            this.littlefsHelper.write(this.FILE_ENCODER.encode(editorWrapper.getValue()), editorWrapper.compiledPath());
           }
 
           if(editorWrapper.MAIN_EMU_CHECKBOX.checked){
@@ -890,22 +895,18 @@ export class EMULATOR{
       await this.loadServerFile("ThumbyGames/lib-emulator/font8x8.bin", '/lib/font8x8.bin');
       await this.loadServerFile("ThumbyGames/lib-emulator/TClogo.bin", '/lib/TClogo.bin');
       await this.loadServerFile("ThumbyGames/lib-emulator/thumbyLogo.bin", '/lib/thumbyLogo.bin');
-
-      await window.copyFSToFlash(this.mcu);
       
       window.setPercent(75);
-
-
 
       // Start the emulator
       this.mcu.PC = 0x10000000;
 
       this.mcu.start();
     }else{
+      if(this.cdc) this.cdc.sendSerialByte('\x03'.charCodeAt(0));
       this.mcu.stop();  // Pause the emulator
 
       window.setPercent(10);
-      window.setFlash(this.mcu.flash.slice(0xa0000));
 
       // Reset the littlefs module with the existing flash (js/load-file.js)
       // await window.startLittleFS(this.mcu.flash);
@@ -923,11 +924,11 @@ export class EMULATOR{
 
           // Make sure not to re-encode binary data retrieved from editor, also, get it the right way
           if(editorWrapper.isEditorBinary()){
-            await editorWrapper.getDBFile(async (typedFileData) => {
-              await window.loadFileData(typedFileData, editorWrapper.EDITOR_PATH);
+            await editorWrapper.getDBFile((typedFileData) => {
+              this.littlefsHelper.write(typedFileData, editorWrapper.EDITOR_PATH);
             })
           }else{
-            await window.loadFileData(this.FILE_ENCODER.encode(editorWrapper.getValue()), editorWrapper.compiledPath());
+            this.littlefsHelper.write(this.FILE_ENCODER.encode(editorWrapper.getValue()), editorWrapper.compiledPath());
           }
 
           if(editorWrapper.MAIN_EMU_CHECKBOX.checked){
@@ -935,7 +936,6 @@ export class EMULATOR{
           }
         }
       }
-      await window.copyFSToFlash(this.mcu);
 
       this.mcu.start(); // Start it again
 
