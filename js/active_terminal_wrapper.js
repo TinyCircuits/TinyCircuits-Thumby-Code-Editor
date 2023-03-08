@@ -135,12 +135,12 @@ class ActiveTerminal{
 
 
     // Allow using write function of Xterm.js through this class
-    write(data){
-        this.TERM.write(data);
+    write(data, color='\x1b[37;1m'){
+        this.TERM.write(color + data);
     }
 
     // Allow using writeln function of Xterm.js through this class
-    writeln(data){
-        this.TERM.writeln(data);
+    writeln(data, color='\x1b[37;1m'){
+        this.TERM.writeln(color + data);
     }
 }

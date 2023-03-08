@@ -730,7 +730,6 @@ var ATERM = undefined;
 function registerShell(_container, state){
     ATERM = new ActiveTerminal(_container, state);
     ATERM.onType = (data) => {
-        // console.log(data);
         // When the RP2040 is busy with any utility operations where BUSY is set, only allow interrupt key through
         // Allow certain characters through so thumby can pick them up
         if(REPL.BUSY == true){
@@ -738,7 +737,9 @@ function registerShell(_container, state){
         }
         REPL.writeToDevice(data);
         if(EMU.cdc != undefined){
-            EMU.cdc.sendSerialByte(data.charCodeAt(0));
+            for(const byte of data){
+                EMU.cdc.sendSerialByte(byte.charCodeAt(0));
+            }
         }
     }
 
@@ -794,7 +795,7 @@ function registerShell(_container, state){
 var EMU;
 function registerEmulator(_container, state){
     EMU = new EMULATOR(_container, state, EDITORS);
-    EMU.onData = (data) => ATERM.write(data);
+    EMU.onData = (data) => ATERM.write(data, '\x1b[33;1m');
 }
 
 
