@@ -45,6 +45,11 @@ class LittleFSHelper{
             ['number'],
             ['number', 'string', 'number', 'number']
         );
+        this.writeFileW = this.littlefs.cwrap(
+            'lfs_write_file_w',
+            ['number'],
+            ['number', 'string', 'number', 'number']
+        );
         this.mkDir = this.littlefs.cwrap(
             'lfs_mkdir',
             ['number'],
@@ -81,6 +86,29 @@ class LittleFSHelper{
         this.littlefs._free(lfsDataBuffer);
     }
 
+    writeW(data, filePath){
+        // Make sure the path leading to the file exists
+        let dirs = filePath.split('/').slice(1);
+        let dirPath = "";
+        for(let i=0; i<dirs.length-1; i++){
+            dirPath = dirPath + "/" + dirs[i];
+            this.mkdir(dirPath);
+        }
+
+        // Create a data buffer in the littlefs module/C code to hold the file data before writing it
+        let lfsDataBuffer = this.littlefs._malloc(data.length*data.BYTES_PER_ELEMENT);
+
+        // Set the module's just created data buffer to the data passed to this function
+        this.littlefs.HEAPU8.set(data, lfsDataBuffer);
+
+        // Write the file to the common flash (the flash passed to this module in the constructor)
+        this.writeFileW(this.lfs, filePath, lfsDataBuffer, data.length);
+
+        // Free the buffer from the C module now that it is written to flash
+        this.littlefs._free(lfsDataBuffer);
+    }
+
+
     mkdir(path){
         this.mkDir(this.lfs, path);
     }
@@ -90,6 +118,16 @@ class LittleFSHelper{
         this.littlefs._lfs_unmount();
         this.littlefs._free(this.lfs);
         this.littlefs._free(this.cfg);
+    }
+
+
+    mount(){
+        this.littlefs._lfs_mount(this.lfs, this.cfg);
+    }
+
+
+    unmount(){
+        this.littlefs._lfs_unmount(this.lfs);
     }
 }
 
