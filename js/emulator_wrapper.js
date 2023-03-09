@@ -445,6 +445,8 @@ export class EMULATOR{
 
   // Emulator canvas manually sized, rotated, and scaled so recording can be done as it happens (not css transforms)
   adjustCanvas(){
+    // Before modifying and erasing the canvas, grab a frame to restore afterwards (avoids black screen for static screens)
+    const imageData = this.context.getImageData(0, 0, this.EMULATOR_CANVAS.width, this.EMULATOR_CANVAS.height);
     if(this.EMULATOR_ROTATION == 90 || this.EMULATOR_ROTATION == 270){
       this.EMULATOR_CANVAS.width = this.HEIGHT * this.EMULATOR_SCALE;
       this.EMULATOR_CANVAS.height = this.WIDTH * this.EMULATOR_SCALE;
@@ -463,8 +465,14 @@ export class EMULATOR{
     this.EMULATOR_CANVAS.style.width = this.EMULATOR_CANVAS.width + "px";
     this.EMULATOR_CANVAS.style.height = this.EMULATOR_CANVAS.height + "px";
 
+    
     this.context.rotate(this.EMULATOR_ROTATION * Math.PI / 180);
     this.context.scale(this.EMULATOR_SCALE, this.EMULATOR_SCALE);
+    
+    // Restore the frame from before modifying the canvas
+    createImageBitmap(imageData).then((imgBitmap) => {
+      this.context.drawImage(imgBitmap, -this.WIDTH/2, -this.HEIGHT/2, this.WIDTH, this.HEIGHT);
+    });
 
     this.context.imageSmoothingEnabled = false;
     this.context.mozImageSmoothingEnabled = false;
