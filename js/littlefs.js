@@ -1720,11 +1720,6 @@ var _lfs_write_file = Module["_lfs_write_file"] = function() {
 };
 
 /** @type {function(...*):?} */
-var _lfs_write_file_w = Module["_lfs_write_file_w"] = function() {
-  return (_lfs_write_file_w = Module["_lfs_write_file_w"] = Module["asm"]["lfs_write_file_w"]).apply(null, arguments);
-};
-
-/** @type {function(...*):?} */
 var ___errno_location = Module["___errno_location"] = function() {
   return (___errno_location = Module["___errno_location"] = Module["asm"]["__errno_location"]).apply(null, arguments);
 };

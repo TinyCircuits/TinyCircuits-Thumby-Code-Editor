@@ -31,7 +31,6 @@ export class EMULATOR{
     this.decoder = new TextDecoder('utf-8');                    // Main emulator serial output utf8 text decoder
     this.uf2Name = "emulator-firmware.uf2";                     // File name of emulator uf2 (custom compiled version)
     this.bootromName = "bootrom.bin";
-    this.bootromData = undefined;                               // Store bootrom data so only need to fetch once
 
     this.WIDTH = 72;
     this.HEIGHT = 40;
@@ -126,6 +125,17 @@ export class EMULATOR{
       this.startEmulator();
     };
     this.EMULATOR_FOOTER_DIV.appendChild(this.EMULATOR_START_BTN);
+
+
+    this.EMULATOR_RESTART_BTN = document.createElement("button");
+    this.EMULATOR_RESTART_BTN.className = "uk-button uk-button-primary uk-button-small uk-width-1-1 uk-text-small";
+    this.EMULATOR_RESTART_BTN.title = "Completely resets and restarts the emulator. All files/flash and ram get erased.";
+    this.EMULATOR_RESTART_BTN.textContent = "Restart";
+    this.EMULATOR_RESTART_BTN.onclick = () => {
+      this.adjustCanvas();
+      this.restartEmulator();
+    };
+    this.EMULATOR_FOOTER_DIV.appendChild(this.EMULATOR_RESTART_BTN);
 
 
     // Resize events happen when page is zoomed in, always try to keep the same Thumby image and canvas size
@@ -570,24 +580,6 @@ export class EMULATOR{
   }
 
 
-  stopEmulator(){
-    console.log("Emulator stopped");
-    
-    document.removeEventListener("keydown", this.handleKeyDown);
-    document.removeEventListener("keyup", this.handleKeyUp);
-  
-    this.mcu.stop();
-    this.mcu.reset();
-
-    this.mcu = undefined;
-
-    if (this.AUDIO_BUZZER != undefined) this.AUDIO_BUZZER.stop();
-
-    this.EMULATOR_CANVAS.style.display = "none";
-  }
-
-
-
   // If two directions on DPAD are clicked, use that, otherwise use a single direction
   // Always animate A + B buttons separate from DPAD since can be pressed at same time
   animatePressedButtons(){
@@ -746,10 +738,93 @@ export class EMULATOR{
     this.cdc.sendSerialByte('\r'.charCodeAt(0));
   }
 
+  
+  async getMainEditorFilePath(){
+    for (const [editorID, editorWrapper] of Object.entries(this.EDITORS)) {
+      if(!editorWrapper.EDITOR_PATH){continue}
+      if(editorWrapper.MAIN_EMU_CHECKBOX.checked){
+        return editorWrapper.compiledPath();;
+      }
+    }
+    return false;
+  }
+
+
+  async uploadEditorFiles(){
+    // Loop through all editors and get file names + content
+    for (const [editorID, editorWrapper] of Object.entries(this.EDITORS)) {
+      if(!editorWrapper.EDITOR_PATH){continue}
+
+      // Check that the first character is a forward slash, otherwise, add it
+      // (Emulator will not load file without it!)
+      if(editorWrapper.EDITOR_PATH[0] != "/"){
+        editorWrapper.EDITOR_PATH = "/" + editorWrapper.EDITOR_PATH;
+      }
+
+      if(editorWrapper.NORMAL_EMU_CHECKBOX.checked || editorWrapper.MAIN_EMU_CHECKBOX.checked){
+
+        // Make sure not to re-encode binary data retrieved from editor, also, get it the right way
+        if(editorWrapper.isEditorBinary()){
+          await editorWrapper.getDBFile((typedFileData) => {
+            this.littlefsHelper.write(typedFileData, editorWrapper.EDITOR_PATH);
+          })
+        }else{
+          this.littlefsHelper.write(this.FILE_ENCODER.encode(editorWrapper.getValue()), editorWrapper.compiledPath());
+        }
+      }
+    }
+  }
+
+
+  // This seems to cause the rp2040js emulator to print an out of bounds read error
+  // but that might be because it the next instructions were initiated from a callback
+  // on an object that does not exist anymore
+  stopEmulator(){
+    if(this.mcu != undefined){
+      console.log("Emulator stopped");
+    
+      this.mcu.stop();
+      this.mcu.reset();
+
+      this.mcu = undefined;
+      this.cdc = undefined;
+      this.littlefsHelper = undefined;
+
+      if (this.AUDIO_BUZZER != undefined) this.AUDIO_BUZZER.stop();
+
+      this.EMULATOR_CANVAS.style.display = "none";
+    }
+  }
+
+
+  restartEmulator(){
+    this.stopEmulator();
+    this.startEmulator();
+  }
+
 
   // Use this to start emulator and to restart it (just call it again)
   async startEmulator(){
     window.setPercent(1, "Starting emulator...");
+
+    const mainFile = await this.getMainEditorFilePath();
+
+    if(!mainFile){
+      console.log("No main file found...");
+      window.resetPercentDelay();
+      alert("No editor designated as main (red checkbox), stopping");
+      return;
+    }else if(this.MAIN_FILE != mainFile){
+      // If the last main file loaded doesn't equal the one now, restart the emulator so that the new
+      // file starts from a clean REPL
+      if(this.MAIN_FILE != "" ){
+        console.log("Resetting emulator, new main file...");
+        this.onData("\nRestarting emulator, new main file...\n");
+      }
+      this.MAIN_FILE = mainFile;
+      this.restartEmulator();
+      return;
+    }
 
     if(this.mcu == undefined){
       // These all need reset or subsequent runs will start at the wrong places
@@ -823,14 +898,7 @@ export class EMULATOR{
         this.onData(this.decoder.decode(value));  // Ends up being output to shell on page (same as the hardware)
       };
 
-
-      // Only fetch bootrom data once
-      if(this.bootromData == undefined){
-        const res = await fetch(this.bootromName);
-        const buffer = await res.arrayBuffer();
-        this.bootromData = new Uint32Array(buffer);
-      }
-      this.mcu.loadBootrom(this.bootromData);
+      this.mcu.loadBootrom(new Uint32Array(await (await fetch(this.bootromName)).arrayBuffer()));
       this.mcu.logger = new ConsoleLogger(LogLevel.Error);
 
       window.setPercent(20);
@@ -842,40 +910,7 @@ export class EMULATOR{
       this.littlefsHelper = new LittleFSHelper();
       await this.littlefsHelper.init(this.mcu.flash); // Setup virtual filesystem with flash that already has the bootrom and MP
 
-
-      // Loop through all editors and get file names + content
-      this.MAIN_FILE = undefined;
-      for (const [editorID, editorWrapper] of Object.entries(this.EDITORS)) {
-        if(!editorWrapper.EDITOR_PATH){continue}
-
-        // Check that the first character is a forward slash, otherwise, add it
-        // (Emulator will not load file without it!)
-        if(editorWrapper.EDITOR_PATH[0] != "/"){
-          editorWrapper.EDITOR_PATH = "/" + editorWrapper.EDITOR_PATH;
-        }
-
-        if(editorWrapper.NORMAL_EMU_CHECKBOX.checked || editorWrapper.MAIN_EMU_CHECKBOX.checked){
-
-          // Make sure not to re-encode binary data retrieved from editor, also, get it the right way
-          if(editorWrapper.isEditorBinary()){
-            await editorWrapper.getDBFile((typedFileData) => {
-              this.littlefsHelper.write(typedFileData, editorWrapper.EDITOR_PATH);
-            })
-          }else{
-            this.littlefsHelper.write(this.FILE_ENCODER.encode(editorWrapper.getValue()), editorWrapper.compiledPath());
-          }
-
-          if(editorWrapper.MAIN_EMU_CHECKBOX.checked){
-            this.MAIN_FILE = editorWrapper.compiledPath();
-          }
-        }
-      }
-      if(this.MAIN_FILE == undefined){
-        console.log("No main file found...");
-        window.resetPercentDelay();
-        alert("No editor designated as main (red checkbox), stopping");
-        return;
-      }
+      await this.uploadEditorFiles();
 
       window.setPercent(50);
 
@@ -901,6 +936,7 @@ export class EMULATOR{
       // Start the emulator
       this.mcu.PC = 0x10000000;
 
+      this.littlefsHelper.unmount();
       this.mcu.start();
     }else{
       if(this.cdc) this.cdc.sendSerialByte('\x03'.charCodeAt(0));
@@ -908,34 +944,9 @@ export class EMULATOR{
 
       window.setPercent(10);
 
-      // Reset the littlefs module with the existing flash (js/load-file.js)
-      // await window.startLittleFS(this.mcu.flash);
-      this.MAIN_FILE = undefined;
-      for (const [editorID, editorWrapper] of Object.entries(this.EDITORS)) {
-        if(!editorWrapper.EDITOR_PATH){continue}
-
-        // Check that the first character is a forward slash, otherwise, add it
-        // (Emulator will not load file without it!)
-        if(editorWrapper.EDITOR_PATH[0] != "/"){
-          editorWrapper.EDITOR_PATH = "/" + editorWrapper.EDITOR_PATH;
-        }
-
-        if(editorWrapper.NORMAL_EMU_CHECKBOX.checked || editorWrapper.MAIN_EMU_CHECKBOX.checked){
-
-          // Make sure not to re-encode binary data retrieved from editor, also, get it the right way
-          if(editorWrapper.isEditorBinary()){
-            await editorWrapper.getDBFile((typedFileData) => {
-              this.littlefsHelper.write(typedFileData, editorWrapper.EDITOR_PATH);
-            })
-          }else{
-            this.littlefsHelper.write(this.FILE_ENCODER.encode(editorWrapper.getValue()), editorWrapper.compiledPath());
-          }
-
-          if(editorWrapper.MAIN_EMU_CHECKBOX.checked){
-            this.MAIN_FILE = editorWrapper.compiledPath();
-          }
-        }
-      }
+      this.littlefsHelper.mount();
+      await this.uploadEditorFiles();
+      this.littlefsHelper.unmount();
 
       this.mcu.start(); // Start it again
 
@@ -948,8 +959,6 @@ export class EMULATOR{
       window.setPercent(100);
       window.resetPercentDelay();
     }
-
-
 
     // Show the emulator (un-hide)
     this.EMULATOR_CANVAS.style.display = "block";
