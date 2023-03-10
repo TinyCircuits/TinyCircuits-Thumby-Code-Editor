@@ -205,6 +205,13 @@
     left: 10px;
 }
 
+.emulator_fps_display{
+    position: absolute;
+    top: -15px;
+    right: 15px;
+    color: black;
+}
+
 .emulator_multiplayer_parent{
     position: absolute;
     background-color: rgba(49, 49, 49, 0.975);
