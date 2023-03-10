@@ -60,7 +60,7 @@ var IMPORTER = new Importer(document.getElementById("IDImportSpriteBTN"), onExpo
 
 // Show pop-up containing IDE changelog every time showChangelogVersion is increased
 // Update version string in index.html and play.html as well to match
-const showChangelogVersion = 22;
+const showChangelogVersion = 23;
 
 // This should match what is in /ThumbyGames/lib/thumby.py as '__version__'
 window.latestThumbyLibraryVersion = 1.9;
@@ -795,7 +795,7 @@ function registerShell(_container, state){
 var EMU;
 function registerEmulator(_container, state){
     EMU = new EMULATOR(_container, state, EDITORS);
-    EMU.onData = (data) => ATERM.write(data, '\x1b[33;1m');
+    EMU.onData = (data) => ATERM.write(data, '\x1b[34m');
 }
 
 
