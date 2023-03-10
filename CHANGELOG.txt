@@ -4,6 +4,7 @@ Thumby Code Editor changelog!
 
 March 10th, 2023
 
+* Added keybind for quickly running the emulator in the same way as pressing start: ctrl+q
 * Added loading bar while emulator loads files
 * Made the emulator reuse its state and REPL when rerunning the same main file
 * Added "RESTART" button to emulator to completely launch from a clean emulator state
