@@ -426,6 +426,17 @@ export class EMULATOR{
     // Setup key press and un-press on first emulator start (maybe these should only work when the emulator has focus?)
     document.addEventListener('keydown', this.handleKeyDown);
     document.addEventListener('keyup', this.handleKeyUp);
+
+    // Init audio
+    this.AUDIO_CONTEXT = new(window.AudioContext || window.webkitAudioContext)();
+    this.AUDIO_VOLUME = this.AUDIO_CONTEXT.createGain();
+    this.AUDIO_VOLUME.connect(this.AUDIO_CONTEXT.destination);
+    this.AUDIO_VOLUME.gain.value = 0.25;
+    this.AUDIO_BUZZER = this.AUDIO_CONTEXT.createOscillator();
+    this.AUDIO_BUZZER.frequency.value = 0;
+    this.AUDIO_BUZZER.type = "triangle";
+    this.AUDIO_BUZZER.start();
+    this.AUDIO_BUZZER.connect(this.AUDIO_VOLUME);
   }
 
 
@@ -867,13 +878,13 @@ export class EMULATOR{
 
   // Use this to start emulator and to restart it (just call it again)
   async startEmulator(){
-    window.setPercent(1, "Starting emulator...");
+    if(window.setpercent) window.setPercent(1, "Starting emulator...");
 
     const mainFile = await this.getMainEditorFilePath();
 
     if(!mainFile){
       console.log("No main file found...");
-      window.resetPercentDelay();
+      if(window.resetPercentDelay) window.resetPercentDelay();
       alert("No editor designated as main (red checkbox), stopping");
       return;
     }else if(this.MAIN_FILE != mainFile){
@@ -897,18 +908,7 @@ export class EMULATOR{
       this.grayscaleActive = false;
       this.nextLineIsAddr = false;
 
-      // Init audio
-      this.AUDIO_CONTEXT = new(window.AudioContext || window.webkitAudioContext)();
-      this.AUDIO_VOLUME = this.AUDIO_CONTEXT.createGain();
-      this.AUDIO_VOLUME.connect(this.AUDIO_CONTEXT.destination);
-      this.AUDIO_VOLUME.gain.value = 0.25;
-      this.AUDIO_BUZZER = this.AUDIO_CONTEXT.createOscillator();
-      this.AUDIO_BUZZER.frequency.value = 0;
-      this.AUDIO_BUZZER.type = "triangle";
-      this.AUDIO_BUZZER.start();
-      this.AUDIO_BUZZER.connect(this.AUDIO_VOLUME);
-
-      window.setPercent(10);
+      if(window.setpercent) window.setPercent(10);
 
       // Make the emulator MCU and cdc objects
       this.mcu = new RP2040();
@@ -956,8 +956,8 @@ export class EMULATOR{
         }else{
           this.sendStringToNormal("execfile('" + this.MAIN_FILE + ".py')");
         }
-        window.setPercent(100);
-        window.resetPercentDelay();
+        if(window.setpercent) window.setPercent(100);
+        if(window.resetPercentDelay) window.resetPercentDelay();
       };
       this.cdc.onSerialData = (value) => {
         this.onData(this.decoder.decode(value));  // Ends up being output to shell on page (same as the hardware)
@@ -966,7 +966,7 @@ export class EMULATOR{
       this.mcu.loadBootrom(new Uint32Array(await (await fetch(this.bootromName)).arrayBuffer()));
       this.mcu.logger = new ConsoleLogger(LogLevel.Error);
 
-      window.setPercent(20);
+      if(window.setpercent) window.setPercent(20);
 
       // Load UF2 then custom emulator MP library files + the user file(s)
       await loadUF2(this.uf2Name, this.mcu);
@@ -977,7 +977,7 @@ export class EMULATOR{
 
       await this.uploadEditorFiles();
 
-      window.setPercent(50);
+      if(window.setpercent) window.setPercent(50);
 
       await this.loadServerFile("ThumbyGames/lib-emulator/thumby.py", '/lib/thumby.py');
       await this.loadServerFile("ThumbyGames/lib-emulator/ssd1306.py", '/lib/ssd1306.py');
@@ -996,7 +996,7 @@ export class EMULATOR{
       await this.loadServerFile("ThumbyGames/lib-emulator/TClogo.bin", '/lib/TClogo.bin');
       await this.loadServerFile("ThumbyGames/lib-emulator/thumbyLogo.bin", '/lib/thumbyLogo.bin');
       
-      window.setPercent(75);
+      if(window.setpercent) window.setPercent(75);
 
       // Start the emulator
       this.mcu.PC = 0x10000000;
@@ -1007,7 +1007,7 @@ export class EMULATOR{
       if(this.cdc) this.cdc.sendSerialByte('\x03'.charCodeAt(0));
       this.mcu.stop();  // Pause the emulator
 
-      window.setPercent(10);
+      if(window.setpercent) window.setPercent(10);
 
       this.littlefsHelper.mount();
       await this.uploadEditorFiles();
@@ -1021,8 +1021,8 @@ export class EMULATOR{
       }else{
         this.sendStringToNormal("execfile('" + this.MAIN_FILE + ".py')");
       }
-      window.setPercent(100);
-      window.resetPercentDelay();
+      if(window.setpercent) window.setPercent(100);
+      if(window.resetPercentDelay) window.resetPercentDelay();
     }
 
     // Show the emulator (un-hide)
