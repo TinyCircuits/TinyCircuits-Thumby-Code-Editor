@@ -27,7 +27,7 @@ class GameURLContainer{
 
                 window.setPercent(((i/this.GAME_FILE_URLS.length) * 100).toFixed(1), "Downloading: " + thumbyURL);
                 
-                await fetch(this.GAME_FILE_URLS[i]).then(async (response) => {
+                await fetch(this.GAME_FILE_URLS[i], {cache: "no-store"}).then(async (response) => {
                     await this.downloadFunc(thumbyURL, new Uint8Array(await response.arrayBuffer()));
                 });
             }
@@ -130,7 +130,7 @@ class Arcade{
 
                 var descText = "";
 
-                await fetch(this.GAME_URL_CONTAINERS[this.NEXT_GAME_INDEX].GAME_DESCRIPTION_URL).then(async (response) => {
+                await fetch(this.GAME_URL_CONTAINERS[this.NEXT_GAME_INDEX].GAME_DESCRIPTION_URL, {cache: "no-store"}).then(async (response) => {
                     await response.text().then((text) => {
                         descText = text;
                     });
@@ -231,7 +231,7 @@ class Arcade{
     // each repo listed (not all at once, only when scrolling happens)
     async fillUserAndRepoNameList(){
         var repoLinksTxt = undefined;
-        await fetch(this.DIRECT_TXT_URL, {cache: 'no-store', pragma: 'no-cache'}).then(async (response) => {
+        await fetch(this.DIRECT_TXT_URL, {cache: 'no-store'}).then(async (response) => {
             await response.text().then((text) => {
                 repoLinksTxt = text;
             });
