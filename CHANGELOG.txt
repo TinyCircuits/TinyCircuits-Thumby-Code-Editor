@@ -1,5 +1,20 @@
 Thumby Code Editor changelog!
 
+####################
+
+March 10th, 2023
+
+* Added loading bar while emulator loads files
+* Made the emulator reuse its state and REPL when rerunning the same main file
+* Added "RESTART" button to emulator to completely launch from a clean emulator state
+* Made the emulator REPL output print in blue
+* Fixed static emulator screens turning black when zooming in/out
+* Added FPS display that correlates with how often the emulator canvas is drawn to (this is actual FPS that you see vs. what would be measured if calculated in the emulator)
+* Try to ensure all arcade files are downloaded from the arcade GitHub and not from cache
+* Added a loading bar while the filesystem is being updated
+* Added a warning when trying to save a file when no Thumby is connected
+
+
 #################### 
 
 March 1st, 2023 
