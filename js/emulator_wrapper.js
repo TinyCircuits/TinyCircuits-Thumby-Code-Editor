@@ -878,7 +878,7 @@ export class EMULATOR{
 
   // Use this to start emulator and to restart it (just call it again)
   async startEmulator(){
-    if(window.setpercent) window.setPercent(1, "Starting emulator...");
+    if(window.setPercent) window.setPercent(1, "Starting emulator...");
 
     const mainFile = await this.getMainEditorFilePath();
 
@@ -908,7 +908,7 @@ export class EMULATOR{
       this.grayscaleActive = false;
       this.nextLineIsAddr = false;
 
-      if(window.setpercent) window.setPercent(10);
+      if(window.setPercent) window.setPercent(10);
 
       // Make the emulator MCU and cdc objects
       this.mcu = new RP2040();
@@ -956,7 +956,7 @@ export class EMULATOR{
         }else{
           this.sendStringToNormal("execfile('" + this.MAIN_FILE + ".py')");
         }
-        if(window.setpercent) window.setPercent(100);
+        if(window.setPercent) window.setPercent(100);
         if(window.resetPercentDelay) window.resetPercentDelay();
       };
       this.cdc.onSerialData = (value) => {
@@ -966,7 +966,7 @@ export class EMULATOR{
       this.mcu.loadBootrom(new Uint32Array(await (await fetch(this.bootromName)).arrayBuffer()));
       this.mcu.logger = new ConsoleLogger(LogLevel.Error);
 
-      if(window.setpercent) window.setPercent(20);
+      if(window.setPercent) window.setPercent(20);
 
       // Load UF2 then custom emulator MP library files + the user file(s)
       await loadUF2(this.uf2Name, this.mcu);
@@ -977,7 +977,7 @@ export class EMULATOR{
 
       await this.uploadEditorFiles();
 
-      if(window.setpercent) window.setPercent(50);
+      if(window.setPercent) window.setPercent(50);
 
       await this.loadServerFile("ThumbyGames/lib-emulator/thumby.py", '/lib/thumby.py');
       await this.loadServerFile("ThumbyGames/lib-emulator/ssd1306.py", '/lib/ssd1306.py');
@@ -996,7 +996,7 @@ export class EMULATOR{
       await this.loadServerFile("ThumbyGames/lib-emulator/TClogo.bin", '/lib/TClogo.bin');
       await this.loadServerFile("ThumbyGames/lib-emulator/thumbyLogo.bin", '/lib/thumbyLogo.bin');
       
-      if(window.setpercent) window.setPercent(75);
+      if(window.setPercent) window.setPercent(75);
 
       // Start the emulator
       this.mcu.PC = 0x10000000;
@@ -1007,7 +1007,7 @@ export class EMULATOR{
       if(this.cdc) this.cdc.sendSerialByte('\x03'.charCodeAt(0));
       this.mcu.stop();  // Pause the emulator
 
-      if(window.setpercent) window.setPercent(10);
+      if(window.setPercent) window.setPercent(10);
 
       this.littlefsHelper.mount();
       await this.uploadEditorFiles();
@@ -1021,7 +1021,7 @@ export class EMULATOR{
       }else{
         this.sendStringToNormal("execfile('" + this.MAIN_FILE + ".py')");
       }
-      if(window.setpercent) window.setPercent(100);
+      if(window.setPercent) window.setPercent(100);
       if(window.resetPercentDelay) window.resetPercentDelay();
     }
 
