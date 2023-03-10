@@ -34,6 +34,9 @@ export class EMULATOR{
 
     this.WIDTH = 72;
     this.HEIGHT = 40;
+    this.fpst0 = 0;     // Time after calculating last frames FPS
+    this.fpsAvgRobin = [];
+    this.threwOutFirstFPS = false;
 
     this.nextLineIsAddr = false;        // Flag for parsing serial output for display buffer address
     this.displayBufferAdr = undefined;  // The actual display buffer address in ram
@@ -118,7 +121,7 @@ export class EMULATOR{
 
     this.EMULATOR_START_BTN = document.createElement("button");
     this.EMULATOR_START_BTN.className = "uk-button uk-button-primary uk-button-small uk-width-1-1 uk-text-small";
-    this.EMULATOR_START_BTN.title = "Start the emulator using code from checked editors.\nStops the running script and uploads the latest of the checked files.\nFlash/storage is persistent";
+    this.EMULATOR_START_BTN.title = "Start the emulator using code from checked editors.\nStops the running script and uploads the latest of the checked files.\nFlash/storage is persistent\nKeybind: ctrl-q";
     this.EMULATOR_START_BTN.textContent = "Start";
     this.EMULATOR_START_BTN.onclick = () => {
       this.adjustCanvas();
@@ -299,6 +302,14 @@ export class EMULATOR{
     this.EMULATOR_SCALE_DISPLAY.style.cursor = "initial";
     this.EMULATOR_SCALE_DISPLAY.textContent = "1x";
     this.EMULATOR_BODY_DIV.appendChild(this.EMULATOR_SCALE_DISPLAY);
+
+
+    this.EMULATOR_FPS_DISPLAY = document.createElement("p");
+    this.EMULATOR_FPS_DISPLAY.classList = "emulator_fps_display";
+    this.EMULATOR_FPS_DISPLAY.title = "Current frames per second that the canvas is being painted at\nAveraged over the last 5 frames times";
+    this.EMULATOR_FPS_DISPLAY.style.cursor = "initial";
+    this.EMULATOR_FPS_DISPLAY.innerText = "0FPS";
+    this.EMULATOR_BODY_DIV.appendChild(this.EMULATOR_FPS_DISPLAY);
 
 
     this.EMULATOR_DPAD_SVG = document.createElement("img");
@@ -648,6 +659,46 @@ export class EMULATOR{
   }
 
 
+  updateFPS(){
+    // Calculate the FPS using the time since the last frame
+    const fps = ((1 / (performance.now() - this.fpst0)) * 1000);
+
+    // Either fill or add the just calculated fps
+    if(this.fpsAvgRobin.length == 5){
+      // Remove the first element and add a new sample to the end
+      this.fpsAvgRobin.shift();
+      this.fpsAvgRobin.push(fps);
+
+      // Throw the first FPS sample out since that includes the time since pressing start
+      if(!this.threwOutFirstFPS){
+        this.threwOutFirstFPS = true;
+        return;
+      }
+
+      let fpsTotal = 0;
+      for(let ifx=0; ifx<this.fpsAvgRobin.length; ifx++){
+        fpsTotal += this.fpsAvgRobin[ifx];
+      }
+      // Display the FPS
+      this.EMULATOR_FPS_DISPLAY.innerText = (fpsTotal/5).toFixed() + "FPS";
+    }else{
+      // Just fill the avg array
+      this.fpsAvgRobin.push(fps);
+    }
+
+    // Track a time to be used for the next frame
+    this.fpst0 = performance.now();
+  }
+
+
+  resetFPS(){
+    this.fpst0 = performance.now();
+    this.fpsAvgRobin = [];
+    this.threwOutFirstFPS = false;
+    this.EMULATOR_FPS_DISPLAY.innerText = "0FPS";
+  }
+
+
   bufferToImageData(buffer){
     var ib = 0;
     for(var row=0; row < this.HEIGHT; row+=8){
@@ -702,20 +753,23 @@ export class EMULATOR{
   // Use address from emulator module breakpoint listening
   async drawDisplayBuffer(){
     if (this.grayscaleActive) {
-      const buffer = new Uint8Array(this.mcu.sramView.buffer.slice(this.displayBufferAdr, this.displayBufferAdr+360*2));
+      const buffer = this.mcu.sram.subarray(this.displayBufferAdr, this.displayBufferAdr+360*2);
 
       await createImageBitmap(this.bufferGrayscaleToImageData(buffer)).then(async (imgBitmap) => {
         this.context.drawImage(imgBitmap, -this.WIDTH/2, -this.HEIGHT/2);
+        this.updateFPS();
       });
       return;
     }
 
-    const buffer = new Uint8Array(this.mcu.sramView.buffer.slice(this.displayBufferAdr, this.displayBufferAdr+360));
+    
+    const buffer = this.mcu.sram.subarray(this.displayBufferAdr, this.displayBufferAdr+360);
 
     // Maybe change this to putImage(): https://themadcreator.github.io/gifler/docs.html#animator::createBufferCanvas()
     // this.context.putImageData(this.bufferToImageData(buffer), 0, 0);
     await createImageBitmap(this.bufferToImageData(buffer)).then(async (imgBitmap) => {
       this.context.drawImage(imgBitmap, -this.WIDTH/2, -this.HEIGHT/2);
+      this.updateFPS();
     });
   }
 
@@ -833,6 +887,9 @@ export class EMULATOR{
       this.restartEmulator();
       return;
     }
+
+    // Reset these so FPS is calculated correctly next time
+    this.resetFPS();
 
     if(this.mcu == undefined){
       // These all need reset or subsequent runs will start at the wrong places
