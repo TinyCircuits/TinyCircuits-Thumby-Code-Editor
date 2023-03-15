@@ -95,13 +95,21 @@ xScrollPos=0
 xScrollTarget=0
 
 selpos = -1
-files = listdir("/Games")
+try:
+    files = listdir("/Games")
+except OSError:
+    # Games folder missing, assume emulation mode.
+    with open('/__Games__', 'r') as games:
+        files = games.readlines()
 selected = False
 scroll = 0
 
 for k in range(len(files)):
-    if(stat("/Games/"+files[k])[0] != 16384):
-        files[k] = ""
+    try:
+        if(stat("/Games/"+files[k])[0] != 16384):
+            files[k] = ""
+    except OSError:
+        pass # File missing, which is expected in emulation mode
 try:
     while(True):
         files.remove("")
@@ -189,6 +197,8 @@ def launchGame():
         gamePath="/Games/"+files[selpos]+"/"+files[selpos]+".py"
         saveConfigSetting("lastgame", gamePath)
     mem32[0x4005800C]=1 # WDT scratch register '0'
+    # In case emulating, inform the emulator to load the game.
+    print(f"HEYTHUMBY!LOAD:{files[selpos] if selpos >=0 else ""}")
     soft_reset()
 
 
