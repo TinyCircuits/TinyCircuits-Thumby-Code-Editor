@@ -1120,18 +1120,27 @@ EX.registerMixin('del_vars_context_menu', {
 function updateImageFromSprite(block) {
   // Build an icon for the block
   var pixData = block.data.match(
-    /# BITMAP: width: (?<w>[0-9]+), height: (?<h>[0-9]+)\n.*bytearray\((?<b>[^\(\)]+)\)/).groups;
+    /# BITMAP: width: (?<w>[0-9]+), height: (?<h>[0-9]+)(?:, frames: (?<f>[0-9]+))?\n.*bytearray\((?<b>[^\(\)]+)\)/).groups;
   if (pixData) {
-    _blscratch.width = parseInt(pixData.w);
+    frames = pixData.f ? parseInt(pixData.f) : 1;
+    var width = parseInt(pixData.w);
+    _blscratch.width = width * frames + (frames-1);
+    if (block.type == "load_sprite") {
+      width *= frames;
+      _blscratch.width = width;
+      frames = 1;
+    }
     _blscratch.height = parseInt(pixData.h);
     const bits = JSON.parse(pixData.b);
     var context = _blscratch.getContext('2d');
-    for(var x = 0; x < _blscratch.width; x++){
-        for(var y = 0; y < _blscratch.width; y++){
-            context.fillStyle = (
-              bits[x + (~~(y/8))*_blscratch.width] & (1<<y%8)) ? '#fff' : '#000';
-            context.fillRect(x, y, 1, 1);
-        }
+    for(var f = 0; f < frames; f++){
+      for(var x = 0; x < width; x++){
+          for(var y = 0; y < _blscratch.height; y++){
+              context.fillStyle = (
+                bits[x + (~~(y/8))*width + (f * Math.ceil(_blscratch.height/8)*8)] & (1<<y%8)) ? '#fff' : '#000';
+              context.fillRect(x+(f*(width+1)), y, 1, 1);
+          }
+      }
     }
     block.setFieldValue(_blscratch.toDataURL(), "IMG");
   }
@@ -1463,9 +1472,13 @@ PY['load_sprite'] = function(block) {
   var spriteName = PY.nameDB_.getName(block.getFieldValue('VAR'), NM.NameType.VARIABLE);
   PY.definitions_['import_sprite'] = 'from thumbySprite import Sprite';
   PY.definitions_[`import_sprite_setup_${spriteName}`] = `${spriteName} = Sprite(1,1,bytearray([1]))`;
-  return `${spriteName} = Sprite(${block.data
+  const framesMatch = block.data.match(/.*, frames: (?<f>[0-9]+)\n/).groups;
+  return `${spriteName} = Sprite(${
+      framesMatch ? framesMatch.f + "*" : ""
+    }${block.data
     .replace("# BITMAP: width: ", "")
     .replace(" height: ", "")
+    .replace(/, frames: [0-9]+/, "")
     .replace(/\n\w+ = /, ",")}, ${spriteName}.x,${spriteName}.y,` +
     `${spriteName}.key,${spriteName}.mirrorX,${spriteName}.mirrorY)\n`;
 };
@@ -1475,9 +1488,13 @@ PY['load_anim_sprite'] = function(block) {
   var frames = block.getFieldValue('FRMS');
   PY.definitions_['import_sprite'] = 'from thumbySprite import Sprite';
   PY.definitions_[`import_sprite_setup_${spriteName}`] = `${spriteName} = Sprite(1,1,bytearray([1]))`;
-  return `${spriteName} = Sprite(${block.data
+  const framesMatch = block.data.match(/.*, frames: (?<f>[0-9]+)\n/).groups;
+  return `${spriteName} = Sprite(${
+      framesMatch ? framesMatch.f + "*" : ""
+    }${block.data
     .replace("# BITMAP: width: ", "")
     .replace(", height: ", `//${frames},`)
+    .replace(/, frames: [0-9]+/, "")
     .replace(/\n\w+ = /, ",")}, ${spriteName}.x,${spriteName}.y,` +
     `${spriteName}.key,${spriteName}.mirrorX,${spriteName}.mirrorY)\n`;
 };
