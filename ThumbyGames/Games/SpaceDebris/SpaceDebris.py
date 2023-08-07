@@ -126,16 +126,6 @@ class ShipBullet:
         self.YVel = _yv
         self.Life = 240
 
-# Very fast pseudorandom function
-
-@micropython.viper
-def qrandom(qrseed: int) -> int:
-    #qrseed ^= (qrseed << 10)
-    # qrseed ^= (qrseed >> 17)
-    #qrseed ^= (qrseed << 2)
-    return qrseed
-
-
 @micropython.viper
 def DrawStars():
     yp:int = int(round(YPos)) | 0x1
