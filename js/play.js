@@ -230,7 +230,7 @@ else {
     games.sort();
 
     // Load the menu
-    await fetch("ThumbyGames/main.py").then(async (response) => {
+    await fetch("CoreThumbyFiles/main.py").then(async (response) => {
         (new EditorWrapper(conta, {"id": "PlayerEditorMain"}, EDITORS)).clearStorage();
         MAIN_EDITOR = new EditorWrapper(conta, {
             "id": "PlayerEditorMain",
@@ -239,7 +239,7 @@ else {
             "mainChecked": true
         }, EDITORS);
     });
-    await fetch("ThumbyGames/menu.py").then(async (response) => {
+    await fetch("CoreThumbyFiles/menu.py").then(async (response) => {
         (new EditorWrapper(conta, {"id": "PlayerEditorMenu"}, EDITORS)).clearStorage();
         var data = new TextDecoder("utf-8").decode(new Uint8Array(await response.arrayBuffer()));
         // Patch the menu to work in the emulator
@@ -259,7 +259,7 @@ else {
             "normalChecked": true
         }, EDITORS);
     });
-    await fetch("ThumbyGames/lib/credits.txt").then(async (response) => {
+    await fetch("CoreThumbyFiles/lib/credits.txt").then(async (response) => {
         (new EditorWrapper(conta, {"id": "PlayerEditorCredits"}, EDITORS)).clearStorage();
         new EditorWrapper(conta, {
             "id": "PlayerEditorCredits",

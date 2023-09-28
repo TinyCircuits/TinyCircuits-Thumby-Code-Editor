@@ -1,5 +1,12 @@
 Thumby Code Editor changelog!
 
+September 28th, 2023
+
+* Fix audio not always working in emulator
+* Slightly adjust how the emulator sounds, hopefully better for changing quickly between tones
+* Add yes/no confirmation when updating core Thumby files using the filesystem panel
+* Fetch base Thumby games from Arcade repository instead of website
+
 ####################
 
 March 10th, 2023

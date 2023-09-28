@@ -60,9 +60,9 @@ var IMPORTER = new Importer(document.getElementById("IDImportSpriteBTN"), onExpo
 
 // Show pop-up containing IDE changelog every time showChangelogVersion is increased
 // Update version string in index.html and play.html as well to match
-const showChangelogVersion = 23;
+const showChangelogVersion = 24;
 
-// This should match what is in /ThumbyGames/lib/thumby.py as '__version__'
+// This should match what is in /CoreThumbyFiles/lib/thumby.py as '__version__'
 window.latestThumbyLibraryVersion = 1.9;
 
 // This should match what is on the actual Thumby firmware found through import sys and sys.implementation
