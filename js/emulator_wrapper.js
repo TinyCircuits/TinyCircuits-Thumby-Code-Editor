@@ -426,17 +426,6 @@ export class EMULATOR{
     // Setup key press and un-press on first emulator start (maybe these should only work when the emulator has focus?)
     document.addEventListener('keydown', this.handleKeyDown);
     document.addEventListener('keyup', this.handleKeyUp);
-
-    // Init audio
-    this.AUDIO_CONTEXT = new(window.AudioContext || window.webkitAudioContext)();
-    this.AUDIO_VOLUME = this.AUDIO_CONTEXT.createGain();
-    this.AUDIO_VOLUME.connect(this.AUDIO_CONTEXT.destination);
-    this.AUDIO_VOLUME.gain.value = 0.25;
-    this.AUDIO_BUZZER = this.AUDIO_CONTEXT.createOscillator();
-    this.AUDIO_BUZZER.frequency.value = 0;
-    this.AUDIO_BUZZER.type = "triangle";
-    this.AUDIO_BUZZER.start();
-    this.AUDIO_BUZZER.connect(this.AUDIO_VOLUME);
   }
 
 
@@ -863,7 +852,8 @@ export class EMULATOR{
       this.cdc = undefined;
       this.littlefsHelper = undefined;
 
-      if (this.AUDIO_BUZZER != undefined) this.AUDIO_BUZZER.stop();
+      // Set to zero instead of stopping buzzer (this way start() doesn't need to be called again)
+      if (this.AUDIO_BUZZER != undefined) this.AUDIO_BUZZER.frequency.value = 0;
 
       this.EMULATOR_CANVAS.style.display = "none";
     }
@@ -901,6 +891,19 @@ export class EMULATOR{
 
     // Reset these so FPS is calculated correctly next time
     this.resetFPS();
+
+    // Init audio, needs tp be here behind a user gesture (button press)
+    if(this.AUDIO_CONTEXT == undefined){
+      this.AUDIO_CONTEXT = new(window.AudioContext || window.webkitAudioContext)();
+      this.AUDIO_VOLUME = this.AUDIO_CONTEXT.createGain();
+      this.AUDIO_VOLUME.connect(this.AUDIO_CONTEXT.destination);
+      this.AUDIO_VOLUME.gain.value = 0.25;
+      this.AUDIO_BUZZER = this.AUDIO_CONTEXT.createOscillator();
+      this.AUDIO_BUZZER.frequency.value = 0;
+      this.AUDIO_BUZZER.type = "triangle";
+      this.AUDIO_BUZZER.start();
+      this.AUDIO_BUZZER.connect(this.AUDIO_VOLUME);
+    }
 
     if(this.mcu == undefined){
       // These all need reset or subsequent runs will start at the wrong places
