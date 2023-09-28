@@ -40,7 +40,12 @@ class FILESYSTEM{
 
         this.FS_UPDATE_LIBS_BTN = document.createElement("button");
         this.FS_UPDATE_LIBS_BTN.classList = "uk-button uk-button-secondary uk-button-small uk-width-1-1";
-        this.FS_UPDATE_LIBS_BTN.onclick = () => {this.removeUpdate(); this.onUpdate()}
+        this.FS_UPDATE_LIBS_BTN.onclick = () => {
+            if(confirm("Are you sure you want to update the core Thumby files? This will overwrite the files under /lib as well as main.py and menu.py")){
+                this.removeUpdate(); 
+                this.onUpdate();
+            }
+        }
         this.FS_UPDATE_LIBS_BTN.innerText = "UPDATE LIBRARIES";
         this.FS_UPDATE_LIBS_BTN.title = "Overwrites all default files in lib directory";
         this.FS_FOOTER_DIV.appendChild(this.FS_UPDATE_LIBS_BTN);
