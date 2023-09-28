@@ -917,9 +917,24 @@ class ReplJS{
         let minor = parseInt(info[1].split(", ")[1]);
         let micro = parseInt(info[1].split(", ")[2].substring(0, 1));
 
-        if(major < window.window.latestMicroPythonVersion[0] || minor < window.window.latestMicroPythonVersion[1] || micro < window.window.latestMicroPythonVersion[2]){
-            // Need to update MicroPython
-            this.showMicropythonUpdate();
+        const deviceVersion = [major, minor, micro];
+        const mpversion =  window.window.latestMicroPythonVersion;
+
+        // Go through each number in the version string of the device and latest supported MicroPython:
+        // * If the device mp version is greater than any number in the latest mp, stop comparing
+        //   so people with newer versions don't get warned. If the check was against each number individually,
+        //   then the warning would appear even if the user has 1.20.0 but the latest supported is 1.19.1 (although
+        //   20 > 19, 0 is < 1 so they would get warned). This works since for patch to be lower, minor has to be bigger
+        //   but it will never compare it since the below code breaks at device major > latest supported mp major
+        // * If the device mp version is less than any number in the latest mp, stop comparing and show warning
+        for(let ivx=0; ivx<3; ivx++){
+            if(deviceVersion[ivx] > mpversion[ivx]){
+                break;
+            }else if(deviceVersion[ivx] < mpversion[ivx]){
+                // Need to update MicroPython
+                this.showMicropythonUpdate();
+                break;
+            }
         }
     }
 
