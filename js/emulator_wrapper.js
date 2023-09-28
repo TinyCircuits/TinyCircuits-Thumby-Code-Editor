@@ -930,7 +930,7 @@ export class EMULATOR{
       }
       this.mcu.onAudioFreq = (freq) => {
         freq = freq + 0.0001;
-        this.AUDIO_BUZZER.frequency.exponentialRampToValueAtTime(freq, this.AUDIO_CONTEXT.currentTime + 0.03);
+        this.AUDIO_BUZZER.frequency.exponentialRampToValueAtTime(freq, this.AUDIO_CONTEXT.currentTime + 0.01);
       }
       this.mcu.onBrightness = (brightness) => {
         this.setBrightness(brightness);

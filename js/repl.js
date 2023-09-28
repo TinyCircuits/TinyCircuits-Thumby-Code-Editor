@@ -924,7 +924,7 @@ class ReplJS{
         // * If the device mp version is greater than any number in the latest mp, stop comparing
         //   so people with newer versions don't get warned. If the check was against each number individually,
         //   then the warning would appear even if the user has 1.20.0 but the latest supported is 1.19.1 (although
-        //   20 > 19, 0 is < 1 so they would get warned). This works since for patch to be lower, minor has to be bigger
+        //   20 > 19, 0 is < 1 so they would get warned). This works since for patch to be lower minor has to be bigger,
         //   but it will never compare it since the below code breaks at device major > latest supported mp major
         // * If the device mp version is less than any number in the latest mp, stop comparing and show warning
         for(let ivx=0; ivx<3; ivx++){
