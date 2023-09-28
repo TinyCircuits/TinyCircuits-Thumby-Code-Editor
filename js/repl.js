@@ -701,7 +701,7 @@ class ReplJS{
 
         window.setPercent(1, "Formatting Thumby...");
 
-        await this.uploadFile("Games/SpaceDebris/SpaceDebris.py", await window.downloadFile("CoreThumbyFiles/Games/SpaceDebris/SpaceDebris.py"), false);
+        await this.uploadFile("Games/SpaceDebris/SpaceDebris.py", await window.downloadFile("https://raw.githubusercontent.com/TinyCircuits/TinyCircuits-Thumby-Games/master/SpaceDebris/SpaceDebris.py"), false);
         window.setPercent(7.7);
         await this.uploadFile("Games/Annelid/Annelid.py", await window.downloadFile("https://raw.githubusercontent.com/TinyCircuits/TinyCircuits-Thumby-Games/master/Annelid/Annelid.py"), false);
         window.setPercent(15.4);
