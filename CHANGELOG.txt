@@ -1,5 +1,11 @@
 Thumby Code Editor changelog!
 
+October 9th, 2023
+
+* Fix animated Blockly sprites (use ctrl+f5 to fetch latest version of the Code Editor)
+
+####################
+
 September 28th, 2023
 
 * Fix audio not always working in emulator

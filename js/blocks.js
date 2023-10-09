@@ -354,10 +354,13 @@ bitmap0 = bytearray([0,0,0,0,0,0,0,0,248,8,232,40,40,40,40,40,40,40,40,40,40,232
           {"type": "setFrame", "kind": "BLOCK", "gap": "2", "fields": {...dsp}, "inputs": {
             "FRM": {"shadow": {"type": "math_number", "fields": {"NUM": 1}}}}},
           {"type": "load_anim_sprite", "kind": "BLOCK", "gap": "2", "data": defaultData},
+          {"type": "load_anim_spritesheet", "kind": "BLOCK", "gap": "2", "data": defaultData},
         ];
       sprites.forEach((sprite)=>{blocks.unshift({"type": "load_sprite",
         "data": defaultData, "kind": "BLOCK", "gap": "2", "fields": {"VAR": sprite}})});
       sprites.reverse().forEach((sprite)=>{blocks.push({"type": "load_anim_sprite",
+        "data": defaultData, "kind": "BLOCK", "gap": "2", "fields": {"VAR": sprite}})});
+        sprites.reverse().forEach((sprite)=>{blocks.push({"type": "load_anim_spritesheet",
         "data": defaultData, "kind": "BLOCK", "gap": "2", "fields": {"VAR": sprite}})});
       return blocks;
     }
@@ -891,6 +894,24 @@ Blockly.defineBlocksWithJsonArray([
       {"name": "VAR", "type": "field_variable",
         "variableTypes": ["Sprite"], "defaultType": "Sprite"},
       {"name": "FRMS", "type": "field_number", "value": 2, "min": 1},
+    ],
+    "previousStatement": null,
+    "nextStatement": null,
+    "colour": "%{BKY_GRAPHICS_HUE}",
+    "extensions": ["del_vars_context_menu", "update_image_from_sprite"],
+    "tooltip": "Similar to the [load sprite] block but works with sprites " +
+      "composed of multiple animation frames, one after the other."
+  },
+  {
+    "type": "load_anim_spritesheet",
+    "message0": '%1 load sprite %2 with frame width %3 and height %4',
+    "args0": [
+      {"name": "IMG", "type": "field_image", "width": 50, "height": 30,
+        "src": "favicon.png"},
+      {"name": "VAR", "type": "field_variable",
+        "variableTypes": ["Sprite"], "defaultType": "Sprite"},
+      {"name": "FRAME_WIDTH", "type": "field_number", "value": 16, "min": 1},
+      {"name": "FRAME_HEIGHT", "type": "field_number", "value": 16, "min": 1},
     ],
     "previousStatement": null,
     "nextStatement": null,
@@ -1480,6 +1501,73 @@ PY['load_anim_sprite'] = function(block) {
     .replace(", height: ", `//${frames},`)
     .replace(/\n\w+ = /, ",")}, ${spriteName}.x,${spriteName}.y,` +
     `${spriteName}.key,${spriteName}.mirrorX,${spriteName}.mirrorY)\n`;
+};
+
+PY['load_anim_spritesheet'] = function(block) { 
+  var spriteName = PY.nameDB_.getName(block.getFieldValue('VAR'), NM.NameType.VARIABLE);
+  var frame_width = block.getFieldValue('FRAME_WIDTH');
+  var frame_height = block.getFieldValue('FRAME_HEIGHT');
+
+  var bitmap_width = parseInt(block.data.slice(16, block.data.indexOf(",")));
+  var bitmap_height = parseInt(block.data.slice(block.data.indexOf("height: ")+8, block.data.indexOf("\n")));
+
+  let bitmapdata = new Uint8Array(block.data.slice(block.data.indexOf("[")+1, block.data.indexOf("]")).split(","));
+  let sheetdata = [];
+
+  // Frames on the sheet should only be in the X direction
+  let frame_count = Math.ceil(bitmap_width/frame_width);
+  let frame_byte_height = Math.ceil(frame_height/8);
+
+  // Need to transform VLSB bitmap data from
+  //  f0 f1  f2 f3
+  //  f4 f5  f6 f7  or  f0 f1 f2 f3 f4 f5 f6 f7
+  //
+  // to
+  //
+  //  f0 f1
+  //  f4 f5
+  //  f2 f3
+  //  f6 f7  or  f0 f1 f4 f5 f2 f3 f6 f7
+  for(let iframex=0; iframex<frame_count; iframex++){
+    for(let ibytey=0; ibytey<frame_byte_height; ibytey++){
+      for(let ipixelx=0; ipixelx<frame_width; ipixelx++){
+        let frame_byte = bitmapdata[(iframex*frame_width) + (ibytey*bitmap_width) + ipixelx];
+        if(frame_byte == undefined){
+          console.warn("Not enough pixels in " + spriteName + " to complete the last frame, adding black pixels for the rest of the last frame");
+          sheetdata.push(0);
+        }else{
+          sheetdata.push(frame_byte);
+        }
+      }
+    }
+  }
+
+
+  let output = "bytearray([" 
+
+  for(let ibx=0; ibx<sheetdata.length; ibx++){
+    output += sheetdata[ibx];
+    if(ibx != sheetdata.length-1){
+      output += ",";
+    }
+  }
+
+  output += "])"
+
+  PY.definitions_['import_sprite'] = 'from thumbySprite import Sprite';
+  PY.definitions_[`import_sprite_setup_${spriteName}`] = `${spriteName} = Sprite(1,1,bytearray([1]))`;
+
+  let ret = spriteName + " = " + "Sprite(" + frame_width + "," + frame_height + "," + output;
+  ret += "," + spriteName + ".x";
+  ret += "," + spriteName + ".y";
+  ret += "," + spriteName + ".key";
+  ret += "," + spriteName + ".mirrorX";
+  ret += "," + spriteName + ".mirrorY";
+  ret += ")\n";
+
+  console.log(ret);
+
+  return ret;
 };
 
 PY['drawSprite'] = function(block) {

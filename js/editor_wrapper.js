@@ -1363,7 +1363,7 @@ class EditorWrapper{
     insert(str){
         if(this.isBlockly){
             const sel = Blockly.getSelected();
-            if(sel && (sel.type == 'load_sprite' || sel.type == 'load_anim_sprite')){
+            if(sel && (sel.type == 'load_sprite' || sel.type == 'load_anim_sprite' || sel.type == 'load_anim_spritesheet')){
                 sel.data = str;
                 // Save the changed state of the workspace
                 localStorage.setItem("EditorValue" + this.ID, JSON.stringify(
