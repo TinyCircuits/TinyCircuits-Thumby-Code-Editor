@@ -1,21 +1,22 @@
-# Last updated 8-Jan-2023
+# Last updated 13-Jul-2024
 
 from machine import freq
 freq(250_000_000)
-from machine import mem32, soft_reset
+from machine import mem32, soft_reset, ADC
 from time import ticks_ms, sleep_ms
 from os import listdir, stat
 from gc import collect as gc_collect
 import thumby
 freq(48_000_000)
+adc = ADC(26)
 
 try:
     conf = open("thumby.cfg", "r").read().split(',')
     if(len(conf)<6):
-        conf.append(',brightness,1')
+        conf.append(',brightness,1,batterydispmode,0')
 except OSError:
     conf = open("thumby.cfg", "w")
-    conf.write("audioenabled,1,lastgame,/Games/TinyBlocks/TinyBlocks.py,brightness,1")
+    conf.write("audioenabled,1,lastgame,/Games/TinyBlocks/TinyBlocks.py,brightness,1,batterydispmode,0")
     conf.close()
 
 def getConfigSetting(key):
@@ -42,8 +43,25 @@ audioSetting=int(getConfigSetting("audioenabled"))
 brightnessSetting=int(getConfigSetting("brightness"))
 audioSettings=['Audio: Off', 'Audio:  On']
 brightnessSettings=['Brite: Low', 'Brite: Mid', 'Brite:  Hi']
+batteryTime=['Batt: 5m', 'Batt: 10m', 'Batt: 15m', 'Batt: 20m', 'Batt: 25m', 'Batt: 30m', 'Batt: 35m', 'Batt: 40m', 'Batt: 45m', 'Batt: 50m',  'Batt: CHRG', 'Batt: ?']
+batteryPercentage=['Batt: 5%', 'Batt: 10%', 'Batt: 15%', 'Batt: 20%', 'Batt: 25%', 'Batt: 30%', 'Batt: 35%', 'Batt: 40%', 'Batt: 45%', 'Batt: 50%', 'Batt: 55%', 'Batt: 60%', 'Batt: 65%', 'Batt: 70%', 'Batt: 75%', 'Batt: 80%', 'Batt: 85%', 'Batt: 90%', 'Batt: 95%', 'Batt: 100%', 'Batt: CHRG', 'Batt: ?']
 brightnessVals=[1,28,127]
-settings=[audioSettings[audioSetting], brightnessSettings[brightnessSetting]]
+percent = 21
+try:
+    batterySetting = int(getConfigSetting("batterydispmode"))
+except:
+    s1 = getConfigSetting(audioenabled)
+    s2 = getConfigSetting(lastgame)
+    s3 = getConfigSetting(brightness)
+    conf = open("thumby.cfg", "w")
+    conf.write("audioenabled"+s1+"lastgame"+s2+"brightness"+s3+"batterydispmode,0")
+    conf.close()
+    saveConfigSetting("batterydispmode", str(0))
+    batterySetting = 0
+if batterySetting == 0:
+    settings=[audioSettings[audioSetting], brightnessSettings[brightnessSetting], batteryPercentage[21]]
+else:
+    settings=[audioSettings[audioSetting], brightnessSettings[brightnessSetting], batteryTime[11]]
 
 
 lines = []
@@ -350,6 +368,53 @@ while True:
         thumby.display.setPixel((creditsScrollPosition *71 // -((lineCount*width)//4)), 39, 1)
         thumby.display.setPixel((creditsScrollPosition *71 // -((lineCount*width)//4))+1, 39, 1)
     
+    if frameCounter % 250 == 0:
+        v = adc.read_u16()
+        v //= 100
+        if v > 382:
+            percent = 20
+        elif 382 >= v > 370:
+            percent = 19
+        elif 370 >= v > 365:
+            percent = 18
+        elif 365 >= v > 361:
+            percent = 17
+        elif 361 >= v > 358:
+            percent = 16
+        elif 358 >= v > 355:
+            percent = 15
+        elif 355 >= v > 352:
+            percent = 14
+        elif 352 >= v > 350:
+            percent = 13
+        elif 350 >= v > 347:
+            percent = 12
+        elif 347 >= v > 345:
+            percent = 11
+        elif 345 >= v > 343:
+            percent = 10
+        elif 343 >= v > 342:
+            percent = 9
+        elif 342 >= v > 341:
+            percent = 8
+        elif 341 >= v > 339:
+            percent = 7
+        elif 339 >= v > 337:
+            percent = 6
+        elif 337 >= v > 333:
+            percent = 5
+        elif 333 >= v > 330:
+            percent = 4
+        elif 330 >= v > 325:
+            percent = 3
+        elif 325 >= v > 320:
+            percent = 2
+        elif 320 >= v > 317:
+            percent = 1
+        elif 317 >= v > 309:
+            percent = 0
+        else:
+            percent = 21
     
     thumby.display.update()
     frameCounter+=1
@@ -416,7 +481,15 @@ while True:
                         brightnessSetting= (brightnessSetting+1) % 3
                         thumby.display.brightness(brightnessVals[brightnessSetting])
                         saveConfigSetting("brightness", str(brightnessSetting))
+                    if(settingsSelpos==2):
+                        batterySetting= (batterySetting+1) % 2
+                        saveConfigSetting("batterydispmode", str(batterySetting))
                     settings=[audioSettings[audioSetting], brightnessSettings[brightnessSetting]]
+    
+    if batterySetting == 0:
+        settings=[audioSettings[audioSetting], brightnessSettings[brightnessSetting], batteryPercentage[percent]]
+    else:
+        settings=[audioSettings[audioSetting], brightnessSettings[brightnessSetting], batteryTime[percent//2]]
 
 
 thumby.reset()
