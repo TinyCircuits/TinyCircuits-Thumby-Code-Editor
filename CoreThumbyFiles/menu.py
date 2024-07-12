@@ -1,21 +1,26 @@
-# Last updated 8-Jan-2023
+#this 4 strokes needed for battery and some on 373 stroke
+import math
+from machine import ADC
+adc = ADC(26)
+v = 37500
+framesIdle = 0
 
 from machine import freq
-freq(250_000_000)
-from machine import mem32, soft_reset
-from time import ticks_ms, sleep_ms
-from os import listdir, stat
-from gc import collect as gc_collect
+freq(125000000)
+from time import sleep_ms, ticks_ms, sleep_us, ticks_us
+import os
+import gc
 import thumby
-freq(48_000_000)
+freq(48000000)
+thumby.display.setFont('lib/font5x7.bin', 5, 7, 1)
 
 try:
     conf = open("thumby.cfg", "r").read().split(',')
-    if(len(conf)<6):
-        conf.append(',brightness,1')
+    if(len(conf)<8):
+        conf.append(',brightness,2,batterydispmode,0')
 except OSError:
     conf = open("thumby.cfg", "w")
-    conf.write("audioenabled,1,lastgame,/Games/TinyBlocks/TinyBlocks.py,brightness,1")
+    conf.write("audioenabled,1,lastgame,/Games/TinyBlocks/TinyBlocks.py,brightness,1,batterydispmode,0")
     conf.close()
 
 def getConfigSetting(key):
@@ -35,16 +40,35 @@ def saveConfigSetting(key, setting):
         if(cfg[k] == key):
             cfg[k+1] = setting
     cfgfile = open("thumby.cfg", "w")
-    cfgfile.write(','.join(cfg))
+    cfgfile.write(cfg[0])
+    for k in range(1, len(cfg)):
+        cfgfile.write(","+cfg[k])
     cfgfile.close()
 
 audioSetting=int(getConfigSetting("audioenabled"))
 brightnessSetting=int(getConfigSetting("brightness"))
 audioSettings=['Audio: Off', 'Audio:  On']
 brightnessSettings=['Brite: Low', 'Brite: Mid', 'Brite:  Hi']
-brightnessVals=[1,28,127]
-settings=[audioSettings[audioSetting], brightnessSettings[brightnessSetting]]
-
+batteryTime=['Batt: 5m', 'Batt: 10m', 'Batt: 15m', 'Batt: 20m', 'Batt: 25m', 'Batt: 30m', 'Batt: 35m', 'Batt: 40m', 'Batt: 45m', 'Batt: 50m',  'Batt: CHRG', 'Batt: ?']
+batteryPercentage=['Batt: 5%', 'Batt: 10%', 'Batt: 15%', 'Batt: 20%', 'Batt: 25%', 'Batt: 30%', 'Batt: 35%', 'Batt: 40%', 'Batt: 45%', 'Batt: 50%', 'Batt: 55%', 'Batt: 60%', 'Batt: 65%', 'Batt: 70%', 'Batt: 75%', 'Batt: 80%', 'Batt: 85%', 'Batt: 90%', 'Batt: 95%', 'Batt: 100%', 'Batt: CHRG', 'Batt: ?']
+brightnessVals=[1,63,127]
+percent = 20
+try:
+    batterySetting = int(getConfigSetting("batterydispmode"))
+except:
+    s1 = getConfigSetting(audioenabled)
+    s2 = getConfigSetting(lastgame)
+    s3 = getConfigSetting(brightness)
+    conf = open("thumby.cfg", "w")
+    conf.write("audioenabled"+s1+"lastgame"+s2+"brightness"+s3+"batterydispmode,0")
+    conf.close()
+    saveConfigSetting("batterydispmode", str(0))
+    batterySetting = 0
+    
+if batterySetting == 0:
+    settings=[audioSettings[audioSetting], brightnessSettings[brightnessSetting], batteryPercentage[21]]
+else:
+    settings=[audioSettings[audioSetting], brightnessSettings[brightnessSetting], batteryTime[11]]
 
 lines = []
 lineCount = 0
@@ -53,7 +77,7 @@ creditsScrollPosition = -1
 width=(6*16 + 10)
 firstLine = 0
 creditsScrollOffset=-1
-
+    
 
 TCSplash=thumby.Sprite(72, 24, 'lib/TClogo.bin',0,0,-1)
 thumbySplash=thumby.Sprite(72, 24, 'lib/thumbyLogo.bin',0,0,-1)
@@ -61,21 +85,25 @@ thumbySplash=thumby.Sprite(72, 24, 'lib/thumbyLogo.bin',0,0,-1)
 
 settingsBMonly = bytearray([81,81,85,69,69,127,65,65,85,85,93,127,125,65,65,125,127,125,65,65,125,127,93,65,65,93,127,65,65,115,103,65,65,127,65,65,93,85,69,69,127,81,81,85,69,69])
 gamesBMonly =bytearray([65,65,93,85,69,69,127,67,65,117,65,67,127,65,65,115,103,115,65,65,127,65,65,85,85,93,127,81,81,85,69,69])
-
+gamesBMonly +=bytearray([65,93,85,69,69,127,67,65,117,65,67,127,65,65,115,103,115,65,65,127,65,65,85,85,93,127,81,81,85,69,69,0xFF])
 
 settingsHeader = thumby.Sprite(46, 7, settingsBMonly,key=-1)
 gamesHeader = thumby.Sprite(32, 7, gamesBMonly,key=-1)
 
-thumby.display.setFPS(50)
+#thumbySplash = thumby.sprite(30, 30, 'bird.bin',0,0,-1)
+
+thumby.display.setFPS(100)
 
 thumbySplash.y = -37
 while thumbySplash.y < 5:
-    thumbySplash.y += 2
+    thumbySplash.y += 1
     TCSplash.y=thumbySplash.y+37
     thumby.display.fill(0)
     thumby.display.drawSprite(thumbySplash)
     thumby.display.drawSprite(TCSplash)
     thumby.display.update()
+    
+thumby.display.setFPS(50)
 
 thumbyLogoHeight=thumbySplash.y
 
@@ -95,12 +123,12 @@ xScrollPos=0
 xScrollTarget=0
 
 selpos = -1
-files = listdir("/Games")
+files = os.listdir("/Games")
 selected = False
 scroll = 0
 
 for k in range(len(files)):
-    if(stat("/Games/"+files[k])[0] != 16384):
+    if(os.stat("/Games/"+files[k])[0] != 16384):
         files[k] = ""
 try:
     while(True):
@@ -116,8 +144,9 @@ for k in range(len(shortFiles)):
 settingsSelpos = -1
 SettingsScroll = 0
 
-
-gc_collect() # Garbage collection
+print(gc.mem_free())
+print(gc.collect())
+print(gc.mem_free())
 
 
 def writeCenteredText(text, x, y ,color):
@@ -135,6 +164,7 @@ def drawBracketsAround(text, x, y ,color):
     if(color):
         thumby.display.blit(rightArrowBA, xc-1, y+1, 3, 5,-1,0,0)
     xc=x +(textLen * 6) // 2 +2
+    #x=min(x,70)
     if(color):
         thumby.display.blit(leftArrowBA, xc-1, y+1, 3, 5,-1,0,0)
 lastPosition=0
@@ -188,12 +218,17 @@ def launchGame():
     if(selpos>=0):
         gamePath="/Games/"+files[selpos]+"/"+files[selpos]+".py"
         saveConfigSetting("lastgame", gamePath)
-    mem32[0x4005800C]=1 # WDT scratch register '0'
-    soft_reset()
+    import machine
+    #Address of watchdog timer scratch register
+    WATCHDOG_BASE=0x40058000
+    SCRATCH0_ADDR=WATCHDOG_BASE+0x0C
+    machine.mem32[SCRATCH0_ADDR]=1
+    machine.soft_reset()
 
 
 while True:
     thumbySplash.setFrame(thumbySplash.currentFrame+1)
+    start = ticks_us()
     if(yScrollTarget!=yScrollPos):
         if(yScrollTarget>yScrollPos):
             yScrollPos += 1
@@ -254,8 +289,10 @@ while True:
         if(selpos<2):
             selectOffset = selpos*8+8
             
+        #thumby.display.blit(gamesBM, xScrollPos + 72//2 - 32//2 +1, max(0,yScrollPos+40), 32, 7, -1,0,0)
         gamesHeader.x= xScrollPos + 72//2 - 32//2 +1
         gamesHeader.y= max(0,yScrollPos+40)
+        #gamesHeader.setFrame( frameCounter%2)
         thumby.display.drawSprite(gamesHeader)
         
         if(ticks_ms() % 1000 < 500 and selpos<0 and yScrollTarget == -40 and xScrollTarget == 0):
@@ -276,6 +313,7 @@ while True:
         if(ticks_ms() % 1000 < 500 and settingsSelpos>=0):
             drawBracketsAround(settings[settingsSelpos], 72+xScrollPos + thumby.display.width//2, yScrollPos+40+selectOffset+scrollDisplayed, 1)
         
+        #thumby.display.blit(settingsBM, 72+xScrollPos + 72//2 - 46//2 +1, max(0,yScrollPos+40), 46, 7, -1,0,0)
         settingsHeader.x=72+xScrollPos + 72//2 - 46//2 +1
         settingsHeader.y=max(0,yScrollPos+40)
         thumby.display.drawSprite(settingsHeader)
@@ -349,9 +387,65 @@ while True:
         thumby.display.setPixel((creditsScrollPosition *71 // -((lineCount*width)//4))-1, 39, 1)
         thumby.display.setPixel((creditsScrollPosition *71 // -((lineCount*width)//4)), 39, 1)
         thumby.display.setPixel((creditsScrollPosition *71 // -((lineCount*width)//4))+1, 39, 1)
-    
+
+    #this 14 strokes for percent of battery and upper 3-5 strokes
+    if frameCounter % 250 == 0:
+        v = adc.read_u16()
+        v //= 100
+        if v > 380:
+            percent = 20
+        elif 380 >= v > 370:
+            percent = 19
+        elif 370 >= v > 365:
+            percent = 18
+        elif 365 >= v > 361:
+            percent = 17
+        elif 361 >= v > 358:
+            percent = 16
+        elif 358 >= v > 355:
+            percent = 15
+        elif 355 >= v > 352:
+            percent = 14
+        elif 352 >= v > 350:
+            percent = 13
+        elif 350 >= v > 347:
+            percent = 12
+        elif 347 >= v > 345:
+            percent = 11
+        elif 345 >= v > 343:
+            percent = 10
+        elif 343 >= v > 342:
+            percent = 9
+        elif 342 >= v > 341:
+            percent = 8
+        elif 341 >= v > 339:
+            percent = 7
+        elif 339 >= v > 337:
+            percent = 6
+        elif 337 >= v > 333:
+            percent = 5
+        elif 333 >= v > 330:
+            percent = 4
+        elif 330 >= v > 325:
+            percent = 3
+        elif 325 >= v > 320:
+            percent = 2
+        elif 320 >= v > 317:
+            percent = 1
+        elif 317 >= v > 309:
+            percent = 0
+        else:
+            percent = 21
+        
     
     thumby.display.update()
+#     frameTimeRemaining = 28-(ticks_us() - start)//1000
+#     if(frameTimeRemaining>0):
+#         sleep_ms(frameTimeRemaining)
+#         
+    #print(ticks_us() - start)
+    #machine.idle()
+    #sleep_ms(100)
     frameCounter+=1
     
     if(thumby.inputJustPressed()):
@@ -410,13 +504,22 @@ while True:
                     if(settingsSelpos==0):
                         audioSetting= (audioSetting+1) % 2
                         thumby.audio.setEnabled(audioSetting)
+                        print(audioSetting)
                         saveConfigSetting("audioenabled", str(audioSetting))
                         thumby.audio.play(500,20)
                     if(settingsSelpos==1):
                         brightnessSetting= (brightnessSetting+1) % 3
                         thumby.display.brightness(brightnessVals[brightnessSetting])
                         saveConfigSetting("brightness", str(brightnessSetting))
-                    settings=[audioSettings[audioSetting], brightnessSettings[brightnessSetting]]
+                    if(settingsSelpos==2):
+                        batterySetting= (batterySetting+1) % 2
+                        saveConfigSetting("batterydispmode", str(batterySetting))
+                        
+    if batterySetting == 0:
+        settings=[audioSettings[audioSetting], brightnessSettings[brightnessSetting], batteryPercentage[percent]]
+    else:
+        settings=[audioSettings[audioSetting], brightnessSettings[brightnessSetting], batteryTime[percent//2]]
+    #print(ticks_us() - start)
 
 
-thumby.reset()
+machine.reset()
