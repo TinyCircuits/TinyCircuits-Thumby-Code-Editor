@@ -2,7 +2,7 @@ Thumby Code Editor changelog!
 
 August 27th, 2024
 
-* Updated code library files into one with support for Thumby, Thumby Color, and Thumby Color Linux simulator
+* Updated core library files and consolidated them into one folder with support for Thumby, Thumby Color, and Thumby Color Linux simulator
 
 ####################
 
