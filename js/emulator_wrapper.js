@@ -982,22 +982,22 @@ export class EMULATOR{
 
       if(window.setPercent) window.setPercent(50);
 
-      await this.loadServerFile("CoreThumbyFiles/lib-emulator/thumby.py", '/lib/thumby.py');
-      await this.loadServerFile("CoreThumbyFiles/lib-emulator/ssd1306.py", '/lib/ssd1306.py');
+      await this.loadServerFile("CoreThumbyFiles/lib/thumby.py", '/lib/thumby.py');
+      await this.loadServerFile("CoreThumbyFiles/lib/ssd1306.py", '/lib/ssd1306.py');
 
-      await this.loadServerFile("CoreThumbyFiles/lib-emulator/thumbyAudio.py", "/lib/thumbyAudio.py");
-      await this.loadServerFile("CoreThumbyFiles/lib-emulator/thumbyButton.py", "/lib/thumbyButton.py");
-      await this.loadServerFile("CoreThumbyFiles/lib-emulator/thumbyGraphics.py", "/lib/thumbyGraphics.py");
-      await this.loadServerFile("CoreThumbyFiles/lib-emulator/thumbyHardware.py", "/lib/thumbyHardware.py");
-      await this.loadServerFile("CoreThumbyFiles/lib-emulator/thumbyLink.py", "/lib/thumbyLink.py");
-      await this.loadServerFile("CoreThumbyFiles/lib-emulator/thumbySaves.py", "/lib/thumbySaves.py");
-      await this.loadServerFile("CoreThumbyFiles/lib-emulator/thumbySprite.py", "/lib/thumbySprite.py");
+      await this.loadServerFile("CoreThumbyFiles/lib/thumbyAudio.py", "/lib/thumbyAudio.py");
+      await this.loadServerFile("CoreThumbyFiles/lib/thumbyButton.py", "/lib/thumbyButton.py");
+      await this.loadServerFile("CoreThumbyFiles/lib/thumbyGraphics.py", "/lib/thumbyGraphics.py");
+      await this.loadServerFile("CoreThumbyFiles/lib/thumbyHardware.py", "/lib/thumbyHardware.py");
+      await this.loadServerFile("CoreThumbyFiles/lib/thumbyLink.py", "/lib/thumbyLink.py");
+      await this.loadServerFile("CoreThumbyFiles/lib/thumbySaves.py", "/lib/thumbySaves.py");
+      await this.loadServerFile("CoreThumbyFiles/lib/thumbySprite.py", "/lib/thumbySprite.py");
 
-      await this.loadServerFile("CoreThumbyFiles/lib-emulator/font3x5.bin", '/lib/font3x5.bin');
-      await this.loadServerFile("CoreThumbyFiles/lib-emulator/font5x7.bin", '/lib/font5x7.bin');
-      await this.loadServerFile("CoreThumbyFiles/lib-emulator/font8x8.bin", '/lib/font8x8.bin');
-      await this.loadServerFile("CoreThumbyFiles/lib-emulator/TClogo.bin", '/lib/TClogo.bin');
-      await this.loadServerFile("CoreThumbyFiles/lib-emulator/thumbyLogo.bin", '/lib/thumbyLogo.bin');
+      await this.loadServerFile("CoreThumbyFiles/lib/font3x5.bin", '/lib/font3x5.bin');
+      await this.loadServerFile("CoreThumbyFiles/lib/font5x7.bin", '/lib/font5x7.bin');
+      await this.loadServerFile("CoreThumbyFiles/lib/font8x8.bin", '/lib/font8x8.bin');
+      await this.loadServerFile("CoreThumbyFiles/lib/TClogo.bin", '/lib/TClogo.bin');
+      await this.loadServerFile("CoreThumbyFiles/lib/thumbyLogo.bin", '/lib/thumbyLogo.bin');
       
       if(window.setPercent) window.setPercent(75);
 

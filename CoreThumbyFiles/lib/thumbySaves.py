@@ -1,4 +1,5 @@
 # Thumby saves base
+# - Emulator edition
 
 # Written by Mason Watmough, Jason Marcum, and Ben Rose for TinyCircuits.
 # 11-Jul-2022
@@ -21,28 +22,47 @@
 
 from json import load as JSONLoad, dump as JSONDump
 from ubinascii import a2b_base64 as b64dec, b2a_base64 as b64enc
-from os import chdir, getcwd, mkdir, rename, remove, stat
+from os import chdir, getcwd, mkdir, rename, remove, stat, listdir
+import sys
 
-# Last updated 20-Dec-2022
-__version__ = '1.9'
+__version__ = '2.0'
+
+
+IS_THUMBY_COLOR = "TinyCircuits Thumby Color" in sys.implementation._machine
+IS_THUMBY_COLOR_LINUX = "linux" in sys.implementation._machine
+IS_EMULATOR = False
+try:
+    import emulator
+    IS_EMULATOR = True
+except ImportError:
+    pass
+
+
+root = ""
+
+# On Thumby Color Linux, need to get filesystem path to the working directory
+if IS_THUMBY_COLOR_LINUX:
+    import engine
+    root = engine.root_dir()
+
 
 class SavesClass:
     def __init__(self):
         
         oldDir = getcwd()
         try:
-            stat("/Saves")
+            stat(f"{root}/Saves")
         except OSError:
-            chdir("/")
-            mkdir("/Saves")
-            mkdir("/Saves/temp")
+            chdir(f"{root}/")
+            mkdir(f"{root}/Saves")
+            mkdir(f"{root}/Saves/temp")
             
-        self.savesPath = "/Saves"
+        self.savesPath = f"{root}/Saves"
         self.saveFile = None
         self.volatileDict = dict()
         
         try:
-            stat("/Saves/temp")
+            stat(f"{root}/Saves/temp")
             self.setName("temp")
         except OSError:
             pass
@@ -50,11 +70,11 @@ class SavesClass:
         chdir(oldDir)
     
     # Set a game save's working subdirectory in "/Saves/"
-    @micropython.viper
+    # @micropython.viper
     def setName(self, subdir):
         
         oldDir = getcwd()
-        self.savesPath = "/Saves/" + subdir
+        self.savesPath = f"{root}/Saves/{subdir}"
         
         try:
             stat(self.savesPath)
@@ -71,7 +91,7 @@ class SavesClass:
             try:
                 self.saveFile = open(self.savesPath+"/backup.json", "r+")
                 self.volatileDict = JSONLoad(self.saveFile)
-                self.save(False) # Make sure we have a persistent.json
+                self.write(False) # Make sure we have a persistent.json
             except (OSError, ValueError):
                 self.saveFile = open(self.savesPath+"/persistent.json", "w+") # Make a new one
                 self.saveFile.write("{}")
@@ -121,13 +141,13 @@ class SavesClass:
         return False
     
     # Write volatile dictionary to persistent.json
-    @micropython.native
+    # @micropython.native
     def save(self, backup = False):
         
         oldDir = getcwd()
         
-        if(self.savesPath == "/Saves"): # If a directory hasn't been set, use a temporary one
-            self.savesPath = "/Saves/temp"
+        if(self.savesPath == f"{root}/Saves"): # If a directory hasn't been set, use a temporary one
+            self.savesPath = f"{root}/Saves/temp"
         
         if type(self.saveFile) != type(None):
             self.saveFile.close()

@@ -21,8 +21,7 @@
 
 from os import stat
 
-# Last updated 14-Dec-2022
-__version__ = '1.9'
+__version__ = '2.0'
 
 # Sprite class for holding pixel data 
 class Sprite:

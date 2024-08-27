@@ -18,13 +18,42 @@
     You should have received a copy of the GNU General Public License along with
     the Thumby API. If not, see <https://www.gnu.org/licenses/>.
 '''
-
+import sys
 from thumbyHardware import swBuzzer
-from machine import Timer
 from time import ticks_ms, ticks_diff
 
-# Last updated 14-Dec-2022
-__version__ = '1.9'
+
+__version__ = '2.0'
+
+
+IS_THUMBY_COLOR = "TinyCircuits Thumby Color" in sys.implementation._machine
+IS_THUMBY_COLOR_LINUX = "linux" in sys.implementation._machine
+IS_EMULATOR = False
+try:
+    import emulator
+    IS_EMULATOR = True
+except ImportError:
+    pass
+
+root = ""
+
+# Create a dummy timer if on Thumby Color Linx
+# since it doesn't have that in `machine``
+if IS_THUMBY_COLOR_LINUX:
+    import engine
+    root = engine.root_dir()
+
+    class TimerDummy():
+        def __init__(self):
+            pass
+
+        def init(self, period, mode, callback):
+            pass
+    
+    Timer = TimerDummy
+else:
+    from machine import Timer
+
 
 # Audio class, from which the audio namespace is defined.
 class AudioClass:
@@ -34,7 +63,7 @@ class AudioClass:
         self.enabled = 1
         self.dutyCycle = 0xFFFF//2
         try:
-            conf = open("/thumby.cfg", "r").read().split(',')
+            conf = open(f"{root}/thumby.cfg", "r").read().split(',')
             for k in range(len(conf)):
                 if(conf[k] == "audioenabled"):
                     self.enabled = int(conf[k+1])

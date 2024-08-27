@@ -28,6 +28,6 @@ class CORSRequestHandler(http.server.SimpleHTTPRequestHandler):
         # self.send_header('Cache-Control', 'no-store, no-cache, must-revalidate')
         return super(CORSRequestHandler, self).end_headers()
 
-httpd = http.server.HTTPServer(('127.0.0.1', 443), CORSRequestHandler)
+httpd = http.server.HTTPServer(('127.0.0.1', 444), CORSRequestHandler)
 httpd.socket = ssl.wrap_socket (httpd.socket, certfile='./dummy.pem', server_side=True)
 httpd.serve_forever()

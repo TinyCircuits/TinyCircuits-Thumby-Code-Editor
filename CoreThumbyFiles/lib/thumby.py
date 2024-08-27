@@ -20,18 +20,30 @@
     You should have received a copy of the GNU General Public License along with
     the Thumby API. If not, see <https://www.gnu.org/licenses/>.
 '''
+import sys
 
-from machine import freq
 
-# Last updated 9-Jan-2023
-__version__ = '1.9'
+__version__ = '2.0'
 
-# Grab initial frequency
-__f0 = freq()
-# Speed us up so imports take less time
-freq(250_000_000)
 
-from thumbyHardware import swL, swR, swU, swD, swA, swB, swBuzzer, IDPin, i2c, spi, reset
+IS_THUMBY_LEGACY = "TinyCircuits Thumby Color" not in sys.implementation._machine and "linux" not in sys.implementation._machine
+IS_EMULATOR = False
+try:
+    import emulator
+    IS_EMULATOR = True
+except ImportError:
+    pass
+
+if IS_THUMBY_LEGACY:
+    from machine import freq
+
+    # Grab initial frequency
+    __f0 = freq()
+    # Speed us up so imports take less time
+    freq(250_000_000)
+
+if IS_THUMBY_LEGACY or IS_EMULATOR:
+    from thumbyHardware import swL, swR, swU, swD, swA, swB, swBuzzer, IDPin, i2c, spi, reset
 
 from thumbySprite import Sprite
 
@@ -46,5 +58,7 @@ from thumbySaves import saveData
 
 from thumbyGraphics import display
 
-# Reset to initial frequency
-freq(__f0)
+
+if IS_THUMBY_LEGACY is True:
+    # Reset to initial frequency
+    freq(__f0)

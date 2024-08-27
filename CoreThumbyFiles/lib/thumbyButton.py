@@ -18,11 +18,27 @@
     You should have received a copy of the GNU General Public License along with
     the Thumby API. If not, see <https://www.gnu.org/licenses/>.
 '''
+import sys
 
-from thumbyHardware import swL, swR, swU, swD, swA, swB
 
-# Last updated 14-Dec-2022
-__version__ = '1.9'
+__version__ = '2.0'
+
+
+IS_THUMBY_COLOR = "TinyCircuits Thumby Color" in sys.implementation._machine
+IS_THUMBY_COLOR_LINUX = "linux" in sys.implementation._machine
+IS_EMULATOR = False
+try:
+    import emulator
+    IS_EMULATOR = True
+except ImportError:
+    pass
+
+
+if IS_THUMBY_COLOR or IS_THUMBY_COLOR_LINUX:
+    import engine_io
+else:
+    from thumbyHardware import swL, swR, swU, swD, swA, swB
+
 
 class ButtonClass:
     def __init__(self, pin):
@@ -31,9 +47,14 @@ class ButtonClass:
         self.latchedPress = False
 
     # Returns True if the button is currently pressed, False if not.
-    @micropython.native
-    def pressed(self):
-        return False if self.pin.value() == 1 else True
+    if IS_THUMBY_COLOR or IS_THUMBY_COLOR_LINUX:
+        @micropython.native
+        def pressed(self):
+            return self.pin.is_pressed 
+    else:
+        @micropython.native
+        def pressed(self):
+            return False if self.pin.value() == 1 else True
 
     # Returns True if the button was just pressed, False if not.
     @micropython.native
@@ -56,13 +77,23 @@ class ButtonClass:
             self.latchedPress = True
         self.lastState = currentState
 
+
 # Button instantiation
-buttonA = ButtonClass(swA) # Left (A) button
-buttonB = ButtonClass(swB) # Right (B) button
-buttonU = ButtonClass(swU) # D-pad up
-buttonD = ButtonClass(swD) # D-pad down
-buttonL = ButtonClass(swL) # D-pad left
-buttonR = ButtonClass(swR) # D-pad right
+if IS_THUMBY_COLOR or IS_THUMBY_COLOR_LINUX:
+    buttonA = ButtonClass(engine_io.A)      # Left (A) button
+    buttonB = ButtonClass(engine_io.B)      # Right (B) button
+    buttonU = ButtonClass(engine_io.UP)     # D-pad up
+    buttonD = ButtonClass(engine_io.DOWN)   # D-pad down
+    buttonL = ButtonClass(engine_io.LEFT)   # D-pad left
+    buttonR = ButtonClass(engine_io.RIGHT)  # D-pad right
+else:
+    buttonA = ButtonClass(swA) # Left (A) button
+    buttonB = ButtonClass(swB) # Right (B) button
+    buttonU = ButtonClass(swU) # D-pad up
+    buttonD = ButtonClass(swD) # D-pad down
+    buttonL = ButtonClass(swL) # D-pad left
+    buttonR = ButtonClass(swR) # D-pad right
+
 
 # Returns true if any buttons are currently pressed on the thumby.
 @micropython.native
