@@ -36,11 +36,13 @@ class BITMAP_BUILDER{
 
         this.BITMAP_WIDTH_LIMIT = 72 * 2;
         this.BITMAP_HEIGHT_LIMIT = 40 * 2;
+        this.BITMAP_FRAME_LIMIT = 8;
 
 
         // The starting size of the bitmap
         this.ROW_COUNT = 8;
         this.COLUMN_COUNT = 8;
+        this.FRAME_COUNT = 1;
 
         // The size of each cell/bitmap pixel (square) in pixels
         this.GRID_SIZE_PX = 225;
@@ -175,6 +177,7 @@ class BITMAP_BUILDER{
                 
                 this.COLUMN_COUNT = this.LAST_IMPORTED_IMAGE.width;
                 this.ROW_COUNT = this.LAST_IMPORTED_IMAGE.height;
+                this.FRAME_COUNT = 1;
                 this.updatePanelTitle();
                 this.renderGrid();
                 this.saveLocally();
@@ -208,12 +211,14 @@ class BITMAP_BUILDER{
     restoreFromLocally(){
         var rowCount = localStorage.getItem("ROW_COUNT");
         var colCount = localStorage.getItem("COL_COUNT");
+        var frameCount = localStorage.getItem("FRAME_COUNT") || "1";
         var cellValues = localStorage.getItem("CELL_VALUES");
         var cellPxSize = localStorage.getItem("GRID_SIZE_PX");
 
         if(rowCount != null && colCount != null && cellValues != null && cellPxSize != null){
             this.ROW_COUNT = parseInt(rowCount);
             this.COLUMN_COUNT = parseInt(colCount);
+            this.FRAME_COUNT = parseInt(frameCount);
             this.GRID_SIZE_PX = parseInt(cellPxSize);
             this.renderGrid();
 
@@ -236,6 +241,7 @@ class BITMAP_BUILDER{
     saveLocally(){
         localStorage.setItem("ROW_COUNT", this.ROW_COUNT);
         localStorage.setItem("COL_COUNT", this.COLUMN_COUNT);
+        localStorage.setItem("FRAME_COUNT", this.FRAME_COUNT);
         localStorage.setItem("GRID_SIZE_PX", this.GRID_SIZE_PX);
 
         var cellValues = [];
@@ -292,7 +298,9 @@ class BITMAP_BUILDER{
 
     setSize(){
         if(this.setWidth()){
-            this.setHeight();
+            if(this.setHeight()){
+                this.setFrames();
+            }
         }
     }
 
@@ -342,9 +350,29 @@ class BITMAP_BUILDER{
         return false;
     }
 
+     // Asks user for number of frames
+     setFrames(){
+        var newFrames = prompt("Enter a new bitmap frame count (limit: " + this.BITMAP_FRAME_LIMIT + "): ", 1);
+        if(newFrames != null){
+            newFrames = parseInt(newFrames);
+            if(newFrames != NaN){
+                if(newFrames >= 1 && newFrames <= this.BITMAP_FRAME_LIMIT){
+                    this.FRAME_COUNT = newFrames;
+                    this.renderGrid();
+                    this.saveLocally();
+                    this.applyGridSize();
+                    return true;
+                }else{
+                    alert("That frame count is too large (min: 1, max: " + this.BITMAP_FRAME_LIMIT + ")")
+                    return false;
+                }
+            }
+        }
+        return false;
+    }
 
     updatePanelTitle(){
-        this._container.setTitle("Bitmap Builder: " + this.COLUMN_COUNT + " x " + this.ROW_COUNT);
+        this._container.setTitle("Bitmap Builder: " + this.COLUMN_COUNT + " x " + this.ROW_COUNT + (this.FRAME_COUNT > 1 ? " @" + this.FRAME_COUNT : ""));
     }
 
 
@@ -385,8 +413,9 @@ class BITMAP_BUILDER{
 
 
     applyGridSize(){
-        this.GRID_DIV.style.aspectRatio = this.COLUMN_COUNT + "/" + this.ROW_COUNT;
-        this.GRID_DIV.style.width = (this.COLUMN_COUNT / this.ROW_COUNT) * this.GRID_SIZE_PX + "px";
+        const rows = this.ROW_COUNT * this.FRAME_COUNT + (this.ROW_COUNT % 8) * (this.FRAME_COUNT - 1);
+        this.GRID_DIV.style.aspectRatio = this.COLUMN_COUNT + "/" + rows;
+        this.GRID_DIV.style.width = (this.COLUMN_COUNT / rows) * this.GRID_SIZE_PX + "px";
         this.GRID_DIV.style.height = this.GRID_SIZE_PX + "px";
     }
 
@@ -436,13 +465,26 @@ class BITMAP_BUILDER{
 
         // https://developer.mozilla.org/en-US/docs/Glossary/Grid_Cell
         this.GRID_DIV.style.gridTemplateColumns = "repeat(" + this.COLUMN_COUNT + ", 1fr)";
-        for(var i=0; i < this.ROW_COUNT * this.COLUMN_COUNT; i++){
+        const rows = this.ROW_COUNT * this.FRAME_COUNT + (this.ROW_COUNT % 8) * (this.FRAME_COUNT - 1);
+        const frameBlockSize = Math.ceil(this.ROW_COUNT/8)*8 * this.COLUMN_COUNT;
+        const frameSize = this.ROW_COUNT * this.COLUMN_COUNT;
+        for(var i=0; i < rows * this.COLUMN_COUNT; i++){
             if(document.getElementById(i.toString()) == undefined){
                 var cell = document.createElement("div");
                 cell.id = i.toString();
                 cell.className = "bitmap_grid_cell";
 
+                cell.style.border = "0px none black";
                 cell.style.backgroundColor = "white";
+
+                // Add border lines between frames and hide pixels outside frame bounds
+                if (i % frameBlockSize >= frameSize) {
+                    cell.style.opacity = "0.05";
+                    cell.style.height = "0px";
+                } else if ((i % frameBlockSize + this.COLUMN_COUNT >= frameSize)
+                        && (i + this.COLUMN_COUNT) < (rows * this.COLUMN_COUNT))  {
+                    cell.style.marginBottom = "10px";
+                }
 
                 cell.onclick = this.cellLeftClickCallback.bind(this, cell);
                 cell.oncontextmenu = this.cellRightClickCallback.bind(this, cell);
@@ -464,6 +506,7 @@ class BITMAP_BUILDER{
         // overwrite and not output framebuffer line
         var varName = "bitmap";
         var foundName = false;  // Used to set true so framebuffer line not output if name found
+        const rows = this.ROW_COUNT * this.FRAME_COUNT + (this.ROW_COUNT % 8) * (this.FRAME_COUNT - 1);
 
         // String that holds all export information for editor
         var str = "";
@@ -487,7 +530,8 @@ class BITMAP_BUILDER{
             varName = varName + this.BITMAP_EXPORT_COUNT.toString();    // Add index to make name unique when a name was NOT found
 
             // Add dimensions of bitmap to a comment above the buffer (if selected on import, will use these instead of asking user), only on not finding name
-            str = str + "# BITMAP: width: " + this.COLUMN_COUNT.toString() + ", height: " + this.ROW_COUNT.toString() + "\n";
+            const framesStr = this.FRAME_COUNT > 1 ? ", frames: " + this.FRAME_COUNT : "";
+            str = str + "# BITMAP: width: " + this.COLUMN_COUNT.toString() + ", height: " + this.ROW_COUNT.toString() + framesStr + "\n";
         }
 
         // Start the actual array
@@ -497,14 +541,14 @@ class BITMAP_BUILDER{
         var spaceIndentCount = (varName + " = [").length;
 
         // Loop through grid data in pages COLUMN_COUNT long but 8 thick (each column of 8 is a byte for buffer)
-        for(var scanRow=0; scanRow<this.ROW_COUNT; scanRow+=8){
+        for(var scanRow=0; scanRow<rows; scanRow+=8){
             for(var column=0; column<this.COLUMN_COUNT; column++){
 
                 // Byte for column where each bit will be set from grid data
                 var byte = 0;
                 
                 // Make the byte
-                for(var i=0; i<8 && scanRow+i < this.ROW_COUNT; i++){
+                for(var i=0; i<8 && scanRow+i < rows; i++){
                     var value = document.getElementById( ((scanRow+i) * this.COLUMN_COUNT) + column).style.backgroundColor;
                     if(value == "white"){
                         value = 1;
@@ -519,13 +563,13 @@ class BITMAP_BUILDER{
                 str = str + byte.toString();
 
                 // As long not at last position in array to print, add a comma after each entry
-                if(column != this.COLUMN_COUNT-1 || scanRow+8 < this.ROW_COUNT){
+                if(column != this.COLUMN_COUNT-1 || scanRow+8 < rows){
                     str = str + ",";
                 }
             }
 
             // At the end of a page, before and formatting next add newline when not on last line of array
-            if(scanRow+8 < this.ROW_COUNT){
+            if(scanRow+8 < rows){
                 str = str + "\n";
 
                 // Indent next lines to be even with the top-most line
@@ -585,10 +629,16 @@ class BITMAP_BUILDER{
             // Before asking user for width,height, try to see if comment included with embedded information
             var bitmapWidth = 8;
             var bitmapHeight = 8;
+            var frameCount = 1;
             if(selectedLines.indexOf("# BITMAP: width: ") != -1 && selectedLines.indexOf(", height: ") != -1 && selectedLines.indexOf("\n") != -1){
+                const framesIndex = selectedLines.indexOf(", frames: ")
+                const heightEndIndex = framesIndex != -1 ? framesIndex : selectedLines.indexOf("\n");
                 var widthEndHeightStartIndex = selectedLines.indexOf(", height: ");
                 bitmapWidth = parseInt(selectedLines.substring(17, widthEndHeightStartIndex), 10);
-                bitmapHeight = parseInt(selectedLines.substring(widthEndHeightStartIndex+10, selectedLines.indexOf("\n")), 10);
+                bitmapHeight = parseInt(selectedLines.substring(widthEndHeightStartIndex+10, heightEndIndex), 10);
+                if(framesIndex != -1){
+                      frameCount = parseInt(selectedLines.substring(framesIndex+10, selectedLines.indexOf("\n")), 10);
+                }
             }else{
                 // Ask the user for the dimensions of the bitmap to import since that could be
                 // else where in the code by now. If user cancels, stop import but dont anything
@@ -609,6 +659,7 @@ class BITMAP_BUILDER{
             // the user could have entered the wrong dimensions and this
             // fails
             var tempRowCount = bitmapHeight;
+            const rows = bitmapHeight * frameCount + (bitmapHeight % 8) * (frameCount - 1);
             var tempColumnCount = bitmapWidth;
 
             // Make sure entered dimensions are not too big, if so let user know and stop
@@ -618,17 +669,17 @@ class BITMAP_BUILDER{
             }
 
             // Make temp grid data array since dimensions could be wrong and data placement fails (saves user drawings already in grid, just in case)
-            var tempGridData = new Array(tempRowCount).fill(this.BACKGROUND_VALUE).map(() => new Array(tempColumnCount).fill(this.BACKGROUND_VALUE));
+            var tempGridData = new Array(rows).fill(this.BACKGROUND_VALUE).map(() => new Array(tempColumnCount).fill(this.BACKGROUND_VALUE));
 
             // Ask user if they are OK with going forward if some of the data in the array will not be accessed
-            if((Math.ceil(tempRowCount/8)-1) * tempColumnCount + (tempColumnCount-1) < convertedArrayContent.length-1){
+            if((Math.ceil(rows/8)-1) * tempColumnCount + (tempColumnCount-1) < convertedArrayContent.length-1){
                 if(!confirm("The entered/collected dimensions will not use all the data in the selected array, are you sure you want to continue? (if using comment to import width and height, review dimensions in comment)")){
                     return;
                 }
             }
 
             // Loop through data from lines and vertically expand each byte to bits and place in webpage grid
-            for(var dataRow=0,gridRow=0; dataRow<Math.ceil(tempRowCount/8); dataRow++, gridRow+=8){
+            for(var dataRow=0,gridRow=0; dataRow<Math.ceil(rows/8); dataRow++, gridRow+=8){
                 for(var column=0; column<tempColumnCount; column++){
                     // Get the 1D element using 2D loop values
                     var i = dataRow * tempColumnCount + column;
@@ -642,7 +693,7 @@ class BITMAP_BUILDER{
                     // Access the byte where each bit will come from
                     var byte = convertedArrayContent[i];
                     
-                    for(var i=0; i<8 && gridRow+i < tempRowCount; i++){
+                    for(var i=0; i<8 && gridRow+i < rows; i++){
                         tempGridData[gridRow+i][column] = (((byte & (1 << i)) === 0 ? 0 : 1));
                     }
                 }
@@ -651,12 +702,15 @@ class BITMAP_BUILDER{
             // Made it through setting that up, set internal values
             this.ROW_COUNT = tempRowCount;
             this.COLUMN_COUNT = tempColumnCount;
+            this.FRAME_COUNT = frameCount;
 
             // Update grid to grid size
             this.renderGrid();
+            this.applyGridSize();
+            this.saveLocally();
             this.updatePanelTitle();
 
-            for(var row=0; row<this.ROW_COUNT; row++){
+            for(var row=0; row<rows; row++){
                 for(var col=0; col<this.COLUMN_COUNT; col++){
                     if(tempGridData[row][col] == 1){
                         document.getElementById( (row * this.COLUMN_COUNT) + col).style.backgroundColor = "white";
