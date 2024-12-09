@@ -1,5 +1,11 @@
 Thumby Code Editor changelog!
 
+December 9th, 2024
+
+* Fix emulator audio not playing
+
+####################
+
 August 27th, 2024
 
 * Updated core library files and consolidated them into one folder with support for Thumby, Thumby Color, and Thumby Color Linux simulator
