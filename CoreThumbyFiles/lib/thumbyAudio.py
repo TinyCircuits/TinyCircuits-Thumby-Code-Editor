@@ -37,7 +37,7 @@ except ImportError:
 
 root = ""
 
-# Create a dummy timer if on Thumby Color Linx
+# Create a dummy timer if on Thumby Color Linux
 # since it doesn't have that in `machine``
 if IS_THUMBY_COLOR_LINUX:
     import engine
@@ -82,12 +82,18 @@ class AudioClass:
     # Stop audio.
     @micropython.native
     def stop(self, dummy = None): # I have no idea why it needs the second dummy argument. The timer interrupt won't work without it. Shouldn't affect functionality whatsoever.
+        if IS_EMULATOR:
+            emulator.audio_breakpoint(0)
+        
         self.pwm.duty_u16(0)
 
     # Set the frequency and duty of the PWM audio if currently enabled.
     @micropython.native
     def set(self, freq):
         if(self.enabled):
+            if IS_EMULATOR:
+                emulator.audio_breakpoint(freq)
+
             self.pwm.freq(freq)
             self.pwm.duty_u16(self.dutyCycle)
 
@@ -95,6 +101,9 @@ class AudioClass:
     @micropython.native
     def play(self, freq, duration):
         if(self.enabled):
+            if IS_EMULATOR:
+                emulator.audio_breakpoint(freq)
+
             self.pwm.freq(freq)
             self.pwm.duty_u16(self.dutyCycle)
             self.timer.init(period = duration, mode = Timer.ONE_SHOT, callback = self.stop)
@@ -104,6 +113,9 @@ class AudioClass:
     def playBlocking(self, freq, duration):
         t0 = ticks_ms()
         if(self.enabled):
+            if IS_EMULATOR:
+                emulator.audio_breakpoint(freq)
+
             self.pwm.freq(freq)
             self.pwm.duty_u16(self.dutyCycle)
             while(ticks_diff(ticks_ms(), t0) <= duration):
