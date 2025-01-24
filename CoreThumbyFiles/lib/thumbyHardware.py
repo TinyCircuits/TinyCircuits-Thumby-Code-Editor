@@ -26,6 +26,7 @@ __version__ = '2.0'
 
 IS_THUMBY_COLOR = "TinyCircuits Thumby Color" in sys.implementation._machine
 IS_THUMBY_COLOR_LINUX = "linux" in sys.implementation._machine
+IS_THUMBY_COLOR_WEB = "JS with Emscripten" in sys.implementation._machine
 IS_EMULATOR = False
 try:
     import emulator
@@ -45,7 +46,7 @@ if IS_THUMBY_COLOR:
 
     def reset():
         engine.reset()
-elif IS_THUMBY_COLOR_LINUX:
+elif IS_THUMBY_COLOR_LINUX or IS_THUMBY_COLOR_WEB:
     class PwmDummy():
         def __init__(self):
             pass

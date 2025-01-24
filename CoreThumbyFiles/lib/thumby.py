@@ -26,7 +26,7 @@ import sys
 __version__ = '2.0'
 
 
-IS_THUMBY_LEGACY = "TinyCircuits Thumby Color" not in sys.implementation._machine and "linux" not in sys.implementation._machine
+IS_THUMBY_LEGACY = "TinyCircuits Thumby Color" not in sys.implementation._machine and "linux" not in sys.implementation._machine and "JS with Emscripten" not in sys.implementation._machine 
 IS_EMULATOR = False
 try:
     import emulator

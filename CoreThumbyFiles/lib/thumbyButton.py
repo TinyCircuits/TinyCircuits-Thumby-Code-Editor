@@ -26,6 +26,7 @@ __version__ = '2.0'
 
 IS_THUMBY_COLOR = "TinyCircuits Thumby Color" in sys.implementation._machine
 IS_THUMBY_COLOR_LINUX = "linux" in sys.implementation._machine
+IS_THUMBY_COLOR_WEB = "JS with Emscripten" in sys.implementation._machine
 IS_EMULATOR = False
 try:
     import emulator
@@ -34,7 +35,7 @@ except ImportError:
     pass
 
 
-if IS_THUMBY_COLOR or IS_THUMBY_COLOR_LINUX:
+if IS_THUMBY_COLOR or IS_THUMBY_COLOR_LINUX or IS_THUMBY_COLOR_WEB:
     import engine_io
 else:
     from thumbyHardware import swL, swR, swU, swD, swA, swB
@@ -79,7 +80,7 @@ class ButtonClass:
 
 
 # Button instantiation
-if IS_THUMBY_COLOR or IS_THUMBY_COLOR_LINUX:
+if IS_THUMBY_COLOR or IS_THUMBY_COLOR_LINUX or IS_THUMBY_COLOR_WEB:
     buttonA = ButtonClass(engine_io.A)      # Left (A) button
     buttonB = ButtonClass(engine_io.B)      # Right (B) button
     buttonU = ButtonClass(engine_io.UP)     # D-pad up
