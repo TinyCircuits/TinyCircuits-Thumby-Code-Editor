@@ -962,7 +962,7 @@ class ReplJS{
         let writable = await fileHandle.createWritable();
         window.setPercent(35);
 
-        let data = await (await fetch("rp2-pico-20220618-v1.19.1.uf2")).arrayBuffer();
+        let data = await (await fetch("rp2-pico-20250307-v1.19.1.uf2")).arrayBuffer();
         window.setPercent(85);
 
         await writable.write(data);
