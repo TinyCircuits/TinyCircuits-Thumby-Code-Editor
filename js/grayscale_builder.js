@@ -717,9 +717,15 @@ class GRAYSCALE_BUILDER{
             var bitmapWidth = 8;
             var bitmapHeight = 8;
             if(selectedLines.indexOf("# BITMAP: width: ") != -1 && selectedLines.indexOf(", height: ") != -1 && selectedLines.indexOf("\n") != -1){
+                const framesIndex = selectedLines.indexOf(", frames: ")
+                const heightEndIndex = framesIndex != -1 ? framesIndex : selectedLines.indexOf("\n");
                 var widthEndHeightStartIndex = selectedLines.indexOf(", height: ");
                 bitmapWidth = parseInt(selectedLines.substring(17, widthEndHeightStartIndex), 10);
-                bitmapHeight = parseInt(selectedLines.substring(widthEndHeightStartIndex+10, selectedLines.indexOf("\n")), 10);
+                bitmapHeight = parseInt(selectedLines.substring(widthEndHeightStartIndex+10, heightEndIndex), 10);
+                if(framesIndex != -1){
+                      const frameCount = parseInt(selectedLines.substring(framesIndex+10, selectedLines.indexOf("\n")), 10);
+                      bitmapHeight += Math.ceil(bitmapHeight/8)*8*(frameCount-1);
+                }
             }else{
                 // Ask the user for the dimensions of the bitmap to import since that could be
                 // else where in the code by now. If user cancels, stop import but dont anything
