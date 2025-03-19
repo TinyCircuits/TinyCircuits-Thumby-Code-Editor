@@ -45,12 +45,13 @@ if IS_THUMBY_COLOR_LINUX:
 
     class TimerDummy():
         def __init__(self):
-            pass
+            self.ONE_SHOT = 0
 
         def init(self, period, mode, callback):
             pass
     
     Timer = TimerDummy
+    Timer.ONE_SHOT = 0
 else:
     from machine import Timer
 

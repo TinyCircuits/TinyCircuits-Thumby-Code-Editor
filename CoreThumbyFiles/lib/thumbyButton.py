@@ -36,6 +36,7 @@ except ImportError:
 
 
 if IS_THUMBY_COLOR or IS_THUMBY_COLOR_LINUX or IS_THUMBY_COLOR_WEB:
+    import engine
     import engine_io
 else:
     from thumbyHardware import swL, swR, swU, swD, swA, swB
@@ -51,6 +52,7 @@ class ButtonClass:
     if IS_THUMBY_COLOR or IS_THUMBY_COLOR_LINUX:
         @micropython.native
         def pressed(self):
+            engine.tick()
             return self.pin.is_pressed 
     else:
         @micropython.native

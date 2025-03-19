@@ -44,6 +44,8 @@ if IS_THUMBY_LEGACY:
 
 if IS_THUMBY_LEGACY or IS_EMULATOR:
     from thumbyHardware import swL, swR, swU, swD, swA, swB, swBuzzer, IDPin, i2c, spi, reset
+else:
+    from thumbyHardware import reset
 
 from thumbySprite import Sprite
 

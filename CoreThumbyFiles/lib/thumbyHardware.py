@@ -47,6 +47,8 @@ if IS_THUMBY_COLOR:
     def reset():
         engine.reset()
 elif IS_THUMBY_COLOR_LINUX or IS_THUMBY_COLOR_WEB:
+    import engine
+
     class PwmDummy():
         def __init__(self):
             pass

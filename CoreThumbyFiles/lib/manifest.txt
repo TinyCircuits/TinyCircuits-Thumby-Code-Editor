@@ -1,0 +1,16 @@
+/simulator/lib/credits.txt
+/simulator/lib/font3x5.bin
+/simulator/lib/font5x7.bin
+/simulator/lib/font8x8.bin
+/simulator/lib/manifest.txt
+/simulator/lib/ssd1306.py
+/simulator/lib/TClogo.bin
+/simulator/lib/thumby.py
+/simulator/lib/thumbyAudio.py
+/simulator/lib/thumbyButton.py
+/simulator/lib/thumbyGraphics.py
+/simulator/lib/thumbyHardware.py
+/simulator/lib/thumbyLink.py
+/simulator/lib/thumbyLogo.bin
+/simulator/lib/thumbySaves.py
+/simulator/lib/thumbySprite.py
